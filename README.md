@@ -1,2 +1,2 @@
-# habsco.com.ng
-...universal services at your reach.
+# habscosadaqah.org
+...Building a Legacy of Continuous Charity
