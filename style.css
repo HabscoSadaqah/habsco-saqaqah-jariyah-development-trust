@@ -1,0 +1,9 @@
+
+body{font-family:Arial,sans-serif;margin:0;line-height:1.6}
+header{background:#198C36;color:white;padding:40px;text-align:center}
+nav{background:#eee;padding:10px;text-align:center}
+nav a{margin:10px;text-decoration:none}
+section{padding:30px}
+footer{background:#198C36;color:white;text-align:center;padding:20px}
+input,textarea{width:100%;max-width:500px;padding:10px}
+button{padding:10px 20px}
