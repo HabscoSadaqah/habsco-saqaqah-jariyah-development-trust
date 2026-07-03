@@ -17,4 +17,4 @@ User-agent: Googlebot
 Allow: /
 
 # Sitemap for all search engines
-Sitemap: https://habsco.com.ng/sitemap.xml
+Sitemap: https://www.habscosadaqahjariyah.org/sitemap.xml
