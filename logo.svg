@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 150">
+<circle cx="70" cy="75" r="56" fill="#fff" stroke="#0d5b2b" stroke-width="6"/>
+<circle cx="70" cy="75" r="45" fill="#0d5b2b"/>
+<path d="M48 43h18v23h24V43h18v64H90V83H66v24H48z" fill="#fff"/>
+<text x="145" y="62" font-family="Arial, sans-serif" font-weight="800" font-size="28" fill="#0d5b2b">HABSCO SADAQAH JARIYAH</text>
+<text x="145" y="91" font-family="Arial, sans-serif" font-weight="700" font-size="24" fill="#111">DEVELOPMENT TRUST</text>
+<text x="145" y="118" font-family="Georgia, serif" font-style="italic" font-size="15" fill="#0d5b2b">Building a Legacy of Continuous Charity</text>
+</svg>
