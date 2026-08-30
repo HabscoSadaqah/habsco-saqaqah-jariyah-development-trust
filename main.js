@@ -23,3 +23,21 @@ if(copyBtn){
     setTimeout(()=>{status.textContent=''},3000);
   });
 }
+
+document.querySelectorAll('[data-finance-tab]').forEach(button=>button.addEventListener('click',()=>{
+  document.querySelectorAll('[data-finance-tab]').forEach(item=>item.classList.remove('active'));
+  document.querySelectorAll('.finance-panel').forEach(panel=>panel.classList.remove('active'));
+  button.classList.add('active');
+  document.getElementById(button.dataset.financeTab)?.classList.add('active');
+  window.scrollTo({top:document.querySelector('.finance-shell')?.offsetTop-90||0,behavior:'smooth'});
+}));
+document.querySelectorAll('[data-finance-action]').forEach(button=>button.addEventListener('click',event=>{
+  event.preventDefault();
+  document.querySelector(`[data-finance-tab="${button.dataset.financeAction}"]`)?.click();
+}));
+document.querySelectorAll('[data-prototype-form]').forEach(form=>form.addEventListener('submit',event=>{
+  event.preventDefault();
+  const message=form.querySelector('[data-form-message]');
+  if(message) message.textContent='Saved as a prototype request. Connect this form to authenticated backend services before launch.';
+  form.reset();
+}));
