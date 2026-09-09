@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hassan Finance | Member Access</title>
+<link rel="icon" href="favicon.svg">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7f5;color:#17231b}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:100%;max-width:480px;background:#fff;border-radius:20px;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.1)}.brand{text-align:center}.brand img{width:72px;height:72px}.brand h1{margin:10px 0 4px}.brand p{color:#68736c}.tabs{display:flex;gap:8px;margin:24px 0}.tabs button{flex:1;padding:12px;border:1px solid #d7ded9;border-radius:10px;background:#fff;font-weight:700}.tabs button.active{background:#08752f;color:#fff;border-color:#08752f}label{display:block;font-weight:700;margin:14px 0 6px}input{width:100%;padding:13px;border:1px solid #cfd8d1;border-radius:10px;font-size:16px}button.submit{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:#08752f;color:#fff;font-weight:800;font-size:16px}.message{margin-top:15px;padding:12px;border-radius:10px;display:none}.message.show{display:block}.back{text-align:center;margin-top:18px}.back a{color:#08752f;font-weight:700;text-decoration:none}.small{font-size:13px;color:#68736c;margin-top:12px;line-height:1.5}.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<div class="brand"><img src="logo.svg" alt="Habsco Sadaqah Jariyah Development Trust"><h1>Hassan Finance</h1><p>Secure member access</p></div>
+<div class="tabs"><button id="loginTab" class="active" type="button">LOGIN</button><button id="signupTab" type="button">REGISTER</button></div>
+<form id="authForm">
+<div id="nameField" class="hidden"><label for="fullName">Full name</label><input id="fullName" type="text" autocomplete="name"></div>
+<label for="email">Email address</label><input id="email" type="email" required autocomplete="email">
+<div id="phoneField" class="hidden"><label for="phone">Phone number</label><input id="phone" type="tel" autocomplete="tel"></div>
+<label for="password">Password</label><input id="password" type="password" required minlength="8" autocomplete="current-password">
+<div id="confirmField" class="hidden"><label for="confirmPassword">Confirm password</label><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password"></div>
+<button class="submit" id="submitBtn" type="submit">LOGIN</button>
+</form>
+<div id="message" class="message" aria-live="polite"></div>
+<p class="small">New member accounts may require email confirmation before login.</p>
+<div class="back"><a href="finance.html">← Back to Hassan Finance</a></div>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="auth.js"></script>
+</body>
+</html>
