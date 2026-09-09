@@ -33,6 +33,10 @@ document.querySelectorAll('[data-finance-tab]').forEach(button=>button.addEventL
 }));
 document.querySelectorAll('[data-finance-action]').forEach(button=>button.addEventListener('click',event=>{
   event.preventDefault();
+  if(button.dataset.financeAction==='dashboard'){
+    window.location.href='auth.html';
+    return;
+  }
   document.querySelector(`[data-finance-tab="${button.dataset.financeAction}"]`)?.click();
 }));
 document.querySelectorAll('[data-prototype-form]').forEach(form=>form.addEventListener('submit',event=>{
