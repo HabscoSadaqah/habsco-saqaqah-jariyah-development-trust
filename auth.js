@@ -26,16 +26,16 @@ form.addEventListener('submit',async(e)=>{e.preventDefault();message.className='
    const confirm=document.getElementById('confirmPassword').value;
    if(!fullName){setMessage('Please enter your full name.');return;}
    if(password!==confirm){setMessage('Passwords do not match.');return;}
-   const {error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:fullName,phone},emailRedirectTo:new URL('finance.html',window.location.href).href}});
+   const {error}=await supabaseClient.auth.signUp({email,password,options:{data:{full_name:fullName,phone},emailRedirectTo:new URL('member.html',window.location.href).href}});
    if(error) throw error;
    setMessage('Registration successful. Check your email if confirmation is required, then return here to log in.',true);
   }else{
    const {error}=await supabaseClient.auth.signInWithPassword({email,password});
    if(error) throw error;
-   window.location.href='finance.html';
+   window.location.href='member.html';
   }
  }catch(error){setMessage(error.message||'Authentication failed. Please try again.');}
  finally{submitBtn.disabled=false;}
 });
 
-supabaseClient.auth.getSession().then(({data})=>{if(data.session) window.location.href='finance.html';});
+supabaseClient.auth.getSession().then(({data})=>{if(data.session) window.location.href='member.html';});
