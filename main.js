@@ -1,7 +1,25 @@
-// Habsco Sadaqah Jariyah Development Trust — public web-app shell
+// Habsco Sadaqah Jariyah Development Trust — public web-app shell + SEO
 (() => {
   const path = location.pathname.split('/').pop() || 'index.html';
   const page = path.replace('.html', '') || 'index';
+  const seo = {
+    index: ['Habsco Sadaqah Jariyah Development Trust | Charity & Community Projects in Nigeria','Sustainable charity in Nigeria through education, clean water, mosque development, community empowerment and lasting Sadaqah Jariyah projects.'],
+    about: ['About Habsco Sadaqah Jariyah Development Trust | Our Mission','Learn about Habsco Sadaqah Jariyah Development Trust, our mission, values and commitment to sustainable charity and community development in Nigeria.'],
+    programs: ['Charity Programs in Nigeria | Habsco Sadaqah Jariyah Development Trust','Explore Habsco charity programs including mosque development, education support, clean water, tree planting and community development in Nigeria.'],
+    finance: ['Habsco Free-Interest Cooperative | Habsco Sadaqah Jariyah','Learn about the Habsco Free-Interest Multipurpose Cooperative Society, member services and Qard Hasan interest-free assistance.'],
+    impact: ['Our Impact | Habsco Sadaqah Jariyah Development Trust','See the community impact of Habsco Sadaqah Jariyah Development Trust through sustainable charity and development projects in Nigeria.'],
+    gallery: ['Gallery | Habsco Sadaqah Jariyah Development Trust','View photos and updates from Habsco Sadaqah Jariyah Development Trust charity and community projects.'],
+    contact: ['Donate & Contact Habsco Sadaqah Jariyah Development Trust','Contact Habsco Sadaqah Jariyah Development Trust for donations, volunteering, partnerships and community project enquiries in Nigeria.']
+  };
+  const data = seo[page];
+  if (data) {
+    document.title = data[0];
+    const setMeta=(name,content)=>{let el=document.querySelector(`meta[name="${name}"]`);if(!el){el=document.createElement('meta');el.name=name;document.head.appendChild(el)}el.content=content};
+    setMeta('description',data[1]); setMeta('robots','index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+    let canonical=document.querySelector('link[rel="canonical"]'); if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.appendChild(canonical)} canonical.href='https://habscosadaqah.org/'+(page==='index'?'':page+'.html');
+    const setOG=(prop,content)=>{let el=document.querySelector(`meta[property="${prop}"]`);if(!el){el=document.createElement('meta');el.setAttribute('property',prop);document.head.appendChild(el)}el.content=content};
+    setOG('og:type','website'); setOG('og:url',canonical.href); setOG('og:title',data[0]); setOG('og:description',data[1]); setOG('og:site_name','Habsco Sadaqah Jariyah Development Trust');
+  }
   if (!document.querySelector('link[data-app-css]')) {
     const css=document.createElement('link'); css.rel='stylesheet'; css.href='app.css'; css.dataset.appCss='true'; document.head.appendChild(css);
   }
