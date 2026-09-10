@@ -50,6 +50,25 @@
     @media(max-width:430px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr!important}}
   `;
   document.head.appendChild(footerStyle);
+
+  // On the Programs page, remove the duplicate comprehensive program-link block and
+  // prevent the same footer destination from being listed more than once.
+  const cleanProgramFooter=()=>{
+    if(!document.querySelector('.programs-page')) return;
+    document.querySelectorAll('footer .footer > div').forEach(section=>{
+      const heading=section.querySelector('h4');
+      if(heading && /comprehensive\s+program/i.test(heading.textContent||'')) section.remove();
+    });
+    const seen=new Set();
+    document.querySelectorAll('footer a[href]').forEach(link=>{
+      const href=(link.getAttribute('href')||'').split('#')[0];
+      if(!href || !/program/i.test(link.textContent||'') && !/program/i.test(href)) return;
+      const key=href.toLowerCase();
+      if(seen.has(key)) link.remove(); else seen.add(key);
+    });
+  };
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',cleanProgramFooter); else cleanProgramFooter();
+
   if(!document.querySelector('link[rel="manifest"]')){const manifest=document.createElement('link');manifest.rel='manifest';manifest.href='manifest.json';document.head.appendChild(manifest);}
   if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
   document.querySelectorAll('[data-demo-form]').forEach(form=>form.addEventListener('submit',e=>{e.preventDefault();alert('Thank you. Your message has been received. Please connect the form to your preferred email/Formspree/Google Forms service before going live.')}));
