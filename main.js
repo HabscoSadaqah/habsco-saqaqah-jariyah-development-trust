@@ -40,11 +40,14 @@
   // Remove repeated footer branding across the public website while keeping useful footer links and contact/social content.
   const footerStyle=document.createElement('style');
   footerStyle.textContent=`
-    footer .footer-brand{display:none!important}
+    footer .footer-brand,
+    .programs-page footer .footer-brand,
+    .programs-page footer .footer>div:first-child,
     footer .footer>div:first-child:has(>img){display:none!important}
     footer .footer{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-    @media(max-width:720px){footer .footer{grid-template-columns:1fr 1fr!important}}
-    @media(max-width:430px){footer .footer{grid-template-columns:1fr!important}}
+    .programs-page footer .footer{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+    @media(max-width:720px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr 1fr!important}}
+    @media(max-width:430px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr!important}}
   `;
   document.head.appendChild(footerStyle);
   if(!document.querySelector('link[rel="manifest"]')){const manifest=document.createElement('link');manifest.rel='manifest';manifest.href='manifest.json';document.head.appendChild(manifest);}
