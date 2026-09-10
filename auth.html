@@ -6,7 +6,7 @@
 <title>Hassan Finance | Member Access</title>
 <link rel="icon" href="favicon.svg">
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7f5;color:#17231b}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:100%;max-width:520px;background:#fff;border-radius:20px;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.1)}.brand{text-align:center}.brand img{width:72px;height:72px}.brand h1{margin:10px 0 4px}.brand p{color:#68736c}.tabs{display:flex;gap:8px;margin:24px 0}.tabs button{flex:1;padding:12px;border:1px solid #d7ded9;border-radius:10px;background:#fff;font-weight:700}.tabs button.active{background:#08752f;color:#fff;border-color:#08752f}.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-weight:700;margin:14px 0 6px}input{width:100%;padding:13px;border:1px solid #cfd8d1;border-radius:10px;font-size:16px}button.submit{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:#08752f;color:#fff;font-weight:800;font-size:16px}.forgot{text-align:right;margin-top:10px}.forgot button{border:0;background:none;color:#08752f;font-weight:700;padding:4px 0;cursor:pointer}.message{margin-top:15px;padding:12px;border-radius:10px;display:none}.message.show{display:block}.back{text-align:center;margin-top:18px}.back a{color:#08752f;font-weight:700;text-decoration:none}.small{font-size:13px;color:#68736c;margin-top:12px;line-height:1.5}.hidden{display:none}@media(max-width:600px){.wrap{padding:10px}.card{padding:20px;border-radius:14px}.name-grid{grid-template-columns:1fr}}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7f5;color:#17231b}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:100%;max-width:520px;background:#fff;border-radius:20px;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.1)}.brand{text-align:center}.brand img{width:72px;height:72px}.brand h1{margin:10px 0 4px}.brand p{color:#68736c}.tabs{display:flex;gap:8px;margin:24px 0}.tabs button{flex:1;padding:12px;border:1px solid #d7ded9;border-radius:10px;background:#fff;font-weight:700;cursor:pointer}.tabs button.active{background:#08752f;color:#fff;border-color:#08752f}.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-weight:700;margin:14px 0 6px}label{display:block;font-weight:700;margin:14px 0 6px}input{width:100%;padding:13px;border:1px solid #cfd8d1;border-radius:10px;font-size:16px}button.submit{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:#08752f;color:#fff;font-weight:800;font-size:16px;cursor:pointer}button.submit:disabled{opacity:.65;cursor:wait}.forgot{text-align:right;margin-top:10px}.forgot button{border:0;background:none;color:#08752f;font-weight:700;padding:4px 0;cursor:pointer}.message{margin-top:15px;padding:12px;border-radius:10px;display:none}.message.show{display:block}.back{text-align:center;margin-top:18px}.back a{color:#08752f;font-weight:700;text-decoration:none}.hidden{display:none}@media(max-width:600px){.wrap{padding:10px}.card{padding:20px;border-radius:14px}.name-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -15,13 +15,10 @@
 <div class="tabs"><button id="loginTab" class="active" type="button">LOGIN</button><button id="signupTab" type="button">REGISTER</button></div>
 <form id="authForm">
 <div id="registrationFields" class="hidden">
-<div class="name-grid">
-<div class="field"><label for="firstName">First name</label><input id="firstName" type="text" autocomplete="given-name"></div>
-<div class="field"><label for="middleName">Middle name</label><input id="middleName" type="text" autocomplete="additional-name"></div>
-</div>
+<div class="name-grid"><div class="field"><label for="firstName">First name</label><input id="firstName" type="text" autocomplete="given-name"></div><div class="field"><label for="middleName">Middle name</label><input id="middleName" type="text" autocomplete="additional-name"></div></div>
 <div class="field"><label for="surname">Surname (Last name)</label><input id="surname" type="text" autocomplete="family-name"></div>
 <div class="field"><label for="nin">NIN</label><input id="nin" type="text" inputmode="numeric" maxlength="11" pattern="[0-9]{11}" autocomplete="off" placeholder="11-digit NIN"></div>
-<div class="field"><label for="phone">Phone number</label><input id="phone" type="tel" autocomplete="tel" required></div>
+<div class="field"><label for="phone">Phone number</label><input id="phone" type="tel" autocomplete="tel"></div>
 </div>
 <label for="email">Email address</label><input id="email" type="email" required autocomplete="email">
 <label for="password">Password</label><input id="password" type="password" required minlength="8" autocomplete="current-password">
@@ -33,6 +30,6 @@
 <div class="back"><a href="finance.html">← Back to Hassan Finance</a></div>
 </div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
-<script src="auth.js?v=20260910-3"></script>
+<script src="auth.js?v=20260910-4"></script>
 </body>
 </html>
