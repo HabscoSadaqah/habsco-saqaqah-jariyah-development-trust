@@ -5,9 +5,27 @@ let mode='login';
 const $=id=>document.getElementById(id);
 const loginTab=$('loginTab'),signupTab=$('signupTab'),form=$('authForm'),submitBtn=$('submitBtn'),message=$('message'),registrationFields=$('registrationFields'),confirmField=$('confirmField');
 function setMessage(text,ok=false){message.textContent=text;message.className='message show';message.style.background=ok?'#e7f6ec':'#fdecec';message.style.color=ok?'#146b31':'#9b1c1c';}
-function setMode(next){mode=next;loginTab.classList.toggle('active',mode==='login');signupTab.classList.toggle('active',mode==='signup');registrationFields.classList.toggle('hidden',mode!=='signup');confirmField.classList.toggle('hidden',mode!=='signup');$('password').autocomplete=mode==='signup'?'new-password':'current-password';submitBtn.textContent=mode==='signup'?'CREATE MEMBER ACCOUNT':'LOGIN';message.className='message';}
+function setMode(next){mode=next;loginTab.classList.toggle('active',mode==='login');signupTab.classList.toggle('active',mode==='signup');registrationFields.classList.toggle('hidden',mode!=='signup');confirmField.classList.toggle('hidden',mode!=='signup');$('password').autocomplete=mode==='signup'?'new-password':'current-password';submitBtn.textContent=mode==='signup'?'CREATE MEMBER ACCOUNT':'LOGIN';$('forgotWrap').classList.toggle('hidden',mode!=='login');message.className='message';}
 loginTab.onclick=()=>setMode('login');signupTab.onclick=()=>setMode('signup');
 function go(path){window.location.assign(path);}
+
+$('forgotPassword').onclick=async()=>{
+  if(mode!=='login')return;
+  const email=$('email').value.trim().toLowerCase();
+  if(!email){setMessage('Enter your email address first, then tap Forgot password.');$('email').focus();return;}
+  const button=$('forgotPassword');
+  button.disabled=true;button.textContent='SENDING…';
+  try{
+    const redirectTo=new URL('./reset-password.html',window.location.href).href;
+    const {error}=await supabaseClient.auth.resetPasswordForEmail(email,{redirectTo});
+    if(error)throw error;
+    setMessage('If an account exists for this email, a password reset link has been sent. Check your inbox.',true);
+  }catch(error){
+    console.error('Password reset error:',error);
+    setMessage(error?.message||'Unable to send the password reset email. Please try again.');
+  }finally{button.disabled=false;button.textContent='Forgot password?';}
+};
+
 form.addEventListener('submit',async e=>{
   e.preventDefault();
   if(submitBtn.disabled)return;
@@ -36,7 +54,6 @@ form.addEventListener('submit',async e=>{
     if(error)throw error;
     if(!data?.session)throw new Error('No active session was returned. Please try again.');
     setMessage('Login successful. Opening your dashboard…',true);
-    // Determine admin status with a short, non-blocking profile check. If it fails, open member portal.
     let destination='./member.html';
     try{
       const profilePromise=supabaseClient.from('profiles').select('role,status').eq('id',data.session.user.id).maybeSingle();
@@ -51,4 +68,3 @@ form.addEventListener('submit',async e=>{
     submitBtn.textContent=mode==='signup'?'CREATE MEMBER ACCOUNT':'LOGIN';
   }
 });
-// Do not automatically route an existing session on page load. This prevents redirect loops/frozen auth pages.
