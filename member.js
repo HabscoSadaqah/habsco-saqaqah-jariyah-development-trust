@@ -3,6 +3,7 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const money=n=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',minimumFractionDigits:2}).format(Number(n||0));
 const $=id=>document.getElementById(id);
+
 async function loadDashboard(){
  const {data:{session},error}=await supabaseClient.auth.getSession();
  if(error||!session){window.location.href='auth.html';return;}
@@ -24,9 +25,44 @@ async function loadDashboard(){
  const set=(id,v)=>{const el=$(id);if(el){el.textContent=money(v);el.style.visibility='visible';el.style.opacity='1';}};
  set('balance',available);set('cooperativeBalance',cooperative);set('totalBalance',total);set('savingsBalance',savings);set('sharesBalance',shares);set('specialSavingsBalance',special);
 }
+
+function escapeHtml(value){return String(value??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));}
+
+async function loadRecentTransactions(){
+ const list=$('recentFundingList');
+ if(!list)return;
+ const {data:{user}}=await supabaseClient.auth.getUser();
+ if(!user)return;
+ const {data,error}=await supabaseClient.from('transactions')
+   .select('reference,type,amount,direction,description,status,created_at')
+   .eq('user_id',user.id)
+   .order('created_at',{ascending:false})
+   .limit(20);
+ if(error){list.innerHTML='<div class="funding-empty">Unable to load recent transactions.</div>';return;}
+ const rows=(data||[]).filter(x=>Number.isFinite(Number(x.amount)));
+ const heading=list.closest('.funding-panel')?.querySelector('h2');
+ const note=list.closest('.funding-panel')?.querySelector('p');
+ if(heading)heading.textContent='📋 Recent Transactions';
+ if(note)note.textContent='Your latest wallet activity appears here. Tap “ALL RECENT TRANSACTIONS” for the complete statement.';
+ if(!rows.length){list.innerHTML='<div class="funding-empty">No transactions yet.</div>';return;}
+ list.innerHTML=rows.map(x=>{
+   const amount=Number(x.amount||0);
+   const credit=String(x.direction||'').toLowerCase()==='credit';
+   const status=String(x.status||'').replace(/_/g,' ');
+   const title=x.type?String(x.type).replace(/_/g,' '):'Transaction';
+   const desc=String(x.description||'').trim();
+   const ref=String(x.reference||'—');
+   const date=x.created_at?new Date(x.created_at).toLocaleString('en-NG',{day:'2-digit',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'—';
+   return `<div class="funding-item"><div><div class="funding-title">${escapeHtml(title.charAt(0).toUpperCase()+title.slice(1))}</div><div class="funding-meta">${escapeHtml(desc||'No description')} · ${escapeHtml(ref)} · ${escapeHtml(date)} · ${escapeHtml(status||'pending')}</div></div><div class="funding-amount">${credit?'+':'−'} ${money(Math.abs(amount))}</div></div>`;
+ }).join('');
+}
+
 function updateDigitalClock(){const now=new Date();if($('digitalClock'))$('digitalClock').textContent=now.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});if($('digitalDate'))$('digitalDate').textContent=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function addMobileAppShell(){if(document.getElementById('mobileAppNav'))return;const nav=document.createElement('nav');nav.id='mobileAppNav';nav.innerHTML='<a href="member.html" class="active">⌂<span>Home</span></a><a href="member-actions.html?action=send">💸<span>Pay</span></a><a href="statement.html">📋<span>Statements</span></a><a href="#profile">👤<span>Profile</span></a>';document.body.appendChild(nav);}
 function goAction(action){window.location.href=`member-actions.html?action=${encodeURIComponent(action)}`;}
-let refreshTimer;function startLiveRefresh(){clearInterval(refreshTimer);refreshTimer=setInterval(()=>{if(document.visibilityState==='visible')loadDashboard()},15000);}
+let refreshTimer;function startLiveRefresh(){clearInterval(refreshTimer);refreshTimer=setInterval(()=>{if(document.visibilityState==='visible'){loadDashboard();loadRecentTransactions()}},15000);}
 if($('logout'))$('logout').onclick=async()=>{await supabaseClient.auth.signOut();window.location.href='auth.html'};
-addMobileAppShell();updateDigitalClock();setInterval(updateDigitalClock,1000);loadDashboard();startLiveRefresh();
+addMobileAppShell();updateDigitalClock();setInterval(updateDigitalClock,1000);loadDashboard();loadRecentTransactions();startLiveRefresh();
+// Keep the dashboard preview synchronized with the full transaction feed, even if an older inline dashboard script is present.
+setTimeout(loadRecentTransactions,500);
+setTimeout(loadRecentTransactions,2000);
