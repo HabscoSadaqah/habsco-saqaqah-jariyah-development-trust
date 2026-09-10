@@ -4,6 +4,14 @@
 .public-app .section,.public-app .page-banner,.public-app .hero{max-width:1360px}
 .public-app .card,.public-app .panel,.public-app .cta,.public-app .trust{box-shadow:0 10px 30px rgba(10,50,25,.08)}
 .app-bottom-nav{display:none}
+@media(min-width:721px){
+  body.public-app{padding-bottom:94px}
+  .app-bottom-nav{position:fixed;display:flex;align-items:center;justify-content:center;gap:4px;left:50%;bottom:20px;transform:translateX(-50%);z-index:1000;width:max-content;min-width:440px;max-width:calc(100vw - 40px);background:rgba(255,255,255,.96);border:1px solid #dbe5dd;border-radius:22px;box-shadow:0 14px 40px rgba(0,0,0,.16);padding:8px 10px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .app-bottom-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:76px;min-height:60px;padding:5px 10px;border-radius:15px;color:#667067;text-decoration:none;font-weight:800;transition:transform .18s,background .18s,color .18s}
+  .app-bottom-nav a:hover{background:#f0f7f2;color:#0d5b2b;transform:translateY(-2px)}
+  .app-bottom-nav a span{font-size:22px;line-height:1}.app-bottom-nav a small{font-size:10px;line-height:1}
+  .app-bottom-nav a.active{background:#eaf4ec;color:#0d5b2b;box-shadow:inset 0 0 0 1px #d8eadc}
+}
 @media(max-width:720px){
   body.public-app{background:#fff;padding-bottom:78px}
   .public-app main{box-shadow:none;padding-bottom:24px}
