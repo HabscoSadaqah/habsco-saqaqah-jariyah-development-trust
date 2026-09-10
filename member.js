@@ -3,26 +3,29 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const money=n=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',minimumFractionDigits:2}).format(Number(n||0));
 const $=id=>document.getElementById(id);
-function msg(id,text){$(id).textContent=text;$(id).classList.add('show');}
+function msg(id,text){if($(id)){$(id).textContent=text;$(id).classList.add('show');}}
 function updateDigitalClock(){const now=new Date();const time=now.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const date=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});if($('digitalClock'))$('digitalClock').textContent=time;if($('digitalDate'))$('digitalDate').textContent=date;}
 updateDigitalClock();setInterval(updateDigitalClock,1000);
 async function loadDashboard(){
  const {data:{session},error:sessionError}=await supabaseClient.auth.getSession();
  if(sessionError||!session){window.location.href='auth.html';return;}
  const uid=session.user.id;
- const [{data:profile},{data:wallet},{data:tx},{data:funding},{data:qard},{data:repayments}]=await Promise.all([
+ const [{data:profile},{data:wallet},{data:accounts},{data:tx},{data:qard}]=await Promise.all([
   supabaseClient.from('profiles').select('full_name,member_id,status,role').eq('id',uid).single(),
   supabaseClient.from('wallets').select('balance').eq('user_id',uid).single(),
+  supabaseClient.from('member_cooperative_accounts').select('savings_balance,shares_balance,special_savings_balance').eq('user_id',uid).maybeSingle(),
   supabaseClient.from('transactions').select('reference,type,amount,direction,description,status,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(20),
-  supabaseClient.from('funding_requests').select('amount,payment_reference,purpose,status,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(10),
-  supabaseClient.from('qard_requests').select('id,amount,repayment_plan,purpose,status,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(10),
-  supabaseClient.from('qard_repayment_requests').select('qard_request_id,amount,payment_reference,status,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(10)
+  supabaseClient.from('qard_requests').select('id,amount,repayment_plan,purpose,status,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(10)
  ]);
  if(profile){$('welcome').textContent=`Assalamu alaikum, ${profile.full_name||'Member'}`;$('memberMeta').textContent=`${session.user.email} · ${profile.status==='active'?'Active member':'Account pending verification'}`;$('status').textContent=(profile.status||'pending').toUpperCase();$('statusNote').textContent=profile.role==='admin'?'Administrator account':'Member account';$('memberId').textContent=profile.member_id||'—';}
- $('balance').textContent=money(wallet?.balance||0);
+ const available=Number(wallet?.balance||0);
+ const savings=Number(accounts?.savings_balance||0),shares=Number(accounts?.shares_balance||0),special=Number(accounts?.special_savings_balance||0);
+ const cooperative=savings+shares+special;
+ const total=available+cooperative;
+ $('balance').textContent=money(available);$('cooperativeBalance').textContent=money(cooperative);$('totalBalance').textContent=money(total);
+ $('savingsBalance').textContent=money(savings);$('sharesBalance').textContent=money(shares);$('specialSavingsBalance').textContent=money(special);
  const tbody=$('transactions');
  if(!tx?.length){tbody.innerHTML='<tr><td colspan="5" class="empty">No transactions have been posted yet.</td></tr>';}else{tbody.innerHTML=tx.map(t=>{const sign=t.direction==='credit'?'+':'−';const cls=t.direction==='credit'?'credit':'debit';return `<tr><td>${new Date(t.created_at).toLocaleDateString('en-NG')}</td><td>${t.reference}</td><td>${t.description||t.type}</td><td class="${cls}">${sign} ${money(t.amount)}</td><td>${t.status}</td></tr>`}).join('');}
- const qbody=$('qard');if(qbody){qbody.innerHTML=qard?.length?qard.map(r=>`<tr><td>${new Date(r.created_at).toLocaleDateString('en-NG')}</td><td>${money(r.amount)}</td><td>${r.repayment_plan}</td><td>${r.status}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">No Qard Hasan requests yet.</td></tr>';}
  const rq=$('repayQard');if(rq){rq.innerHTML='<option value="">Select disbursed Qard</option>'+(qard||[]).filter(r=>r.status==='disbursed').map(r=>`<option value="${r.id}">${money(r.amount)} · ${new Date(r.created_at).toLocaleDateString('en-NG')} · ${r.repayment_plan}</option>`).join('');}
 }
 $('logout').onclick=async()=>{await supabaseClient.auth.signOut();window.location.href='auth.html';};
