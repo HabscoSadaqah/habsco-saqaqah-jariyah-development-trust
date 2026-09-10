@@ -1,0 +1,31 @@
+/* Habsco Premium Global Theme — finance-page visual language across the site */
+:root{--hp-green:#073d1e;--hp-green2:#0d5b2b;--hp-gold:#f4c94f;--hp-cream:#f7faf7;--hp-line:#d7e6da}
+body:not(.finance-page){background:linear-gradient(180deg,#f7fbf8 0%,#eef6f0 100%);color:#183326}
+body:not(.finance-page) header{background:rgba(255,255,255,.90);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid rgba(13,91,43,.10);box-shadow:0 8px 30px rgba(7,61,30,.08)}
+body:not(.finance-page) .nav{min-height:88px}
+body:not(.finance-page) .brand{display:flex;align-items:center}
+body:not(.finance-page) .brand img{width:min(300px,42vw);max-height:64px;object-fit:contain;object-position:left center;filter:drop-shadow(0 5px 12px rgba(7,61,30,.10))}
+body:not(.finance-page) .menu{gap:22px;font-size:13px;letter-spacing:.25px}
+body:not(.finance-page) .menu a{border-bottom:0;border-radius:999px;padding:10px 12px}
+body:not(.finance-page) .menu a:hover,body:not(.finance-page) .menu a.active{background:#eef6f0;color:var(--hp-green2);transform:translateY(-1px)}
+body:not(.finance-page) .menu .donate{background:linear-gradient(135deg,var(--hp-green2),#176b35);color:#fff;padding:12px 19px;box-shadow:0 8px 20px rgba(13,91,43,.18)}
+body:not(.finance-page) main>.page-banner{background:linear-gradient(135deg,#052f18,#0d5b2b 62%,#176b35);padding:72px 20px 82px;position:relative;overflow:hidden}
+body:not(.finance-page) main>.page-banner:after{content:"H";position:absolute;right:8%;top:50%;transform:translateY(-50%);font:800 220px Georgia,serif;color:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.10);border-radius:50%;width:300px;height:300px;display:grid;place-items:center}
+body:not(.finance-page) .page-banner .inner{position:relative;z-index:1}
+body:not(.finance-page) .page-banner h1{font-size:clamp(38px,6vw,60px);letter-spacing:-1.4px}
+body:not(.finance-page) .section{margin-top:68px}
+body:not(.finance-page) .section-head h2,body:not(.finance-page) .about-story-copy h2,body:not(.finance-page) .section h2{letter-spacing:-.6px}
+body:not(.finance-page) .card,body:not(.finance-page) .panel,body:not(.finance-page) .about-logo-panel,body:not(.finance-page) .bank-box{border-color:var(--hp-line);border-radius:20px;box-shadow:0 10px 28px rgba(7,61,30,.07)}
+body:not(.finance-page) .card:hover{transform:translateY(-4px);box-shadow:0 18px 38px rgba(7,61,30,.11)}
+body:not(.finance-page) .panel{background:rgba(255,255,255,.78)}
+body:not(.finance-page) .cta{background:linear-gradient(135deg,#073d1e,#0d5b2b 65%,#176b35);border-radius:22px;box-shadow:0 16px 36px rgba(7,61,30,.18);padding:34px}
+body:not(.finance-page) .cta h2{color:#fff}
+body:not(.finance-page) .gallery img{border-radius:18px;box-shadow:0 8px 22px rgba(7,61,30,.10);transition:transform .2s ease,box-shadow .2s ease}
+body:not(.finance-page) .gallery img:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 14px 30px rgba(7,61,30,.15)}
+body:not(.finance-page) input,body:not(.finance-page) textarea,body:not(.finance-page) select{border-radius:12px;border:1px solid #cbdccf;background:rgba(255,255,255,.92);box-shadow:inset 0 1px 2px rgba(7,61,30,.03);outline:none}
+body:not(.finance-page) input:focus,body:not(.finance-page) textarea:focus,body:not(.finance-page) select:focus{border-color:#0d5b2b;box-shadow:0 0 0 4px rgba(13,91,43,.09)}
+body:not(.finance-page) .btn{border-radius:12px;transition:transform .2s ease,box-shadow .2s ease,background .2s ease}
+body:not(.finance-page) .btn.primary{background:linear-gradient(135deg,#0d5b2b,#176b35);border-color:#0d5b2b;box-shadow:0 8px 20px rgba(13,91,43,.16)}
+body:not(.finance-page) .btn.primary:hover{transform:translateY(-2px);box-shadow:0 13px 28px rgba(13,91,43,.22)}
+body:not(.finance-page) footer{border-radius:30px 30px 0 0}
+@media(max-width:720px){body:not(.finance-page) .brand img{width:min(235px,64vw);max-height:55px}body:not(.finance-page) .nav{min-height:74px;padding:10px 16px}body:not(.finance-page) main>.page-banner{padding:54px 20px 65px}body:not(.finance-page) main>.page-banner:after{width:190px;height:190px;font-size:135px;right:-25px}.site-master-footer{border-radius:24px 24px 0 0}}
