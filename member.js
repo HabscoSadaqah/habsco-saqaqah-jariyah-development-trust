@@ -4,6 +4,8 @@ const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHA
 const money=n=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',minimumFractionDigits:2}).format(Number(n||0));
 const $=id=>document.getElementById(id);
 function msg(id,text){$(id).textContent=text;$(id).classList.add('show');}
+function updateDigitalClock(){const now=new Date();const time=now.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});const date=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});if($('digitalClock'))$('digitalClock').textContent=time;if($('digitalDate'))$('digitalDate').textContent=date;}
+updateDigitalClock();setInterval(updateDigitalClock,1000);
 async function loadDashboard(){
  const {data:{session},error:sessionError}=await supabaseClient.auth.getSession();
  if(sessionError||!session){window.location.href='auth.html';return;}
