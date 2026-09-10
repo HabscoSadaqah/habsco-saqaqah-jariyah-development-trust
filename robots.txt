@@ -1,20 +1,9 @@
-# Apply rules to all crawlers
+# Habsco Sadaqah Jariyah Development Trust
 User-agent: *
-Disallow: /cgi-bin/
-Disallow: /tmp/
+Allow: /
+Disallow: /member.html
+Disallow: /admin.html
+Disallow: /auth.html
 Disallow: /private/
-Disallow: /admin/
 
-# Explicitly allow Google AdsBot (desktop and mobile)
-User-agent: AdsBot-Google
-Allow: /
-
-User-agent: AdsBot-Google-Mobile
-Allow: /
-
-# Explicitly allow Googlebot (helps with AdsBot checks)
-User-agent: Googlebot
-Allow: /
-
-# Sitemap for all search engines
-Sitemap: https://www.habscosadaqahjariyah.org/sitemap.xml
+Sitemap: https://habscosadaqah.org/sitemap.xml
