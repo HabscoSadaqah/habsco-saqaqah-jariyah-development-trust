@@ -3,6 +3,25 @@
 .public-app main{max-width:1400px;margin:0 auto;background:#fff;min-height:60vh;box-shadow:0 0 35px rgba(0,0,0,.035)}
 .public-app .section,.public-app .page-banner,.public-app .hero{max-width:1360px}
 .public-app .card,.public-app .panel,.public-app .cta,.public-app .trust{box-shadow:0 10px 30px rgba(10,50,25,.08)}
+
+/* Animated Member Portal CTA — matched to the Finance portal feel. */
+@keyframes habscoPortalPulse{
+  0%,100%{transform:translateY(0) scale(1);box-shadow:0 12px 28px rgba(13,91,43,.18)}
+  50%{transform:translateY(-3px) scale(1.025);box-shadow:0 18px 38px rgba(13,91,43,.28)}
+}
+@keyframes habscoPortalGlow{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.08)}
+}
+.public-app .hero a[href="auth.html"]{
+  animation:habscoPortalPulse 2.2s ease-in-out infinite,habscoPortalGlow 2.2s ease-in-out infinite;
+  will-change:transform,box-shadow,filter;
+}
+.public-app .hero a[href="auth.html"]:hover{
+  animation-play-state:paused;
+  transform:translateY(-4px) scale(1.035);
+}
+
 .app-bottom-nav{display:none}
 @media(min-width:721px){
   body.public-app{padding-bottom:94px}
@@ -24,3 +43,4 @@
   .btn{width:100%}.actions{gap:10px}.cta{flex-direction:column;align-items:flex-start}.cta .btn{width:100%}
 }
 @media(max-width:380px){.app-bottom-nav{left:5px;right:5px}.app-bottom-nav a small{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.public-app .hero a[href="auth.html"]{animation:none!important}}
