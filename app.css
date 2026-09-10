@@ -1,0 +1,18 @@
+/* Habsco public web-app layer: sits above the existing visual theme. */
+.public-app{background:#f5f8f5}
+.public-app main{max-width:1400px;margin:0 auto;background:#fff;min-height:60vh;box-shadow:0 0 35px rgba(0,0,0,.035)}
+.public-app .section,.public-app .page-banner,.public-app .hero{max-width:1360px}
+.public-app .card,.public-app .panel,.public-app .cta,.public-app .trust{box-shadow:0 10px 30px rgba(10,50,25,.08)}
+.app-bottom-nav{display:none}
+@media(max-width:720px){
+  body.public-app{background:#fff;padding-bottom:78px}
+  .public-app main{box-shadow:none;padding-bottom:24px}
+  .public-app .footer{padding-bottom:95px}
+  .app-bottom-nav{position:fixed;display:grid;grid-template-columns:repeat(5,1fr);left:10px;right:10px;bottom:10px;z-index:100;background:rgba(255,255,255,.97);border:1px solid #dbe5dd;border-radius:18px;box-shadow:0 12px 35px rgba(0,0,0,.16);padding:7px 5px;backdrop-filter:blur(12px)}
+  .app-bottom-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:54px;border-radius:13px;color:#667067;font-weight:800}
+  .app-bottom-nav a span{font-size:20px;line-height:1}.app-bottom-nav a small{font-size:10px}
+  .app-bottom-nav a.active{background:#eaf4ec;color:#0d5b2b}
+  input,textarea,select{font-size:16px;min-height:44px}
+  .btn{width:100%}.actions{gap:10px}.cta{flex-direction:column;align-items:flex-start}.cta .btn{width:100%}
+}
+@media(max-width:380px){.app-bottom-nav{left:5px;right:5px}.app-bottom-nav a small{font-size:9px}}
