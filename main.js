@@ -37,7 +37,6 @@
     nav.innerHTML=items.map(([href,icon,label,key])=>`<a href="${href}" class="${page===key?'active':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
     document.body.appendChild(nav);document.body.classList.add('public-app');
   }
-  // Remove repeated footer branding across the public website while keeping useful footer links and contact/social content.
   const footerStyle=document.createElement('style');
   footerStyle.textContent=`
     footer .footer-brand,
@@ -49,20 +48,29 @@
     @media(max-width:720px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr 1fr!important}}
     @media(max-width:430px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr!important}}
 
-    /* Home Member Portal: match the animated portal treatment used on the Finance page. */
+    /* Home Member Portal — same glow, pulse and floating treatment as Finance. */
     .hero .actions a[href="auth.html"],
     .hero .actions .btn.primary[href="auth.html"]{
-      box-shadow:0 0 0 0 rgba(244,201,79,.65);
+      position:relative;
+      z-index:2;
+      border:1px solid rgba(244,201,79,.9)!important;
+      box-shadow:0 0 0 0 rgba(244,201,79,.72),0 8px 26px rgba(0,0,0,.16);
       animation:portalPulse 1.8s infinite,portalFloat 2.8s ease-in-out infinite;
+      will-change:transform,box-shadow;
     }
-    @keyframes portalPulse{0%,100%{box-shadow:0 0 0 0 rgba(244,201,79,.65)}50%{box-shadow:0 0 0 12px rgba(244,201,79,0)}}
+    .hero .actions a[href="auth.html"]:hover,
+    .hero .actions .btn.primary[href="auth.html"]:hover{
+      box-shadow:0 0 0 8px rgba(244,201,79,.14),0 12px 34px rgba(244,201,79,.28)!important;
+    }
+    @keyframes portalPulse{
+      0%,100%{box-shadow:0 0 0 0 rgba(244,201,79,.72),0 8px 26px rgba(0,0,0,.16)}
+      50%{box-shadow:0 0 0 12px rgba(244,201,79,0),0 10px 30px rgba(244,201,79,.18)}
+    }
     @keyframes portalFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-    @media(prefers-reduced-motion:reduce){.hero .actions a[href="auth.html"]{animation:none}}
+    @media(prefers-reduced-motion:reduce){.hero .actions a[href="auth.html"],.hero .actions .btn.primary[href="auth.html"]{animation:none}}
   `;
   document.head.appendChild(footerStyle);
 
-  // On the Programs page, remove the duplicate comprehensive program-link block and
-  // prevent the same footer destination from being listed more than once.
   const cleanProgramFooter=()=>{
     if(!document.querySelector('.programs-page')) return;
     document.querySelectorAll('footer .footer > div').forEach(section=>{
