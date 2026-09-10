@@ -1,6 +1,6 @@
-const CACHE='habsco-webapp-v3';
-const SHELL=['./','index.html','about.html','programs.html','finance.html','impact.html','gallery.html','contact.html','style.css','app.css','main.js','manifest.json','favicon.svg','logo.svg'];
-const FOOTER=`<style>
+const CACHE='habsco-webapp-v4';
+const SHELL=['./','index.html','about.html','programs.html','finance.html','impact.html','gallery.html','contact.html','style.css','home-polish.css','premium-global.css','app.css','main.js','manifest.json','favicon.svg','logo.svg'];
+const FOOTER=`<link rel="stylesheet" href="premium-global.css"><style>
 .site-master-footer{margin-top:52px;background:linear-gradient(145deg,#052f18,#083f20 58%,#0d5b2b);color:#e8f4eb;border-top:1px solid rgba(255,255,255,.12);box-shadow:0 -14px 35px rgba(5,47,24,.12)}
 .site-master-footer .footer{max-width:1280px;margin:auto;padding:48px 24px 28px;display:grid;grid-template-columns:1.35fr .8fr 1fr 1.15fr;gap:34px;align-items:start}
 .site-master-footer .footer-brand img{display:block;width:170px;max-width:100%;height:auto;max-height:78px;object-fit:contain;object-position:left center;margin:0 0 18px;filter:drop-shadow(0 8px 16px rgba(0,0,0,.20))}
