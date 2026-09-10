@@ -37,6 +37,16 @@
     nav.innerHTML=items.map(([href,icon,label,key])=>`<a href="${href}" class="${page===key?'active':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
     document.body.appendChild(nav);document.body.classList.add('public-app');
   }
+  // Remove repeated footer branding across the public website while keeping useful footer links and contact/social content.
+  const footerStyle=document.createElement('style');
+  footerStyle.textContent=`
+    footer .footer-brand{display:none!important}
+    footer .footer>div:first-child:has(>img){display:none!important}
+    footer .footer{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+    @media(max-width:720px){footer .footer{grid-template-columns:1fr 1fr!important}}
+    @media(max-width:430px){footer .footer{grid-template-columns:1fr!important}}
+  `;
+  document.head.appendChild(footerStyle);
   if(!document.querySelector('link[rel="manifest"]')){const manifest=document.createElement('link');manifest.rel='manifest';manifest.href='manifest.json';document.head.appendChild(manifest);}
   if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
   document.querySelectorAll('[data-demo-form]').forEach(form=>form.addEventListener('submit',e=>{e.preventDefault();alert('Thank you. Your message has been received. Please connect the form to your preferred email/Formspree/Google Forms service before going live.')}));
