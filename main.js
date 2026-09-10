@@ -48,6 +48,16 @@
     .programs-page footer .footer{grid-template-columns:repeat(3,minmax(0,1fr))!important}
     @media(max-width:720px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr 1fr!important}}
     @media(max-width:430px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr!important}}
+
+    /* Home Member Portal: match the animated portal treatment used on the Finance page. */
+    .hero .actions a[href="auth.html"],
+    .hero .actions .btn.primary[href="auth.html"]{
+      box-shadow:0 0 0 0 rgba(244,201,79,.65);
+      animation:portalPulse 1.8s infinite,portalFloat 2.8s ease-in-out infinite;
+    }
+    @keyframes portalPulse{0%,100%{box-shadow:0 0 0 0 rgba(244,201,79,.65)}50%{box-shadow:0 0 0 12px rgba(244,201,79,0)}}
+    @keyframes portalFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    @media(prefers-reduced-motion:reduce){.hero .actions a[href="auth.html"]{animation:none}}
   `;
   document.head.appendChild(footerStyle);
 
