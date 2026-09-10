@@ -10,7 +10,7 @@ async function loadDashboard(){
  const uid=session.user.id;
  const [{data:profile},{data:wallet},{data:tx},{data:funding},{data:qard},{data:repayments}]=await Promise.all([
   supabaseClient.from('profiles').select('full_name,member_id,status,role').eq('id',uid).single(),
-  supabaseClient.from('wallets').select('balance,currency').eq('user_id',uid).single(),
+  supabaseClient.from('wallets').select('balance').eq('user_id',uid).single(),
   supabaseClient.from('transactions').select('reference,type,amount,direction,description,status,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(20),
   supabaseClient.from('funding_requests').select('amount,payment_reference,purpose,status,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(10),
   supabaseClient.from('qard_requests').select('id,amount,repayment_plan,purpose,status,created_at').eq('user_id',uid).order('created_at',{ascending:false}).limit(10),
@@ -20,7 +20,6 @@ async function loadDashboard(){
  $('balance').textContent=money(wallet?.balance||0);
  const tbody=$('transactions');
  if(!tx?.length){tbody.innerHTML='<tr><td colspan="5" class="empty">No transactions have been posted yet.</td></tr>';}else{tbody.innerHTML=tx.map(t=>{const sign=t.direction==='credit'?'+':'−';const cls=t.direction==='credit'?'credit':'debit';return `<tr><td>${new Date(t.created_at).toLocaleDateString('en-NG')}</td><td>${t.reference}</td><td>${t.description||t.type}</td><td class="${cls}">${sign} ${money(t.amount)}</td><td>${t.status}</td></tr>`}).join('');}
- const fbody=$('funding');if(fbody){fbody.innerHTML=funding?.length?funding.map(r=>`<tr><td>${new Date(r.created_at).toLocaleDateString('en-NG')}</td><td>${r.payment_reference}</td><td>${money(r.amount)}</td><td>${r.purpose}</td><td>${r.status}</td></tr>`).join(''):'<tr><td colspan="5" class="empty">No funding requests yet.</td></tr>';}
  const qbody=$('qard');if(qbody){qbody.innerHTML=qard?.length?qard.map(r=>`<tr><td>${new Date(r.created_at).toLocaleDateString('en-NG')}</td><td>${money(r.amount)}</td><td>${r.repayment_plan}</td><td>${r.status}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">No Qard Hasan requests yet.</td></tr>';}
  const rq=$('repayQard');if(rq){rq.innerHTML='<option value="">Select disbursed Qard</option>'+(qard||[]).filter(r=>r.status==='disbursed').map(r=>`<option value="${r.id}">${money(r.amount)} · ${new Date(r.created_at).toLocaleDateString('en-NG')} · ${r.repayment_plan}</option>`).join('');}
 }
