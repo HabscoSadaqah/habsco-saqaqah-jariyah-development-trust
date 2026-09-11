@@ -5,7 +5,8 @@
   const random=n=>crypto.getRandomValues(new Uint8Array(n));
   const key=userId=>KEY+userId;
   function supported(){return !!(window.PublicKeyCredential&&navigator.credentials)}
-  async function getUser(){if(!window.supabase)return null;try{const c=window.supabase.createClient('https://ythnoeyxovapydbmymdo.supabase.co','sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsP');const {data}=await c.auth.getUser();return data?.user||null}catch{return null}}
+  function client(){return window.supabase?.createClient('https://ythnoeyxovapydbmymdo.supabase.co','sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsP')}
+  async function getUser(){try{const c=client();if(!c)return null;const {data}=await c.auth.getUser();return data?.user||null}catch{return null}}
   async function enroll(user){
     if(!supported())throw new Error('Biometric authentication is not supported on this device or browser.');
     const cred=await navigator.credentials.create({publicKey:{challenge:random(32),rp:{name:'Hassan Finance',id:location.hostname},user:{id:new TextEncoder().encode(user.id),name:user.email||user.id,displayName:user.user_metadata?.full_name||user.email||'Hassan Finance Member'},pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],authenticatorSelection:{residentKey:'preferred',userVerification:'required'},timeout:60000,attestation:'none'}});
@@ -22,6 +23,28 @@
   window.hfBiometric={supported,enroll,verify,has:async()=>{const u=await getUser();return !!u&&!!localStorage.getItem(key(u.id))},sensitiveGate};
   window.hfEnrollBiometric=async()=>{const u=await getUser();if(!u)throw new Error('Please log in first.');return enroll(u)};
 
+  // Password login remains the primary Supabase authentication. If this device has a registered biometric, require it immediately after password verification.
+  document.addEventListener('submit',async e=>{
+    const form=e.target;
+    if(!form||form.id!=='authForm'||window.__hfLoginRetry)return;
+    const registration=document.getElementById('registrationFields');
+    if(registration&&!registration.classList.contains('hidden'))return;
+    e.preventDefault();e.stopImmediatePropagation();
+    const button=document.getElementById('submitBtn'),message=document.getElementById('message');
+    try{
+      const email=document.getElementById('email').value.trim().toLowerCase(),password=document.getElementById('password').value;
+      if(!email||!password)throw new Error('Please enter your email address and password.');
+      const c=client();if(!c)throw new Error('Login service is unavailable.');
+      if(button){button.disabled=true;button.textContent='LOGGING IN…'}
+      const {data,error}=await c.auth.signInWithPassword({email,password});if(error)throw error;if(!data?.session?.user)throw new Error('Login did not return a valid session.');
+      const user=data.session.user;
+      if(localStorage.getItem(key(user.id))){if(button)button.textContent='VERIFYING BIOMETRIC…';await verify(user)}
+      if(message){message.textContent=localStorage.getItem(key(user.id))?'Biometric login successful. Opening your member portal…':'Login successful. Opening your member portal…';message.className='message show';message.style.background='#e7f6ec';message.style.color='#146b31'}
+      window.__hfLoginRetry=true;setTimeout(()=>{location.href='./member.html'},250);
+    }catch(err){try{const c=client();if(c)await c.auth.signOut()}catch{}if(message){message.textContent=err.message||'Biometric login failed.';message.className='message show';message.style.background='#fdecec';message.style.color='#9b1c1c'}if(button){button.disabled=false;button.textContent='LOGIN'}}
+  },true);
+
+  // Gate financial action forms with a device biometric before the existing transaction handler runs.
   document.addEventListener('submit',async e=>{
     const form=e.target;if(!form||form.id!=='actionForm'||window.__hfBioRetry)return;
     e.preventDefault();e.stopImmediatePropagation();
