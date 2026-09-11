@@ -29,6 +29,13 @@ async function run(){
  set('savingsBalance',savings);set('sharesBalance',shares);set('specialSavingsBalance',special);
 }
 function style(){if(document.getElementById('hassan-dashboard-fix-style'))return;const s=document.createElement('style');s.id='hassan-dashboard-fix-style';s.textContent=`.balance-card .amount{display:block!important;visibility:visible!important;opacity:1!important}.card-row .balance-card{visibility:visible!important;opacity:1!important}`;document.head.appendChild(s);}
-function start(){style();run();setInterval(run,15000);}
+function loadSecurityCenter(){
+ if(document.getElementById('hfSecurityCenter'))return;
+ const s=document.createElement('script');
+ s.src='member-security-center.js?v=20260911-1';
+ s.async=false;
+ document.head.appendChild(s);
+}
+function start(){style();run();loadSecurityCenter();setInterval(run,15000);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
