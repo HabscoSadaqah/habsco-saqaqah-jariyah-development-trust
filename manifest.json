@@ -1,13 +1,37 @@
 {
+  "id": "/",
   "name": "Habsco Sadaqah Jariyah Development Trust",
   "short_name": "Habsco Sadaqah",
-  "description": "Habsco Sadaqah Jariyah Development Trust — continuous charity and community development.",
-  "start_url": "index.html",
+  "description": "Habsco Sadaqah Jariyah Development Trust — continuous charity, community development and Hassan Finance.",
+  "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
   "background_color": "#ffffff",
   "theme_color": "#0d5b2b",
-  "orientation": "portrait-primary",
+  "orientation": "any",
+  "categories": ["finance", "social", "lifestyle"],
   "icons": [
     {"src":"favicon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ],
+  "shortcuts": [
+    {
+      "name": "Hassan Finance",
+      "short_name": "Finance",
+      "url": "/finance.html",
+      "icons": [{"src":"favicon.svg","sizes":"any","type":"image/svg+xml"}]
+    },
+    {
+      "name": "Member Portal",
+      "short_name": "Member",
+      "url": "/auth.html",
+      "icons": [{"src":"favicon.svg","sizes":"any","type":"image/svg+xml"}]
+    },
+    {
+      "name": "Donate",
+      "short_name": "Donate",
+      "url": "/contact.html",
+      "icons": [{"src":"favicon.svg","sizes":"any","type":"image/svg+xml"}]
+    }
   ]
 }
