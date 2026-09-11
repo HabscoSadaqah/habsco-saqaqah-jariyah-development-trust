@@ -15,7 +15,7 @@
   if (data) {
     document.title = data[0];
     const setMeta=(name,content)=>{let el=document.querySelector(`meta[name="${name}"]`);if(!el){el=document.createElement('meta');el.name=name;document.head.appendChild(el)}el.content=content};
-    setMeta('description',data[1]); setMeta('robots','index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
+    setMeta('description',data[1]); setMeta('robots','index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:large');
     let canonical=document.querySelector('link[rel="canonical"]'); if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.appendChild(canonical)} canonical.href='https://habscosadaqah.org/'+(page==='index'?'':page+'.html');
     const setOG=(prop,content)=>{let el=document.querySelector(`meta[property="${prop}"]`);if(!el){el=document.createElement('meta');el.setAttribute('property',prop);document.head.appendChild(el)}el.content=content};
     setOG('og:type','website'); setOG('og:url',canonical.href); setOG('og:title',data[0]); setOG('og:description',data[1]); setOG('og:site_name','Habsco Sadaqah Jariyah Development Trust');
@@ -36,26 +36,33 @@
   }
   document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const el=document.querySelector(a.getAttribute('href'));if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'});menu?.classList.remove('open');toggle?.setAttribute('aria-expanded','false');}}));
   document.querySelectorAll('.menu a[href]').forEach(a=>{const clean=(a.getAttribute('href')||'').split('#')[0];if(clean&&clean===path)a.classList.add('active');});
-  if(!['auth.html','admin.html','member.html'].includes(path)){
+  const publicPages=['index.html','about.html','programs.html','impact.html','gallery.html','finance.html','contact.html'];
+  if(publicPages.includes(path)){
     const nav=document.createElement('nav');nav.className='app-bottom-nav';nav.setAttribute('aria-label','Quick navigation');
     const items=[['index.html','⌂','Home','index'],['impact.html','◈','Impact','impact'],['finance.html','₦','Finance','finance'],['contact.html','●','Contact','contact'],['contact.html#donate','♡','Donate','donate']];
     nav.innerHTML=items.map(([href,icon,label,key])=>`<a href="${href}" class="${page===key?'active':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
     document.body.appendChild(nav);document.body.classList.add('public-app');
   }
+  const footer=document.querySelector('footer');
+  if(publicPages.includes(path) && footer){
+    footer.innerHTML='<div class="copyright">© 2026 Habsco Sadaqah Jariyah Development Trust. All Rights Reserved.</div>';
+    footer.setAttribute('aria-label','Site footer');
+  }
   const footerStyle=document.createElement('style');
   footerStyle.textContent=`
-    footer .footer-brand,
-    .programs-page footer .footer-brand,
-    .programs-page footer .footer>div:first-child,
-    footer .footer>div:first-child:has(>img){display:none!important}
-    footer .footer{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-    .programs-page footer .footer{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-    @media(max-width:720px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr 1fr!important}}
-    @media(max-width:430px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr!important}}
+    .public-app{padding-bottom:94px!important}
+    footer{margin-top:48px!important;background:linear-gradient(145deg,#052f18 0%,#083f20 55%,#0d5b2b 100%)!important;color:#fff!important;border-top:1px solid rgba(255,255,255,.08)!important}
+    footer .footer,footer .footer-brand,footer .footer>div:not(.copyright){display:none!important}
+    footer .copyright{display:block!important;max-width:1280px!important;margin:0 auto!important;padding:22px 20px calc(22px + env(safe-area-inset-bottom))!important;border:0!important;color:#fff!important;text-align:center!important;font-size:12px!important;font-weight:700!important;letter-spacing:.25px!important;line-height:1.5!important}
+    footer .copyright:before{content:'✦  ';color:#f4c94f;font-size:10px}
+    footer .copyright:after{content:'  ✦';color:#f4c94f;font-size:10px}
+    .impact-page footer .footer,.impact-page footer .copyright{max-width:none!important}
+    .impact-page footer .footer{display:none!important}
     .hero .actions a[href="auth.html"],.hero .actions .btn.primary[href="auth.html"]{position:relative;z-index:2;border:1px solid rgba(244,201,79,.9)!important;box-shadow:0 0 0 0 rgba(244,201,79,.72),0 8px 26px rgba(0,0,0,.16);animation:portalPulse 1.8s infinite,portalFloat 2.8s ease-in-out infinite;will-change:transform,box-shadow}
     .hero .actions a[href="auth.html"]:hover,.hero .actions .btn.primary[href="auth.html"]:hover{box-shadow:0 0 0 8px rgba(244,201,79,.14),0 12px 34px rgba(244,201,79,.28)!important}
     @keyframes portalPulse{0%,100%{box-shadow:0 0 0 0 rgba(244,201,79,.72),0 8px 26px rgba(0,0,0,.16)}50%{box-shadow:0 0 0 12px rgba(244,201,79,0),0 10px 30px rgba(244,201,79,.18)}}
     @keyframes portalFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    @media(max-width:720px){footer .copyright{padding-left:14px!important;padding-right:14px!important;font-size:11px!important}.public-app{padding-bottom:88px!important}}
     @media(prefers-reduced-motion:reduce){.hero .actions a[href="auth.html"],.hero .actions .btn.primary[href="auth.html"]{animation:none}}
   `;
   document.head.appendChild(footerStyle);
@@ -72,5 +79,5 @@
   const copyBtn=document.getElementById('copy-account');if(copyBtn)copyBtn.addEventListener('click',async()=>{const number=document.getElementById('account-number')?.textContent?.trim();const status=document.getElementById('copy-status');try{await navigator.clipboard.writeText(number);if(status)status.textContent='Account number copied.'}catch(e){if(status)status.textContent='Please copy the account number manually: '+number}setTimeout(()=>{if(status)status.textContent=''},3000)});
   document.querySelectorAll('[data-finance-tab]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-finance-tab]').forEach(item=>item.classList.remove('active'));document.querySelectorAll('.finance-panel').forEach(panel=>panel.classList.remove('active'));button.classList.add('active');document.getElementById(button.dataset.financeTab)?.classList.add('active');window.scrollTo({top:document.querySelector('.finance-shell')?.offsetTop-90||0,behavior:'smooth'})}));
   document.querySelectorAll('[data-finance-action]').forEach(button=>button.addEventListener('click',event=>{event.preventDefault();const action=button.dataset.financeAction;if(action==='dashboard'){window.location.href='auth.html';return}if(action==='admin'){window.location.href='admin.html';return}document.querySelector(`[data-finance-tab="${action}"]`)?.click()}));
-  document.querySelectorAll('[data-prototype-form]').forEach(form=>form.addEventListener('submit',event=>{event.preventDefault();const message=form.querySelector('[data-form-message]');if(message)message.textContent='This public prototype form is not active. Use the authenticated member dashboard for real requests.';form.reset()}));
+  document.querySelectorAll('[data-prototype-form]').forEach(form=>form.addEventListener('submit',event=>{event.preventDefault();const message=form.querySelector('[data-form-message]');if(message)message.textContent='This public prototype form is not active. Use the authenticated member dashboard for real requests.';form.reset()});
 })();
