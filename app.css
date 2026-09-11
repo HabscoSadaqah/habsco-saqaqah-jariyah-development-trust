@@ -3,12 +3,10 @@
 .public-app main{max-width:1400px;margin:0 auto;background:#fff;min-height:60vh;box-shadow:0 0 35px rgba(10,50,25,.035)}
 .public-app .section,.public-app .page-banner,.public-app .hero{max-width:1360px}
 .public-app .card,.public-app .panel,.public-app .cta,.public-app .trust{box-shadow:0 10px 30px rgba(10,50,25,.08)}
-
 @keyframes habscoPortalPulse{0%,100%{transform:translateY(0) scale(1);box-shadow:0 12px 28px rgba(13,91,43,.18)}50%{transform:translateY(-3px) scale(1.025);box-shadow:0 18px 38px rgba(13,91,43,.28)}}
 @keyframes habscoPortalGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.08)}}
 .public-app .hero a[href="auth.html"]{animation:habscoPortalPulse 2.2s ease-in-out infinite,habscoPortalGlow 2.2s ease-in-out infinite;will-change:transform,box-shadow,filter}
 .public-app .hero a[href="auth.html"]:hover{animation-play-state:paused;transform:translateY(-4px) scale(1.035)}
-
 .public-app,.public-app *{box-sizing:border-box}
 .public-app img,.public-app video,.public-app iframe{max-width:100%;height:auto}
 .public-app table{width:100%;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -17,22 +15,35 @@
 .public-app input,.public-app textarea,.public-app select{max-width:100%;font-size:16px}
 .public-app .section,.public-app .container,.public-app .content,.public-app .grid{min-width:0}
 
-/* Fixed brand header: logo + full trust name stay visible while content scrolls. */
+/* Public header: logo only; bottom navigation is the primary menu. */
 .public-app header{position:sticky;top:0;z-index:1100;background:rgba(255,255,255,.97);border-bottom:1px solid #e2ebe4;box-shadow:0 6px 24px rgba(10,50,25,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .public-app header .nav{min-height:74px;display:flex!important;align-items:center;justify-content:flex-start;gap:14px;padding:8px clamp(16px,4vw,48px)}
 .public-app header .brand{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:#123d25}
 .public-app header .brand img{width:52px;height:52px;object-fit:contain;flex:0 0 52px}
 .public-app header .brand-name{display:block;max-width:min(620px,70vw);font-size:clamp(14px,1.7vw,20px);line-height:1.15;font-weight:900;letter-spacing:-.02em;color:#0d5b2b;white-space:normal}
 .public-app header .mobile-toggle{display:none!important}
-
-/* Bottom navigation is the primary public navigation. */
 .public-app header nav .menu,.public-app .header nav .menu,.public-app .site-nav,.public-app .top-nav,.public-app .main-nav,.public-app .navbar,.public-app .nav-links{display:none!important}
-.app-bottom-nav{position:fixed;display:flex;align-items:center;justify-content:center;gap:4px;left:50%;bottom:20px;transform:translateX(-50%);z-index:1000;width:max-content;min-width:440px;max-width:calc(100vw - 40px);background:rgba(255,255,255,.96);border:1px solid #dbe5dd;border-radius:22px;box-shadow:0 14px 40px rgba(0,0,0,.16);padding:8px 10px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.app-bottom-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:76px;min-height:60px;padding:5px 10px;border-radius:15px;color:#667067;text-decoration:none;font-weight:800;transition:transform .18s,background .18s,color .18s}
+
+/* Floating public navigation: scales naturally from tablet to wide desktop. */
+.app-bottom-nav{position:fixed;display:flex;align-items:stretch;justify-content:center;gap:5px;left:50%;bottom:22px;transform:translateX(-50%);z-index:1200;width:min(760px,calc(100vw - 48px));min-width:0;background:rgba(255,255,255,.97);border:1px solid #d5e2d8;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.18),0 4px 14px rgba(13,91,43,.08);padding:9px 10px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.app-bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:64px;padding:7px 12px;border-radius:16px;color:#667067;text-decoration:none;font-weight:800;transition:transform .18s ease,background .18s ease,color .18s ease,box-shadow .18s ease}
 .app-bottom-nav a:hover{background:#f0f7f2;color:#0d5b2b;transform:translateY(-2px)}
-.app-bottom-nav a span{font-size:22px;line-height:1}.app-bottom-nav a small{font-size:10px;line-height:1}
+.app-bottom-nav a span{font-size:23px;line-height:1}.app-bottom-nav a small{font-size:11px;line-height:1.1;white-space:nowrap}
 .app-bottom-nav a.active{background:#eaf4ec;color:#0d5b2b;box-shadow:inset 0 0 0 1px #d8eadc}
-body.public-app{padding-bottom:94px}
+.app-bottom-nav a.donate-tab{color:#0d5b2b}
+body.public-app{padding-bottom:112px}
+
+/* Extra-wide displays: give the navigation more presence without letting it become oversized. */
+@media(min-width:1440px){
+  .app-bottom-nav{width:min(820px,calc(100vw - 80px));bottom:28px;padding:10px 12px;border-radius:26px}
+  .app-bottom-nav a{min-height:68px;padding:8px 16px;border-radius:18px}
+  .app-bottom-nav a span{font-size:25px}.app-bottom-nav a small{font-size:12px}
+  body.public-app{padding-bottom:126px}
+}
+@media(min-width:1920px){
+  .app-bottom-nav{width:860px;bottom:30px}
+  .app-bottom-nav a{min-height:70px}
+}
 
 @media(max-width:720px){
   body.public-app{background:#fff;padding-bottom:calc(78px + env(safe-area-inset-bottom))}
@@ -51,4 +62,4 @@ body.public-app{padding-bottom:94px}
   .btn{width:100%}.actions{gap:10px}.cta{flex-direction:column;align-items:stretch}.cta .btn{width:100%}
 }
 @media(max-width:380px){.app-bottom-nav{left:5px;right:5px}.app-bottom-nav a small{font-size:9px}.public-app .container,.public-app .content{padding-left:12px;padding-right:12px}.public-app header .brand-name{font-size:12px}}
-@media(prefers-reduced-motion:reduce){.public-app .hero a[href="auth.html"]{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.public-app .hero a[href="auth.html"]{animation:none!important}.app-bottom-nav a{transition:none}}
