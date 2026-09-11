@@ -47,11 +47,35 @@
   }
   window.hfBiometric={supported,enroll,verify,has:async()=>hasCredential(await getUser()),sensitiveGate};
   window.hfEnrollBiometric=async()=>{const u=await getUser();if(!u)throw new Error('Please log in first.');return enroll(u)};
-  // Login is intentionally handled only by auth.js. The previous capture-phase login handler
-  // competed with auth.js and could leave the login button stuck on "LOGGING IN…".
   document.addEventListener('submit',async e=>{
     const form=e.target;if(!form||form.id!=='actionForm'||window.__hfBioRetry)return;const action=pageAction();if(!action)return;
     e.preventDefault();e.stopImmediatePropagation();try{await sensitiveGate(action,form);window.__hfBioRetry=true;form.requestSubmit()}catch(err){const m=document.getElementById('msg');if(m){m.textContent=err.message||'Biometric confirmation failed.';m.className='msg show';m.style.background='#fff1f1';m.style.color='#a52a2a'}}finally{window.__hfBioRetry=false}
   },true);
-  document.addEventListener('DOMContentLoaded',()=>{const panel=document.getElementById('hfSecurityCenter');if(!panel||document.getElementById('hfBiometricCard'))return;const row=panel.querySelector('.hf-security-row');if(!row)return;const b=document.createElement('button');b.type='button';b.id='hfBiometricCard';b.innerHTML='<span class="ico">◉</span><span class="ttl">Face ID / Fingerprint</span><span class="sub">Enable biometric confirmation</span>';row.appendChild(b);b.onclick=async()=>{try{b.disabled=true;await window.hfEnrollBiometric();b.querySelector('.sub').textContent='Biometrics enabled';b.querySelector('.ttl').textContent='Biometric Enabled'}catch(err){const m=document.getElementById('hfSecurityMsg');if(m){m.textContent=err.message||'Unable to enable biometrics.';m.classList.add('show')}}finally{b.disabled=false}}});
+
+  function addSecurityBiometricCard(){
+    const panel=document.getElementById('hfSecurityCenter');
+    if(!panel||document.getElementById('hfBiometricCard'))return false;
+    const row=panel.querySelector('.hf-security-row');
+    if(!row)return false;
+    const b=document.createElement('button');
+    b.type='button';b.id='hfBiometricCard';
+    b.innerHTML='<span class="ico">◉</span><span><span class="ttl">Face ID / Fingerprint</span><span class="sub">Enable biometric confirmation</span></span>';
+    row.appendChild(b);
+    b.onclick=async()=>{
+      const original=b.innerHTML;
+      try{
+        b.disabled=true;b.querySelector('.sub').textContent='Waiting for device verification…';
+        await window.hfEnrollBiometric();
+        b.querySelector('.ttl').textContent='Biometric Enabled';
+        b.querySelector('.sub').textContent='Face ID / fingerprint is ready';
+        const m=document.getElementById('hfSecurityMsg');if(m){m.textContent='Biometric confirmation is enabled. You can now confirm sensitive transactions with Face ID or fingerprint.';m.className='hf-security-msg show info'}
+      }catch(err){
+        b.innerHTML=original;
+        const m=document.getElementById('hfSecurityMsg');if(m){m.textContent=err.message||'Unable to enable biometrics.';m.className='hf-security-msg show error'}
+      }finally{b.disabled=false}
+    };
+    return true;
+  }
+  function initSecurityBiometricCard(){if(addSecurityBiometricCard())return;setTimeout(addSecurityBiometricCard,100);setTimeout(addSecurityBiometricCard,500);setTimeout(addSecurityBiometricCard,1200)}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initSecurityBiometricCard);else initSecurityBiometricCard();
 })();
