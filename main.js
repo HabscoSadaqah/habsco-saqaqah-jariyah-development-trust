@@ -9,7 +9,7 @@
     finance: ['Habsco Free-Interest Cooperative | Habsco Sadaqah Jariyah','Learn about the Habsco Free-Interest Multipurpose Cooperative Society, member services and Qard Hasan interest-free assistance.'],
     impact: ['Our Impact | Habsco Sadaqah Jariyah Development Trust','See the community impact of Habsco Sadaqah Jariyah Development Trust through sustainable charity and development projects in Nigeria.'],
     gallery: ['Gallery | Habsco Sadaqah Jariyah Development Trust','View photos and updates from Habsco Sadaqah Jariyah Development Trust charity and community projects.'],
-    contact: ['Donate & Contact Habsco Sadaqah Jariyah Development Trust','Contact Habsco Sadaqah Jariyah Development Trust for donations, volunteering, partnerships and community project enquiries in Nigeria.']
+    contact: ['Contact Us | Habsco Sadaqah Jariyah Development Trust','Contact Habsco Sadaqah Jariyah Development Trust for donations, volunteering, partnerships and community project enquiries in Nigeria.']
   };
   const data = seo[page];
   if (data) {
@@ -38,7 +38,7 @@
   document.querySelectorAll('.menu a[href]').forEach(a=>{const clean=(a.getAttribute('href')||'').split('#')[0];if(clean&&clean===path)a.classList.add('active');});
   if(!['auth.html','admin.html','member.html'].includes(path)){
     const nav=document.createElement('nav');nav.className='app-bottom-nav';nav.setAttribute('aria-label','Quick navigation');
-    const items=[['index.html','⌂','Home','index'],['impact.html','◈','Impact','impact'],['finance.html','₦','Finance','finance'],['about.html','●','About','about'],['contact.html','♡','Donate','contact']];
+    const items=[['index.html','⌂','Home','index'],['impact.html','◈','Impact','impact'],['finance.html','₦','Finance','finance'],['contact.html','●','Contact','contact'],['contact.html#donate','♡','Donate','donate']];
     nav.innerHTML=items.map(([href,icon,label,key])=>`<a href="${href}" class="${page===key?'active':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
     document.body.appendChild(nav);document.body.classList.add('public-app');
   }
