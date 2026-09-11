@@ -1,58 +1,26 @@
 (()=>{
   const addBiometricCard=()=>{
-    const panel=document.getElementById('hfSecurityCenter');
-    const row=panel?.querySelector('.hf-security-row');
+    const panel=document.getElementById('hfSecurityCenter');const row=panel?.querySelector('.hf-security-row');
     if(!panel||!row||document.getElementById('hfBiometricCard'))return !!panel;
-    const b=document.createElement('button');
-    b.type='button';
-    b.id='hfBiometricCard';
-    b.innerHTML='<span class="ico">◉</span><span><span class="ttl">Face ID / Fingerprint</span><span class="sub">Enable biometric confirmation</span></span>';
-    row.appendChild(b);
+    const b=document.createElement('button');b.type='button';b.id='hfBiometricCard';b.innerHTML='<span class="ico">◉</span><span><span class="ttl">Face ID / Fingerprint</span><span class="sub">Enable biometric confirmation</span></span>';row.appendChild(b);
     const status=()=>document.getElementById('hfSecurityMsg');
-    b.onclick=async()=>{
-      const original=b.innerHTML;
-      try{
-        b.disabled=true;
-        b.querySelector('.sub').textContent='Preparing biometric setup…';
-        if(typeof window.hfEnrollBiometric!=='function'){
-          await new Promise((resolve,reject)=>{
-            const existing=document.querySelector('script[data-hf-biometric]');
-            if(existing){let n=0;const t=setInterval(()=>{if(typeof window.hfEnrollBiometric==='function'){clearInterval(t);resolve()}else if(++n>30){clearInterval(t);reject(new Error('Biometric service is still loading. Please refresh and try again.'))}},100);return}
-            const s=document.createElement('script');s.src='biometric-gate.js?v=20260911-2';s.async=false;s.dataset.hfBiometric='1';s.onload=()=>{let n=0;const t=setInterval(()=>{if(typeof window.hfEnrollBiometric==='function'){clearInterval(t);resolve()}else if(++n>30){clearInterval(t);reject(new Error('Biometric service did not start. Please refresh and try again.'))}},100)};s.onerror=()=>reject(new Error('Unable to load biometric security. Please refresh and try again.'));document.head.appendChild(s);
-          });
-        }
-        await window.hfEnrollBiometric();
-        b.querySelector('.ttl').textContent='Biometric Enabled';
-        b.querySelector('.sub').textContent='Face ID / fingerprint is ready';
-        const m=status();if(m){m.textContent='Biometric confirmation is enabled. Sensitive transactions can now request your device verification.';m.className='hf-security-msg show info'}
-      }catch(err){
-        b.innerHTML=original;
-        const m=status();if(m){m.textContent=err?.message||'Unable to enable biometrics.';m.className='hf-security-msg show error'}
-      }finally{b.disabled=false}
-    };
-    return true;
+    b.onclick=async()=>{const original=b.innerHTML;try{b.disabled=true;b.querySelector('.sub').textContent='Preparing biometric setup…';if(typeof window.hfEnrollBiometric!=='function'){await new Promise((resolve,reject)=>{const s=document.createElement('script');s.src='biometric-gate.js?v=20260911-2';s.async=false;s.onload=()=>{let n=0;const t=setInterval(()=>{if(typeof window.hfEnrollBiometric==='function'){clearInterval(t);resolve()}else if(++n>30){clearInterval(t);reject(new Error('Biometric service is still loading. Please refresh and try again.'))}},100)};s.onerror=()=>reject(new Error('Unable to load biometric security. Please refresh and try again.'));document.head.appendChild(s)})}await window.hfEnrollBiometric();b.querySelector('.ttl').textContent='Biometric Enabled';b.querySelector('.sub').textContent='Face ID / fingerprint is ready';const m=status();if(m){m.textContent='Biometric confirmation is enabled. Sensitive transactions can now request your device verification.';m.className='hf-security-msg show info'}}catch(err){b.innerHTML=original;const m=status();if(m){m.textContent=err?.message||'Unable to enable biometrics.';m.className='hf-security-msg show error'}}finally{b.disabled=false}};return true;
   };
   const start=()=>{
-    const sb=window.supabaseClient;
-    const card=document.getElementById('hfPinCard');
-    if(!sb||!card){setTimeout(start,250);return}
-    card.onclick=async()=>{
-      const {data:{session}}=await sb.auth.getSession();
-      if(!session){const m=document.getElementById('hfSecurityMsg');if(m){m.textContent='Your session has expired. Please sign in again.';m.className='hf-security-msg show error'}return}
-      if(typeof window.pinModal==='function')window.pinModal();
-      const modal=document.getElementById('hfPinModal');
-      if(!modal)return;
-      const {data,error}=await sb.rpc('member_pin_status');
-      if(error||!data){document.getElementById('hfPinModal')?.remove();const m=document.getElementById('hfSecurityMsg');if(m){m.textContent='We could not check your PIN status. Please try again.';m.className='hf-security-msg show error'}return}
-      const hasPin=!!data.has_pin;modal.dataset.hasPin=hasPin?'1':'0';
-      const current=document.getElementById('hfCurrentPin');const label=current?.closest('label');if(current&&label){current.required=hasPin;label.style.display=hasPin?'grid':'none'}
-      const title=document.getElementById('hfPinTitle');if(title)title.textContent=hasPin?'Change transaction PIN':'Set transaction PIN';
-      if(data.must_change){const m=document.getElementById('hfSecurityMsg');if(m){m.textContent='For your security, please set a new transaction PIN before making sensitive transactions.';m.className='hf-security-msg show info'}}
-    };
-    addBiometricCard();
-    setTimeout(addBiometricCard,150);
-    setTimeout(addBiometricCard,600);
-    setTimeout(addBiometricCard,1500);
+    const sb=window.supabaseClient;const card=document.getElementById('hfPinCard');const passwordCard=document.getElementById('hfPasswordCard');
+    if(!sb||!card||!passwordCard){setTimeout(start,250);return}
+    const msg=(t,type='info')=>{const m=document.getElementById('hfSecurityMsg');if(m){m.textContent=t;m.className=`hf-security-msg show ${type}`}};
+    card.onclick=async()=>{const {data:{session}}=await sb.auth.getSession();if(!session){msg('Your session has expired. Please sign in again.','error');return}if(typeof window.pinModal==='function')window.pinModal();const modal=document.getElementById('hfPinModal');if(!modal)return;const {data,error}=await sb.rpc('member_pin_status');if(error||!data){document.getElementById('hfPinModal')?.remove();msg('We could not check your PIN status. Please try again.','error');return}const hasPin=!!data.has_pin;modal.dataset.hasPin=hasPin?'1':'0';const current=document.getElementById('hfCurrentPin'),label=current?.closest('label');if(current&&label){current.required=hasPin;label.style.display=hasPin?'grid':'none'}const title=document.getElementById('hfPinTitle');if(title)title.textContent=hasPin?'Change transaction PIN':'Set transaction PIN';if(data.must_change)msg('For your security, please set a new transaction PIN before making sensitive transactions.');};
+    function openPasswordModal(){
+      if(document.getElementById('hfPasswordModal'))return;const m=document.createElement('div');m.id='hfPasswordModal';
+      m.innerHTML=`<div class="hf-pin-backdrop"></div><section class="hf-pin-modal" role="dialog" aria-modal="true" aria-labelledby="hfPasswordTitle"><button class="hf-pin-close" id="hfPasswordClose" type="button" aria-label="Close">×</button><div class="hf-pin-icon">🔑</div><h3 id="hfPasswordTitle">Change Password</h3><p class="hf-pin-help">Enter your current password, then choose and confirm your new password.</p><form id="hfPasswordForm" autocomplete="off"><label>Current password<span>Required to authorize this change</span><input id="hfOldPassword" type="password" autocomplete="current-password" required></label><label>New password<span>Use a strong password</span><input id="hfNewPassword" type="password" autocomplete="new-password" required></label><label>Confirm new password<span>Enter the new password again</span><input id="hfConfirmPassword" type="password" autocomplete="new-password" required></label><div class="hf-pin-strength" id="hfPasswordStrength">Choose a strong new password.</div><button class="hf-pin-submit" id="hfPasswordSubmit" type="submit">Change Password</button><div class="hf-pin-status" id="hfPasswordStatus" role="status" aria-live="polite"></div></form></section></div>`;
+      document.body.appendChild(m);const oldP=document.getElementById('hfOldPassword'),newP=document.getElementById('hfNewPassword'),confirmP=document.getElementById('hfConfirmPassword'),strength=document.getElementById('hfPasswordStrength'),status=document.getElementById('hfPasswordStatus'),submit=document.getElementById('hfPasswordSubmit');
+      newP.addEventListener('input',()=>{const v=newP.value;strength.textContent=v.length<8?'Use at least 8 characters.':v===oldP.value?'New password must be different from your current password.':/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/.test(v)?'Strong password.':'Use upper/lowercase letters, a number and a symbol.'});
+      document.getElementById('hfPasswordClose').onclick=()=>m.remove();m.querySelector('.hf-pin-backdrop').onclick=()=>m.remove();
+      document.getElementById('hfPasswordForm').onsubmit=async e=>{e.preventDefault();status.className='hf-pin-status';status.textContent='';const oldValue=oldP.value,newValue=newP.value,confirmValue=confirmP.value;if(!oldValue){status.textContent='Enter your current password.';status.classList.add('error');return}if(newValue.length<8){status.textContent='New password must be at least 8 characters.';status.classList.add('error');return}if(newValue!==confirmValue){status.textContent='The new passwords do not match.';status.classList.add('error');return}if(newValue===oldValue){status.textContent='Your new password must be different from the current password.';status.classList.add('error');return}submit.disabled=true;submit.textContent='Updating…';try{const {error}=await sb.auth.updateUser({password:newValue,currentPassword:oldValue});if(error)throw error;status.textContent='Password changed successfully. Your new password is active now.';status.classList.add('success');oldP.value='';newP.value='';confirmP.value='';setTimeout(()=>m.remove(),1400)}catch(err){const text=String(err?.message||'Unable to change password. Please check your current password and try again.');status.textContent=/(invalid|incorrect|wrong|current)/i.test(text)?'Current password is incorrect.':text;status.classList.add('error')}finally{submit.disabled=false;submit.textContent='Change Password'}};
+      setTimeout(()=>oldP.focus(),80);
+    }
+    passwordCard.onclick=openPasswordModal;addBiometricCard();setTimeout(addBiometricCard,150);setTimeout(addBiometricCard,600);setTimeout(addBiometricCard,1500);
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
