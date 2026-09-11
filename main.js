@@ -20,11 +20,39 @@
     setOG('og:type','website'); setOG('og:url',canonical.href); setOG('og:title',data[0]); setOG('og:description',data[1]); setOG('og:site_name','Habsco Sadaqah Jariyah Development Trust');
   }
 
+  const isPublicPage = ['index','impact','finance','contact','donate'].includes(page);
   const isHome = page === 'index';
 
-  // The app-style header and floating navigation belong to the homepage only.
-  // All other pages are explicitly cleared of the old logo header and bottom nav.
-  if (!isHome) {
+  // Use the same app shell and blended bottom navigation across the main public pages.
+  if (isPublicPage) {
+    const applyPublicShell=()=>{
+      if(!document.body) return;
+      document.body.classList.add('public-app');
+      document.querySelectorAll('.topbar, header nav, header .menu, header .mobile-toggle, .site-nav, .top-nav, .main-nav, .navbar, .nav-links').forEach(el=>el.remove());
+      document.querySelectorAll('header.logo-only-header').forEach(el=>el.remove());
+      if(!document.querySelector('link[data-app-css]')){
+        const css=document.createElement('link'); css.rel='stylesheet'; css.href='app.css?v=home-shell-5'; css.dataset.appCss='true'; document.head.appendChild(css);
+      }
+      let nav=document.querySelector('.app-bottom-nav');
+      if(!nav){
+        nav=document.createElement('nav');
+        nav.className='app-bottom-nav';
+        nav.setAttribute('aria-label','Primary navigation');
+        nav.innerHTML=[
+          ['index.html','⌂','Home','index'],
+          ['impact.html','◈','Impact','impact'],
+          ['finance.html','₦','Finance','finance'],
+          ['contact.html','●','Contact','contact'],
+          ['contact.html#donate','♡','Donate','donate']
+        ].map(([href,icon,label,key])=>`<a href="${href}" class="${page===key?'active ':''}${key==='donate'?'donate-tab':''}"><span aria-hidden="true">${icon}</span><small>${label}</small></a>`).join('');
+        document.body.appendChild(nav);
+      }
+    };
+    applyPublicShell();
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyPublicShell,{once:true});
+    window.addEventListener('load',applyPublicShell,{once:true});
+    setTimeout(applyPublicShell,80);
+  } else {
     const clearOtherPageShell = () => {
       document.body?.classList.remove('public-app');
       document.querySelectorAll('header.logo-only-header, .app-bottom-nav').forEach(el => el.remove());
@@ -32,61 +60,6 @@
     clearOtherPageShell();
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', clearOtherPageShell, {once:true});
     window.addEventListener('load', clearOtherPageShell, {once:true});
-  }
-
-  // Load the public app layer only on the homepage so other pages keep their own layout.
-  if (isHome && !document.querySelector('link[data-app-css]')) {
-    const css=document.createElement('link'); css.rel='stylesheet'; css.href='app.css?v=home-shell-5'; css.dataset.appCss='true'; document.head.appendChild(css);
-  }
-
-  const applyHomeShell=()=>{
-    if(!isHome || !document.body) return;
-    document.body.classList.add('public-app');
-
-    // Hard-remove every legacy homepage header/menu element and keep only the logo.
-    document.querySelectorAll('.topbar, header nav, header .menu, header .mobile-toggle, .site-nav, .top-nav, .main-nav, .navbar, .nav-links').forEach(el=>el.remove());
-    const header=document.querySelector('header');
-    if(header){
-      let logo=header.querySelector('.public-logo img') || header.querySelector('.brand img') || header.querySelector('img[alt*="Habsco"]');
-      if(logo){
-        const src=logo.getAttribute('src');
-        const alt='Habsco Sadaqah Jariyah Development Trust';
-        header.innerHTML='';
-        header.className='logo-only-header';
-        const logoLink=document.createElement('a');
-        logoLink.className='public-logo';
-        logoLink.href='index.html';
-        logoLink.setAttribute('aria-label','Habsco Sadaqah Jariyah Development Trust — Home');
-        const image=document.createElement('img');
-        image.src=src || 'logo.svg'; image.alt=alt; image.loading='eager';
-        logoLink.appendChild(image); header.appendChild(logoLink);
-      } else {
-        header.remove();
-      }
-    }
-
-    // Create exactly one floating homepage navigation bar.
-    let nav=document.querySelector('.app-bottom-nav');
-    if(!nav){
-      nav=document.createElement('nav');
-      nav.className='app-bottom-nav';
-      nav.setAttribute('aria-label','Homepage navigation');
-      nav.innerHTML=[
-        ['index.html','⌂','Home','index'],
-        ['impact.html','◈','Impact','impact'],
-        ['finance.html','₦','Finance','finance'],
-        ['contact.html','●','Contact','contact'],
-        ['contact.html#donate','♡','Donate','donate']
-      ].map(([href,icon,label,key])=>`<a href="${href}" class="${page===key?'active ':''}${key==='donate'?'donate-tab':''}"><span aria-hidden="true">${icon}</span><small>${label}</small></a>`).join('');
-      document.body.appendChild(nav);
-    }
-  };
-
-  if(isHome){
-    applyHomeShell();
-    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyHomeShell,{once:true});
-    window.addEventListener('load',applyHomeShell,{once:true});
-    setTimeout(applyHomeShell,80);
   }
 
   document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const el=document.querySelector(a.getAttribute('href'));if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'});}}));
