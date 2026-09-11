@@ -52,13 +52,35 @@
     };
     return true;
   };
+  const addAdminPortal=async()=>{
+    const sb=getClient();
+    if(!sb)return false;
+    try{
+      const {data:{session}}=await sb.auth.getSession();
+      if(!session?.user)return false;
+      const {data:profile}=await sb.from('profiles').select('role,status').eq('id',session.user.id).maybeSingle();
+      if(profile?.role!=='admin'||profile?.status!=='active')return false;
+      if(document.getElementById('hfAdminPortalCard'))return true;
+      const wrap=document.querySelector('.wrap');
+      if(!wrap)return false;
+      const card=document.createElement('section');
+      card.id='hfAdminPortalCard';
+      card.style.cssText='margin:18px 8px 14px;background:linear-gradient(135deg,#062f20,#0b6340);color:#fff;border-radius:18px;padding:16px;box-shadow:0 8px 24px rgba(6,47,32,.16);display:flex;align-items:center;justify-content:space-between;gap:14px';
+      card.innerHTML='<div><div style="font-size:10px;font-weight:900;letter-spacing:.7px;opacity:.75">ADMIN ACCESS</div><div style="font-size:17px;font-weight:950;margin-top:4px">Admin Control Center</div><div style="font-size:10.5px;opacity:.82;margin-top:4px;line-height:1.4">Manage members, wallets, requests, financing and audit controls.</div></div><a href="admin.html" style="flex:0 0 auto;text-decoration:none;background:#fff;color:#083e27;border-radius:11px;padding:10px 13px;font-size:11px;font-weight:950;white-space:nowrap">OPEN ADMIN</a>';
+      const first=wrap.firstElementChild;
+      if(first)wrap.insertBefore(card,first);else wrap.appendChild(card);
+      return true;
+    }catch(_){return false}
+  };
   const start=()=>{
     const sb=getClient();
     const panel=document.getElementById('hfSecurityCenter');
     if(!sb||!panel){setTimeout(start,250);return}
     addBiometricCard();
+    addAdminPortal();
     setTimeout(addBiometricCard,300);
     setTimeout(addBiometricCard,1000);
+    setTimeout(addAdminPortal,500);
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
