@@ -36,10 +36,13 @@
   }
   document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const el=document.querySelector(a.getAttribute('href'));if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'});menu?.classList.remove('open');toggle?.setAttribute('aria-expanded','false');}}));
   document.querySelectorAll('.menu a[href]').forEach(a=>{const clean=(a.getAttribute('href')||'').split('#')[0];if(clean&&clean===path)a.classList.add('active');});
-  if(!['auth.html','admin.html','member.html'].includes(path)){
+
+  // Public pages use one consistent floating navigation bar. Private/member/admin pages are excluded.
+  const publicPages=['index.html','about.html','programs.html','impact.html','gallery.html','finance.html','contact.html'];
+  if(publicPages.includes(path) && !document.querySelector('.app-bottom-nav')){
     const nav=document.createElement('nav');nav.className='app-bottom-nav';nav.setAttribute('aria-label','Quick navigation');
-    const items=[['index.html','⌂','Home','index'],['impact.html','◈','Impact','impact'],['finance.html','₦','Finance','finance'],['about.html','●','About','about'],['contact.html','♡','Donate','contact']];
-    nav.innerHTML=items.map(([href,icon,label,key])=>`<a href="${href}" class="${page===key?'active':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
+    const items=[['index.html','⌂','Home','index'],['impact.html','◈','Impact','impact'],['finance.html','₦','Finance','finance'],['contact.html','●','Contact','contact'],['contact.html','♡','Donate','contact']];
+    nav.innerHTML=items.map(([href,icon,label,key],i)=>`<a href="${href}" class="${page===key?'active':''}${i===4?' donate-tab':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
     document.body.appendChild(nav);document.body.classList.add('public-app');
   }
   const footerStyle=document.createElement('style');
