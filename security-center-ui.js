@@ -23,6 +23,7 @@
     document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
     const securityLink=document.querySelector('#mobileAppNav a[href="#security"]');
     if(securityLink){securityLink.href='#';securityLink.onclick=e=>{e.preventDefault();open()}}
+    const s=document.createElement('script');s.src='security-credentials-ui.js?v=20260911-1';s.dataset.hfCredentials='1';document.body.appendChild(s);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
 })();
