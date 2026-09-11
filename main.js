@@ -20,10 +20,9 @@
     setOG('og:type','website'); setOG('og:url',canonical.href); setOG('og:title',data[0]); setOG('og:description',data[1]); setOG('og:site_name','Habsco Sadaqah Jariyah Development Trust');
   }
   if (!document.querySelector('link[data-app-css]')) {
-    const css=document.createElement('link'); css.rel='stylesheet'; css.href='app.css?v=public-shell-3'; css.dataset.appCss='true'; document.head.appendChild(css);
+    const css=document.createElement('link'); css.rel='stylesheet'; css.href='app.css?v=public-shell-4'; css.dataset.appCss='true'; document.head.appendChild(css);
   }
 
-  // These are the only public pages. The public header is deliberately reduced to the logo only.
   const publicPages=['index.html','about.html','programs.html','impact.html','finance.html','contact.html'];
   const isPublic=publicPages.includes(path);
 
@@ -31,33 +30,29 @@
     if(!isPublic || !document.body) return;
     document.body.classList.add('public-app');
 
-    // Remove the old public navigation from the DOM completely: topbar, nav, menu and hamburger.
-    // The logo is extracted first so it is never deleted with the old navigation wrapper.
+    // Hard-remove every legacy public header/menu element and keep only the logo.
+    document.querySelectorAll('.topbar, header nav, header .menu, header .mobile-toggle, .site-nav, .top-nav, .main-nav, .navbar, .nav-links').forEach(el=>el.remove());
     const header=document.querySelector('header');
-    let logo=null;
     if(header){
-      const brand=header.querySelector('.brand');
-      const image=brand?.querySelector('img') || header.querySelector('img[alt*="Habsco"]');
-      if(image){
-        logo=image.cloneNode(true);
-        logo.removeAttribute('width');
-        logo.removeAttribute('height');
-        logo.alt='Habsco Sadaqah Jariyah Development Trust';
-      }
-      header.innerHTML='';
-      header.className='logo-only-header';
+      let logo=header.querySelector('.public-logo img') || header.querySelector('.brand img') || header.querySelector('img[alt*="Habsco"]');
       if(logo){
+        const src=logo.getAttribute('src');
+        const alt='Habsco Sadaqah Jariyah Development Trust';
+        header.innerHTML='';
+        header.className='logo-only-header';
         const logoLink=document.createElement('a');
         logoLink.className='public-logo';
         logoLink.href='index.html';
         logoLink.setAttribute('aria-label','Habsco Sadaqah Jariyah Development Trust — Home');
-        logoLink.appendChild(logo);
-        header.appendChild(logoLink);
+        const image=document.createElement('img');
+        image.src=src || 'logo.svg'; image.alt=alt; image.loading='eager';
+        logoLink.appendChild(image); header.appendChild(logoLink);
+      } else {
+        header.remove();
       }
     }
-    document.querySelectorAll('body > .topbar, .topbar, header nav, header .menu, header .mobile-toggle, .site-nav, .top-nav, .main-nav, .navbar, .nav-links').forEach(el=>el.remove());
 
-    // Create one and only one floating public navigation bar.
+    // Create exactly one floating public navigation bar.
     let nav=document.querySelector('.app-bottom-nav');
     if(!nav){
       nav=document.createElement('nav');
@@ -69,7 +64,7 @@
         ['finance.html','₦','Finance','finance'],
         ['contact.html','●','Contact','contact'],
         ['contact.html#donate','♡','Donate','donate']
-      ].map(([href,icon,label,key])=>`<a href="${href}" class="${page===key?'active':''}${key==='donate'?' donate-tab':''}"><span aria-hidden="true">${icon}</span><small>${label}</small></a>`).join('');
+      ].map(([href,icon,label,key])=>`<a href="${href}" class="${page===key?'active ':''}${key==='donate'?'donate-tab':''}"><span aria-hidden="true">${icon}</span><small>${label}</small></a>`).join('');
       document.body.appendChild(nav);
     }
   };
