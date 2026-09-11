@@ -23,54 +23,51 @@
   if (!document.querySelector('link[data-app-css]')) {
     const css=document.createElement('link'); css.rel='stylesheet'; css.href='app.css'; css.dataset.appCss='true'; document.head.appendChild(css);
   }
-  const brand=document.querySelector('header .brand');
-  if(brand){
-    brand.setAttribute('aria-label','Habsco Sadaqah Jariyah Development Trust');
-    brand.querySelector('.brand-name')?.remove();
-  }
-  const toggle = document.querySelector('.mobile-toggle');
-  const menu = document.querySelector('.menu');
-  if (toggle && menu) {
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.addEventListener('click', () => { const open=menu.classList.toggle('open'); toggle.setAttribute('aria-expanded',String(open)); });
-  }
-  document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const el=document.querySelector(a.getAttribute('href'));if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'});menu?.classList.remove('open');toggle?.setAttribute('aria-expanded','false');}}));
-  document.querySelectorAll('.menu a[href]').forEach(a=>{const clean=(a.getAttribute('href')||'').split('#')[0];if(clean&&clean===path)a.classList.add('active');});
 
-  // Public pages use one consistent floating navigation bar. Private/member/admin pages are excluded.
   const publicPages=['index.html','about.html','programs.html','impact.html','gallery.html','finance.html','contact.html'];
-  if(publicPages.includes(path) && !document.querySelector('.app-bottom-nav')){
-    const nav=document.createElement('nav');nav.className='app-bottom-nav';nav.setAttribute('aria-label','Quick navigation');
-    const items=[['index.html','⌂','Home','index'],['impact.html','◈','Impact','impact'],['finance.html','₦','Finance','finance'],['contact.html','●','Contact','contact'],['contact.html','♡','Donate','contact']];
-    nav.innerHTML=items.map(([href,icon,label,key],i)=>`<a href="${href}" class="${page===key?'active':''}${i===4?' donate-tab':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
-    document.body.appendChild(nav);document.body.classList.add('public-app');
+  const isPublic=publicPages.includes(path);
+  if(isPublic){
+    // Public pages have a clean logo-only header. No top navigation, menu or hamburger.
+    document.querySelectorAll('header nav, header .menu, header .mobile-toggle, .site-nav, .top-nav, .main-nav, .navbar, .nav-links').forEach(el=>el.remove());
+    const header=document.querySelector('header');
+    const brand=header?.querySelector('.brand');
+    if(brand){
+      brand.setAttribute('aria-label','Habsco Sadaqah Jariyah Development Trust');
+      brand.querySelector('.brand-name')?.remove();
+      header.classList.add('logo-only-header');
+    }
+    if(!document.querySelector('.app-bottom-nav')){
+      const nav=document.createElement('nav');nav.className='app-bottom-nav';nav.setAttribute('aria-label','Public navigation');
+      const items=[['index.html','⌂','Home','index'],['impact.html','◈','Impact','impact'],['finance.html','₦','Finance','finance'],['contact.html','●','Contact','contact'],['contact.html','♡','Donate','contact']];
+      nav.innerHTML=items.map(([href,icon,label,key],i)=>`<a href="${href}" class="${page===key?'active':''}${i===4?' donate-tab':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
+      document.body.appendChild(nav);
+    }
+    document.body.classList.add('public-app');
   }
+
+  document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const el=document.querySelector(a.getAttribute('href'));if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'});}}));
+  document.querySelectorAll('.menu a[href]').forEach(a=>{const clean=(a.getAttribute('href')||'').split('#')[0];if(clean&&clean===path)a.classList.add('active');});
   const footerStyle=document.createElement('style');
   footerStyle.textContent=`
-    footer .footer-brand,
-    .programs-page footer .footer-brand,
-    .programs-page footer .footer>div:first-child,
-    footer .footer>div:first-child:has(>img){display:none!important}
-    footer .footer{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-    .programs-page footer .footer{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+    footer .footer-brand,.programs-page footer .footer-brand,.programs-page footer .footer>div:first-child,footer .footer>div:first-child:has(>img){display:none!important}
+    footer .footer{grid-template-columns:repeat(3,minmax(0,1fr))!important}.programs-page footer .footer{grid-template-columns:repeat(3,minmax(0,1fr))!important}
     @media(max-width:720px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr 1fr!important}}
     @media(max-width:430px){footer .footer,.programs-page footer .footer{grid-template-columns:1fr!important}}
     .hero .actions a[href="auth.html"],.hero .actions .btn.primary[href="auth.html"]{position:relative;z-index:2;border:1px solid rgba(244,201,79,.9)!important;box-shadow:0 0 0 0 rgba(244,201,79,.72),0 8px 26px rgba(0,0,0,.16);animation:portalPulse 1.8s infinite,portalFloat 2.8s ease-in-out infinite;will-change:transform,box-shadow}
     .hero .actions a[href="auth.html"]:hover,.hero .actions .btn.primary[href="auth.html"]:hover{box-shadow:0 0 0 8px rgba(244,201,79,.14),0 12px 34px rgba(244,201,79,.28)!important}
     @keyframes portalPulse{0%,100%{box-shadow:0 0 0 0 rgba(244,201,79,.72),0 8px 26px rgba(0,0,0,.16)}50%{box-shadow:0 0 0 12px rgba(244,201,79,0),0 10px 30px rgba(244,201,79,.18)}}
     @keyframes portalFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-    @media(prefers-reduced-motion:reduce){.hero .actions a[href="auth.html"],.hero .actions .btn.primary[href="auth.html"]{animation:none}}
+    .public-app header.logo-only-header{min-height:128px;display:flex;align-items:center;justify-content:center;padding:16px 20px;background:rgba(255,255,255,.98);border-bottom:1px solid #e2ebe4;box-shadow:0 8px 28px rgba(10,50,25,.10);position:sticky;top:0;z-index:1100}
+    .public-app header.logo-only-header .brand{display:flex!important;align-items:center;justify-content:center;width:100%;margin:0;text-decoration:none}
+    .public-app header.logo-only-header .brand img{display:block;width:clamp(150px,28vw,230px);height:auto;max-height:94px;object-fit:contain;filter:drop-shadow(0 5px 10px rgba(10,50,25,.14))}
+    @media(max-width:720px){.public-app header.logo-only-header{min-height:92px;padding:10px 16px}.public-app header.logo-only-header .brand img{width:clamp(130px,48vw,190px);max-height:70px}}
+    @media(min-width:1400px){.public-app header.logo-only-header{min-height:150px}.public-app header.logo-only-header .brand img{width:260px;max-height:112px}}
   `;
   document.head.appendChild(footerStyle);
-  const cleanProgramFooter=()=>{
-    if(!document.querySelector('.programs-page')) return;
-    document.querySelectorAll('footer .footer > div').forEach(section=>{const heading=section.querySelector('h4');if(heading && /comprehensive\s+program/i.test(heading.textContent||'')) section.remove();});
-    const seen=new Set();
-    document.querySelectorAll('footer a[href]').forEach(link=>{const href=(link.getAttribute('href')||'').split('#')[0];if(!href || !/program/i.test(link.textContent||'') && !/program/i.test(href)) return;const key=href.toLowerCase();if(seen.has(key)) link.remove(); else seen.add(key);});
-  };
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',cleanProgramFooter); else cleanProgramFooter();
-  if(!document.querySelector('link[rel="manifest"]')){const manifest=document.createElement('link');manifest.rel='manifest';manifest.href='manifest.json';document.head.appendChild(manifest);}
-  if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
+  const cleanProgramFooter=()=>{if(!document.querySelector('.programs-page'))return;document.querySelectorAll('footer .footer > div').forEach(section=>{const heading=section.querySelector('h4');if(heading&&/comprehensive\s+program/i.test(heading.textContent||''))section.remove()});const seen=new Set();document.querySelectorAll('footer a[href]').forEach(link=>{const href=(link.getAttribute('href')||'').split('#')[0];if(!href||!(/program/i.test(link.textContent||'')||/program/i.test(href)))return;const key=href.toLowerCase();if(seen.has(key))link.remove();else seen.add(key)})};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',cleanProgramFooter);else cleanProgramFooter();
+  if(!document.querySelector('link[rel="manifest"]')){const manifest=document.createElement('link');manifest.rel='manifest';manifest.href='manifest.json';document.head.appendChild(manifest)}
+  if('serviceWorker'in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
   document.querySelectorAll('[data-demo-form]').forEach(form=>form.addEventListener('submit',e=>{e.preventDefault();alert('Thank you. Your message has been received. Please connect the form to your preferred email/Formspree/Google Forms service before going live.')}));
   const copyBtn=document.getElementById('copy-account');if(copyBtn)copyBtn.addEventListener('click',async()=>{const number=document.getElementById('account-number')?.textContent?.trim();const status=document.getElementById('copy-status');try{await navigator.clipboard.writeText(number);if(status)status.textContent='Account number copied.'}catch(e){if(status)status.textContent='Please copy the account number manually: '+number}setTimeout(()=>{if(status)status.textContent=''},3000)});
   document.querySelectorAll('[data-finance-tab]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-finance-tab]').forEach(item=>item.classList.remove('active'));document.querySelectorAll('.finance-panel').forEach(panel=>panel.classList.remove('active'));button.classList.add('active');document.getElementById(button.dataset.financeTab)?.classList.add('active');window.scrollTo({top:document.querySelector('.finance-shell')?.offsetTop-90||0,behavior:'smooth'})}));
