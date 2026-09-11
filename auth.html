@@ -6,7 +6,7 @@
 <title>Hassan Finance | Member Access</title>
 <link rel="icon" href="favicon.svg">
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7f5;color:#17231b}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:100%;max-width:520px;background:#fff;border-radius:20px;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.1)}.brand{text-align:center}.brand img{width:72px;height:72px}.brand h1{margin:10px 0 4px}.brand p{color:#68736c}.tabs{display:flex;gap:8px;margin:24px 0}.tabs button{flex:1;padding:12px;border:1px solid #d7ded9;border-radius:10px;background:#fff;font-weight:700;cursor:pointer}.tabs button.active{background:#08752f;color:#fff;border-color:#08752f}.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-weight:700;margin:14px 0 6px}label{display:block;font-weight:700;margin:14px 0 6px}input{width:100%;padding:13px;border:1px solid #cfd8d1;border-radius:10px;font-size:16px}button.submit{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:#08752f;color:#fff;font-weight:800;font-size:16px;cursor:pointer}button.submit:disabled{opacity:.65;cursor:wait}.forgot{text-align:right;margin-top:10px}.forgot button{border:0;background:none;color:#08752f;font-weight:700;padding:4px 0;cursor:pointer}.message{margin-top:15px;padding:12px;border-radius:10px;display:none}.message.show{display:block}.back{text-align:center;margin-top:18px}.back a{color:#08752f;font-weight:700;text-decoration:none}.hidden{display:none}@media(max-width:600px){.wrap{padding:10px}.card{padding:20px;border-radius:14px}.name-grid{grid-template-columns:1fr}}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7f5;color:#17231b}.wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}.card{width:100%;max-width:520px;background:#fff;border-radius:20px;padding:28px;box-shadow:0 12px 40px rgba(0,0,0,.1)}.brand{text-align:center}.brand img{width:72px;height:72px}.brand h1{margin:10px 0 4px}.brand p{color:#68736c}.tabs{display:flex;gap:8px;margin:24px 0}.tabs button{flex:1;padding:12px;border:1px solid #d7ded9;border-radius:10px;background:#fff;font-weight:700;cursor:pointer}.tabs button.active{background:#08752f;color:#fff;border-color:#08752f}.name-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-weight:700;margin:14px 0 6px}label{display:block;font-weight:700;margin:14px 0 6px}input{width:100%;padding:13px;border:1px solid #cfd8d1;border-radius:10px;font-size:16px}button.submit{width:100%;margin-top:20px;padding:14px;border:0;border-radius:10px;background:#08752f;color:#fff;font-weight:800;font-size:16px;cursor:pointer}button.submit:disabled{opacity:.65;cursor:wait}.biometric-login{width:100%;margin-top:12px;padding:13px 14px;border:1px solid #b8c8bd;border-radius:10px;background:#f7faf8;color:#146b31;font-weight:800;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}.biometric-login:disabled{opacity:.6;cursor:wait}.bio-icon{width:22px;height:22px;display:block}.bio-hint{text-align:center;color:#68736c;font-size:12px;margin-top:7px}.forgot{text-align:right;margin-top:10px}.forgot button{border:0;background:none;color:#08752f;font-weight:700;padding:4px 0;cursor:pointer}.message{margin-top:15px;padding:12px;border-radius:10px;display:none}.message.show{display:block}.back{text-align:center;margin-top:18px}.back a{color:#08752f;font-weight:700;text-decoration:none}.hidden{display:none}@media(max-width:600px){.wrap{padding:10px}.card{padding:20px;border-radius:14px}.name-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -25,13 +25,15 @@
 <div id="confirmField" class="hidden"><label for="confirmPassword">Confirm password</label><input id="confirmPassword" type="password" minlength="8" autocomplete="new-password"></div>
 <div id="forgotWrap" class="forgot"><button id="forgotPassword" type="button">Forgot password?</button></div>
 <button class="submit" id="submitBtn" type="submit">LOGIN</button>
+<button class="biometric-login" id="biometricLoginBtn" type="button" aria-label="Verify with Face ID or fingerprint"><svg class="bio-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3H6a3 3 0 0 0-3 3v2M16 3h2a3 3 0 0 1 3 3v2M3 16v2a3 3 0 0 0 3 3h2M21 16v2a3 3 0 0 1-3 3h-2M8 8.5A4 4 0 0 1 16 9M7.5 12a4.5 4.5 0 0 0 9 0M9.5 15.5a3 3 0 0 0 5 0"/></svg><span>Verify with Face ID / Fingerprint</span></button>
+<div class="bio-hint" id="bioHint">Available after password login when biometrics are enabled.</div>
 </form>
 <div id="message" class="message" aria-live="polite"></div>
 <div class="back"><a href="finance.html">← Back to Hassan Finance</a></div>
 </div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
-<script src="biometric-gate.js?v=20260911-1"></script>
-<script src="auth.js?v=20260911-5"></script>
+<script src="biometric-gate.js?v=20260911-2"></script>
+<script src="auth.js?v=20260911-6"></script>
 <script src="bottom-nav.js"></script>
 </body>
 </html>
