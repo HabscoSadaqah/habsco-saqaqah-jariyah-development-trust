@@ -6,7 +6,7 @@ function show(id,text){const el=$(id);if(!el)return;el.textContent=text;el.class
 function esc(v){return String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]||c));}
 let members=[];let loading=false;let currentSession=null;
 function injectAnalytics(){if(document.getElementById('adminAnalytics'))return;const nav=document.querySelector('.nav');if(nav){const a=document.createElement('a');a.href='#analytics';a.textContent='📊 Analytics';nav.insertBefore(a,nav.children[1]||null);}const mobile=document.querySelector('.mobile-nav');if(mobile){const a=document.createElement('a');a.href='#analytics';a.textContent='Analytics';mobile.insertBefore(a,mobile.children[1]||null);}const app=$('app');if(!app)return;const section=document.createElement('section');section.id='adminAnalytics';section.innerHTML=`<h2 class="section-title" id="analytics">📊 Analytics & Insights</h2><div class="stats"><div class="card"><small>ACTIVE MEMBERS</small><div class="stat" id="analyticsMembers">0</div></div><div class="card"><small>TOTAL WALLET BALANCE</small><div class="stat" id="analyticsWallet">₦0.00</div></div><div class="card"><small>AVERAGE MEMBER BALANCE</small><div class="stat" id="analyticsAverage">₦0.00</div></div><div class="card"><small>MEMBER IDs ISSUED</small><div class="stat" id="analyticsIds">0</div></div><div class="card"><small>PENDING ACTIONS</small><div class="stat" id="analyticsPending">0</div></div></div><div class="grid"><div class="panel"><h2>Member growth</h2><div id="memberGrowthChart" style="display:grid;gap:8px"></div></div><div class="panel"><h2>Operational snapshot</h2><div id="analyticsSnapshot" class="notice" style="display:grid;gap:10px"></div><p class="notice" style="margin-top:16px">For full website visitor, traffic-source and page-view analytics, connect your Google Analytics 4 property. <a href="https://analytics.google.com/" target="_blank" rel="noopener">Open Google Analytics ↗</a></p></div></div>`;app.insertBefore(section,app.firstElementChild);}
-function setupPersistentAdminNav(){if(document.getElementById('persistentAdminNav'))return;document.querySelector('.sidebar')?.remove();document.querySelector('.mobile-nav')?.remove();document.querySelector('.quick')?.remove();const wrap=document.querySelector('.wrap');if(!wrap)return;const bar=document.createElement('div');bar.id='persistentAdminNav';bar.innerHTML='<div class="persistent-admin-nav-inner"></div>';const inner=bar.firstElementChild;const items=[['🛡️ Admin Dashboard','#admin-dashboard','admin-dashboard'],['💳 Wallet Control','#wallet','wallet'],['🪪 Member IDs','#member-ids','member-ids'],['📥 Funding Requests','#funding-only','funding-only'],['🤝 Qard Hasan','#qard-only','qard-only'],['↩ Repayments','#repayments','repayments'],['👥 Members','#members','members'],['📋 Audit Log','#audit','audit'],['📊 Analytics','#analytics','analytics']];items.forEach(([label,href,key])=>{const a=document.createElement('button');a.type='button';a.textContent=label;a.dataset.target=key;a.dataset.href=href;inner.appendChild(a)});wrap.insertBefore(bar,wrap.firstChild);const style=document.createElement('style');style.textContent='#persistentAdminNav{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:9999;width:min(1100px,calc(100% - 20px));background:#083e27;padding:8px;border-radius:14px;box-shadow:0 8px 28px #0003}.persistent-admin-nav-inner{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.persistent-admin-nav-inner::-webkit-scrollbar{display:none}.persistent-admin-nav button{flex:0 0 auto;border:1px solid #2a9b69;border-radius:9px;padding:9px 11px;font-size:11px;font-weight:900;white-space:nowrap;background:#126b42;color:#fff;cursor:pointer}.persistent-admin-nav button:hover,.persistent-admin-nav button.active{background:#14834e}.admin-focused #admin-dashboard{padding-top:8px}.admin-focused .hero,.admin-focused .top{display:none!important}.admin-focused .section-title{display:none}.admin-focus-only{display:none!important}.admin-focus-only.active-focus{display:block!important}.admin-focus-grid{display:none!important}.admin-focus-grid.active-focus{display:grid!important}.admin-focus-dashboard.active-focus{display:block!important}.admin-focus-analytics{display:none!important}.admin-focus-analytics.active-focus{display:block!important}@media(max-width:600px){#persistentAdminNav{top:6px;width:calc(100% - 10px);padding:6px}.persistent-admin-nav button{font-size:10px;padding:8px 9px}}';document.head.appendChild(style);const focus=key=>{const app=$('app');if(!app)return;app.querySelectorAll('.admin-focus-only,.admin-focus-grid,.admin-focus-dashboard,.admin-focus-analytics').forEach(el=>el.classList.remove('active-focus'));const dash=document.getElementById('admin-dashboard');if(key==='admin-dashboard'){dash?.classList.add('admin-focus-dashboard','active-focus');app.querySelectorAll('.section-title').forEach(el=>el.style.display='');app.querySelectorAll('.admin-focus-only,.admin-focus-grid,.admin-focus-analytics').forEach(el=>el.classList.remove('active-focus'));}else{dash?.classList.remove('active-focus');app.querySelectorAll('.section-title').forEach(el=>el.style.display='none');if(key==='analytics'){const el=document.getElementById('adminAnalytics');el?.classList.add('admin-focus-analytics','active-focus');}else if(key==='funding-only'){const grid=document.getElementById('requests');if(grid){grid.classList.add('admin-focus-grid','active-focus');const panels=[...grid.children];panels.forEach((p,i)=>{p.style.display=i===0?'block':'none'});}}else if(key==='qard-only'){const grid=document.getElementById('requests');if(grid){grid.classList.add('admin-focus-grid','active-focus');const panels=[...grid.children];panels.forEach((p,i)=>{p.style.display=i===1?'block':'none'});const approved=document.getElementById('approvedQardTable')?.closest('.panel');const parent=approved?.parentElement;if(approved&&parent){parent.classList.add('admin-focus-grid','active-focus');parent.style.display='grid';approved.style.display='block'}}}else if(key==='repayments'){const el=document.getElementById('repayments');el?.classList.add('admin-focus-only','active-focus');}else{const el=document.getElementById(key);el?.classList.add('admin-focus-only','active-focus');}}inner.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.target===key));history.replaceState(null,'',`#${key}`);window.scrollTo({top:0,behavior:'smooth'});};inner.addEventListener('click',e=>{const b=e.target.closest('button');if(b)focus(b.dataset.target)});window.__adminFocus=focus;setTimeout(()=>focus(location.hash?location.hash.slice(1):'admin-dashboard'),0);}
+function setupPersistentAdminNav(){if(document.getElementById('persistentAdminNav'))return;document.querySelector('.sidebar')?.remove();document.querySelector('.mobile-nav')?.remove();document.querySelector('.quick')?.remove();const wrap=document.querySelector('.wrap');if(!wrap)return;const bar=document.createElement('div');bar.id='persistentAdminNav';bar.innerHTML='<div class="persistent-admin-nav-inner"></div>';const inner=bar.firstElementChild;const items=[['🛡️ Admin Dashboard','#admin-dashboard','admin-dashboard'],['💳 Wallet Control','#wallet','wallet'],['🪪 Member IDs','#member-ids','member-ids'],['📥 Funding Requests','#funding-only','funding-only'],['🤝 Qard Hasan','#qard-only','qard-only'],['↩ Repayments','#repayments','repayments'],['👥 Members','#members','members'],['📋 Audit Log','#audit','audit'],['📊 Analytics','#analytics','analytics']];items.forEach(([label,href,key])=>{const a=document.createElement('button');a.type='button';a.textContent=label;a.dataset.target=key;a.dataset.href=href;inner.appendChild(a)});wrap.insertBefore(bar,wrap.firstChild);const style=document.createElement('style');style.textContent='#persistentAdminNav{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:9999;width:min(1100px,calc(100% - 20px));background:#083e27;padding:8px;border-radius:14px;box-shadow:0 8px 28px #0003}.persistent-admin-nav-inner{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}.persistent-admin-nav-inner::-webkit-scrollbar{display:none}.persistent-admin-nav button{flex:0 0 auto;border:1px solid #2a9b69;border-radius:9px;padding:9px 11px;font-size:11px;font-weight:900;white-space:nowrap;background:#126b42;color:#fff;cursor:pointer}.persistent-admin-nav button:hover,.persistent-admin-nav button.active{background:#14834e}.admin-focus-only{display:none!important}.admin-focus-only.active-focus{display:block!important}.admin-focus-grid{display:none!important}.admin-focus-grid.active-focus{display:grid!important}.admin-focus-dashboard.active-focus{display:block!important}.admin-focus-analytics{display:none!important}.admin-focus-analytics.active-focus{display:block!important}@media(max-width:600px){#persistentAdminNav{top:6px;width:calc(100% - 10px);padding:6px}.persistent-admin-nav button{font-size:10px;padding:8px 9px}}';document.head.appendChild(style);const focus=key=>{const app=$('app');if(!app)return;app.querySelectorAll('.admin-focus-only,.admin-focus-grid,.admin-focus-dashboard,.admin-focus-analytics').forEach(el=>el.classList.remove('active-focus'));const dash=document.getElementById('admin-dashboard');if(key==='admin-dashboard'){dash?.classList.add('admin-focus-dashboard','active-focus');app.querySelectorAll('.section-title').forEach(el=>el.style.display='');app.querySelectorAll('.admin-focus-only,.admin-focus-grid,.admin-focus-analytics').forEach(el=>el.classList.remove('active-focus'));}else{dash?.classList.remove('active-focus');app.querySelectorAll('.section-title').forEach(el=>el.style.display='none');if(key==='analytics'){const el=document.getElementById('adminAnalytics');el?.classList.add('admin-focus-analytics','active-focus');}else if(key==='funding-only'){const grid=document.getElementById('requests');if(grid){grid.classList.add('admin-focus-grid','active-focus');const panels=[...grid.children];panels.forEach((p,i)=>{p.style.display=i===0?'block':'none'});}}else if(key==='qard-only'){const grid=document.getElementById('requests');if(grid){grid.classList.add('admin-focus-grid','active-focus');const panels=[...grid.children];panels.forEach((p,i)=>{p.style.display=i===1?'block':'none'});const approved=document.getElementById('approvedQardTable')?.closest('.panel');const parent=approved?.parentElement;if(approved&&parent){parent.classList.add('admin-focus-grid','active-focus');parent.style.display='grid';approved.style.display='block'}}}else if(key==='repayments'){const el=document.getElementById('repayments');el?.classList.add('admin-focus-only','active-focus');}else{const el=document.getElementById(key);el?.classList.add('admin-focus-only','active-focus');}}inner.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.target===key));history.replaceState(null,'',`#${key}`);window.scrollTo({top:0,behavior:'smooth'});};inner.addEventListener('click',e=>{const b=e.target.closest('button');if(b)focus(b.dataset.target)});window.__adminFocus=focus;setTimeout(()=>focus(location.hash?location.hash.slice(1):'admin-dashboard'),0);}
 function renderAnalytics(funding,qard){injectAnalytics();const active=members.filter(m=>m.status==='active');const total=Array.from(document.querySelectorAll('#membersTable tr')).reduce((s,tr)=>{const cell=tr.children?.[4];return s+(cell?Number((cell.textContent||'').replace(/[^0-9.-]/g,''))||0:0)},0);const ids=members.filter(m=>m.member_id).length;const pending=(funding||[]).length+(qard||[]).length;const avg=active.length?total/active.length:0;$('analyticsMembers').textContent=active.length;$('analyticsWallet').textContent=money(total);$('analyticsAverage').textContent=money(avg);$('analyticsIds').textContent=ids;$('analyticsPending').textContent=pending;const now=new Date();const months=[];for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,label:d.toLocaleDateString('en-NG',{month:'short'}),count:0});}members.forEach(m=>{if(!m.created_at)return;const d=new Date(m.created_at);const x=months.find(x=>x.key===`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`);if(x)x.count++;});const max=Math.max(1,...months.map(x=>x.count));$('memberGrowthChart').innerHTML=months.map(x=>`<div style="display:grid;grid-template-columns:45px 1fr 30px;gap:8px;align-items:center;font-size:12px"><strong>${x.label}</strong><div style="height:12px;background:#edf3ef;border-radius:99px;overflow:hidden"><div style="height:100%;width:${Math.round(x.count/max*100)}%;background:#14834e;border-radius:99px"></div></div><span>${x.count}</span></div>`).join('');$('analyticsSnapshot').innerHTML=`<div><strong>${active.length}</strong> active member${active.length===1?'':'s'} currently registered.</div><div><strong>${ids}</strong> official Member IDs have been issued.</div><div><strong>${funding.length}</strong> funding request${funding.length===1?'':'s'} awaiting review.</div><div><strong>${qard.length}</strong> Qard Hasan request${qard.length===1?'':'s'} awaiting review.</div><div><strong>${money(total)}</strong> total balance across member wallets.</div>`;}
 async function guard(){const {data:{session},error:sessionError}=await supabaseClient.auth.getSession();if(sessionError||!session){location.href='auth.html';return null}const {data:profile,error}=await supabaseClient.from('profiles').select('full_name,role,status').eq('id',session.user.id).single();if(error||profile?.role!=='admin'||profile?.status!=='active'){$('adminMeta').textContent='Administrator access required.';setTimeout(()=>location.href='member.html',1200);return null}$('adminMeta').textContent=`Signed in as ${profile.full_name||session.user.email} · Administrator`;$('heroAdminName').textContent=profile.full_name||'Administrator';$('adminName').textContent=profile.full_name||'Administrator';$('adminEmail').textContent=session.user.email||'Admin account';$('app').classList.remove('hidden');injectAnalytics();setupPersistentAdminNav();return session;}
 function loadingRow(id,cols){$(id).innerHTML=`<tr><td colspan="${cols}">Loading…</td></tr>`;}
@@ -17,76 +17,74 @@ $('memberIdForm').addEventListener('submit',async e=>{e.preventDefault();const u
 $('logout').onclick=async()=>{await supabaseClient.auth.signOut();location.href='auth.html';};
 (async()=>{currentSession=await guard();if(currentSession)await load();})();
 
-/* Final admin-page polish: keep the existing secure controls, but make the floating navigation a true single-view workspace. */
-(function polishAdminWorkspace(){
-  const css=document.createElement('style');
-  css.textContent=`
-    body{background:linear-gradient(180deg,#f5f8f6 0%,#eef4f0 100%)}
-    #persistentAdminNav{width:min(1180px,calc(100% - 24px));top:12px;padding:7px;border:1px solid rgba(255,255,255,.16);background:rgba(6,47,32,.96);backdrop-filter:blur(14px);box-shadow:0 14px 40px rgba(6,47,32,.22)}
-    #persistentAdminNav:before{content:'ADMIN CONTROL';display:block;color:#bfe5d0;font-size:9px;font-weight:950;letter-spacing:1.5px;padding:1px 8px 5px}
-    .persistent-admin-nav-inner{gap:7px;padding:0 2px 2px}
-    .persistent-admin-nav button{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;font-size:11px;transition:.18s ease;box-shadow:none}
-    .persistent-admin-nav button:hover{background:rgba(255,255,255,.15);transform:translateY(-1px)}
-    .persistent-admin-nav button.active{background:#18a968;border-color:#49d39a;box-shadow:0 5px 15px rgba(24,169,104,.28)}
-    #app{padding-top:82px}
-    .admin-workspace-title{display:flex;align-items:center;gap:10px;margin:0 0 16px;padding:15px 17px;border:1px solid #dce8e1;border-radius:16px;background:rgba(255,255,255,.88);box-shadow:0 8px 24px rgba(18,53,26,.06)}
-    .admin-workspace-title strong{font-size:17px;color:#123f2b}.admin-workspace-title span{margin-left:auto;font-size:11px;color:#718078;font-weight:800}
-    .admin-only-overview-hide{display:none!important}
-    .admin-only-overview-show{display:block!important}
-    .admin-focus-grid.active-focus{display:grid!important;grid-template-columns:1fr!important}
-    .admin-focus-grid.active-focus>.panel{display:block!important}
-    .admin-focus-grid.active-focus>.panel.admin-hidden-panel{display:none!important}
-    .admin-focus-only.active-focus,.admin-focus-analytics.active-focus{animation:adminIn .16s ease}
-    .panel{box-shadow:0 8px 26px rgba(18,53,26,.07);border-color:#dce6e0}
-    .panel h2{display:flex;align-items:center;gap:8px}
-    .table-wrap{box-shadow:inset 0 0 0 1px rgba(18,53,26,.02)}
-    th{position:sticky;top:0;z-index:1}
-    .btn{min-height:40px}.btn.red{background:#b43b43}.btn.gold{background:#f5e7b8;color:#624a05}
-    @keyframes adminIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-    @media(max-width:600px){#persistentAdminNav{top:6px;width:calc(100% - 10px)}#persistentAdminNav:before{padding-left:5px}.persistent-admin-nav button{padding:9px 10px;font-size:10px}#app{padding-top:76px}.admin-workspace-title{border-radius:12px;padding:13px}}
-  `;
-  document.head.appendChild(css);
-
-  function enhance(){
-    const app=$('app'),dash=$('admin-dashboard');
+/* Robust final workspace controller. The original page nests all admin tools inside #admin-dashboard, so focus must be applied to those nested sections rather than #app children. */
+(function installFinalAdminWorkspace(){
+  const labels={
+    'admin-dashboard':'Overview','wallet':'Wallet Control','member-ids':'Member IDs',
+    'funding-only':'Funding Requests','qard-only':'Qard Hasan','repayments':'Repayments',
+    'members':'Members','audit':'Audit Log','analytics':'Analytics'
+  };
+  const find=id=>document.getElementById(id);
+  function apply(key){
+    const app=find('app'),dash=find('admin-dashboard');
     if(!app||!dash)return;
-    if(!document.getElementById('adminWorkspaceTitle')){
-      const t=document.createElement('div');t.id='adminWorkspaceTitle';t.className='admin-workspace-title';
-      t.innerHTML='<strong>Administrator Workspace</strong><span id="adminWorkspaceHint">Overview</span>';
-      app.insertBefore(t,app.firstElementChild);
-    }
-    const title=$('adminWorkspaceTitle'),hint=$('adminWorkspaceHint');
-    window.__adminFocus=function(key){
-      const sections=[...app.querySelectorAll('.admin-focus-only,.admin-focus-grid,.admin-focus-dashboard,.admin-focus-analytics')];
-      sections.forEach(el=>el.classList.remove('active-focus'));
-      app.querySelectorAll('.admin-hidden-panel').forEach(el=>el.classList.remove('admin-hidden-panel'));
-      const allTitles=app.querySelectorAll('.section-title');allTitles.forEach(el=>el.style.display='none');
-      title.style.display='flex';
-      const labels={'admin-dashboard':'Overview','wallet':'Wallet Control','member-ids':'Member IDs','funding-only':'Funding Requests','qard-only':'Qard Hasan','repayments':'Repayments','members':'Members','audit':'Audit Log','analytics':'Analytics'};
-      hint.textContent=labels[key]||'Admin Control';
-      if(key==='admin-dashboard'){
-        dash.classList.add('admin-focus-dashboard','active-focus');
-        [...dash.children].forEach(el=>{if(el!==dash.querySelector('.profile')&&!el.classList.contains('stats')&&!el.classList.contains('control-note'))el.classList.add('admin-only-overview-hide');else el.classList.remove('admin-only-overview-hide')});
-        dash.querySelectorAll('.section-title').forEach(el=>el.style.display='none');
-      }else{
-        [...dash.children].forEach(el=>el.classList.remove('admin-only-overview-hide'));
-        if(key==='analytics'){
-          $('adminAnalytics')?.classList.add('admin-focus-analytics','active-focus');
-        }else if(key==='funding-only'){
-          const grid=$('requests');if(grid){grid.classList.add('admin-focus-grid','active-focus');[...grid.children].forEach((p,i)=>p.classList.toggle('admin-hidden-panel',i!==0));}
-        }else if(key==='qard-only'){
-          const grid=$('requests');if(grid){grid.classList.add('admin-focus-grid','active-focus');[...grid.children].forEach((p,i)=>p.classList.toggle('admin-hidden-panel',i!==1));}
-          const approved=$('approvedQardTable')?.closest('.panel');if(approved){approved.classList.add('admin-focus-only','active-focus');}
-        }else if(key==='repayments'){
-          $('repayments')?.classList.add('admin-focus-only','active-focus');
-        }else{
-          $(key)?.classList.add('admin-focus-only','active-focus');
-        }
-      }
-      document.querySelectorAll('#persistentAdminNav button').forEach(b=>b.classList.toggle('active',b.dataset.target===key));
-      history.replaceState(null,'',`#${key}`);window.scrollTo({top:0,behavior:'smooth'});
-    };
-    window.__adminFocus(location.hash?location.hash.slice(1):'admin-dashboard');
+    const profile=app.querySelector('.profile');
+    const stats=app.querySelector(':scope > .stats');
+    const analytics=find('adminAnalytics');
+    const memberIds=find('member-ids'),wallet=find('wallet'),requests=find('requests'),repay=find('repayments'),membersBox=find('members'),audit=find('audit');
+    const funding=requests?.children?.[0];
+    const qard=requests?.children?.[1];
+    const approved=find('approvedQardTable')?.closest('.panel');
+    const allPanels=[memberIds,wallet,requests,repay,membersBox,audit,analytics,funding,qard,approved].filter(Boolean);
+    const allAppChildren=[...app.children];
+    allAppChildren.forEach(el=>el.classList.add('admin-view-hidden'));
+    allPanels.forEach(el=>el.classList.add('admin-view-hidden'));
+    profile?.classList.add('admin-view-hidden');stats?.classList.add('admin-view-hidden');
+    if(key==='admin-dashboard'){
+      profile?.classList.remove('admin-view-hidden');stats?.classList.remove('admin-view-hidden');
+      app.querySelectorAll('.section-title').forEach(el=>el.classList.add('admin-view-hidden'));
+      app.querySelector('.control-note')?.classList.remove('admin-view-hidden');
+    }else if(key==='wallet')wallet?.classList.remove('admin-view-hidden');
+    else if(key==='member-ids')memberIds?.classList.remove('admin-view-hidden');
+    else if(key==='funding-only'){requests?.classList.remove('admin-view-hidden');funding?.classList.remove('admin-view-hidden');}
+    else if(key==='qard-only'){requests?.classList.remove('admin-view-hidden');qard?.classList.remove('admin-view-hidden');approved?.classList.remove('admin-view-hidden');}
+    else if(key==='repayments')repay?.classList.remove('admin-view-hidden');
+    else if(key==='members')membersBox?.classList.remove('admin-view-hidden');
+    else if(key==='audit')audit?.classList.remove('admin-view-hidden');
+    else if(key==='analytics')analytics?.classList.remove('admin-view-hidden');
+    document.querySelectorAll('#persistentAdminNav button').forEach(b=>b.classList.toggle('active',b.dataset.target===key));
+    const hint=find('adminWorkspaceHint');if(hint)hint.textContent=labels[key]||'Admin Control';
+    history.replaceState(null,'',`#${key}`);
+    window.scrollTo({top:0,behavior:'smooth'});
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(enhance,0));else setTimeout(enhance,0);
+  function init(){
+    const app=find('app');if(!app)return;
+    const css=document.createElement('style');
+    css.textContent=`
+      #app{padding-top:84px!important}
+      .admin-view-hidden{display:none!important}
+      #admin-dashboard{min-height:0!important}
+      #persistentAdminNav{width:min(1180px,calc(100% - 24px));top:10px;padding:7px;background:rgba(6,47,32,.97);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(14px);box-shadow:0 14px 40px rgba(6,47,32,.24)}
+      #persistentAdminNav:before{content:'ADMIN CONTROL';display:block;color:#bfe5d0;font-size:9px;font-weight:950;letter-spacing:1.5px;padding:1px 8px 5px}
+      .persistent-admin-nav-inner{gap:7px}
+      .persistent-admin-nav button{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;font-size:11px;font-weight:900;transition:.18s ease}
+      .persistent-admin-nav button:hover{background:rgba(255,255,255,.15);transform:translateY(-1px)}
+      .persistent-admin-nav button.active{background:#18a968;border-color:#49d39a;box-shadow:0 5px 15px rgba(24,169,104,.28)}
+      .admin-view-hidden{visibility:hidden!important}
+      @media(max-width:600px){#persistentAdminNav{top:5px;width:calc(100% - 10px)}#persistentAdminNav:before{padding-left:5px}.persistent-admin-nav button{padding:9px 10px;font-size:10px}#app{padding-top:78px!important}}
+    `;
+    document.head.appendChild(css);
+    if(!find('adminWorkspaceTitle')){
+      const title=document.createElement('div');title.id='adminWorkspaceTitle';title.className='admin-workspace-title';title.innerHTML='<strong>Administrator Workspace</strong><span id="adminWorkspaceHint">Overview</span>';app.prepend(title);
+    }
+    /* Capture the button event before the legacy bubble handler, so the old focus implementation cannot undo the corrected view. */
+    const nav=find('persistentAdminNav');
+    if(nav&&!nav.dataset.finalBound){
+      nav.dataset.finalBound='1';
+      nav.addEventListener('click',e=>{const b=e.target.closest('button[data-target]');if(!b)return;e.preventDefault();e.stopPropagation();apply(b.dataset.target);},true);
+    }
+    window.__adminFocus=apply;
+    apply(location.hash?location.hash.slice(1):'admin-dashboard');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(init,20));else setTimeout(init,20);
 })();
