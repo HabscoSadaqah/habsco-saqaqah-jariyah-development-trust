@@ -8,7 +8,6 @@
     programs: ['Impact | Habsco Sadaqah Jariyah Development Trust','Explore the community impact of Habsco Sadaqah Jariyah Development Trust through sustainable charity and development projects in Nigeria.'],
     finance: ['Habsco Free-Interest Cooperative | Habsco Sadaqah Jariyah','Learn about the Habsco Free-Interest Multipurpose Cooperative Society, member services and Qard Hasan interest-free assistance.'],
     impact: ['Our Impact | Habsco Sadaqah Jariyah Development Trust','See the community impact of Habsco Sadaqah Jariyah Development Trust through sustainable charity and development projects in Nigeria.'],
-    gallery: ['Gallery | Habsco Sadaqah Jariyah Development Trust','View photos and updates from Habsco Sadaqah Jariyah Development Trust charity and community projects.'],
     contact: ['Donate & Contact Habsco Sadaqah Jariyah Development Trust','Contact Habsco Sadaqah Jariyah Development Trust for donations, volunteering, partnerships and community project enquiries in Nigeria.']
   };
   const data = seo[page];
@@ -24,33 +23,51 @@
     const css=document.createElement('link'); css.rel='stylesheet'; css.href='app.css'; css.dataset.appCss='true'; document.head.appendChild(css);
   }
 
-  const publicPages=['index.html','about.html','programs.html','impact.html','gallery.html','finance.html','contact.html'];
+  const publicPages=['index.html','about.html','programs.html','impact.html','finance.html','contact.html'];
   const isPublic=publicPages.includes(path);
-  if(isPublic){
-    // Public pages use a logo-only header. Remove the entire original nav safely,
-    // but preserve its logo before replacing the header contents.
+  const applyPublicShell=()=>{
+    if(!publicPages.includes(path)) return;
+    document.body.classList.add('public-app');
+
+    // Remove every old public top navigation element. Keep only the organisation logo.
+    document.querySelectorAll('.topbar, body > .topbar, header nav, header .menu, header .mobile-toggle, .site-nav, .top-nav, .main-nav, .navbar, .nav-links').forEach(el=>el.remove());
     const header=document.querySelector('header');
     if(header){
-      const originalBrand=header.querySelector('.brand');
-      const brand=originalBrand?.cloneNode(true);
-      if(brand){
-        brand.setAttribute('aria-label','Habsco Sadaqah Jariyah Development Trust');
-        brand.querySelector('.brand-name')?.remove();
+      let brand=header.querySelector('.brand');
+      if(!brand){
+        const img=header.querySelector('img[alt*="Habsco"]');
+        if(img){brand=img.closest('a')||img;}
       }
-      header.querySelectorAll('nav, .menu, .mobile-toggle, .site-nav, .top-nav, .main-nav, .navbar, .nav-links').forEach(el=>el.remove());
+      const logo=brand?.cloneNode(true);
+      if(logo?.querySelector) logo.querySelector('.brand-name')?.remove();
       header.innerHTML='';
-      if(brand) header.appendChild(brand);
+      if(logo) header.appendChild(logo);
       header.classList.add('logo-only-header');
     }
-    // Remove any standalone public top-menu controls outside the header as well.
-    document.querySelectorAll('.site-nav, .top-nav, .main-nav, .navbar, .nav-links, .mobile-toggle').forEach(el=>el.remove());
-    if(!document.querySelector('.app-bottom-nav')){
-      const nav=document.createElement('nav');nav.className='app-bottom-nav';nav.setAttribute('aria-label','Public navigation');
-      const items=[['index.html','⌂','Home','index'],['impact.html','◈','Impact','impact'],['finance.html','₦','Finance','finance'],['contact.html','●','Contact','contact'],['contact.html','♡','Donate','contact']];
-      nav.innerHTML=items.map(([href,icon,label,key],i)=>`<a href="${href}" class="${page===key?'active':''}${i===4?' donate-tab':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
+
+    let nav=document.querySelector('.app-bottom-nav');
+    if(!nav){
+      nav=document.createElement('nav');
+      nav.className='app-bottom-nav';
+      nav.setAttribute('aria-label','Public navigation');
+      nav.innerHTML=[
+        ['index.html','⌂','Home','index'],
+        ['impact.html','◈','Impact','impact'],
+        ['finance.html','₦','Finance','finance'],
+        ['contact.html','●','Contact','contact'],
+        ['contact.html','♡','Donate','contact']
+      ].map(([href,icon,label,key],i)=>`<a href="${href}" class="${page===key?'active':''}${i===4?' donate-tab':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
       document.body.appendChild(nav);
     }
-    document.body.classList.add('public-app');
+  };
+
+  // Run immediately and once after the page has fully parsed so page-specific styles/scripts
+  // cannot bring the old public header/menu back.
+  if(isPublic){
+    applyPublicShell();
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyPublicShell,{once:true});
+    window.addEventListener('load',applyPublicShell,{once:true});
+    setTimeout(applyPublicShell,50);
   }
 
   document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const el=document.querySelector(a.getAttribute('href'));if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'});}}));
@@ -66,8 +83,8 @@
     @keyframes portalPulse{0%,100%{box-shadow:0 0 0 0 rgba(244,201,79,.72),0 8px 26px rgba(0,0,0,.16)}50%{box-shadow:0 0 0 12px rgba(244,201,79,0),0 10px 30px rgba(244,201,79,.18)}}
     @keyframes portalFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
     .public-app header.logo-only-header{min-height:128px!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:16px 20px!important;background:rgba(255,255,255,.98)!important;border-bottom:1px solid #e2ebe4!important;box-shadow:0 8px 28px rgba(10,50,25,.10)!important;position:sticky!important;top:0!important;z-index:1100!important}
-    .public-app header.logo-only-header .brand{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;margin:0!important;text-decoration:none!important}
-    .public-app header.logo-only-header .brand img{display:block!important;width:clamp(170px,30vw,280px)!important;height:auto!important;max-height:108px!important;object-fit:contain!important;filter:drop-shadow(0 5px 10px rgba(10,50,25,.14))!important}
+    .public-app header.logo-only-header .brand,.public-app header.logo-only-header>a{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;margin:0!important;text-decoration:none!important}
+    .public-app header.logo-only-header img{display:block!important;width:clamp(170px,30vw,280px)!important;height:auto!important;max-height:108px!important;object-fit:contain!important;filter:drop-shadow(0 5px 10px rgba(10,50,25,.14))!important}
     .public-app .app-bottom-nav{position:fixed!important;left:50%!important;bottom:calc(16px + env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;width:min(820px,calc(100vw - 40px))!important;min-height:72px!important;padding:8px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;align-items:stretch!important;background:rgba(255,255,255,.96)!important;border:1px solid rgba(13,91,43,.14)!important;border-radius:24px!important;box-shadow:0 16px 42px rgba(8,50,26,.20),0 4px 14px rgba(8,50,26,.10)!important;backdrop-filter:blur(16px)!important;-webkit-backdrop-filter:blur(16px)!important;z-index:2000!important}
     .public-app .app-bottom-nav a{min-width:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;padding:8px 5px!important;border-radius:17px!important;color:#164d2b!important;text-decoration:none!important;font-weight:700!important;transition:transform .18s ease,background .18s ease,color .18s ease!important}
     .public-app .app-bottom-nav a span{font-size:22px!important;line-height:1!important;font-weight:800!important}
@@ -77,8 +94,8 @@
     .public-app .app-bottom-nav a.donate-tab{background:#f4c94f!important;color:#173d26!important}
     .public-app .app-bottom-nav a.donate-tab.active{background:#dcae24!important;color:#173d26!important}
     .public-app{padding-bottom:116px!important}
-    @media(max-width:720px){.public-app header.logo-only-header{min-height:98px!important;padding:10px 16px!important}.public-app header.logo-only-header .brand img{width:clamp(145px,50vw,205px)!important;max-height:76px!important}.public-app .app-bottom-nav{width:calc(100vw - 16px)!important;bottom:calc(6px + env(safe-area-inset-bottom))!important;min-height:66px!important;padding:6px!important;border-radius:20px!important;gap:3px!important}.public-app .app-bottom-nav a{padding:6px 3px!important;border-radius:14px!important}.public-app .app-bottom-nav a span{font-size:20px!important}.public-app .app-bottom-nav a small{font-size:10px!important}.public-app{padding-bottom:92px!important}}
-    @media(min-width:1400px){.public-app header.logo-only-header{min-height:154px!important}.public-app header.logo-only-header .brand img{width:300px!important;max-height:120px!important}.public-app .app-bottom-nav{min-height:78px!important}}
+    @media(max-width:720px){.public-app header.logo-only-header{min-height:98px!important;padding:10px 16px!important}.public-app header.logo-only-header img{width:clamp(145px,50vw,205px)!important;max-height:76px!important}.public-app .app-bottom-nav{width:calc(100vw - 16px)!important;bottom:calc(6px + env(safe-area-inset-bottom))!important;min-height:66px!important;padding:6px!important;border-radius:20px!important;gap:3px!important}.public-app .app-bottom-nav a{padding:6px 3px!important;border-radius:14px!important}.public-app .app-bottom-nav a span{font-size:20px!important}.public-app .app-bottom-nav a small{font-size:10px!important}.public-app{padding-bottom:92px!important}}
+    @media(min-width:1400px){.public-app header.logo-only-header{min-height:154px!important}.public-app header.logo-only-header img{width:300px!important;max-height:120px!important}.public-app .app-bottom-nav{min-height:78px!important}}
   `;
   document.head.appendChild(footerStyle);
   const cleanProgramFooter=()=>{if(!document.querySelector('.programs-page'))return;document.querySelectorAll('footer .footer > div').forEach(section=>{const heading=section.querySelector('h4');if(heading&&/comprehensive\s+program/i.test(heading.textContent||''))section.remove()});const seen=new Set();document.querySelectorAll('footer a[href]').forEach(link=>{const href=(link.getAttribute('href')||'').split('#')[0];if(!href||!(/program/i.test(link.textContent||'')||/program/i.test(href)))return;const key=href.toLowerCase();if(seen.has(key))link.remove();else seen.add(key)})};
