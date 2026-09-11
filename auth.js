@@ -14,9 +14,7 @@ function setMessage(text,ok=false){
 }
 
 function getClient(){
-  if(!window.supabase||typeof window.supabase.createClient!=='function'){
-    throw new Error('The login service could not load. Please refresh the page and try again.');
-  }
+  if(!window.supabase||typeof window.supabase.createClient!=='function')throw new Error('The login service could not load. Please refresh the page and try again.');
   return window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 }
 
@@ -30,6 +28,7 @@ const submitBtn=$('submitBtn');
 const message=$('message');
 const registrationFields=$('registrationFields');
 const confirmField=$('confirmField');
+const biometricLoginBtn=$('biometricLoginBtn');
 
 function setMode(next){
   mode=next;
@@ -40,6 +39,7 @@ function setMode(next){
   $('password').autocomplete=mode==='signup'?'new-password':'current-password';
   submitBtn.textContent=mode==='signup'?'CREATE MEMBER ACCOUNT':'LOGIN';
   $('forgotWrap').classList.toggle('hidden',mode!=='login');
+  biometricLoginBtn.classList.toggle('hidden',mode!=='login');
   message.className='message';
 }
 
@@ -73,6 +73,16 @@ $('forgotPassword').addEventListener('click',async()=>{
   finally{button.disabled=false;button.textContent='Forgot password?';}
 });
 
+async function verifyAfterPasswordLogin(user){
+  const marker='hf_passkey_'+user.id;
+  const enrolled=localStorage.getItem(marker)==='server-verified';
+  if(!enrolled||!window.hfBiometric?.supported?.())return;
+  const hint=$('bioHint');
+  if(hint)hint.textContent='Confirm your identity with Face ID / fingerprint…';
+  await window.hfBiometric.verify(user,'authentication');
+  if(hint)hint.textContent='Biometric verification successful.';
+}
+
 form.addEventListener('submit',async e=>{
   e.preventDefault();
   if(mode!=='login'){return register();}
@@ -90,14 +100,48 @@ form.addEventListener('submit',async e=>{
     if(error)throw error;
     if(!data?.session?.user)throw new Error('Login did not return a valid session. Please try again.');
 
+    if(localStorage.getItem('hf_passkey_'+data.session.user.id)==='server-verified'){
+      submitBtn.textContent='VERIFYING BIOMETRIC…';
+      try{
+        await verifyAfterPasswordLogin(data.session.user);
+      }catch(bioError){
+        console.error('Biometric verification error:',bioError);
+        const bm=String(bioError?.message||'').toLowerCase();
+        if(bm.includes('no biometric credential')||bm.includes('credential not found')||bm.includes('no credential')){
+          localStorage.removeItem('hf_passkey_'+data.session.user.id);
+        }else{
+          throw new Error('Biometric verification failed. Please try again or use your enrolled device biometric.');
+        }
+      }
+    }
+
     setMessage('Login successful. Opening your member portal…',true);
-    setTimeout(()=>go('./member.html'),300);
+    setTimeout(()=>go('./member.html'),250);
   }catch(error){
     console.error('Authentication error:',error);
+    try{if(supabaseClient)await supabaseClient.auth.signOut();}catch{}
     setMessage(loginError(error));
     submitBtn.disabled=false;
     submitBtn.textContent='LOGIN';
   }
+});
+
+biometricLoginBtn.addEventListener('click',async()=>{
+  if(mode!=='login')return;
+  biometricLoginBtn.disabled=true;
+  try{
+    if(!supabaseClient)throw new Error('Login service is unavailable.');
+    const {data}=await supabaseClient.auth.getSession();
+    const user=data?.session?.user;
+    if(!user){setMessage('Enter your email and password first, then biometric verification will confirm your identity.');$('password').focus();return;}
+    if(!window.hfBiometric?.supported?.())throw new Error('Face ID / fingerprint is not available in this browser.');
+    await window.hfBiometric.verify(user,'authentication');
+    setMessage('Biometric verification successful. Opening your member portal…',true);
+    setTimeout(()=>go('./member.html'),250);
+  }catch(error){
+    console.error('Biometric login verification:',error);
+    setMessage(error?.message||'Biometric verification failed.');
+  }finally{biometricLoginBtn.disabled=false;}
 });
 
 async function register(){
@@ -134,7 +178,4 @@ async function register(){
   }
 }
 
-// Register the real PWA service worker from the authentication page too.
-if('serviceWorker' in navigator && location.protocol==='https:'){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
-}
+if('serviceWorker' in navigator && location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
