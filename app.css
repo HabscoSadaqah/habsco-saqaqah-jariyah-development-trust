@@ -5,8 +5,8 @@
 .public-app .card,.public-app .panel,.public-app .cta,.public-app .trust{box-shadow:0 10px 30px rgba(10,50,25,.08)}
 @keyframes habscoPortalPulse{0%,100%{transform:translateY(0) scale(1);box-shadow:0 12px 28px rgba(13,91,43,.18)}50%{transform:translateY(-3px) scale(1.025);box-shadow:0 18px 38px rgba(13,91,43,.28)}}
 @keyframes habscoPortalGlow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.08)}}
-@keyframes habscoLogoFloat{0%,100%{transform:translateY(0) rotateX(0deg) rotateY(0deg) scale(1);filter:drop-shadow(0 8px 14px rgba(10,50,25,.16)) drop-shadow(0 2px 2px rgba(255,255,255,.55))}50%{transform:translateY(-2px) rotateX(1.2deg) rotateY(-1deg) scale(1.012);filter:drop-shadow(0 13px 22px rgba(10,50,25,.22)) drop-shadow(0 3px 3px rgba(255,255,255,.7))}}
-@keyframes habscoLogoShine{0%,72%,100%{opacity:0;transform:translateX(-115%) skewX(-18deg)}80%{opacity:.42}88%{opacity:0;transform:translateX(115%) skewX(-18deg)}}
+@keyframes habscoLogoFloat{0%,100%{transform:translateY(0) rotateX(0deg) rotateY(0deg) scale(1);filter:drop-shadow(0 7px 12px rgba(10,50,25,.15)) drop-shadow(0 2px 2px rgba(255,255,255,.55))}50%{transform:translateY(-1px) rotateX(.7deg) rotateY(-.6deg) scale(1.006);filter:drop-shadow(0 10px 17px rgba(10,50,25,.19)) drop-shadow(0 2px 2px rgba(255,255,255,.65))}}
+@keyframes habscoLogoShine{0%,72%,100%{opacity:0;transform:translateX(-115%) skewX(-18deg)}80%{opacity:.35}88%{opacity:0;transform:translateX(115%) skewX(-18deg)}}
 .public-app .hero a[href="auth.html"]{animation:habscoPortalPulse 2.2s ease-in-out infinite,habscoPortalGlow 2.2s ease-in-out infinite;will-change:transform,box-shadow,filter}
 .public-app .hero a[href="auth.html"]:hover{animation-play-state:paused;transform:translateY(-4px) scale(1.035)}
 .public-app,.public-app *{box-sizing:border-box}
@@ -30,13 +30,13 @@
 .public-app .navbar,
 .public-app .nav-links{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;max-height:0!important;overflow:hidden!important;padding:0!important;margin:0!important;border:0!important}
 
-/* Public header: centered logo-only brand stage. */
-.public-app header.logo-only-header{position:sticky;top:0;z-index:1500;width:100%;min-height:124px;display:flex!important;align-items:center!important;justify-content:center!important;padding:12px 18px!important;background:linear-gradient(180deg,rgba(255,255,255,.985),rgba(248,252,249,.94))!important;border-bottom:1px solid rgba(218,232,222,.9);box-shadow:0 8px 28px rgba(10,50,25,.10);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);perspective:900px;overflow:visible!important}
+/* Public header: fixed logo geometry from first paint to eliminate size jump. */
+.public-app header.logo-only-header{position:sticky;top:0;z-index:1500;width:100%;height:112px!important;min-height:112px!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:8px 18px!important;background:linear-gradient(180deg,rgba(255,255,255,.985),rgba(248,252,249,.94))!important;border-bottom:1px solid rgba(218,232,222,.9);box-shadow:0 8px 28px rgba(10,50,25,.10);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);perspective:900px;overflow:visible!important}
 .public-app header.logo-only-header .public-logo{position:relative;display:flex!important;align-items:center!important;justify-content:center!important;width:100%;height:100%;margin:0;text-decoration:none;perspective:900px;overflow:visible!important}
-.public-app header.logo-only-header .public-logo:before{content:"";position:absolute;width:min(390px,72vw);height:min(120px,20vw);border-radius:50%;background:radial-gradient(ellipse,rgba(13,91,43,.11) 0%,rgba(13,91,43,.035) 48%,transparent 72%);filter:blur(9px);transform:translateY(12px) rotateX(68deg);pointer-events:none;z-index:-1}
-.public-app header.logo-only-header .public-logo:after{content:"";position:absolute;left:12%;right:12%;top:18%;height:46%;border-radius:50%;background:linear-gradient(105deg,transparent 25%,rgba(255,255,255,.68) 47%,rgba(255,255,255,.16) 54%,transparent 68%);mix-blend-mode:screen;opacity:0;pointer-events:none;z-index:2;animation:habscoLogoShine 6.5s ease-in-out infinite}
-.public-app header.logo-only-header .public-logo img{position:relative;z-index:1;display:block!important;width:clamp(180px,27vw,290px)!important;height:auto!important;max-height:104px!important;object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 8px 14px rgba(10,50,25,.17)) drop-shadow(0 2px 2px rgba(255,255,255,.55));transform-origin:center center;animation:habscoLogoFloat 5s ease-in-out infinite;will-change:transform,filter}
-.public-app header.logo-only-header .public-logo:hover img{animation-play-state:paused;transform:translateY(-4px) rotateX(2deg) rotateY(-2deg) scale(1.025)!important;filter:drop-shadow(0 15px 25px rgba(10,50,25,.25)) drop-shadow(0 3px 3px rgba(255,255,255,.75))!important}
+.public-app header.logo-only-header .public-logo:before{content:"";position:absolute;width:min(350px,68vw);height:min(100px,18vw);border-radius:50%;background:radial-gradient(ellipse,rgba(13,91,43,.10) 0%,rgba(13,91,43,.03) 48%,transparent 72%);filter:blur(8px);transform:translateY(10px) rotateX(68deg);pointer-events:none;z-index:-1}
+.public-app header.logo-only-header .public-logo:after{content:"";position:absolute;left:14%;right:14%;top:19%;height:44%;border-radius:50%;background:linear-gradient(105deg,transparent 25%,rgba(255,255,255,.64) 47%,rgba(255,255,255,.14) 54%,transparent 68%);mix-blend-mode:screen;opacity:0;pointer-events:none;z-index:2;animation:habscoLogoShine 6.5s ease-in-out infinite}
+.public-app header.logo-only-header .public-logo img{position:relative;z-index:1;display:block!important;width:240px!important;height:auto!important;max-width:240px!important;max-height:92px!important;object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 7px 12px rgba(10,50,25,.15)) drop-shadow(0 2px 2px rgba(255,255,255,.55));transform-origin:center center;animation:habscoLogoFloat 5s ease-in-out infinite;will-change:transform,filter}
+.public-app header.logo-only-header .public-logo:hover img{animation-play-state:paused;transform:translateY(-3px) rotateX(1.5deg) rotateY(-1.5deg) scale(1.012)!important;filter:drop-shadow(0 12px 19px rgba(10,50,25,.22)) drop-shadow(0 2px 2px rgba(255,255,255,.7))!important}
 .public-app header.logo-only-header .public-logo:focus-visible{outline:3px solid rgba(13,91,43,.24);outline-offset:8px;border-radius:20px}
 
 /* Premium glass bottom navigation: app-like, thumb-friendly and resilient across devices. */
@@ -57,8 +57,8 @@
 body.public-app{padding-bottom:124px!important}
 
 @media(min-width:1440px){
-  .public-app header.logo-only-header{min-height:140px;padding:14px 24px!important}
-  .public-app header.logo-only-header .public-logo img{width:310px!important;max-height:116px!important}
+  .public-app header.logo-only-header{height:128px!important;min-height:128px!important;padding:10px 24px!important}
+  .public-app header.logo-only-header .public-logo img{width:270px!important;max-width:270px!important;max-height:106px!important}
   .public-app .app-bottom-nav{width:min(860px,calc(100vw - 80px))!important;min-height:82px!important;bottom:26px!important;border-radius:30px!important}
   .public-app .app-bottom-nav a{min-height:66px!important}
   .public-app .app-bottom-nav a span{font-size:25px!important}.public-app .app-bottom-nav a small{font-size:12px!important}
@@ -66,8 +66,8 @@ body.public-app{padding-bottom:124px!important}
 }
 @media(max-width:720px){
   body.public-app{background:#fff;padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
-  .public-app header.logo-only-header{min-height:94px;padding:8px 14px!important}
-  .public-app header.logo-only-header .public-logo img{width:clamp(150px,52vw,215px)!important;max-height:78px!important}
+  .public-app header.logo-only-header{height:88px!important;min-height:88px!important;padding:6px 14px!important}
+  .public-app header.logo-only-header .public-logo img{width:185px!important;max-width:185px!important;max-height:74px!important}
   .public-app main{box-shadow:none;padding-bottom:20px}
   .public-app .footer{padding-bottom:102px}
   .public-app .hero,.public-app .section,.public-app .page-banner{width:100%;max-width:none}
@@ -77,8 +77,8 @@ body.public-app{padding-bottom:124px!important}
   .public-app .app-bottom-nav a span{font-size:21px!important}.public-app .app-bottom-nav a small{font-size:10px!important}
 }
 @media(max-width:380px){
-  .public-app header.logo-only-header{min-height:88px;padding:7px 10px!important}
-  .public-app header.logo-only-header .public-logo img{width:150px!important;max-height:70px!important}
+  .public-app header.logo-only-header{height:84px!important;min-height:84px!important;padding:5px 10px!important}
+  .public-app header.logo-only-header .public-logo img{width:165px!important;max-width:165px!important;max-height:68px!important}
   .public-app .app-bottom-nav{left:4px!important;right:4px!important;bottom:calc(5px + env(safe-area-inset-bottom))!important;padding:5px 3px!important;border-radius:21px!important}
   .public-app .app-bottom-nav a{min-height:54px!important;border-radius:15px!important}
   .public-app .app-bottom-nav a span{font-size:19px!important}.public-app .app-bottom-nav a small{font-size:9px!important}
