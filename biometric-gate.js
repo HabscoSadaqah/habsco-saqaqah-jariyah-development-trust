@@ -22,7 +22,7 @@
     if(action==='member_contribute_to_account')return {account_type:val('account'),amount:n(val('amount')),description:val('note').trim()};
     if(action==='member_start_utility_transaction'){
       const a=new URLSearchParams(location.search).get('action')||'';
-      const metadata={action:a,api_mode:'merchant',phone:val('phone').trim()||null,network:val('network').trim()||null,variation_code:val('variation_code').trim()||null,provider:val('provider').trim()||val('network').trim()||val('disco').trim()||null,disco:val('disco').trim()||null,meter_number:val('meter_number').trim()||null,meter_type:val('meter_type').trim()||null,receiver:val('receiver').trim()||val('phone').trim()||val('meter_number').trim()||null};
+      const metadata={action:a,phone:val('phone').trim()||null,network:val('network').trim()||null,variation_code:val('variation_code').trim()||null,provider:val('provider').trim()||val('network').trim()||val('disco').trim()||null,disco:val('disco').trim()||null,meter_number:val('meter_number').trim()||null,meter_type:val('meter_type').trim()||null,receiver:val('receiver').trim()||val('phone').trim()||val('meter_number').trim()||null};
       return {service:a,amount:n(val('amount')),metadata};
     }
     return null;
