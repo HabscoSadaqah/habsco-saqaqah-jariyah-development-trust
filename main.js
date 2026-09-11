@@ -19,18 +19,31 @@
     const setOG=(prop,content)=>{let el=document.querySelector(`meta[property="${prop}"]`);if(!el){el=document.createElement('meta');el.setAttribute('property',prop);document.head.appendChild(el)}el.content=content};
     setOG('og:type','website'); setOG('og:url',canonical.href); setOG('og:title',data[0]); setOG('og:description',data[1]); setOG('og:site_name','Habsco Sadaqah Jariyah Development Trust');
   }
-  if (!document.querySelector('link[data-app-css]')) {
-    const css=document.createElement('link'); css.rel='stylesheet'; css.href='app.css?v=public-shell-4'; css.dataset.appCss='true'; document.head.appendChild(css);
+
+  const isHome = page === 'index';
+
+  // The app-style header and floating navigation belong to the homepage only.
+  // All other pages are explicitly cleared of the old logo header and bottom nav.
+  if (!isHome) {
+    const clearOtherPageShell = () => {
+      document.body?.classList.remove('public-app');
+      document.querySelectorAll('header.logo-only-header, .app-bottom-nav').forEach(el => el.remove());
+    };
+    clearOtherPageShell();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', clearOtherPageShell, {once:true});
+    window.addEventListener('load', clearOtherPageShell, {once:true});
   }
 
-  const publicPages=['index.html','about.html','programs.html','impact.html','finance.html','contact.html'];
-  const isPublic=publicPages.includes(path);
+  // Load the public app layer only on the homepage so other pages keep their own layout.
+  if (isHome && !document.querySelector('link[data-app-css]')) {
+    const css=document.createElement('link'); css.rel='stylesheet'; css.href='app.css?v=home-shell-5'; css.dataset.appCss='true'; document.head.appendChild(css);
+  }
 
-  const applyPublicShell=()=>{
-    if(!isPublic || !document.body) return;
+  const applyHomeShell=()=>{
+    if(!isHome || !document.body) return;
     document.body.classList.add('public-app');
 
-    // Hard-remove every legacy public header/menu element and keep only the logo.
+    // Hard-remove every legacy homepage header/menu element and keep only the logo.
     document.querySelectorAll('.topbar, header nav, header .menu, header .mobile-toggle, .site-nav, .top-nav, .main-nav, .navbar, .nav-links').forEach(el=>el.remove());
     const header=document.querySelector('header');
     if(header){
@@ -52,12 +65,12 @@
       }
     }
 
-    // Create exactly one floating public navigation bar.
+    // Create exactly one floating homepage navigation bar.
     let nav=document.querySelector('.app-bottom-nav');
     if(!nav){
       nav=document.createElement('nav');
       nav.className='app-bottom-nav';
-      nav.setAttribute('aria-label','Public navigation');
+      nav.setAttribute('aria-label','Homepage navigation');
       nav.innerHTML=[
         ['index.html','⌂','Home','index'],
         ['impact.html','◈','Impact','impact'],
@@ -69,11 +82,11 @@
     }
   };
 
-  if(isPublic){
-    applyPublicShell();
-    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyPublicShell,{once:true});
-    window.addEventListener('load',applyPublicShell,{once:true});
-    setTimeout(applyPublicShell,80);
+  if(isHome){
+    applyHomeShell();
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',applyHomeShell,{once:true});
+    window.addEventListener('load',applyHomeShell,{once:true});
+    setTimeout(applyHomeShell,80);
   }
 
   document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{const el=document.querySelector(a.getAttribute('href'));if(el){e.preventDefault();el.scrollIntoView({behavior:'smooth',block:'start'});}}));
