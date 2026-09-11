@@ -1,4 +1,4 @@
-/* Habsco public web-app layer: sits above the existing visual theme. */
+/* Habsco public web-app layer */
 .public-app{background:#f5f8f5}
 .public-app main{max-width:1400px;margin:0 auto;background:#fff;min-height:60vh;box-shadow:0 0 35px rgba(10,50,25,.035)}
 .public-app .section,.public-app .page-banner,.public-app .hero{max-width:1360px}
@@ -15,51 +15,47 @@
 .public-app input,.public-app textarea,.public-app select{max-width:100%;font-size:16px}
 .public-app .section,.public-app .container,.public-app .content,.public-app .grid{min-width:0}
 
-/* Public header: logo only; bottom navigation is the primary menu. */
-.public-app header{position:sticky;top:0;z-index:1100;background:rgba(255,255,255,.97);border-bottom:1px solid #e2ebe4;box-shadow:0 6px 24px rgba(10,50,25,.08);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-.public-app header .nav{min-height:74px;display:flex!important;align-items:center;justify-content:flex-start;gap:14px;padding:8px clamp(16px,4vw,48px)}
-.public-app header .brand{display:flex;align-items:center;gap:12px;min-width:0;text-decoration:none;color:#123d25}
-.public-app header .brand img{width:52px;height:52px;object-fit:contain;flex:0 0 52px}
-.public-app header .brand-name{display:block;max-width:min(620px,70vw);font-size:clamp(14px,1.7vw,20px);line-height:1.15;font-weight:900;letter-spacing:-.02em;color:#0d5b2b;white-space:normal}
-.public-app header .mobile-toggle{display:none!important}
-.public-app header nav .menu,.public-app .header nav .menu,.public-app .site-nav,.public-app .top-nav,.public-app .main-nav,.public-app .navbar,.public-app .nav-links{display:none!important}
+/* Public header: logo only. No top menu, hamburger, or contact bar. */
+.public-app header.logo-only-header{position:sticky;top:0;z-index:1500;width:100%;min-height:124px;display:flex!important;align-items:center!important;justify-content:center!important;padding:12px 18px!important;background:rgba(255,255,255,.98);border-bottom:1px solid #e2ebe4;box-shadow:0 8px 28px rgba(10,50,25,.10);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.public-app header.logo-only-header .public-logo{display:flex!important;align-items:center!important;justify-content:center!important;width:100%;height:100%;margin:0;text-decoration:none}
+.public-app header.logo-only-header .public-logo img{display:block!important;width:clamp(180px,27vw,290px)!important;height:auto!important;max-height:104px!important;object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 5px 10px rgba(10,50,25,.14))}
 
-/* Floating public navigation: scales naturally from tablet to wide desktop. */
-.app-bottom-nav{position:fixed;display:flex;align-items:stretch;justify-content:center;gap:5px;left:50%;bottom:22px;transform:translateX(-50%);z-index:1200;width:min(760px,calc(100vw - 48px));min-width:0;background:rgba(255,255,255,.97);border:1px solid #d5e2d8;border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.18),0 4px 14px rgba(13,91,43,.08);padding:9px 10px;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
-.app-bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:64px;padding:7px 12px;border-radius:16px;color:#667067;text-decoration:none;font-weight:800;transition:transform .18s ease,background .18s ease,color .18s ease,box-shadow .18s ease}
-.app-bottom-nav a:hover{background:#f0f7f2;color:#0d5b2b;transform:translateY(-2px)}
-.app-bottom-nav a span{font-size:23px;line-height:1}.app-bottom-nav a small{font-size:11px;line-height:1.1;white-space:nowrap}
-.app-bottom-nav a.active{background:#eaf4ec;color:#0d5b2b;box-shadow:inset 0 0 0 1px #d8eadc}
-.app-bottom-nav a.donate-tab{color:#0d5b2b}
-body.public-app{padding-bottom:112px}
+/* Floating public navigation: five equal touch targets on every public page. */
+.public-app .app-bottom-nav{position:fixed!important;left:50%!important;bottom:calc(18px + env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;z-index:3000!important;width:min(820px,calc(100vw - 40px))!important;min-height:72px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:stretch!important;gap:6px!important;padding:8px!important;background:rgba(255,255,255,.97)!important;border:1px solid rgba(13,91,43,.16)!important;border-radius:24px!important;box-shadow:0 18px 50px rgba(0,0,0,.18),0 5px 16px rgba(13,91,43,.10)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important}
+.public-app .app-bottom-nav a{min-width:0!important;min-height:56px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;padding:7px 5px!important;border-radius:17px!important;color:#526158!important;text-decoration:none!important;font-weight:800!important;transition:transform .18s ease,background .18s ease,color .18s ease,box-shadow .18s ease!important}
+.public-app .app-bottom-nav a:hover{background:#eef7f0!important;color:#0d5b2b!important;transform:translateY(-2px)!important}
+.public-app .app-bottom-nav a span{font-size:23px!important;line-height:1!important;font-weight:900!important}
+.public-app .app-bottom-nav a small{font-size:11px!important;line-height:1.1!important;white-space:nowrap!important}
+.public-app .app-bottom-nav a.active{background:#0d5b2b!important;color:#fff!important;box-shadow:0 8px 20px rgba(13,91,43,.24)!important}
+.public-app .app-bottom-nav a.donate-tab{background:#f4c94f!important;color:#173d26!important}
+.public-app .app-bottom-nav a.donate-tab:hover{background:#eac03d!important}
+body.public-app{padding-bottom:118px!important}
 
-/* Extra-wide displays: give the navigation more presence without letting it become oversized. */
 @media(min-width:1440px){
-  .app-bottom-nav{width:min(820px,calc(100vw - 80px));bottom:28px;padding:10px 12px;border-radius:26px}
-  .app-bottom-nav a{min-height:68px;padding:8px 16px;border-radius:18px}
-  .app-bottom-nav a span{font-size:25px}.app-bottom-nav a small{font-size:12px}
-  body.public-app{padding-bottom:126px}
-}
-@media(min-width:1920px){
-  .app-bottom-nav{width:860px;bottom:30px}
-  .app-bottom-nav a{min-height:70px}
+  .public-app header.logo-only-header{min-height:140px;padding:14px 24px!important}
+  .public-app header.logo-only-header .public-logo img{width:310px!important;max-height:116px!important}
+  .public-app .app-bottom-nav{width:min(860px,calc(100vw - 80px))!important;min-height:78px!important;bottom:28px!important;border-radius:27px!important}
+  .public-app .app-bottom-nav a{min-height:62px!important}
+  .public-app .app-bottom-nav a span{font-size:25px!important}.public-app .app-bottom-nav a small{font-size:12px!important}
+  body.public-app{padding-bottom:132px!important}
 }
 
 @media(max-width:720px){
-  body.public-app{background:#fff;padding-bottom:calc(78px + env(safe-area-inset-bottom))}
-  .public-app header .nav{min-height:64px;padding:7px 14px;gap:9px}
-  .public-app header .brand{gap:9px}
-  .public-app header .brand img{width:44px;height:44px;flex-basis:44px}
-  .public-app header .brand-name{max-width:calc(100vw - 78px);font-size:13px;line-height:1.12}
-  .public-app main{box-shadow:none;padding-bottom:24px}
-  .public-app .footer{padding-bottom:95px}
+  body.public-app{background:#fff;padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
+  .public-app header.logo-only-header{min-height:94px;padding:8px 14px!important}
+  .public-app header.logo-only-header .public-logo img{width:clamp(150px,52vw,215px)!important;max-height:78px!important}
+  .public-app main{box-shadow:none;padding-bottom:20px}
+  .public-app .footer{padding-bottom:98px}
   .public-app .hero,.public-app .section,.public-app .page-banner{width:100%;max-width:none}
   .public-app .container,.public-app .content{width:100%;max-width:100%;padding-left:16px;padding-right:16px}
-  .app-bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));transform:none;width:auto;min-width:0;max-width:none;background:rgba(255,255,255,.97);border-radius:18px;box-shadow:0 12px 35px rgba(0,0,0,.16);padding:7px 5px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-  .app-bottom-nav a{min-height:54px;min-width:0;border-radius:13px;color:#667067}
-  .app-bottom-nav a span{font-size:20px;line-height:1}.app-bottom-nav a small{font-size:10px}
-  input,textarea,select{font-size:16px;min-height:44px}
-  .btn{width:100%}.actions{gap:10px}.cta{flex-direction:column;align-items:stretch}.cta .btn{width:100%}
+  .public-app .app-bottom-nav{left:8px!important;right:8px!important;bottom:calc(6px + env(safe-area-inset-bottom))!important;transform:none!important;width:auto!important;min-height:66px!important;padding:6px 5px!important;border-radius:20px!important;gap:3px!important}
+  .public-app .app-bottom-nav a{min-height:52px!important;padding:5px 2px!important;border-radius:14px!important;gap:4px!important}
+  .public-app .app-bottom-nav a span{font-size:20px!important}.public-app .app-bottom-nav a small{font-size:10px!important}
 }
-@media(max-width:380px){.app-bottom-nav{left:5px;right:5px}.app-bottom-nav a small{font-size:9px}.public-app .container,.public-app .content{padding-left:12px;padding-right:12px}.public-app header .brand-name{font-size:12px}}
-@media(prefers-reduced-motion:reduce){.public-app .hero a[href="auth.html"]{animation:none!important}.app-bottom-nav a{transition:none}}
+@media(max-width:380px){
+  .public-app header.logo-only-header{min-height:88px;padding:7px 10px!important}
+  .public-app header.logo-only-header .public-logo img{width:150px!important;max-height:70px!important}
+  .public-app .app-bottom-nav{left:4px!important;right:4px!important;padding:5px 3px!important}
+  .public-app .app-bottom-nav a small{font-size:9px!important}
+}
+@media(prefers-reduced-motion:reduce){.public-app .hero a[href="auth.html"]{animation:none!important}.public-app .app-bottom-nav a{transition:none!important}}
