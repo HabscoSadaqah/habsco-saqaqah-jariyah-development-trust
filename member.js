@@ -3,8 +3,27 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const money=n=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',minimumFractionDigits:2}).format(Number(n||0));
 const $=id=>document.getElementById(id);
-async function loadDashboard(){const {data:{session},error}=await supabaseClient.auth.getSession();if(error||!session){window.location.href='auth.html';return;}const {data:rpc,error:rpcError}=await supabaseClient.rpc('member_dashboard_balances');if(rpcError||!rpc)return;const available=Number(rpc.available||0),savings=Number(rpc.savings||0),shares=Number(rpc.shares||0),special=Number(rpc.special_savings||0);if([available,savings,shares,special].some(v=>!Number.isFinite(v)))return;const cooperative=savings+shares+special,total=available+cooperative;const set=(id,v)=>{const el=$(id);if(el){el.textContent=money(v);el.style.visibility='visible';el.style.opacity='1';}};set('balance',available);set('cooperativeBalance',cooperative);set('totalBalance',total);set('savingsBalance',savings);set('sharesBalance',shares);set('specialSavingsBalance',special)}
-function escapeHtml(value){return String(value??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]))}
+async function loadDashboard(){
+  const {data:{session},error}=await supabaseClient.auth.getSession();
+  if(error||!session){window.location.href='auth.html';return;}
+  const {data:rpc,error:rpcError}=await supabaseClient.rpc('member_dashboard_balances');
+  if(rpcError||!rpc)return;
+  const available=Number(rpc.available||0),savings=Number(rpc.savings||0),shares=Number(rpc.shares||0),special=Number(rpc.special_savings||0);
+  if([available,savings,shares,special].some(v=>!Number.isFinite(v)))return;
+  const cooperative=savings+shares+special;
+  const total=available+cooperative;
+  if(!Number.isFinite(cooperative)||!Number.isFinite(total)||available<0||savings<0||shares<0||special<0)return;
+  const set=(id,v)=>{const el=$(id);if(el){el.textContent=money(v);el.style.visibility='visible';el.style.opacity='1';}};
+  set('balance',available);
+  set('heroBalance',available);
+  set('availableBalance',available);
+  set('cooperativeBalance',cooperative);
+  set('totalBalance',total);
+  set('savingsBalance',savings);
+  set('sharesBalance',shares);
+  set('specialSavingsBalance',special);
+}
+function escapeHtml(value){return String(value??'').replace(/[&<>\\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\\"':'&quot;',"'":'&#39;'}[c]))}
 async function loadRecentTransactions(){const list=$('recentFundingList');if(!list)return;const {data:{user}}=await supabaseClient.auth.getUser();if(!user)return;const {data,error}=await supabaseClient.from('transactions').select('reference,type,amount,direction,description,status,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(20);if(error){list.innerHTML='<div class="funding-empty">Unable to load recent transactions.</div>';return}const rows=(data||[]).filter(x=>Number.isFinite(Number(x.amount)));if(!rows.length){list.innerHTML='<div class="funding-empty">No transactions yet.</div>';return}list.innerHTML=rows.map(x=>{const amount=Number(x.amount||0),credit=String(x.direction||'').toLowerCase()==='credit',status=String(x.status||'').replace(/_/g,' '),title=x.type?String(x.type).replace(/_/g,' '):'Transaction',desc=String(x.description||'').trim(),ref=String(x.reference||'—'),date=x.created_at?new Date(x.created_at).toLocaleString('en-NG',{day:'2-digit',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}):'—';return `<div class="funding-item"><div><div class="funding-title">${escapeHtml(title.charAt(0).toUpperCase()+title.slice(1))}</div><div class="funding-meta">${escapeHtml(desc||'No description')} · ${escapeHtml(ref)} · ${escapeHtml(date)} · ${escapeHtml(status||'pending')}</div></div><div class="funding-amount">${credit?'+':'−'} ${money(Math.abs(amount))}</div></div>`}).join('')}
 function updateDigitalClock(){const now=new Date();if($('digitalClock'))$('digitalClock').textContent=now.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});if($('digitalDate'))$('digitalDate').textContent=now.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}
 function addMobileAppShell(){if($('mobileAppNav'))return;const nav=document.createElement('nav');nav.id='mobileAppNav';nav.innerHTML='<a href="member.html" class="active">⌂<span>Home</span></a><a href="member-actions.html?action=send">💸<span>Pay</span></a><a href="statement.html">📋<span>Statements</span></a><a href="#security">🔐<span>Security</span></a>';document.body.appendChild(nav)}
@@ -16,4 +35,4 @@ function loadMemberSecurityCenter(){if($('hfSecurityCenter'))return;const wrap=d
 let refreshTimer;function startLiveRefresh(){clearInterval(refreshTimer);refreshTimer=setInterval(()=>{if(document.visibilityState==='visible'){loadDashboard();loadRecentTransactions()}},30000)}
 if($('logout'))$('logout').onclick=async()=>{await supabaseClient.auth.signOut();window.location.href='auth.html'};addMobileAppShell();updateDigitalClock();setInterval(updateDigitalClock,1000);loadDashboard();loadRecentTransactions();loadMemberSecurityCenter();startLiveRefresh();
 if('serviceWorker' in navigator&&location.protocol==='https:')window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
-(function loadSecurityFix(){const s=document.createElement('script');s.src='security-center-fix.js?v=20260911-1';s.async=false;document.head.appendChild(s)})();
+(function loadSecurityFix(){const s=document.createElement('script');s.src='security-center-fix.js?v=20260911-10';s.async=false;s.dataset.hfSecurityFix='1';document.head.appendChild(s)})();
