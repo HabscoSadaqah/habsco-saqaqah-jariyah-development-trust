@@ -47,17 +47,8 @@
   }
   window.hfBiometric={supported,enroll,verify,has:async()=>hasCredential(await getUser()),sensitiveGate};
   window.hfEnrollBiometric=async()=>{const u=await getUser();if(!u)throw new Error('Please log in first.');return enroll(u)};
-  document.addEventListener('submit',async e=>{
-    const form=e.target;if(!form||form.id!=='authForm'||window.__hfLoginRetry)return;
-    const registration=document.getElementById('registrationFields');if(registration&&!registration.classList.contains('hidden'))return;e.preventDefault();e.stopImmediatePropagation();
-    const button=document.getElementById('submitBtn'),message=document.getElementById('message');try{
-      const email=document.getElementById('email').value.trim().toLowerCase(),password=document.getElementById('password').value;if(!email||!password)throw new Error('Please enter your email address and password.');
-      const c=client();if(!c)throw new Error('Login service is unavailable.');if(button){button.disabled=true;button.textContent='LOGGING IN…'}
-      const {data,error}=await c.auth.signInWithPassword({email,password});if(error)throw error;if(!data?.session?.user)throw new Error('Login did not return a valid session.');const user=data.session.user;
-      if(await hasCredential(user)){if(button)button.textContent='VERIFYING BIOMETRIC…';await verify(user,'authentication')}else if(supported()){if(button)button.textContent='SETTING UP BIOMETRIC…';try{await enroll(user)}catch(enrollError){console.warn('Biometric enrollment skipped:',enrollError)}}
-      if(message){message.textContent='Login successful. Opening your member portal…';message.className='message show';message.style.background='#e7f6ec';message.style.color='#146b31'}window.__hfLoginRetry=true;setTimeout(()=>{location.href='./member.html'},250);
-    }catch(err){try{const c=client();if(c)await c.auth.signOut()}catch{}if(message){message.textContent=err.message||'Biometric login failed.';message.className='message show';message.style.background='#fdecec';message.style.color='#9b1c1c'}if(button){button.disabled=false;button.textContent='LOGIN'}}
-  },true);
+  // Login is intentionally handled only by auth.js. The previous capture-phase login handler
+  // competed with auth.js and could leave the login button stuck on "LOGGING IN…".
   document.addEventListener('submit',async e=>{
     const form=e.target;if(!form||form.id!=='actionForm'||window.__hfBioRetry)return;const action=pageAction();if(!action)return;
     e.preventDefault();e.stopImmediatePropagation();try{await sensitiveGate(action,form);window.__hfBioRetry=true;form.requestSubmit()}catch(err){const m=document.getElementById('msg');if(m){m.textContent=err.message||'Biometric confirmation failed.';m.className='msg show';m.style.background='#fff1f1';m.style.color='#a52a2a'}}finally{window.__hfBioRetry=false}
