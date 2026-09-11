@@ -6,7 +6,32 @@
   function supported(){return !!(window.PublicKeyCredential&&navigator.credentials)}
   function client(){return window.supabaseClient||(typeof supabaseClient!=='undefined'?supabaseClient:null)}
   async function getUser(){try{const c=client();if(!c)return null;const {data}=await c.auth.getUser();return data?.user||null}catch{return null}}
-  async function invoke(action,body={}){const c=client();if(!c)throw new Error('Login service is unavailable.');const {data,error}=await c.functions.invoke('verify-biometric',{body:{action,...body}});if(error)throw new Error(error.message||'Biometric security service is unavailable.');if(data?.error)throw new Error(data.error);return data}
+  async function invoke(action,body={}){
+    const c=client();
+    if(!c)throw new Error('Login service is unavailable.');
+    let session=null;
+    try{
+      const r=await c.auth.getSession();
+      session=r?.data?.session||null;
+      if(!session?.access_token){
+        const refreshed=await c.auth.refreshSession();
+        session=refreshed?.data?.session||null;
+      }
+    }catch(e){throw new Error('Your session could not be verified. Please log in again.')}
+    if(!session?.access_token)throw new Error('Your session has expired. Please log in again.');
+    const options={body:{action,...body},headers:{Authorization:`Bearer ${session.access_token}`}};
+    const {data,error}=await c.functions.invoke('verify-biometric',options);
+    if(error){
+      let detail='';
+      try{if(error.context&&typeof error.context.json==='function'){const x=await error.context.json();detail=x?.error||x?.message||''}}catch{}
+      const raw=String(error.message||'');
+      if(/401|unauthorized|jwt/i.test(raw+detail))throw new Error('Your login session is no longer valid. Please log in again and try again.');
+      if(/failed to send|fetch|network|cors|relay/i.test(raw+detail))throw new Error('Unable to reach biometric security service. Please refresh the page and try again.');
+      throw new Error(detail||raw||'Biometric security service is unavailable.');
+    }
+    if(data?.error)throw new Error(data.error);
+    return data
+  }
   function registrationResponse(cred){return {id:cred.id,rawId:b64(cred.rawId),response:{clientDataJSON:b64(cred.response.clientDataJSON),attestationObject:b64(cred.response.attestationObject)},type:cred.type,clientExtensionResults:cred.getClientExtensionResults?cred.getClientExtensionResults():{}}}
   function authenticationResponse(cred){return {id:cred.id,rawId:b64(cred.rawId),response:{clientDataJSON:b64(cred.response.clientDataJSON),authenticatorData:b64(cred.response.authenticatorData),signature:b64(cred.response.signature),userHandle:cred.response.userHandle?b64(cred.response.userHandle):null},type:cred.type,clientExtensionResults:cred.getClientExtensionResults?cred.getClientExtensionResults():{}}}
   function registrationOptions(o){const x={...o,challenge:fromB64(o.challenge),user:{...o.user,id:fromB64(o.user.id)}};if(o.excludeCredentials)x.excludeCredentials=o.excludeCredentials.map(c=>({...c,id:fromB64(c.id)}));return x}
