@@ -23,6 +23,14 @@
   if (!document.querySelector('link[data-app-css]')) {
     const css=document.createElement('link'); css.rel='stylesheet'; css.href='app.css'; css.dataset.appCss='true'; document.head.appendChild(css);
   }
+  const brand=document.querySelector('header .brand');
+  if(brand && !brand.querySelector('.brand-name')){
+    const name=document.createElement('span');
+    name.className='brand-name';
+    name.textContent='Habsco Sadaqah Jariyah Development Trust';
+    brand.appendChild(name);
+    brand.setAttribute('aria-label','Habsco Sadaqah Jariyah Development Trust');
+  }
   const toggle = document.querySelector('.mobile-toggle');
   const menu = document.querySelector('.menu');
   if (toggle && menu) {
@@ -33,7 +41,7 @@
   document.querySelectorAll('.menu a[href]').forEach(a=>{const clean=(a.getAttribute('href')||'').split('#')[0];if(clean&&clean===path)a.classList.add('active');});
   if(!['auth.html','admin.html','member.html'].includes(path)){
     const nav=document.createElement('nav');nav.className='app-bottom-nav';nav.setAttribute('aria-label','Quick navigation');
-    const items=[['index.html','⌂','Home','index'],['programs.html','◈','Programs','programs'],['finance.html','₦','Finance','finance'],['impact.html','✓','Impact','impact'],['contact.html','♡','Donate','contact']];
+    const items=[['index.html','⌂','Home','index'],['impact.html','◈','Impact','impact'],['finance.html','₦','Finance','finance'],['about.html','●','About','about'],['contact.html','♡','Donate','contact']];
     nav.innerHTML=items.map(([href,icon,label,key])=>`<a href="${href}" class="${page===key?'active':''}"><span>${icon}</span><small>${label}</small></a>`).join('');
     document.body.appendChild(nav);document.body.classList.add('public-app');
   }
