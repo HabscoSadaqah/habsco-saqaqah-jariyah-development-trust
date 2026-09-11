@@ -1,24 +1,32 @@
-/* Homepage logo: completely static, stable and clean. No animation, transform or hover movement. */
+/* Homepage logo: simple, plain and completely static. */
 body.public-app header.logo-only-header,
 body.public-app header.logo-only-header .public-logo,
 body.public-app header.logo-only-header .public-logo img{
-  transform:none!important;
   animation:none!important;
+  transform:none!important;
   transition:none!important;
   will-change:auto!important;
+  perspective:none!important;
+  transform-style:flat!important;
 }
 body.public-app header.logo-only-header{
   height:112px!important;
   min-height:112px!important;
-  perspective:none!important;
+  padding:8px 18px!important;
+  background:#fff!important;
+  border-bottom:1px solid #eee!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
   overflow:hidden!important;
 }
 body.public-app header.logo-only-header .public-logo{
   width:100%!important;
   height:100%!important;
-  perspective:none!important;
-  transform-style:flat!important;
-  isolation:auto!important;
+  margin:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
 }
 body.public-app header.logo-only-header .public-logo:before,
 body.public-app header.logo-only-header .public-logo:after{
@@ -27,26 +35,19 @@ body.public-app header.logo-only-header .public-logo:after{
   animation:none!important;
   transform:none!important;
 }
-body.public-app header.logo-only-header .public-logo img{
+body.public-app header.logo-only-header .public-logo img,
+body.public-app header.logo-only-header .public-logo:hover img,
+body.public-app header.logo-only-header .public-logo:active img,
+body.public-app header.logo-only-header .public-logo:focus img{
   width:240px!important;
   max-width:240px!important;
   max-height:92px!important;
   height:auto!important;
   display:block!important;
-  position:relative!important;
-  z-index:1!important;
-  transform:none!important;
-  filter:drop-shadow(0 3px 3px rgba(0,0,0,.16)) drop-shadow(0 10px 16px rgba(5,55,28,.20))!important;
-  backface-visibility:visible!important;
-  -webkit-backface-visibility:visible!important;
-}
-body.public-app header.logo-only-header .public-logo:hover img,
-body.public-app header.logo-only-header .public-logo:active img,
-body.public-app header.logo-only-header .public-logo:focus img{
-  transform:none!important;
-  animation:none!important;
-  transition:none!important;
-  filter:drop-shadow(0 3px 3px rgba(0,0,0,.16)) drop-shadow(0 10px 16px rgba(5,55,28,.20))!important;
+  position:static!important;
+  filter:none!important;
+  box-shadow:none!important;
+  opacity:1!important;
 }
 @media(min-width:1440px){
   body.public-app header.logo-only-header{height:128px!important;min-height:128px!important}
@@ -59,8 +60,4 @@ body.public-app header.logo-only-header .public-logo:focus img{
 @media(max-width:380px){
   body.public-app header.logo-only-header{height:84px!important;min-height:84px!important}
   body.public-app header.logo-only-header .public-logo img{width:165px!important;max-width:165px!important;max-height:68px!important}
-}
-@media(prefers-reduced-motion:reduce){
-  body.public-app header.logo-only-header .public-logo,
-  body.public-app header.logo-only-header .public-logo img{animation:none!important;transition:none!important}
 }
