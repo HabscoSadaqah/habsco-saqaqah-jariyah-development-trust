@@ -15,7 +15,20 @@
 .public-app input,.public-app textarea,.public-app select{max-width:100%;font-size:16px}
 .public-app .section,.public-app .container,.public-app .content,.public-app .grid{min-width:0}
 
-/* Public header: logo only. No top menu, hamburger, or contact bar. */
+/* HARD PUBLIC NAVIGATION LOCK: no top menu, hamburger, or contact bar. */
+.public-app .topbar,
+.public-app body > .topbar,
+.public-app header nav,
+.public-app header .nav,
+.public-app header .menu,
+.public-app header .mobile-toggle,
+.public-app .site-nav,
+.public-app .top-nav,
+.public-app .main-nav,
+.public-app .navbar,
+.public-app .nav-links{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;max-height:0!important;overflow:hidden!important;padding:0!important;margin:0!important;border:0!important}
+
+/* Public header: logo only. */
 .public-app header.logo-only-header{position:sticky;top:0;z-index:1500;width:100%;min-height:124px;display:flex!important;align-items:center!important;justify-content:center!important;padding:12px 18px!important;background:rgba(255,255,255,.98);border-bottom:1px solid #e2ebe4;box-shadow:0 8px 28px rgba(10,50,25,.10);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .public-app header.logo-only-header .public-logo{display:flex!important;align-items:center!important;justify-content:center!important;width:100%;height:100%;margin:0;text-decoration:none}
 .public-app header.logo-only-header .public-logo img{display:block!important;width:clamp(180px,27vw,290px)!important;height:auto!important;max-height:104px!important;object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 5px 10px rgba(10,50,25,.14))}
@@ -39,7 +52,6 @@ body.public-app{padding-bottom:118px!important}
   .public-app .app-bottom-nav a span{font-size:25px!important}.public-app .app-bottom-nav a small{font-size:12px!important}
   body.public-app{padding-bottom:132px!important}
 }
-
 @media(max-width:720px){
   body.public-app{background:#fff;padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
   .public-app header.logo-only-header{min-height:94px;padding:8px 14px!important}
