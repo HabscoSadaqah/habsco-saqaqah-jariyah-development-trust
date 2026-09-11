@@ -33,43 +33,48 @@
 .public-app header.logo-only-header .public-logo{display:flex!important;align-items:center!important;justify-content:center!important;width:100%;height:100%;margin:0;text-decoration:none}
 .public-app header.logo-only-header .public-logo img{display:block!important;width:clamp(180px,27vw,290px)!important;height:auto!important;max-height:104px!important;object-fit:contain!important;object-position:center!important;filter:drop-shadow(0 5px 10px rgba(10,50,25,.14))}
 
-/* Glassmorphism bottom navigation: optimized for touch, clarity and mobile UX. */
-.public-app .app-bottom-nav{position:fixed!important;left:50%!important;bottom:calc(18px + env(safe-area-inset-bottom))!important;transform:translateX(-50%)!important;z-index:3000!important;width:min(820px,calc(100vw - 40px))!important;min-height:72px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:stretch!important;gap:6px!important;padding:8px!important;background:rgba(255,255,255,.62)!important;border:1px solid rgba(255,255,255,.78)!important;border-radius:26px!important;box-shadow:0 20px 55px rgba(15,45,28,.20),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(13,91,43,.06)!important;backdrop-filter:blur(24px) saturate(165%)!important;-webkit-backdrop-filter:blur(24px) saturate(165%)!important;isolation:isolate}
-.public-app .app-bottom-nav:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.34),rgba(255,255,255,.06) 55%,rgba(13,91,43,.035));pointer-events:none;z-index:-1}
-.public-app .app-bottom-nav a{position:relative;min-width:0!important;min-height:56px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:5px!important;padding:7px 5px!important;border-radius:18px!important;color:#425149!important;text-decoration:none!important;font-weight:800!important;transition:transform .2s ease,background .2s ease,color .2s ease,box-shadow .2s ease!important}
-.public-app .app-bottom-nav a:hover{background:rgba(255,255,255,.52)!important;color:#0d5b2b!important;transform:translateY(-2px)!important}
-.public-app .app-bottom-nav a:active{transform:scale(.96)!important}
-.public-app .app-bottom-nav a span{font-size:23px!important;line-height:1!important;font-weight:900!important}
-.public-app .app-bottom-nav a small{font-size:11px!important;line-height:1.1!important;white-space:nowrap!important}
-.public-app .app-bottom-nav a.active{background:rgba(13,91,43,.92)!important;color:#fff!important;box-shadow:0 9px 22px rgba(13,91,43,.25),inset 0 1px 0 rgba(255,255,255,.25)!important}
-.public-app .app-bottom-nav a.donate-tab{background:rgba(244,201,79,.88)!important;color:#173d26!important;box-shadow:0 7px 18px rgba(180,135,18,.16),inset 0 1px 0 rgba(255,255,255,.62)!important}
-.public-app .app-bottom-nav a.donate-tab:hover{background:rgba(234,192,61,.94)!important}
-body.public-app{padding-bottom:118px!important}
+/* Premium glass bottom navigation: app-like, thumb-friendly and resilient across devices. */
+.public-app .app-bottom-nav{position:fixed!important;left:50%!important;bottom:calc(16px + env(safe-area-inset-bottom))!important;transform:translateX(-50%) translateZ(0)!important;z-index:3000!important;width:min(820px,calc(100vw - 32px))!important;min-height:76px!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;align-items:stretch!important;gap:6px!important;padding:7px!important;background:rgba(250,253,251,.70)!important;border:1px solid rgba(255,255,255,.88)!important;border-radius:28px!important;box-shadow:0 24px 65px rgba(15,45,28,.22),0 4px 14px rgba(15,45,28,.08),inset 0 1px 0 rgba(255,255,255,.98),inset 0 -1px 0 rgba(13,91,43,.07)!important;backdrop-filter:blur(28px) saturate(180%)!important;-webkit-backdrop-filter:blur(28px) saturate(180%)!important;isolation:isolate;contain:layout paint;will-change:transform}
+.public-app .app-bottom-nav:before{content:"";position:absolute;inset:1px;border-radius:inherit;background:linear-gradient(135deg,rgba(255,255,255,.44),rgba(255,255,255,.08) 52%,rgba(13,91,43,.045));pointer-events:none;z-index:-1}
+.public-app .app-bottom-nav a{position:relative;min-width:0!important;min-height:60px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:4px!important;padding:7px 5px!important;border:1px solid transparent!important;border-radius:19px!important;color:#46564e!important;text-decoration:none!important;font-weight:800!important;letter-spacing:-.1px!important;outline:none!important;-webkit-tap-highlight-color:transparent!important;transition:transform .18s cubic-bezier(.2,.8,.2,1),background .18s ease,color .18s ease,box-shadow .18s ease,border-color .18s ease!important}
+.public-app .app-bottom-nav a span{font-size:23px!important;line-height:1!important;font-weight:900!important;display:block!important;transform:translateY(0)!important;transition:transform .18s ease!important}
+.public-app .app-bottom-nav a small{font-size:11px!important;line-height:1.05!important;white-space:nowrap!important;font-weight:800!important}
+.public-app .app-bottom-nav a:hover{background:rgba(255,255,255,.58)!important;color:#0d5b2b!important;transform:translateY(-2px)!important;border-color:rgba(255,255,255,.70)!important}
+.public-app .app-bottom-nav a:hover span{transform:translateY(-1px) scale(1.04)!important}
+.public-app .app-bottom-nav a:focus-visible{box-shadow:0 0 0 3px rgba(13,91,43,.22),inset 0 1px 0 rgba(255,255,255,.8)!important}
+.public-app .app-bottom-nav a:active{transform:scale(.94)!important}
+.public-app .app-bottom-nav a.active{background:linear-gradient(180deg,rgba(17,105,52,.98),rgba(13,91,43,.94))!important;color:#fff!important;border-color:rgba(255,255,255,.20)!important;box-shadow:0 10px 24px rgba(13,91,43,.27),inset 0 1px 0 rgba(255,255,255,.28)!important}
+.public-app .app-bottom-nav a.active span{transform:translateY(-1px) scale(1.03)!important}
+.public-app .app-bottom-nav a.donate-tab{background:linear-gradient(180deg,rgba(250,213,94,.96),rgba(238,194,56,.92))!important;color:#173d26!important;border-color:rgba(255,255,255,.58)!important;box-shadow:0 8px 20px rgba(180,135,18,.18),inset 0 1px 0 rgba(255,255,255,.72)!important}
+.public-app .app-bottom-nav a.donate-tab:hover{background:linear-gradient(180deg,rgba(255,220,106,.98),rgba(238,194,56,.95))!important;color:#12331f!important}
+.public-app .app-bottom-nav a.donate-tab:focus-visible{box-shadow:0 0 0 3px rgba(180,135,18,.22),0 8px 20px rgba(180,135,18,.18)!important}
+body.public-app{padding-bottom:124px!important}
 
 @media(min-width:1440px){
   .public-app header.logo-only-header{min-height:140px;padding:14px 24px!important}
   .public-app header.logo-only-header .public-logo img{width:310px!important;max-height:116px!important}
-  .public-app .app-bottom-nav{width:min(860px,calc(100vw - 80px))!important;min-height:78px!important;bottom:28px!important;border-radius:29px!important}
-  .public-app .app-bottom-nav a{min-height:62px!important}
+  .public-app .app-bottom-nav{width:min(860px,calc(100vw - 80px))!important;min-height:82px!important;bottom:26px!important;border-radius:30px!important}
+  .public-app .app-bottom-nav a{min-height:66px!important}
   .public-app .app-bottom-nav a span{font-size:25px!important}.public-app .app-bottom-nav a small{font-size:12px!important}
-  body.public-app{padding-bottom:132px!important}
+  body.public-app{padding-bottom:138px!important}
 }
 @media(max-width:720px){
-  body.public-app{background:#fff;padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
+  body.public-app{background:#fff;padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}
   .public-app header.logo-only-header{min-height:94px;padding:8px 14px!important}
   .public-app header.logo-only-header .public-logo img{width:clamp(150px,52vw,215px)!important;max-height:78px!important}
   .public-app main{box-shadow:none;padding-bottom:20px}
-  .public-app .footer{padding-bottom:98px}
+  .public-app .footer{padding-bottom:102px}
   .public-app .hero,.public-app .section,.public-app .page-banner{width:100%;max-width:none}
   .public-app .container,.public-app .content{width:100%;max-width:100%;padding-left:16px;padding-right:16px}
-  .public-app .app-bottom-nav{left:8px!important;right:8px!important;bottom:calc(6px + env(safe-area-inset-bottom))!important;transform:none!important;width:auto!important;min-height:66px!important;padding:6px 5px!important;border-radius:22px!important;gap:3px!important;background:rgba(255,255,255,.60)!important;backdrop-filter:blur(22px) saturate(165%)!important;-webkit-backdrop-filter:blur(22px) saturate(165%)!important;box-shadow:0 14px 40px rgba(15,45,28,.20),inset 0 1px 0 rgba(255,255,255,.92)!important}
-  .public-app .app-bottom-nav a{min-height:52px!important;padding:5px 2px!important;border-radius:15px!important;gap:4px!important}
-  .public-app .app-bottom-nav a span{font-size:20px!important}.public-app .app-bottom-nav a small{font-size:10px!important}
+  .public-app .app-bottom-nav{left:7px!important;right:7px!important;bottom:calc(7px + env(safe-area-inset-bottom))!important;transform:translateZ(0)!important;width:auto!important;min-height:70px!important;padding:6px 5px!important;border-radius:23px!important;gap:3px!important;background:rgba(250,253,251,.68)!important;backdrop-filter:blur(25px) saturate(180%)!important;-webkit-backdrop-filter:blur(25px) saturate(180%)!important;box-shadow:0 18px 46px rgba(15,45,28,.22),0 3px 12px rgba(15,45,28,.08),inset 0 1px 0 rgba(255,255,255,.96)!important}
+  .public-app .app-bottom-nav a{min-height:56px!important;padding:5px 2px!important;border-radius:17px!important;gap:4px!important}
+  .public-app .app-bottom-nav a span{font-size:21px!important}.public-app .app-bottom-nav a small{font-size:10px!important}
 }
 @media(max-width:380px){
   .public-app header.logo-only-header{min-height:88px;padding:7px 10px!important}
   .public-app header.logo-only-header .public-logo img{width:150px!important;max-height:70px!important}
-  .public-app .app-bottom-nav{left:4px!important;right:4px!important;padding:5px 3px!important}
-  .public-app .app-bottom-nav a small{font-size:9px!important}
+  .public-app .app-bottom-nav{left:4px!important;right:4px!important;bottom:calc(5px + env(safe-area-inset-bottom))!important;padding:5px 3px!important;border-radius:21px!important}
+  .public-app .app-bottom-nav a{min-height:54px!important;border-radius:15px!important}
+  .public-app .app-bottom-nav a span{font-size:19px!important}.public-app .app-bottom-nav a small{font-size:9px!important}
 }
 @media(prefers-reduced-motion:reduce){.public-app .hero a[href="auth.html"]{animation:none!important}.public-app .app-bottom-nav a{transition:none!important}}
