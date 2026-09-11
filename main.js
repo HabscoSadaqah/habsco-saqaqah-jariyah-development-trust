@@ -27,6 +27,16 @@
   if(brand){
     brand.setAttribute('aria-label','Habsco Sadaqah Jariyah Development Trust');
     brand.querySelector('.brand-name')?.remove();
+    const brandStyle=document.createElement('style');
+    brandStyle.textContent=`
+      header .nav{width:100%;min-height:78px;display:flex;align-items:center;gap:18px}
+      header .brand{display:flex;align-items:center;min-width:0;flex:0 1 auto}
+      header .brand img{display:block;width:clamp(190px,27vw,330px);max-width:100%;height:auto;max-height:66px;object-fit:contain}
+      @media(max-width:1050px){header .brand img{width:clamp(190px,30vw,290px);max-height:60px}}
+      @media(max-width:720px){header .nav{min-height:68px;padding:8px 14px;justify-content:center}header .brand{width:100%;justify-content:center}header .brand img{width:min(240px,72vw);max-height:52px}}
+      @media(max-width:420px){header .nav{padding-left:10px;padding-right:10px}header .brand img{width:min(215px,78vw);max-height:48px}}
+    `;
+    document.head.appendChild(brandStyle);
   }
   const toggle = document.querySelector('.mobile-toggle');
   const menu = document.querySelector('.menu');
@@ -72,5 +82,5 @@
   const copyBtn=document.getElementById('copy-account');if(copyBtn)copyBtn.addEventListener('click',async()=>{const number=document.getElementById('account-number')?.textContent?.trim();const status=document.getElementById('copy-status');try{await navigator.clipboard.writeText(number);if(status)status.textContent='Account number copied.'}catch(e){if(status)status.textContent='Please copy the account number manually: '+number}setTimeout(()=>{if(status)status.textContent=''},3000)});
   document.querySelectorAll('[data-finance-tab]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-finance-tab]').forEach(item=>item.classList.remove('active'));document.querySelectorAll('.finance-panel').forEach(panel=>panel.classList.remove('active'));button.classList.add('active');document.getElementById(button.dataset.financeTab)?.classList.add('active');window.scrollTo({top:document.querySelector('.finance-shell')?.offsetTop-90||0,behavior:'smooth'})}));
   document.querySelectorAll('[data-finance-action]').forEach(button=>button.addEventListener('click',event=>{event.preventDefault();const action=button.dataset.financeAction;if(action==='dashboard'){window.location.href='auth.html';return}if(action==='admin'){window.location.href='admin.html';return}document.querySelector(`[data-finance-tab="${action}"]`)?.click()}));
-  document.querySelectorAll('[data-prototype-form]').forEach(form=>form.addEventListener('submit',event=>{event.preventDefault();const message=form.querySelector('[data-form-message]');if(message)message.textContent='This public prototype form is not active. Use the authenticated member dashboard for real requests.';form.reset()}));
+  document.querySelectorAll('[data-prototype-form]').forEach(form=>form.addEventListener('submit',event=>{event.preventDefault();const message=form.querySelector('[data-form-message]');if(message)message.textContent='This public prototype form is not active. Use the authenticated member dashboard for real requests.';form.reset()});
 })();
