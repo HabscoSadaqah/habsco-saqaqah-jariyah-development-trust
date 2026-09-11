@@ -16,3 +16,77 @@ $('walletForm').addEventListener('submit',async e=>{e.preventDefault();const uid
 $('memberIdForm').addEventListener('submit',async e=>{e.preventDefault();const uid=$('memberIdUser').value;const id=$('memberIdValue').value.trim().toUpperCase();if(!uid){show('memberIdMsg','Select a member.');return}if(!/^HF-\d{3,}$/.test(id)){show('memberIdMsg','Use the format HF-001, HF-002, etc.');return}if(!confirm(`Issue member ID ${id} to this member?`))return;const {data,error}=await supabaseClient.rpc('admin_issue_member_id',{p_user_id:uid,p_member_id:id});if(error)show('memberIdMsg',error.message);else{show('memberIdMsg',`Member ID ${data} issued successfully.`);e.target.reset();await load();}});
 $('logout').onclick=async()=>{await supabaseClient.auth.signOut();location.href='auth.html';};
 (async()=>{currentSession=await guard();if(currentSession)await load();})();
+
+/* Final admin-page polish: keep the existing secure controls, but make the floating navigation a true single-view workspace. */
+(function polishAdminWorkspace(){
+  const css=document.createElement('style');
+  css.textContent=`
+    body{background:linear-gradient(180deg,#f5f8f6 0%,#eef4f0 100%)}
+    #persistentAdminNav{width:min(1180px,calc(100% - 24px));top:12px;padding:7px;border:1px solid rgba(255,255,255,.16);background:rgba(6,47,32,.96);backdrop-filter:blur(14px);box-shadow:0 14px 40px rgba(6,47,32,.22)}
+    #persistentAdminNav:before{content:'ADMIN CONTROL';display:block;color:#bfe5d0;font-size:9px;font-weight:950;letter-spacing:1.5px;padding:1px 8px 5px}
+    .persistent-admin-nav-inner{gap:7px;padding:0 2px 2px}
+    .persistent-admin-nav button{border:1px solid rgba(255,255,255,.13);background:rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;font-size:11px;transition:.18s ease;box-shadow:none}
+    .persistent-admin-nav button:hover{background:rgba(255,255,255,.15);transform:translateY(-1px)}
+    .persistent-admin-nav button.active{background:#18a968;border-color:#49d39a;box-shadow:0 5px 15px rgba(24,169,104,.28)}
+    #app{padding-top:82px}
+    .admin-workspace-title{display:flex;align-items:center;gap:10px;margin:0 0 16px;padding:15px 17px;border:1px solid #dce8e1;border-radius:16px;background:rgba(255,255,255,.88);box-shadow:0 8px 24px rgba(18,53,26,.06)}
+    .admin-workspace-title strong{font-size:17px;color:#123f2b}.admin-workspace-title span{margin-left:auto;font-size:11px;color:#718078;font-weight:800}
+    .admin-only-overview-hide{display:none!important}
+    .admin-only-overview-show{display:block!important}
+    .admin-focus-grid.active-focus{display:grid!important;grid-template-columns:1fr!important}
+    .admin-focus-grid.active-focus>.panel{display:block!important}
+    .admin-focus-grid.active-focus>.panel.admin-hidden-panel{display:none!important}
+    .admin-focus-only.active-focus,.admin-focus-analytics.active-focus{animation:adminIn .16s ease}
+    .panel{box-shadow:0 8px 26px rgba(18,53,26,.07);border-color:#dce6e0}
+    .panel h2{display:flex;align-items:center;gap:8px}
+    .table-wrap{box-shadow:inset 0 0 0 1px rgba(18,53,26,.02)}
+    th{position:sticky;top:0;z-index:1}
+    .btn{min-height:40px}.btn.red{background:#b43b43}.btn.gold{background:#f5e7b8;color:#624a05}
+    @keyframes adminIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+    @media(max-width:600px){#persistentAdminNav{top:6px;width:calc(100% - 10px)}#persistentAdminNav:before{padding-left:5px}.persistent-admin-nav button{padding:9px 10px;font-size:10px}#app{padding-top:76px}.admin-workspace-title{border-radius:12px;padding:13px}}
+  `;
+  document.head.appendChild(css);
+
+  function enhance(){
+    const app=$('app'),dash=$('admin-dashboard');
+    if(!app||!dash)return;
+    if(!document.getElementById('adminWorkspaceTitle')){
+      const t=document.createElement('div');t.id='adminWorkspaceTitle';t.className='admin-workspace-title';
+      t.innerHTML='<strong>Administrator Workspace</strong><span id="adminWorkspaceHint">Overview</span>';
+      app.insertBefore(t,app.firstElementChild);
+    }
+    const title=$('adminWorkspaceTitle'),hint=$('adminWorkspaceHint');
+    window.__adminFocus=function(key){
+      const sections=[...app.querySelectorAll('.admin-focus-only,.admin-focus-grid,.admin-focus-dashboard,.admin-focus-analytics')];
+      sections.forEach(el=>el.classList.remove('active-focus'));
+      app.querySelectorAll('.admin-hidden-panel').forEach(el=>el.classList.remove('admin-hidden-panel'));
+      const allTitles=app.querySelectorAll('.section-title');allTitles.forEach(el=>el.style.display='none');
+      title.style.display='flex';
+      const labels={'admin-dashboard':'Overview','wallet':'Wallet Control','member-ids':'Member IDs','funding-only':'Funding Requests','qard-only':'Qard Hasan','repayments':'Repayments','members':'Members','audit':'Audit Log','analytics':'Analytics'};
+      hint.textContent=labels[key]||'Admin Control';
+      if(key==='admin-dashboard'){
+        dash.classList.add('admin-focus-dashboard','active-focus');
+        [...dash.children].forEach(el=>{if(el!==dash.querySelector('.profile')&&!el.classList.contains('stats')&&!el.classList.contains('control-note'))el.classList.add('admin-only-overview-hide');else el.classList.remove('admin-only-overview-hide')});
+        dash.querySelectorAll('.section-title').forEach(el=>el.style.display='none');
+      }else{
+        [...dash.children].forEach(el=>el.classList.remove('admin-only-overview-hide'));
+        if(key==='analytics'){
+          $('adminAnalytics')?.classList.add('admin-focus-analytics','active-focus');
+        }else if(key==='funding-only'){
+          const grid=$('requests');if(grid){grid.classList.add('admin-focus-grid','active-focus');[...grid.children].forEach((p,i)=>p.classList.toggle('admin-hidden-panel',i!==0));}
+        }else if(key==='qard-only'){
+          const grid=$('requests');if(grid){grid.classList.add('admin-focus-grid','active-focus');[...grid.children].forEach((p,i)=>p.classList.toggle('admin-hidden-panel',i!==1));}
+          const approved=$('approvedQardTable')?.closest('.panel');if(approved){approved.classList.add('admin-focus-only','active-focus');}
+        }else if(key==='repayments'){
+          $('repayments')?.classList.add('admin-focus-only','active-focus');
+        }else{
+          $(key)?.classList.add('admin-focus-only','active-focus');
+        }
+      }
+      document.querySelectorAll('#persistentAdminNav button').forEach(b=>b.classList.toggle('active',b.dataset.target===key));
+      history.replaceState(null,'',`#${key}`);window.scrollTo({top:0,behavior:'smooth'});
+    };
+    window.__adminFocus(location.hash?location.hash.slice(1):'admin-dashboard');
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(enhance,0));else setTimeout(enhance,0);
+})();
