@@ -148,3 +148,8 @@ async function register(){
     if(mode==='signup')submitBtn.textContent='CREATE MEMBER ACCOUNT';
   }
 }
+
+// Register the real PWA service worker from the authentication page too.
+if('serviceWorker' in navigator && location.protocol==='https:'){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('/service-worker.js').catch(()=>{}));
+}
