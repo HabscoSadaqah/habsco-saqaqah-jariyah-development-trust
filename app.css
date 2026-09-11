@@ -9,7 +9,6 @@
 .public-app .hero a[href="auth.html"]{animation:habscoPortalPulse 2.2s ease-in-out infinite,habscoPortalGlow 2.2s ease-in-out infinite;will-change:transform,box-shadow,filter}
 .public-app .hero a[href="auth.html"]:hover{animation-play-state:paused;transform:translateY(-4px) scale(1.035)}
 
-/* Cross-device web-app behavior */
 .public-app,.public-app *{box-sizing:border-box}
 .public-app img,.public-app video,.public-app iframe{max-width:100%;height:auto}
 .public-app table{width:100%;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -18,25 +17,24 @@
 .public-app input,.public-app textarea,.public-app select{max-width:100%;font-size:16px}
 .public-app .section,.public-app .container,.public-app .content,.public-app .grid{min-width:0}
 
-.app-bottom-nav{display:none}
-@media(min-width:721px){
-  body.public-app{padding-bottom:94px}
-  .app-bottom-nav{position:fixed;display:flex;align-items:center;justify-content:center;gap:4px;left:50%;bottom:20px;transform:translateX(-50%);z-index:1000;width:max-content;min-width:440px;max-width:calc(100vw - 40px);background:rgba(255,255,255,.96);border:1px solid #dbe5dd;border-radius:22px;box-shadow:0 14px 40px rgba(0,0,0,.16);padding:8px 10px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
-  .app-bottom-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:76px;min-height:60px;padding:5px 10px;border-radius:15px;color:#667067;text-decoration:none;font-weight:800;transition:transform .18s,background .18s,color .18s}
-  .app-bottom-nav a:hover{background:#f0f7f2;color:#0d5b2b;transform:translateY(-2px)}
-  .app-bottom-nav a span{font-size:22px;line-height:1}.app-bottom-nav a small{font-size:10px;line-height:1}
-  .app-bottom-nav a.active{background:#eaf4ec;color:#0d5b2b;box-shadow:inset 0 0 0 1px #d8eadc}
-}
+/* Bottom navigation is the primary public navigation. */
+.public-app header nav,.public-app .header nav,.public-app .site-nav,.public-app .top-nav,.public-app .main-nav,.public-app .navbar,.public-app .nav-links{display:none!important}
+.app-bottom-nav{position:fixed;display:flex;align-items:center;justify-content:center;gap:4px;left:50%;bottom:20px;transform:translateX(-50%);z-index:1000;width:max-content;min-width:440px;max-width:calc(100vw - 40px);background:rgba(255,255,255,.96);border:1px solid #dbe5dd;border-radius:22px;box-shadow:0 14px 40px rgba(0,0,0,.16);padding:8px 10px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.app-bottom-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:76px;min-height:60px;padding:5px 10px;border-radius:15px;color:#667067;text-decoration:none;font-weight:800;transition:transform .18s,background .18s,color .18s}
+.app-bottom-nav a:hover{background:#f0f7f2;color:#0d5b2b;transform:translateY(-2px)}
+.app-bottom-nav a span{font-size:22px;line-height:1}.app-bottom-nav a small{font-size:10px;line-height:1}
+.app-bottom-nav a.active{background:#eaf4ec;color:#0d5b2b;box-shadow:inset 0 0 0 1px #d8eadc}
+body.public-app{padding-bottom:94px}
+
 @media(max-width:720px){
   body.public-app{background:#fff;padding-bottom:calc(78px + env(safe-area-inset-bottom))}
   .public-app main{box-shadow:none;padding-bottom:24px}
   .public-app .footer{padding-bottom:95px}
   .public-app .hero,.public-app .section,.public-app .page-banner{width:100%;max-width:none}
   .public-app .container,.public-app .content{width:100%;max-width:100%;padding-left:16px;padding-right:16px}
-  .app-bottom-nav{position:fixed;display:grid;grid-template-columns:repeat(5,1fr);left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:1000;background:rgba(255,255,255,.97);border:1px solid #dbe5dd;border-radius:18px;box-shadow:0 12px 35px rgba(0,0,0,.16);padding:7px 5px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-  .app-bottom-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:54px;border-radius:13px;color:#667067;font-weight:800;text-decoration:none;-webkit-tap-highlight-color:transparent}
+  .app-bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));transform:none;width:auto;min-width:0;max-width:none;background:rgba(255,255,255,.97);border-radius:18px;box-shadow:0 12px 35px rgba(0,0,0,.16);padding:7px 5px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  .app-bottom-nav a{min-height:54px;min-width:0;border-radius:13px;color:#667067}
   .app-bottom-nav a span{font-size:20px;line-height:1}.app-bottom-nav a small{font-size:10px}
-  .app-bottom-nav a.active{background:#eaf4ec;color:#0d5b2b}
   input,textarea,select{font-size:16px;min-height:44px}
   .btn{width:100%}.actions{gap:10px}.cta{flex-direction:column;align-items:stretch}.cta .btn{width:100%}
 }
