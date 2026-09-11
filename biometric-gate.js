@@ -1,5 +1,6 @@
 (function(){
   const KEY='hf_passkey_';
+  let sensitiveGateInFlight=null;
   const b64=b=>{let s='';new Uint8Array(b).forEach(x=>s+=String.fromCharCode(x));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
   const fromB64=s=>{s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';const r=atob(s),a=new Uint8Array(r.length);for(let i=0;i<r.length;i++)a[i]=r.charCodeAt(i);return a};
   const key=userId=>KEY+userId;
@@ -53,7 +54,22 @@
     return result.authorization_token||true
   }
   async function hasCredential(user){return !!(user&&supported()&&localStorage.getItem(key(user.id))==='server-verified')}
-  async function sensitiveGate(action=pageAction(),form=null){const u=await getUser();if(!u)throw new Error('Your session has expired. Please log in again.');if(!action)throw new Error('Biometric confirmation is not required for this action.');const payload=requestPayload(action,form);if(!payload)throw new Error('Unable to bind biometric confirmation to this request. Please refresh and try again.');const requestHash=await sha256(canonical(payload));const token=await verify(u,'sensitive',action,requestHash);if(typeof token!=='string')throw new Error('Server did not issue a biometric authorization.');window.__hfBioAuthorizationToken=token;return token}
+  async function sensitiveGate(action=pageAction(),form=null){
+    if(sensitiveGateInFlight)return sensitiveGateInFlight;
+    sensitiveGateInFlight=(async()=>{
+      const u=await getUser();
+      if(!u)throw new Error('Your session has expired. Please log in again.');
+      if(!action)throw new Error('Biometric confirmation is not required for this action.');
+      const payload=requestPayload(action,form);
+      if(!payload)throw new Error('Unable to bind biometric confirmation to this request. Please refresh and try again.');
+      const requestHash=await sha256(canonical(payload));
+      const token=await verify(u,'sensitive',action,requestHash);
+      if(typeof token!=='string')throw new Error('Server did not issue a biometric authorization.');
+      window.__hfBioAuthorizationToken=token;
+      return token;
+    })();
+    try{return await sensitiveGateInFlight}finally{sensitiveGateInFlight=null}
+  }
   window.hfBiometric={supported,enroll,verify,has:async()=>hasCredential(await getUser()),sensitiveGate};
   window.hfEnrollBiometric=async()=>{const u=await getUser();if(!u)throw new Error('Please log in first.');return enroll(u)};
   document.addEventListener('submit',async e=>{const form=e.target;if(!form||form.id!=='actionForm'||window.__hfBioRetry)return;const action=pageAction();if(!action)return;e.preventDefault();e.stopImmediatePropagation();try{await sensitiveGate(action,form);window.__hfBioRetry=true;form.requestSubmit()}catch(err){const m=document.getElementById('msg');if(m){m.textContent=err.message||'Biometric confirmation failed.';m.className='msg show';m.style.background='#fff1f1';m.style.color='#a52a2a'}}finally{window.__hfBioRetry=false}} ,true);
