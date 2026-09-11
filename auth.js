@@ -90,23 +90,8 @@ form.addEventListener('submit',async e=>{
     if(error)throw error;
     if(!data?.session?.user)throw new Error('Login did not return a valid session. Please try again.');
 
-    setMessage('Login successful. Opening your dashboard…',true);
-    const userId=data.session.user.id;
-    let destination='./member.html';
-
-    try{
-      const {data:profile,error:profileError}=await supabaseClient
-        .from('profiles')
-        .select('role,status')
-        .eq('id',userId)
-        .maybeSingle();
-      if(profileError)throw profileError;
-      if(profile?.role==='admin'&&profile?.status==='active')destination='./admin.html';
-    }catch(profileError){
-      console.warn('Profile routing check failed; using member portal.',profileError);
-    }
-
-    setTimeout(()=>go(destination),300);
+    setMessage('Login successful. Opening your member portal…',true);
+    setTimeout(()=>go('./member.html'),300);
   }catch(error){
     console.error('Authentication error:',error);
     setMessage(loginError(error));
