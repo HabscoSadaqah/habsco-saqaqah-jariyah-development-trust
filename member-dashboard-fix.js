@@ -25,6 +25,13 @@ async function run(){
   const {data:eligibility,error:eligibilityError}=await sb.rpc('member_savings_loan_eligibility');
   if(!eligibilityError&&eligibility)renderSavingsEligibility(eligibility,savings);
 }
+function syncLoanCard(eligible,limit){
+  const card=document.querySelector('.loan-card');
+  const link=card?.querySelector('a');
+  if(!link)return;
+  if(eligible){link.href='member-actions.html?action=request-loan';link.textContent='Borrow Loan · Up to '+money(limit);link.removeAttribute('aria-disabled');link.style.pointerEvents='auto';link.style.opacity='1';}
+  else{link.removeAttribute('href');link.textContent='🔒 Locked · Save for 6 months';link.setAttribute('aria-disabled','true');link.style.pointerEvents='none';link.style.opacity='.58';}
+}
 function renderSavingsEligibility(e,fallbackSavings){
   let panel=document.getElementById('hfSavingsLoanPanel');
   if(!panel){
@@ -41,6 +48,7 @@ function renderSavingsEligibility(e,fallbackSavings){
   const remaining=Math.max(0,Number(e.months_remaining||0));
   const eligible=Boolean(e.eligible);
   const limit=Number(e.loan_limit||0);
+  syncLoanCard(eligible,limit);
   const since=e.qualifying_since?new Date(e.qualifying_since):null;
   const sinceText=since&&!Number.isNaN(since.getTime())?since.toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}):'Not started';
   const progress=Math.round((months/6)*100);
