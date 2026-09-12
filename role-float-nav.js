@@ -1,6 +1,6 @@
 (()=>{
   const ID='hfRoleFloatNav';
-  const ADMIN_SECTION_ID='hfEmbeddedAdminDashboard';
+  const ADMIN_SECTION_ID='hfAdminEntryCard';
   const path=location.pathname.split('/').filter(Boolean).pop()||'index.html';
   const isAdminPage=path==='admin.html'||path==='admin-control-center.html';
   const isMemberPage=path==='member.html';
@@ -19,40 +19,27 @@
     return client;
   };
   const remove=()=>document.getElementById(ID)?.remove();
-  const removeEmbeddedAdmin=()=>document.getElementById(ADMIN_SECTION_ID)?.remove();
-  const renderEmbeddedAdmin=()=>{
+  const removeAdminEntry=()=>document.getElementById(ADMIN_SECTION_ID)?.remove();
+  const renderAdminEntry=()=>{
     if(!isMemberPage||document.getElementById(ADMIN_SECTION_ID))return;
     const wrap=document.querySelector('.wrap');
     if(!wrap)return;
     const section=document.createElement('section');
     section.id=ADMIN_SECTION_ID;
     section.innerHTML=`<style>
-      #${ADMIN_SECTION_ID}{margin-top:30px;padding-top:6px;border-top:1px solid #dfe9e3}
-      #${ADMIN_SECTION_ID} .hf-admin-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 10px}
-      #${ADMIN_SECTION_ID} .hf-admin-heading h2{margin:0;color:#064f2e;font-size:16px;font-weight:900}
-      #${ADMIN_SECTION_ID} .hf-admin-heading span{font-size:9px;color:#728079;font-weight:700}
-      #${ADMIN_SECTION_ID} .hf-admin-frame{width:100%;min-height:720px;height:720px;border:1px solid #dfe9e3;border-radius:18px;background:#f4f7f5;display:block;box-shadow:0 8px 24px rgba(24,60,42,.07)}
-      #${ADMIN_SECTION_ID} .hf-admin-open{display:inline-flex;align-items:center;justify-content:center;margin-top:9px;padding:9px 12px;border-radius:10px;background:#064f2e;color:#fff;text-decoration:none;font-size:9px;font-weight:850}
-      @media(max-width:600px){#${ADMIN_SECTION_ID}{margin-top:22px}#${ADMIN_SECTION_ID} .hf-admin-heading{align-items:flex-start;flex-direction:column;gap:4px}#${ADMIN_SECTION_ID} .hf-admin-frame{min-height:760px;height:760px;border-radius:14px}}
+      #${ADMIN_SECTION_ID}{margin-top:28px;padding-top:20px;border-top:1px solid #dfe9e3}
+      #${ADMIN_SECTION_ID} .hf-admin-card{background:linear-gradient(135deg,#062f20,#087443);color:#fff;border-radius:17px;padding:16px;display:flex;align-items:center;justify-content:space-between;gap:14px;box-shadow:0 8px 24px rgba(6,61,38,.12)}
+      #${ADMIN_SECTION_ID} .hf-admin-card h3{margin:0 0 4px;font-size:14px;font-weight:900}
+      #${ADMIN_SECTION_ID} .hf-admin-card p{margin:0;color:#d9ece1;font-size:9.5px;line-height:1.4}
+      #${ADMIN_SECTION_ID} .hf-admin-card a{flex:0 0 auto;background:#fff;color:#064f2e;text-decoration:none;border-radius:10px;padding:9px 12px;font-size:9px;font-weight:900;white-space:nowrap}
+      @media(max-width:520px){#${ADMIN_SECTION_ID}{margin-top:22px;padding-top:16px}#${ADMIN_SECTION_ID} .hf-admin-card{padding:13px;border-radius:14px;align-items:flex-start}#${ADMIN_SECTION_ID} .hf-admin-card h3{font-size:12px}#${ADMIN_SECTION_ID} .hf-admin-card p{font-size:8px}#${ADMIN_SECTION_ID} .hf-admin-card a{padding:8px 9px;font-size:8px}}
     </style>
-    <div class="hf-admin-heading"><h2>🛡️ Admin Dashboard</h2><span>Administrator controls appear below your member dashboard</span></div>
-    <iframe class="hf-admin-frame" src="admin-control-center.html?embedded=1" title="Hassan Finance Admin Dashboard"></iframe>
-    <a class="hf-admin-open" href="admin-control-center.html">Open Full Admin Control Center →</a>`;
+    <div class="hf-admin-card"><div><h3>🛡️ Admin Control Panel</h3><p>Administrator controls are kept separate from your member dashboard for a cleaner and safer experience.</p></div><a href="admin-control-center.html">Open Admin</a></div>`;
     wrap.appendChild(section);
-    const frame=section.querySelector('.hf-admin-frame');
-    const resize=()=>{
-      try{
-        const doc=frame.contentDocument;
-        const h=Math.max(720,doc.documentElement.scrollHeight,doc.body?.scrollHeight||0);
-        frame.style.height=Math.min(h,12000)+'px';
-      }catch(_){/* cross-origin fallback keeps the safe minimum height */}
-    };
-    frame.addEventListener('load',()=>{resize();setTimeout(resize,400);setTimeout(resize,1200)});
-    window.addEventListener('resize',resize);
   };
   const render=()=>{
     if(isMemberPage){
-      renderEmbeddedAdmin();
+      renderAdminEntry();
       remove();
       return;
     }
@@ -70,16 +57,16 @@
     if(!sb)return false;
     try{
       const {data:{user},error}=await sb.auth.getUser();
-      if(error||!user){if(isMemberPage){removeEmbeddedAdmin();remove()}return false}
+      if(error||!user){if(isMemberPage){removeAdminEntry();remove()}return false}
       if(!isMemberPage){render();return true}
       const email=String(user.email||'').trim().toLowerCase();
       if(email===ADMIN_EMAIL){render();return true}
       const {data:profile,error:profileError}=await sb.from('profiles').select('role,status').eq('id',user.id).maybeSingle();
       if(!profileError&&profile?.role==='admin'&&profile?.status==='active'){render();return true}
-      if(!profileError){removeEmbeddedAdmin();remove();return true}
+      if(!profileError){removeAdminEntry();remove();return true}
       const {data:isAdmin,error:adminError}=await sb.rpc('is_admin');
       if(!adminError&&isAdmin===true){render();return true}
-      removeEmbeddedAdmin();remove();
+      removeAdminEntry();remove();
       return false;
     }catch(_){return false}
   };
