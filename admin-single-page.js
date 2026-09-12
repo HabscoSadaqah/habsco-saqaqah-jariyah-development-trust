@@ -3,12 +3,22 @@
 
   const removeLegacyNav=()=>{
     ['persistentAdminNav','hfAdminSingleNav','hfFastAccess','hfAdminDropdownShell','hfAdminDropdownHeader'].forEach(id=>document.getElementById(id)?.remove());
-    document.querySelectorAll('.sidebar,.mobile-nav,.quick,.top').forEach(el=>el.remove());
+    document.querySelectorAll('.sidebar,.mobile-nav,.quick,.top,.nav').forEach(el=>el.remove());
     document.querySelectorAll('.admin-focus-only,.admin-focus-hidden,.admin-focus-grid,.admin-focus-dashboard,.admin-focus-analytics').forEach(el=>{
       el.classList.remove('admin-focus-only','admin-focus-hidden','admin-focus-grid','admin-focus-dashboard','admin-focus-analytics','active-focus');
       el.style.removeProperty('display');
     });
   };
+
+  // admin.js still contains an older navigation controller. Neutralize it immediately
+  // and continuously so it can never recreate a second navigation after this page loads.
+  const legacyGuardStyle=document.createElement('style');
+  legacyGuardStyle.id='hfAdminLegacyGuard';
+  legacyGuardStyle.textContent='#persistentAdminNav,#hfAdminSingleNav,#hfFastAccess,#hfAdminDropdownShell,#hfAdminDropdownHeader,.sidebar,.mobile-nav,.quick,.top,.nav{display:none!important}';
+  (document.head||document.documentElement).appendChild(legacyGuardStyle);
+  removeLegacyNav();
+  const legacyObserver=new MutationObserver(()=>removeLegacyNav());
+  legacyObserver.observe(document.documentElement,{childList:true,subtree:true});
 
   const build=()=>{
     const app=document.getElementById('app'),wrap=document.querySelector('.wrap');
@@ -88,7 +98,6 @@
     });
 
     if(orphan.length){const b=add('⚙️ Other Admin Controls',false);orphan.forEach(n=>b.appendChild(n));}
-
     if(analytics){const b=add('📈 Analytics',false);b.appendChild(analytics);}
 
     const global=document.getElementById('globalMsg');
