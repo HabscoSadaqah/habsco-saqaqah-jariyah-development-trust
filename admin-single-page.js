@@ -1,16 +1,17 @@
 (()=>{
-  const build=()=>{
-    if(location.pathname.split('/').pop()!=='admin.html')return;
-    const app=document.getElementById('app'),wrap=document.querySelector('.wrap');
-    if(!app||!wrap){setTimeout(build,250);return}
-    if(document.getElementById('hfAdminDropdownShell'))return;
+  if(location.pathname.split('/').pop()!=='admin.html')return;
 
-    /* Remove every previous admin navigation implementation. */
+  const killNav=()=>{
     ['persistentAdminNav','hfAdminSingleNav','hfFastAccess'].forEach(id=>document.getElementById(id)?.remove());
-    document.querySelector('.sidebar')?.remove();
-    document.querySelector('.mobile-nav')?.remove();
-    document.querySelector('.quick')?.remove();
-    document.querySelector('.top')?.remove();
+    document.querySelectorAll('.sidebar,.mobile-nav,.quick,.top').forEach(el=>el.remove());
+    document.querySelectorAll('.admin-focus-only,.admin-focus-hidden').forEach(el=>el.classList.remove('admin-focus-only','admin-focus-hidden'));
+  };
+
+  const build=()=>{
+    const app=document.getElementById('app'),wrap=document.querySelector('.wrap');
+    if(!app||!wrap){setTimeout(build,200);return}
+    killNav();
+    if(document.getElementById('hfAdminDropdownShell'))return;
 
     const style=document.createElement('style');style.id='hfAdminAccordionStyle';style.textContent=`
       body{background:#f4f7f5!important;padding-bottom:18px!important}.layout{display:block!important}.main{width:100%!important}.wrap{max-width:920px!important;margin:auto!important;padding:12px 12px 28px!important}
@@ -35,5 +36,19 @@
     const global=document.getElementById('globalMsg');if(global)move(shell,global);
     app.appendChild(shell);app.querySelectorAll(':scope > .section-title').forEach(x=>x.remove());app.style.display='block';
   };
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);else build();
+
+  const stabilize=()=>{
+    killNav();
+    document.querySelectorAll('#app .admin-focus-only,#app .admin-focus-hidden').forEach(el=>el.classList.remove('admin-focus-only','admin-focus-hidden'));
+  };
+
+  const start=()=>{
+    build();
+    stabilize();
+    const timer=setInterval(stabilize,400);
+    setTimeout(()=>clearInterval(timer),12000);
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(start,900));
+  else setTimeout(start,900);
 })();
