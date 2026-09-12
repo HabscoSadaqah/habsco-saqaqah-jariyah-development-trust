@@ -1,22 +1,18 @@
 (()=>{
 'use strict';
-if(location.pathname.split('/').pop()!=='member.html')return;
+const page=(location.pathname.split('/').filter(Boolean).pop()||'').toLowerCase();
+if(page!=='member.html'&&page!=='member'&&page!=='dashboard')return;
 const SUPABASE_URL='https://ythnoeyxovapydbmymdo.supabase.co';
 const SUPABASE_KEY='sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN';
 const money=n=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',minimumFractionDigits:2}).format(Number(n||0));
 async function init(){
   if(document.getElementById('hfSavingsLoanPanel'))return;
-  if(!window.supabase?.createClient)return;
+  if(!window.supabase?.createClient){setTimeout(init,500);return;}
   const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
   const {data:{session}}=await sb.auth.getSession();
   if(!session)return;
   let savings=0;
-  try{
-    const {data}=await sb.rpc('member_dashboard_balances');
-    savings=Number(data?.savings||0);
-  }catch(_){
-    try{const {data}=await sb.from('member_cooperative_accounts').select('savings_balance').eq('user_id',session.user.id).maybeSingle();savings=Number(data?.savings_balance||0)}catch(__){}
-  }
+  try{const {data}=await sb.rpc('member_dashboard_balances');savings=Number(data?.savings||0)}catch(_){try{const {data}=await sb.from('member_cooperative_accounts').select('savings_balance').eq('user_id',session.user.id).maybeSingle();savings=Number(data?.savings_balance||0)}catch(__){}}
   let e={eligible:false,savings_balance:savings,loan_limit:savings*2,months_completed:0,months_remaining:6,qualifying_since:null};
   try{const {data}=await sb.rpc('member_savings_loan_eligibility');if(data)e={...e,...data}}catch(_){}
   render(e);
