@@ -2,35 +2,137 @@
   const path=location.pathname.split('/').filter(Boolean).pop()||'index.html';
   const isCenter=path==='admin-control-center.html',isPortal=path==='admin.html';
   if(!isCenter&&!isPortal)return;
-  if(document.getElementById('hfFastAccess')||document.getElementById('hfAdminSingleNav'))return;
 
   if(isPortal){
     const clean=()=>{
-      if(document.getElementById('hfAdminSingleNav'))return;
       const app=document.getElementById('app'),wrap=document.querySelector('.wrap');
-      if(!app||!wrap)return;
-      const style=document.createElement('style');style.id='hfAdminSingleStyle';style.textContent=`
-        body{background:#f4f7f5!important;padding-bottom:20px!important}.sidebar,.mobile-nav,.top,.hero,.profile,.control-note,.quick{display:none!important}.wrap{padding:12px 18px 26px!important}#app{display:block!important}#hfAdminSingleNav{position:sticky;top:7px;z-index:1000;background:#083e27;border-radius:13px;padding:7px;margin:0 0 14px;box-shadow:0 8px 24px #0002}#hfAdminSingleNavInner{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none}#hfAdminSingleNavInner::-webkit-scrollbar{display:none}#hfAdminSingleNav button{border:1px solid #2a9b69;background:#126b42;color:#fff;border-radius:9px;padding:9px 11px;font:800 10px Inter,system-ui,sans-serif;white-space:nowrap;cursor:pointer}#hfAdminSingleNav button.active{background:#14834e}#app>.stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-bottom:14px}#app>.stats .card{padding:12px;border-radius:12px}#app>.stats .stat{font-size:20px}#app>.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#app>.panel,#app>.grid>.panel{margin-bottom:12px;padding:14px;border-radius:13px}#app h2{font-size:15px!important}#app .notice{font-size:12px}#app .table-wrap{max-height:430px;overflow:auto}#app table{min-width:640px}.footer-note{display:none!important}@media(max-width:850px){.wrap{padding:8px 10px 22px!important}#app>.stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}#app>.grid{grid-template-columns:1fr!important}#app .table-wrap{max-height:360px}}`;
+      if(!app||!wrap){setTimeout(clean,120);return;}
+      if(document.getElementById('hfAdminDropdownShell'))return;
+
+      /* Block the older single-page script from creating another navigation bar. */
+      if(!document.getElementById('hfAdminSingleNav')){
+        const guard=document.createElement('div');
+        guard.id='hfAdminSingleNav';
+        guard.hidden=true;
+        document.body.appendChild(guard);
+      }
+
+      const style=document.createElement('style');
+      style.id='hfAdminDropdownStyle';
+      style.textContent=`
+        body{background:#f4f7f5!important;padding-bottom:18px!important}
+        .layout{display:block!important}
+        .sidebar,.mobile-nav,.hero,.control-note,.quick,.top{display:none!important}
+        .main{width:100%!important}
+        .wrap{max-width:900px!important;margin:0 auto!important;padding:14px 14px 28px!important}
+        #hfAdminDropdownHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:13px 15px;background:linear-gradient(135deg,#062f20,#0b6340);color:#fff;border-radius:15px;box-shadow:0 8px 24px #083e2720}
+        #hfAdminDropdownHeader .hf-title{font-weight:950;font-size:15px;letter-spacing:.2px}
+        #hfAdminDropdownHeader .hf-sub{font-size:10px;opacity:.76;margin-top:3px}
+        #hfAdminDropdownHeader button{border:1px solid #ffffff35;background:#ffffff14;color:#fff;border-radius:9px;padding:9px 12px;font-weight:900;cursor:pointer}
+        #hfAdminDropdownShell{display:grid;gap:8px}
+        #hfAdminDropdownShell details{background:#fff;border:1px solid #dfe8e2;border-radius:13px;overflow:hidden;box-shadow:0 4px 16px #12351a0a}
+        #hfAdminDropdownShell summary{list-style:none;cursor:pointer;padding:14px 15px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:950;color:#173d2b;background:#fff}
+        #hfAdminDropdownShell summary::-webkit-details-marker{display:none}
+        #hfAdminDropdownShell summary:after{content:'⌄';font-size:16px;color:#126b42;transition:.15s}
+        #hfAdminDropdownShell details[open] summary{background:#f2f8f4;color:#126b42}
+        #hfAdminDropdownShell details[open] summary:after{transform:rotate(180deg)}
+        #hfAdminDropdownShell .hf-section-body{padding:0 12px 12px}
+        #hfAdminDropdownShell .profile{display:flex!important;margin:0 0 10px;padding:13px;border-radius:11px;box-shadow:none}
+        #hfAdminDropdownShell .stats{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:0}
+        #hfAdminDropdownShell .card{padding:11px;border-radius:10px;box-shadow:none}
+        #hfAdminDropdownShell .stat{font-size:19px}
+        #hfAdminDropdownShell .section-title{display:none!important}
+        #hfAdminDropdownShell .panel{margin:0 0 9px;padding:13px;border-radius:11px;box-shadow:none}
+        #hfAdminDropdownShell .panel:last-child{margin-bottom:0}
+        #hfAdminDropdownShell .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-bottom:9px}
+        #hfAdminDropdownShell .grid:last-child{margin-bottom:0}
+        #hfAdminDropdownShell .table-wrap{max-height:390px;overflow:auto}
+        #hfAdminDropdownShell table{min-width:640px}
+        #hfAdminDropdownShell h2{font-size:15px!important;margin-top:0}
+        #hfAdminDropdownShell .notice{font-size:12px}
+        #hfAdminDropdownShell .form{gap:8px}
+        #hfAdminDropdownShell .form input,#hfAdminDropdownShell .form select{min-height:42px}
+        #hfAdminDropdownShell .footer-note{display:none!important}
+        #hfAdminSingleNav{display:none!important}
+        @media(max-width:700px){
+          .wrap{padding:8px 9px 20px!important}
+          #hfAdminDropdownHeader{border-radius:11px;padding:11px 12px}
+          #hfAdminDropdownHeader .hf-title{font-size:14px}
+          #hfAdminDropdownShell .stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+          #hfAdminDropdownShell .grid{grid-template-columns:1fr}
+          #hfAdminDropdownShell .profile{flex-direction:column;align-items:flex-start}
+          #hfAdminDropdownShell .table-wrap{max-height:330px}
+        }
+      `;
       document.head.appendChild(style);
-      const nav=document.createElement('nav');nav.id='hfAdminSingleNav';nav.innerHTML='<div id="hfAdminSingleNavInner"></div>';const inner=nav.firstElementChild;
-      [['admin-dashboard','⌂ Dashboard'],['wallet','₦ Wallet'],['member-ids','ID Member IDs'],['funding-only','↓ Funding'],['qard-only','↗ Loans'],['repayments','↩ Repayments'],['members','● Members'],['audit','✓ Audit'],['analytics','▦ Analytics']].forEach(([key,label])=>{const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;inner.appendChild(b)});wrap.insertBefore(nav,wrap.firstChild);
-      const setDisplay=(el,v)=>{if(el)el.style.display=v};
-      const focus=key=>{
-        app.querySelectorAll(':scope > .section-title').forEach(x=>setDisplay(x,key==='admin-dashboard'?'':'none'));
-        app.querySelectorAll(':scope > .stats').forEach(x=>setDisplay(x,key==='admin-dashboard'?'grid':'none'));
-        app.querySelectorAll(':scope > .panel,:scope > .grid').forEach(x=>setDisplay(x,key==='admin-dashboard'?'block':'none'));
-        if(key==='funding-only'){const g=document.getElementById('requests');setDisplay(g,'grid');if(g){setDisplay(g.children[0],'block');setDisplay(g.children[1],'none')}}
-        else if(key==='qard-only'){const g=document.getElementById('requests');setDisplay(g,'grid');if(g){setDisplay(g.children[0],'none');setDisplay(g.children[1],'block')}setDisplay(document.getElementById('approvedQardTable')?.closest('.panel'),'block')}
-        else if(key==='analytics')setDisplay(document.getElementById('adminAnalytics'),'block');
-        else if(key!=='admin-dashboard')setDisplay(document.getElementById(key),'block');
-        inner.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.key===key));history.replaceState(null,'',`#${key}`);window.scrollTo(0,0);
+
+      const oldTop=document.querySelector('.top');
+      const logout=document.getElementById('logout');
+      const header=document.createElement('header');
+      header.id='hfAdminDropdownHeader';
+      header.innerHTML='<div><div class="hf-title">HASSAN FINANCE · ADMIN CONTROL</div><div class="hf-sub">All administrator tools in one page</div></div>';
+      if(logout)header.appendChild(logout);
+      wrap.insertBefore(header,wrap.firstChild);
+      if(oldTop)oldTop.remove();
+
+      const shell=document.createElement('div');
+      shell.id='hfAdminDropdownShell';
+
+      const makeDetails=(title,open=false)=>{
+        const d=document.createElement('details');
+        if(open)d.open=true;
+        const s=document.createElement('summary');s.textContent=title;
+        const body=document.createElement('div');body.className='hf-section-body';
+        d.append(s,body);shell.appendChild(d);return body;
       };
-      inner.addEventListener('click',e=>{const b=e.target.closest('button');if(b)focus(b.dataset.key)});window.__adminFocus=focus;focus(location.hash?location.hash.slice(1):'admin-dashboard');
+
+      const move=(body,node)=>{if(node)body.appendChild(node)};
+      const sectionTitles=[...app.querySelectorAll(':scope > .section-title')];
+      const profile=app.querySelector(':scope > .profile');
+      const stats=app.querySelector(':scope > .stats');
+      const overview=makeDetails('📊 Dashboard Overview',true);
+      move(overview,profile);move(overview,stats);
+
+      const groups=[
+        ['🪪 Member Identity Control','Member Identity Control'],
+        ['💳 Financial Controls','Financial Controls'],
+        ['📥 Requests & Reviews','Requests & Reviews'],
+        ['👥 Member Management','Member Management'],
+        ['🛡️ Security & Oversight','Security & Oversight']
+      ];
+
+      groups.forEach(([label,title])=>{
+        const heading=sectionTitles.find(x=>x.textContent.trim().toLowerCase().includes(title.toLowerCase()));
+        if(!heading)return;
+        const body=makeDetails(label,false);
+        let n=heading.nextElementSibling;
+        while(n && !n.classList.contains('section-title')){
+          const next=n.nextElementSibling;
+          body.appendChild(n);
+          n=next;
+        }
+        heading.remove();
+      });
+
+      const analytics=document.getElementById('adminAnalytics');
+      if(analytics){
+        const body=makeDetails('📈 Analytics',false);
+        body.appendChild(analytics);
+      }
+
+      const globalMsg=document.getElementById('globalMsg');
+      if(globalMsg && globalMsg.parentElement===app) shell.appendChild(globalMsg);
+
+      app.appendChild(shell);
+      app.querySelectorAll(':scope > .section-title').forEach(x=>x.remove());
+      app.style.display='block';
     };
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean);else clean();
     return;
   }
 
-  const style=document.createElement('style');style.textContent=`#hfFastAccess{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:9999;display:flex;gap:5px;padding:7px;background:rgba(6,47,32,.97);border-radius:17px;box-shadow:0 14px 38px rgba(0,0,0,.22);max-width:calc(100vw - 20px)}#hfFastAccess a{display:flex;align-items:center;justify-content:center;gap:6px;min-width:70px;height:38px;padding:0 10px;border-radius:11px;color:#eaf8f0;text-decoration:none;font:800 10px/1 Inter,system-ui,sans-serif;white-space:nowrap}#hfFastAccess a:hover,#hfFastAccess a.active{background:#14834e;color:#fff}@media(max-width:600px){#hfFastAccess{bottom:7px;width:calc(100vw - 12px);justify-content:space-between}#hfFastAccess a{min-width:0;flex:1;height:42px;padding:0 4px;font-size:8px;flex-direction:column}}`;document.head.appendChild(style);
-  const nav=document.createElement('nav');nav.id='hfFastAccess';nav.innerHTML=(isCenter?[['#dashboard','🏠','Home'],['#membersView','👥','Members'],['#wallet','💳','Wallet'],['#funding','📥','Funding'],['#financing','🤝','Loans'],['#security','🛡️','Security']]:[['member.html','👤','My Account']]).map(x=>`<a href="${x[0]}">${x[1]} ${x[2]}</a>`).join('');document.body.appendChild(nav);
+  /* Keep the separate control-center page compact without adding another portal nav. */
+  const style=document.createElement('style');
+  style.textContent=`#hfFastAccess{display:none!important}`;
+  document.head.appendChild(style);
 })();
