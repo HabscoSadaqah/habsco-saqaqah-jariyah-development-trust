@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" width="160" height="160" role="img" aria-labelledby="logoTitle logoDesc">
+<title id="logoTitle">Habsco H logo</title>
+<desc id="logoDesc">White circular Habsco emblem designed for dark green backgrounds.</desc>
+<circle cx="80" cy="80" r="73" fill="#ffffff"/>
+<circle cx="80" cy="80" r="58" fill="#063b29" stroke="#ffffff" stroke-width="3"/>
+<path d="M51 45h19v25h20V45h19v70H90V88H70v27H51z" fill="#ffffff"/>
+</svg>
