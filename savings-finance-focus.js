@@ -6,7 +6,7 @@ const polish=()=>{
  modal.dataset.financeFocus='1';
  const close=sheet.querySelector('.hf-savings-close');if(close){close.innerHTML='✕';close.setAttribute('aria-label','Close Savings');close.title='Close';}
  const eyebrow=sheet.querySelector('.hf-savings-eyebrow'),title=sheet.querySelector('#hfSavingsTitle'),intro=sheet.querySelector('.hf-savings-intro');
- if(eyebrow)eyebrow.textContent='HASSAN FINANCE · FINANCIAL POSITION';if(title)title.textContent='Savings & Loan';if(intro)intro.textContent='Build your savings balance, track your qualification and unlock your interest-free loan limit.';
+ if(eyebrow)eyebrow.textContent='HABSCO FINANCE';if(title)title.textContent='Savings & Loan';if(intro)intro.textContent='Build your savings balance, track your qualification and unlock your interest-free loan limit.';
  const balance=sheet.querySelector('.hf-savings-balance'),grid=sheet.querySelector('.hf-savings-grid');if(balance&&!sheet.querySelector('.hf-finance-focus-label'))balance.insertAdjacentHTML('afterend','<div class="hf-finance-focus-label">FINANCE OVERVIEW</div>');if(grid)grid.classList.add('hf-finance-snapshot');
  const plan=sheet.querySelector('.hf-savings-plan');if(plan){const strong=plan.querySelector('strong');if(strong)strong.textContent=strong.textContent.includes('Your')?'Savings Plan':'Set Your Savings Plan';}
  const progress=sheet.querySelector('.hf-savings-progress');
@@ -21,5 +21,6 @@ const polish=()=>{
  `;document.head.appendChild(style)}
  const toggle=sheet.querySelector('.hf-rules-toggle'),body=sheet.querySelector('.hf-rules-body');if(toggle&&body)toggle.onclick=()=>{const collapsed=body.classList.toggle('is-collapsed');toggle.textContent=collapsed?'Show':'Hide';toggle.setAttribute('aria-expanded',String(!collapsed))};
 };
-const watch=()=>{if(document.getElementById('hfSavingsModal'))polish()};new MutationObserver(watch).observe(document.body,{childList:true,subtree:true});setTimeout(watch,300);setTimeout(watch,1000);
+const watch=()=>{if(document.getElementById('hfSavingsModal'))polish()};
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',watch,{once:true}); else watch();
 })();
