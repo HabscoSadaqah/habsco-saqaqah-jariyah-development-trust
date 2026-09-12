@@ -1,52 +1,15 @@
 (()=>{
-  const style=document.createElement('style');
-  style.textContent=`
-    body{background:#f3f6f4!important;padding-bottom:24px!important}
-    .wrap{padding:14px 18px 28px!important}
-    .hero{display:none!important}.profile{display:none!important}.control-note{display:none!important}.top{display:none!important}
-    .section-title{margin:18px 0 9px!important;font-size:15px!important;letter-spacing:.1px!important}
-    #app{display:block!important}#app>.section-title:first-child{display:none!important}
-    #persistentAdminNav{position:sticky!important;top:8px!important;left:auto!important;transform:none!important;width:100%!important;margin:0 0 12px!important;border-radius:12px!important}
-    #persistentAdminNav .persistent-admin-nav-inner{gap:5px!important}
-    #persistentAdminNav button{font-size:10px!important;padding:8px 10px!important}
-    .admin-focus-only,.admin-focus-grid,.admin-focus-dashboard,.admin-focus-analytics{display:block!important}
-    .admin-focus-grid{display:grid!important}#requests{display:grid!important}#requests>.panel{display:block!important}#repayments{display:block!important}#adminAnalytics{display:block!important}
-    #adminAnalytics>.stats{display:none!important}
-    #app>.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px!important}
-    #app>.panel,#app>.grid>.panel{margin-bottom:10px!important;padding:14px!important;border-radius:13px!important}
-    #app>.stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px!important;margin-bottom:12px!important}
-    #app>.stats .card{padding:12px!important;border-radius:12px!important}.stat{font-size:20px!important}
-    #app .table-wrap{max-height:430px;overflow:auto}#app table{min-width:640px}
-    #app h2{font-size:15px!important;margin-bottom:10px!important}#app .notice{font-size:12px!important}
-    #app .form{gap:8px!important}#app .form input,#app .form select{min-height:40px!important;padding:9px!important}#app .btn{padding:9px 11px!important;font-size:11px!important}
-    .footer-note{display:none!important}
-    @media(max-width:850px){.wrap{padding:8px 10px 22px!important}#app>.stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}#app>.grid{grid-template-columns:1fr!important}#persistentAdminNav{top:5px!important}#app .table-wrap{max-height:360px}}
-  `;
-  document.head.appendChild(style);
-
-  const wireNav=()=>{
-    const nav=document.getElementById('persistentAdminNav');
-    if(!nav)return false;
-    nav.querySelectorAll('button').forEach(btn=>{
-      if(btn.dataset.singlePageWired)return;
-      btn.dataset.singlePageWired='1';
-      btn.addEventListener('click',e=>{
-        e.preventDefault();e.stopImmediatePropagation();
-        const map={'admin-dashboard':'admin-dashboard','wallet':'wallet','member-ids':'member-ids','funding-only':'requests','qard-only':'qard','repayments':'repayments','members':'members','audit':'audit','analytics':'adminAnalytics'};
-        const target=document.getElementById(map[btn.dataset.target]||btn.dataset.target);
-        if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
-      },true);
-    });
-    return true;
+  const init=()=>{
+    if(document.getElementById('hfAdminSingleNav'))return;
+    const style=document.createElement('style');
+    style.textContent=`body{background:#f4f7f5!important;padding-bottom:20px!important}.wrap{padding:14px 18px 28px!important}.hero,.profile,.control-note,.top,.sidebar,.mobile-nav,.quick{display:none!important}#app{display:block!important}#app>.section-title:first-child{display:none!important}#hfAdminSingleNav{position:sticky;top:7px;z-index:1000;background:#083e27;border-radius:13px;padding:7px;margin:0 0 14px;box-shadow:0 8px 24px #0002}#hfAdminSingleNavInner{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none}#hfAdminSingleNavInner::-webkit-scrollbar{display:none}#hfAdminSingleNav button{border:1px solid #2a9b69;background:#126b42;color:#fff;border-radius:9px;padding:9px 11px;font:800 10px Inter,system-ui,sans-serif;white-space:nowrap;cursor:pointer}#hfAdminSingleNav button.active{background:#14834e}#app>.stats{grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-bottom:14px}#app>.stats .card{padding:12px;border-radius:12px}#app>.stats .stat{font-size:20px}#app>.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#app>.panel,#app>.grid>.panel{margin-bottom:12px;padding:14px;border-radius:13px}#app h2{font-size:15px!important}#app .notice{font-size:12px}#app .table-wrap{max-height:430px;overflow:auto}#app table{min-width:640px}.footer-note{display:none!important}@media(max-width:850px){.wrap{padding:8px 10px 22px!important}#app>.stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}#app>.grid{grid-template-columns:1fr!important}#app .table-wrap{max-height:360px}}`;
+    document.head.appendChild(style);
+    const wrap=document.querySelector('.wrap'),app=document.getElementById('app');if(!wrap||!app)return;
+    const nav=document.createElement('nav');nav.id='hfAdminSingleNav';nav.innerHTML='<div id="hfAdminSingleNavInner"></div>';const inner=nav.firstElementChild;
+    [['admin-dashboard','⌂ Dashboard'],['wallet','₦ Wallet'],['member-ids','ID Member IDs'],['funding-only','↓ Funding'],['qard-only','↗ Loans'],['repayments','↩ Repayments'],['members','● Members'],['audit','✓ Audit'],['analytics','▦ Analytics']].forEach(([key,label])=>{const b=document.createElement('button');b.type='button';b.dataset.key=key;b.textContent=label;inner.appendChild(b)});wrap.insertBefore(nav,wrap.firstChild);
+    const show=key=>{app.querySelectorAll(':scope > .section-title').forEach(x=>x.style.display=key==='admin-dashboard'?'':'none');app.querySelectorAll(':scope > .stats').forEach(x=>x.style.display=key==='admin-dashboard'?'grid':'none');app.querySelectorAll(':scope > .panel,:scope > .grid').forEach(x=>x.style.display=key==='admin-dashboard'?'block':'none');const hide=el=>{if(el)el.style.display='none'};const display=el=>{if(el)el.style.display='block'};if(key==='admin-dashboard'){}else if(key==='funding-only'){const g=document.getElementById('requests');display(g);if(g){display(g.children[0]);hide(g.children[1])}}else if(key==='qard-only'){const g=document.getElementById('requests');display(g);if(g){hide(g.children[0]);display(g.children[1])};display(document.getElementById('approvedQardTable')?.closest('.panel'))}else if(key==='analytics'){display(document.getElementById('adminAnalytics'))}else display(document.getElementById(key));inner.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.key===key));history.replaceState(null,'',`#${key}`);window.scrollTo(0,0)};
+    inner.addEventListener('click',e=>{const b=e.target.closest('button');if(b)show(b.dataset.key)});window.__adminFocus=show;show(location.hash?location.hash.slice(1):'admin-dashboard');
   };
-  const reveal=()=>{
-    const app=document.getElementById('app');if(!app)return false;
-    app.querySelectorAll('.admin-focus-only,.admin-focus-grid,.admin-focus-dashboard,.admin-focus-analytics').forEach(el=>{el.classList.add('active-focus');el.style.removeProperty('display')});
-    app.querySelectorAll('.section-title').forEach(el=>el.style.removeProperty('display'));
-    document.getElementById('admin-dashboard')?.classList.add('active-focus');
-    return true;
-  };
-  const run=()=>{document.querySelector('.sidebar')?.remove();document.querySelector('.mobile-nav')?.remove();document.querySelector('.quick')?.remove();document.querySelector('.top')?.remove();wireNav();reveal()};
-  let tries=0;const timer=setInterval(()=>{run();if(document.getElementById('persistentAdminNav')&&document.getElementById('app')){clearInterval(timer);observer.disconnect()}if(++tries>80)clearInterval(timer)},100);
-  const observer=new MutationObserver(run);observer.observe(document.body,{childList:true,subtree:true});
+  const run=()=>{document.querySelector('.sidebar')?.remove();document.querySelector('.mobile-nav')?.remove();document.querySelector('.quick')?.remove();document.querySelector('.top')?.remove();init()};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
 })();
