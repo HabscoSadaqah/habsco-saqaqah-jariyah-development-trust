@@ -1,18 +1,21 @@
 (()=>{
   if(location.pathname.split('/').pop()!=='admin.html')return;
+
   const removeLegacyNav=()=>{
-    ['persistentAdminNav','hfAdminSingleNav','hfFastAccess'].forEach(id=>document.getElementById(id)?.remove());
+    ['persistentAdminNav','hfAdminSingleNav','hfFastAccess','hfAdminDropdownShell','hfAdminDropdownHeader'].forEach(id=>document.getElementById(id)?.remove());
     document.querySelectorAll('.sidebar,.mobile-nav,.quick,.top').forEach(el=>el.remove());
     document.querySelectorAll('.admin-focus-only,.admin-focus-hidden,.admin-focus-grid,.admin-focus-dashboard,.admin-focus-analytics').forEach(el=>{
       el.classList.remove('admin-focus-only','admin-focus-hidden','admin-focus-grid','admin-focus-dashboard','admin-focus-analytics','active-focus');
       el.style.removeProperty('display');
     });
   };
+
   const build=()=>{
     const app=document.getElementById('app'),wrap=document.querySelector('.wrap');
     if(!app||!wrap){setTimeout(build,150);return;}
-    removeLegacyNav();
     if(document.getElementById('hfAdminAccordion'))return;
+
+    removeLegacyNav();
 
     const style=document.createElement('style');
     style.id='hfAdminAccordionStyle';
@@ -47,8 +50,8 @@
     wrap.insertBefore(header,wrap.firstChild);
 
     const shell=document.createElement('div');shell.id='hfAdminAccordion';
-    const add=(title,open=false)=>{const d=document.createElement('details');d.open=open;const s=document.createElement('summary');s.textContent=title;const b=document.createElement('div');b.className='body';d.append(s,b);shell.appendChild(d);return b};
-    const move=(b,n)=>n&&b.appendChild(n);
+    const add=(title,open=false)=>{const d=document.createElement('details');d.open=open;const s=document.createElement('summary');s.textContent=title;const b=document.createElement('div');b.className='body';d.append(s,b);shell.appendChild(d);return b;};
+    const move=(b,n)=>{if(n)b.appendChild(n);};
 
     const overview=add('📊 Dashboard Overview',true);
     move(overview,app.querySelector(':scope > .profile'));
@@ -65,36 +68,33 @@
       return '⚙️ '+t.replace(/[📊🪪💳📥👥🛡️📈]/g,'').trim();
     };
 
-    const children=[...app.children].filter(n=>n!==shell&&n!==document.getElementById('globalMsg')&&!n.classList.contains('profile')&&!n.classList.contains('stats'));
-    let currentBody=null;
-    const orphan=[];
+    const analytics=document.getElementById('adminAnalytics');
+    const children=[...app.children].filter(n=>
+      n!==shell &&
+      n!==analytics &&
+      n!==document.getElementById('globalMsg') &&
+      !n.classList.contains('profile') &&
+      !n.classList.contains('stats')
+    );
+
+    let currentBody=null;const orphan=[];
     children.forEach(node=>{
       if(node.classList?.contains('section-title')){
-        const title=node.textContent.trim();
-        if(currentBody&&currentBody.childElementCount===0)currentBody=null;
-        currentBody=add(labelFor(title),false);
+        currentBody=add(labelFor(node.textContent.trim()),false);
         node.remove();
       }else if(currentBody){
         currentBody.appendChild(node);
-      }else{
-        orphan.push(node);
-      }
+      }else orphan.push(node);
     });
 
-    if(orphan.length){
-      const b=add('⚙️ Other Admin Controls',false);
-      orphan.forEach(n=>b.appendChild(n));
-    }
+    if(orphan.length){const b=add('⚙️ Other Admin Controls',false);orphan.forEach(n=>b.appendChild(n));}
 
-    const analytics=document.getElementById('adminAnalytics');
-    if(analytics&&!analytics.closest('#hfAdminAccordion')){
-      const b=add('📈 Analytics',false);b.appendChild(analytics);
-    }
-    const global=document.getElementById('globalMsg');if(global)overview.insertBefore(global,overview.firstChild);
-    app.appendChild(shell);app.style.display='block';
+    if(analytics){const b=add('📈 Analytics',false);b.appendChild(analytics);}
 
-    removeLegacyNav();
-    document.querySelectorAll('#hfAdminAccordion .admin-focus-only,#hfAdminAccordion .admin-focus-grid,#hfAdminAccordion .admin-focus-dashboard,#hfAdminAccordion .admin-focus-analytics').forEach(el=>el.style.removeProperty('display'));
+    const global=document.getElementById('globalMsg');
+    if(global)overview.insertBefore(global,overview.firstChild);
+
+    app.appendChild(shell);app.style.display='block';removeLegacyNav();
   };
 
   const start=()=>build();
