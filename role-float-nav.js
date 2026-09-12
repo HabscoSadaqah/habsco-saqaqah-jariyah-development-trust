@@ -4,6 +4,7 @@
   const isAdminPage=path==='admin.html'||path==='admin-control-center.html';
   const isMemberPage=path==='member.html';
   if(!isAdminPage&&!isMemberPage)return;
+  const ADMIN_EMAIL='habscosadaqah@gmail.com';
   const getClient=()=>window.supabaseClient||(typeof supabaseClient!=='undefined'?supabaseClient:null);
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const remove=()=>document.getElementById(ID)?.remove();
@@ -20,13 +21,23 @@
       const {data:{session},error:sessionError}=await sb.auth.getSession();
       if(sessionError||!session?.user){if(isMemberPage)remove();return false}
       if(!isMemberPage){render(true);return true}
+      // First use the server-backed profile role when readable.
       const {data:profile,error}=await sb.from('profiles').select('role,status').eq('id',session.user.id).maybeSingle();
       if(!error&&profile?.role==='admin'&&profile?.status==='active'){render(true);return true}
       if(!error&&profile){render(false);return true}
+      // RLS can block a profile read. The admin identity fallback is limited to the
+      // dedicated admin account and the admin destination performs its own server-side check.
+      if(String(session.user.email||'').toLowerCase()===ADMIN_EMAIL){render(true);return true}
       const {data:isAdmin,error:adminError}=await sb.rpc('is_admin');
       if(!adminError&&isAdmin===true){render(true);return true}
       return false;
-    }catch(_){return false}
+    }catch(_){
+      try{
+        const {data:{session}}=await sb.auth.getSession();
+        if(isMemberPage&&String(session?.user?.email||'').toLowerCase()===ADMIN_EMAIL){render(true);return true}
+      }catch(__){}
+      return false;
+    }
   };
   const boot=async()=>{for(let i=0;i<80;i++){if(await check())return;await wait(250)}};
   const start=()=>{boot();const sb=getClient();if(sb?.auth?.onAuthStateChange)sb.auth.onAuthStateChange(()=>setTimeout(boot,0));window.addEventListener('pageshow',()=>setTimeout(boot,0));document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(boot,0)})};
