@@ -30,6 +30,7 @@ function renderSavingsEligibility(e,fallbackSavings){
   if(!panel){
     panel=document.createElement('section');
     panel.id='hfSavingsLoanPanel';
+    panel.className='hf-savings-loan';
     panel.setAttribute('aria-label','Savings loan eligibility');
     const accountGrid=document.querySelector('.account-grid');
     if(accountGrid?.parentNode)accountGrid.parentNode.insertBefore(panel,accountGrid.nextElementSibling);
@@ -52,7 +53,6 @@ function style(){
   document.head.appendChild(s);
   document.querySelectorAll('.footer-note').forEach(el=>el.remove());
 }
-function removeBottomNav(){document.querySelectorAll('#mobileAppNav,nav#mobileAppNav').forEach(el=>el.remove());}
 function loadSecurityCenter(){if(document.getElementById('hfSecurityCenter'))return;const s=document.createElement('script');s.src='member-security-center.js?v=20260912-4';s.async=false;document.head.appendChild(s);}
 function start(){style();removeBottomNav();new MutationObserver(removeBottomNav).observe(document.documentElement,{childList:true,subtree:true});run();loadSecurityCenter();setInterval(run,15000);}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
