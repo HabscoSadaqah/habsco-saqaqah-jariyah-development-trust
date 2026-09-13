@@ -1,4 +1,4 @@
-const CACHE='habsco-webapp-v9';
+const CACHE='habsco-webapp-v10';
 const SHELL=['./','index.html','about.html','programs.html','finance.html','impact.html','gallery.html','contact.html','style.css','home-polish.css','premium-global.css','app.css','main.js','manifest.json','favicon.svg','logo.svg','credential-controls.js','member-dashboard-fix.js','admin-utility-mode.js'];
 const FOOTER=`<link rel="stylesheet" href="premium-global.css"><style>
 .site-master-footer{margin-top:52px;background:linear-gradient(145deg,#052f18,#083f20 58%,#0d5b2b);color:#e8f4eb;border-top:1px solid rgba(255,255,255,.12);box-shadow:0 -14px 35px rgba(5,47,24,.12)}
