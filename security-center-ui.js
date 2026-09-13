@@ -10,7 +10,17 @@
     s.onload=()=>{};
     (document.body||document.head).appendChild(s);
   }
+  function loadFinalPinPosition(){
+    if(location.pathname.split('/').pop()!=='member.html')return;
+    if(document.querySelector('script[data-hf-pin-final]'))return;
+    const s=document.createElement('script');
+    s.src='pin-position-final.js?v=20260913-1';
+    s.dataset.hfPinFinal='1';
+    s.async=false;
+    (document.body||document.head).appendChild(s);
+  }
   loadSavingsLoanExperience();
+  loadFinalPinPosition();
   function mount(){
     const panel=document.getElementById('hfSecurityCenter');
     const wrap=document.querySelector('.wrap');
@@ -36,62 +46,4 @@
     const s=document.createElement('script');s.src='security-credentials-ui.js?v=20260911-2';s.dataset.hfCredentials='2';document.body.appendChild(s);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount);else mount();
-})();
-
-/* Savings PIN modal containment fix: keep the PIN prompt inside the Savings sheet. */
-(()=>{
-  'use strict';
-  const PIN_STYLE_ID='hf-savings-pin-containment-fix';
-  const css=`
-    #hfSavingsModal .hf-savings-sheet{position:relative!important}
-    #hfSavingsModal .hf-pin-modal{
-      position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
-      z-index:9999!important;display:block!important;padding:0!important;margin:0!important;
-      background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;filter:none!important;
-      pointer-events:none!important;overflow:hidden!important;
-    }
-    #hfSavingsModal .hf-pin-modal .hf-pin-backdrop{
-      position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
-      background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;filter:none!important;
-      pointer-events:none!important;
-    }
-    #hfSavingsModal .hf-pin-modal .hf-pin-sheet{
-      position:absolute!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;
-      transform:translate(-50%,-50%)!important;width:min(280px,calc(100% - 32px))!important;
-      max-width:calc(100% - 32px)!important;max-height:calc(100% - 32px)!important;
-      box-sizing:border-box!important;overflow:auto!important;margin:0!important;padding:16px!important;
-      border-radius:16px!important;background:#fff!important;border:1px solid #dce9e2!important;
-      box-shadow:0 14px 36px rgba(0,0,0,.18),0 4px 14px rgba(8,116,67,.08)!important;
-      z-index:10000!important;pointer-events:auto!important;opacity:1!important;visibility:visible!important;
-    }
-    #hfSavingsModal .hf-pin-modal .hf-pin-sheet input{display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important}
-    #hfSavingsModal .hf-pin-modal .hf-pin-sheet .hf-pin-confirm{width:100%!important}
-    @media(max-width:520px){
-      #hfSavingsModal .hf-pin-modal .hf-pin-sheet{width:250px!important;max-width:calc(100% - 28px)!important;padding:15px!important;border-radius:15px!important}
-    }
-  `;
-  const apply=()=>{
-    const modal=document.getElementById('hfSavingsModal');
-    if(!modal)return;
-    const savings=modal.querySelector('.hf-savings-sheet');
-    const pin=document.querySelector('.hf-pin-modal');
-    if(!savings||!pin)return;
-    if(pin.parentElement!==savings)savings.appendChild(pin);
-    savings.style.setProperty('position','relative','important');
-    const backdrop=pin.querySelector('.hf-pin-backdrop');
-    const ps=pin.querySelector('.hf-pin-sheet');
-    const important=(el,props)=>{if(!el)return;Object.entries(props).forEach(([k,v])=>el.style.setProperty(k,v,'important'))};
-    important(pin,{position:'absolute',inset:'0',width:'100%',height:'100%',background:'transparent',boxShadow:'none',backdropFilter:'none',filter:'none',pointerEvents:'none',overflow:'hidden',zIndex:'9999',display:'block'});
-    important(backdrop,{position:'absolute',inset:'0',width:'100%',height:'100%',background:'transparent',boxShadow:'none',backdropFilter:'none',filter:'none',pointerEvents:'none'});
-    important(ps,{position:'absolute',left:'50%',top:'50%',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',margin:'0',width:'280px',maxWidth:'calc(100% - 32px)',maxHeight:'calc(100% - 32px)',boxSizing:'border-box',overflow:'auto',background:'#fff',border:'1px solid #dce9e2',borderRadius:'16px',boxShadow:'0 14px 36px rgba(0,0,0,.18),0 4px 14px rgba(8,116,67,.08)',pointerEvents:'auto',zIndex:'10000',opacity:'1',visibility:'visible'});
-    requestAnimationFrame(()=>{const input=pin.querySelector('#hfPinInput');if(input)input.scrollIntoView({block:'center',inline:'nearest'})});
-  };
-  const install=()=>{
-    if(!document.getElementById(PIN_STYLE_ID)){
-      const s=document.createElement('style');s.id=PIN_STYLE_ID;s.textContent=css;document.head.appendChild(s);
-    }
-    apply();
-  };
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-  new MutationObserver(()=>requestAnimationFrame(apply)).observe(document.body,{childList:true,subtree:true});
 })();
