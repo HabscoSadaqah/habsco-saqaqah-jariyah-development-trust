@@ -15,8 +15,8 @@ function position(){
  const maxW=Math.max(160,r.width-24),maxH=Math.max(120,r.height-24);
  set(pin,{position:'fixed',left:'0',top:'0',right:'0',bottom:'0',width:'100vw',height:'100vh',transform:'none',zIndex:'2147483000',pointerEvents:'none',background:'transparent'});
  const backdrop=pin.querySelector('.hf-pin-backdrop');
- if(backdrop)set(backdrop,{position:'fixed',left:'0',top:'0',right:'0',bottom:'0',width:'100vw',height:'100vh',inset:'0',zIndex:'0',pointerEvents:'auto',borderRadius:'0',background:'transparent',backdropFilter:'none',WebkitBackdropFilter:'none'});
- set(pinSheet,{position:'fixed',left:cx+'px',top:cy+'px',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',maxWidth:maxW+'px',maxHeight:maxH+'px',zIndex:'1',pointerEvents:'auto'});
+ if(backdrop)set(backdrop,{position:'fixed',left:r.left+'px',top:r.top+'px',right:'auto',bottom:'auto',width:r.width+'px',height:r.height+'px',inset:'auto',zIndex:'1',pointerEvents:'auto',borderRadius:getComputedStyle(savingsSheet).borderRadius,background:'rgba(2,18,11,.42)',backdropFilter:'blur(2px)',WebkitBackdropFilter:'blur(2px)'});
+ set(pinSheet,{position:'fixed',left:cx+'px',top:cy+'px',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',maxWidth:maxW+'px',maxHeight:maxH+'px',zIndex:'2',pointerEvents:'auto'});
 }
 function run(){
  position();
@@ -32,7 +32,6 @@ function run(){
   window.visualViewport?.addEventListener('scroll',refresh,{passive:true});
  }
 }
-function install(){run()}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
 new MutationObserver(()=>requestAnimationFrame(run)).observe(document.body,{childList:true,subtree:true});
 })();
