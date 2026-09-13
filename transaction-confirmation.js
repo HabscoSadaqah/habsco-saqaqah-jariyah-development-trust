@@ -1,0 +1,34 @@
+(()=>{
+  'use strict';
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const money=v=>{const n=Number(v);return Number.isFinite(n)?`₦${n.toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2})}`:'—'};
+  const labels={send:'Send Money',fund:'Add Money',save:'Save in Cooperative',qard:'Interest-Free Loan', 'request-qard':'Interest-Free Loan','request-loan':'Interest-Free Loan','repay-qard':'Loan Repayment',receive:'Receive Fund',transfer:'Fund Transfer',airtime:'Airtime',data:'Mobile Data',tv:'Cable TV',electricity:'Electricity'};
+  function install(){
+    if(document.getElementById('hfTxnConfirm'))return;
+    const s=document.createElement('style');s.id='hfTxnConfirmStyle';s.textContent=`#hfTxnConfirm{position:fixed;inset:0;z-index:2147483647;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(7,18,14,.62);backdrop-filter:blur(7px)}#hfTxnConfirm.open{display:flex}#hfTxnConfirm .box{width:min(440px,100%);background:#fff;border-radius:24px;box-shadow:0 24px 70px rgba(0,0,0,.28);padding:24px;color:#122019}#hfTxnConfirm .icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:#eaf7f0;color:#087443;font-size:24px;margin-bottom:14px}#hfTxnConfirm h3{margin:0 0 6px;font-size:20px}#hfTxnConfirm .sub{margin:0 0 18px;color:#64736b;font-size:13px;line-height:1.5}#hfTxnConfirm .summary{border:1px solid #e6ece8;border-radius:16px;padding:13px 14px;margin-bottom:18px;background:#f9fbfa}#hfTxnConfirm .row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:13px}.hf-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hf-confirm-actions button{border:0;border-radius:13px;padding:13px;font-weight:800;cursor:pointer}.hf-cancel{background:#eef2ef;color:#304139}.hf-confirm{background:#087443;color:#fff}.hf-confirm:disabled{opacity:.6;cursor:wait}@media(max-width:480px){#hfTxnConfirm{padding:12px;align-items:flex-end}#hfTxnConfirm .box{border-radius:22px 22px 18px 18px;padding:20px}}`;
+    document.head.appendChild(s);
+    const m=document.createElement('div');m.id='hfTxnConfirm';m.innerHTML='<div class="box" role="dialog" aria-modal="true" aria-labelledby="hfTxnTitle"><div class="icon">✓</div><h3 id="hfTxnTitle">Confirm transaction</h3><p class="sub">Review the details before continuing. Your transaction will still be processed by the secure server-side operation.</p><div class="summary" id="hfTxnSummary"></div><div class="hf-confirm-actions"><button type="button" class="hf-cancel">Cancel</button><button type="button" class="hf-confirm">Confirm & Continue</button></div></div>';
+    document.body.appendChild(m);
+    let pending=null;
+    const close=()=>{m.classList.remove('open');pending=null};
+    m.querySelector('.hf-cancel').onclick=close;
+    m.addEventListener('click',e=>{if(e.target===m)close()});
+    m.querySelector('.hf-confirm').onclick=()=>{if(!pending)return;const {form}=pending;const b=m.querySelector('.hf-confirm');b.disabled=true;close();form.dataset.hfConfirmed='1';form.requestSubmit();setTimeout(()=>{form.dataset.hfConfirmed='';},0);b.disabled=false};
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&m.classList.contains('open'))close()});
+    document.addEventListener('submit',e=>{
+      const form=e.target;if(form.id!=='actionForm'||form.dataset.hfConfirmed==='1')return;
+      e.preventDefault();
+      const action=new URLSearchParams(location.search).get('action')||'send';
+      const title=labels[action]||labels.send;
+      const rows=[];
+      const add=(label,id)=>{const el=document.getElementById(id);if(el&&String(el.value).trim())rows.push(`<div class="row"><span>${esc(label)}</span><strong>${esc(el.value.trim())}</strong></div>`)};
+      add('Amount','amount');add('Member ID','recipient');add('Account','account');add('Network','network');add('Phone','phone');add('Provider','provider');add('Account / Meter','receiver');add('Meter','meter_number');add('Loan','qard');add('Payment reference','ref');add('Payment date','date');
+      const amount=document.getElementById('amount');if(amount&&Number(amount.value)>0){const row=rows.findIndex(x=>x.includes('Amount'));if(row>=0)rows[row]=`<div class="row"><span>Amount</span><strong>${money(amount.value)}</strong></div>`}
+      if(!rows.length)rows.push('<div class="row"><span>Request</span><strong>Continue with this action</strong></div>');
+      document.getElementById('hfTxnTitle').textContent=`Confirm ${title}`;
+      document.getElementById('hfTxnSummary').innerHTML=rows.join('');
+      pending={form};m.classList.add('open');
+    },true);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+})();
