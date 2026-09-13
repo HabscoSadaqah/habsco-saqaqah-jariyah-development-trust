@@ -86,10 +86,7 @@ const polish=()=>{
   }
  }
 
- /*
-  * Keep the PIN window inside the Savings & Loan parent window.
-  * This does not remove or bypass PIN validation.
-  */
+ /* Keep the PIN window as a small child window inside Savings & Loan. */
  const pinModals=sheet.querySelectorAll('.hf-pin-modal');
 
  pinModals.forEach(pinModal=>{
@@ -101,13 +98,29 @@ const polish=()=>{
   pinModal.style.setProperty('inset','0','important');
   pinModal.style.setProperty('width','100%','important');
   pinModal.style.setProperty('height','100%','important');
-  pinModal.style.setProperty('display','grid','important');
-  pinModal.style.setProperty('place-items','center','important');
+  pinModal.style.setProperty('display','flex','important');
+  pinModal.style.setProperty('align-items','center','important');
+  pinModal.style.setProperty('justify-content','center','important');
   pinModal.style.setProperty('transform','none','important');
   pinModal.style.setProperty('margin','0','important');
   pinModal.style.setProperty('padding','12px','important');
   pinModal.style.setProperty('box-sizing','border-box','important');
-  pinModal.style.setProperty('z-index','100001','important');
+  pinModal.style.setProperty('z-index','20','important');
+  pinModal.style.setProperty('pointer-events','none','important');
+  pinModal.style.setProperty('background','transparent','important');
+  pinModal.style.setProperty('backdrop-filter','none','important');
+
+  const pinBackdrop=pinModal.querySelector('.hf-pin-backdrop');
+
+  if(pinBackdrop){
+   pinBackdrop.style.setProperty('position','absolute','important');
+   pinBackdrop.style.setProperty('inset','0','important');
+   pinBackdrop.style.setProperty('width','100%','important');
+   pinBackdrop.style.setProperty('height','100%','important');
+   pinBackdrop.style.setProperty('background','transparent','important');
+   pinBackdrop.style.setProperty('backdrop-filter','none','important');
+   pinBackdrop.style.setProperty('pointer-events','none','important');
+  }
 
   const pinSheet=pinModal.querySelector('.hf-pin-sheet');
 
@@ -119,20 +132,18 @@ const polish=()=>{
    pinSheet.style.setProperty('bottom','auto','important');
    pinSheet.style.setProperty('transform','none','important');
    pinSheet.style.setProperty('margin','0','important');
-   pinSheet.style.setProperty(
-    'width',
-    'min(224px,calc(100% - 24px))',
-    'important'
-   );
-   pinSheet.style.setProperty('max-width','224px','important');
-   pinSheet.style.setProperty(
-    'max-height',
-    'calc(100% - 24px)',
-    'important'
-   );
+   pinSheet.style.setProperty('width','220px','important');
+   pinSheet.style.setProperty('max-width','calc(100% - 28px)','important');
+   pinSheet.style.setProperty('max-height','calc(100% - 28px)','important');
    pinSheet.style.setProperty('box-sizing','border-box','important');
    pinSheet.style.setProperty('overflow','hidden','important');
-   pinSheet.style.setProperty('z-index','1','important');
+   pinSheet.style.setProperty('z-index','21','important');
+   pinSheet.style.setProperty('pointer-events','auto','important');
+   pinSheet.style.setProperty('background','#fff','important');
+   pinSheet.style.setProperty('border','1px solid #dce9e2','important');
+   pinSheet.style.setProperty('border-radius','14px','important');
+   pinSheet.style.setProperty('padding','13px','important');
+   pinSheet.style.setProperty('box-shadow','0 14px 35px rgba(0,0,0,.18),0 4px 12px rgba(8,116,67,.08)','important');
   }
  });
 
@@ -457,14 +468,15 @@ body.hf-savings-locked{
  display:none!important
 }
 
-/* PIN WINDOW */
+/* PIN WINDOW — centered child of Savings & Loan */
 #hfSavingsModal .hf-savings-sheet .hf-pin-modal{
  position:absolute!important;
  inset:0!important;
  width:100%!important;
  height:100%!important;
- display:grid!important;
- place-items:center!important;
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
  margin:0!important;
  padding:12px!important;
  box-sizing:border-box!important;
@@ -473,10 +485,12 @@ body.hf-savings-locked{
  top:auto!important;
  right:auto!important;
  bottom:auto!important;
- z-index:100001!important;
+ z-index:20!important;
  overflow:hidden!important;
  background:transparent!important;
- backdrop-filter:none!important
+ backdrop-filter:none!important;
+ -webkit-backdrop-filter:none!important;
+ pointer-events:none!important
 }
 
 #hfSavingsModal .hf-savings-sheet .hf-pin-backdrop{
@@ -484,9 +498,10 @@ body.hf-savings-locked{
  inset:0!important;
  width:100%!important;
  height:100%!important;
- background:rgba(8,28,19,.14)!important;
+ background:transparent!important;
  backdrop-filter:none!important;
- pointer-events:auto!important
+ -webkit-backdrop-filter:none!important;
+ pointer-events:none!important
 }
 
 #hfSavingsModal .hf-savings-sheet .hf-pin-sheet{
@@ -498,17 +513,18 @@ body.hf-savings-locked{
  bottom:auto!important;
  transform:none!important;
  margin:0!important;
- width:min(224px,calc(100% - 24px))!important;
- max-width:224px!important;
- max-height:calc(100% - 24px)!important;
+ width:220px!important;
+ max-width:calc(100% - 28px)!important;
+ max-height:calc(100% - 28px)!important;
  box-sizing:border-box!important;
  overflow:hidden!important;
- z-index:1!important;
+ z-index:21!important;
+ pointer-events:auto!important;
  background:#fff!important;
  border:1px solid #dce9e2!important;
  border-radius:14px!important;
  padding:13px!important;
- box-shadow:0 18px 50px rgba(0,0,0,.20),0 5px 16px rgba(8,116,67,.10)!important;
+ box-shadow:0 14px 35px rgba(0,0,0,.18),0 4px 12px rgba(8,116,67,.08)!important;
  text-align:center!important;
  font-family:Inter,system-ui,sans-serif!important;
  color:#17221c!important
@@ -670,8 +686,8 @@ body.hf-savings-locked{
  }
 
  .hf-pin-sheet{
-  width:min(224px,calc(100% - 20px))!important;
-  max-width:224px!important;
+  width:210px!important;
+  max-width:calc(100% - 24px)!important;
   padding:11px!important
  }
 }
