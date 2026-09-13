@@ -1,19 +1,6 @@
-/* Habsco unified ecosystem UI — presentation layer only; financial ledgers remain entity-specific. */
+/* Habsco ecosystem UI disabled on the member/home dashboard.
+   The member experience should remain focused on finance, accounts, payments,
+   transfers, savings and interest-free loan services. */
 (function(){
   'use strict';
-  const path=(location.pathname.split('/').pop()||'index.html').toLowerCase();
-  if(path!=='member.html'&&path!=='member')return;
-  function add(){
-    const wrap=document.querySelector('.wrap');
-    if(!wrap||document.getElementById('habscoUnifiedEntities'))return;
-    const section=document.createElement('section');
-    section.id='habscoUnifiedEntities';
-    section.innerHTML='<div class="hue-head"><div><div class="hue-eyebrow">HABSCO ECOSYSTEM</div><h2>One member view. Three clear purposes.</h2><p>Access your cooperative finances in one place while Business, Finance and Charity remain properly separated by purpose and responsible entity.</p></div></div><div class="hue-balance"><div><span>UNIFIED MEMBER VIEW</span><strong>Unified Wallet Balance</strong><small>Your available spendable wallet balance.</small></div><div class="hue-total"><span>TOTAL HABSCO BALANCE</span><b>Shown from eligible member balances</b><small>Wallet + cooperative savings + shares + eligible special savings. Charity donations and business funds are never treated as personal balances.</small></div></div><div class="hue-grid"><article><span>BUSINESS</span><strong>Habsco Universal Enterprises</strong><small>Buying &amp; selling, utility and commercial services</small><a href="utility.html">Explore Business <b>→</b></a></article><article><span>FINANCE</span><strong>Habsco Free Interest Multipurposes Cooperative Society</strong><small>Savings, shares, interest-free loans &amp; cooperative financial services</small><a href="finance.html">Open Finance <b>→</b></a></article><article><span>CHARITY</span><strong>Habsco Sadaqah Jariyah Development Trust</strong><small>Donations, Sadaqah Jariyah, Waqf &amp; community development</small><a href="index.html">Explore Charity <b>→</b></a></article></div><div class="hue-note"><strong>Clear accounting:</strong> the member interface is unified, but every entity keeps its own ledger, permissions and purpose.</div>';
-    const style=document.createElement('style');
-    style.textContent='#habscoUnifiedEntities{margin:24px 0 10px;padding:20px;border:1px solid #dfe9e3;border-radius:20px;background:linear-gradient(180deg,#fff,#f8fbf9);box-shadow:0 9px 28px rgba(24,60,42,.06)}#habscoUnifiedEntities .hue-eyebrow{font-size:8px;font-weight:900;letter-spacing:1.5px;color:#087443}#habscoUnifiedEntities h2{margin:5px 0 5px;font-size:18px;line-height:1.15}#habscoUnifiedEntities p{margin:0;color:#718079;font-size:9.5px;line-height:1.5;max-width:780px}.hue-balance{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:15px}.hue-balance>div{padding:14px;border-radius:15px;background:#073d27;color:#fff}.hue-balance .hue-total{background:#edf7f1;color:#063d26;border:1px solid #dcebe2}.hue-balance span{display:block;font-size:7px;font-weight:900;letter-spacing:1px;opacity:.78}.hue-balance strong{display:block;margin-top:5px;font-size:13px}.hue-balance b{display:block;margin-top:5px;font-size:12px}.hue-balance small{display:block;margin-top:4px;font-size:8px;line-height:1.4;opacity:.78}.hue-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:10px}.hue-grid article{padding:13px;border:1px solid #e2ebe6;border-radius:14px;background:#fff}.hue-grid article>span{display:block;font-size:7px;font-weight:900;letter-spacing:.9px;color:#087443}.hue-grid strong{display:block;margin-top:5px;font-size:10px;line-height:1.35;color:#17382a}.hue-grid small{display:block;margin-top:4px;color:#7a8881;font-size:8px;line-height:1.4}.hue-grid a{display:inline-flex;gap:6px;align-items:center;margin-top:10px;color:#087443;font-size:8px;font-weight:900;text-decoration:none}.hue-grid a b{font-size:10px}.hue-note{margin-top:10px;padding:10px;border-radius:10px;background:#f0f6f2;color:#587067;font-size:8.5px;line-height:1.45}.hue-note strong{color:#064f2e}@media(max-width:700px){.hue-balance,.hue-grid{grid-template-columns:1fr}.hue-balance>div{padding:13px}}';
-    document.head.appendChild(style);
-    const admin=document.getElementById('hfAdminDashboard');
-    if(admin)wrap.insertBefore(section,admin);else wrap.appendChild(section);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',add);else add();
 })();
