@@ -38,8 +38,8 @@
   }
   function loadMemberEcosystemUI(){
     if(path!=='member.html'&&path!=='member')return;
-    if(document.querySelector('script[data-habsco-ecosystem-ui]'))return;
-    const s=document.createElement('script');s.src='/habsco-ecosystem-ui.js?v=20260913-2';s.dataset.habscoEcosystemUi='1';document.head.appendChild(s);
+    if(!document.querySelector('script[data-habsco-ecosystem-ui]')){const s=document.createElement('script');s.src='/habsco-ecosystem-ui.js?v=20260913-2';s.dataset.habscoEcosystemUi='1';document.head.appendChild(s)}
+    if(!document.querySelector('script[data-habsco-unified-balance]')){const s=document.createElement('script');s.src='/member-unified-balance.js?v=20260913-1';s.dataset.habscoUnifiedBalance='1';document.head.appendChild(s)}
   }
   function init(){
     document.documentElement.dataset.habscoBrand=brand.type;
