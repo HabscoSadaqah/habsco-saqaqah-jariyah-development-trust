@@ -1,7 +1,20 @@
 (()=>{
 'use strict';
 const set=(e,p)=>{if(!e)return;for(const[k,v]of Object.entries(p))e.style.setProperty(k,v,'important')};
-let installed=false,observer=null,lock=null,pageLock=null;
+const SAVINGS_STATE='hf:savings-modal-open';
+let installed=false,observer=null,lock=null,pageLock=null,restored=false;
+function isReload(){try{return performance.getEntriesByType('navigation')?.[0]?.type==='reload'}catch(_){return false}}
+function rememberSavings(){try{sessionStorage.setItem(SAVINGS_STATE,'1')}catch(_){}
+}
+function forgetSavings(){try{sessionStorage.removeItem(SAVINGS_STATE)}catch(_){}
+}
+function shouldRestoreSavings(){if(restored||!isReload())return false;try{return sessionStorage.getItem(SAVINGS_STATE)==='1'}catch(_){return false}}
+function restoreSavings(){
+ if(!shouldRestoreSavings())return;
+ const open=()=>{if(document.getElementById('hfSavingsModal')){restored=true;return true}const a=document.querySelector('#savingsBalance')?.closest('a')||document.querySelector('a[href*="type=savings"]');if(!a)return false;restored=true;a.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));return true};
+ if(open())return;
+ let tries=0;const timer=setInterval(()=>{if(open()||++tries>80)clearInterval(timer)},100);
+}
 function lockPage(){
  if(pageLock)return;
  const b=document.body,d=document.documentElement;
@@ -62,6 +75,7 @@ function position(){
  if(!savingsSheet){
   if(lock?.isConnected)lock.remove();lock=null;unlockPage();return;
  }
+ rememberSavings();
  lockPage();
  if(!pin||!pinSheet||!pin.isConnected){
   if(lock?.isConnected)lock.remove();lock=null;return;
@@ -81,11 +95,19 @@ function position(){
  set(pinSheet,{position:'fixed',left:cx+'px',top:cy+'px',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',maxWidth:maxW+'px',maxHeight:maxH+'px',zIndex:'2147483647',pointerEvents:'auto'});
 }
 function run(){
- compactSavings();position();
+ compactSavings();position();restoreSavings();
  if(observer)observer.disconnect();
  const sheet=document.querySelector('#hfSavingsModal .hf-savings-sheet');
  if(sheet&&window.ResizeObserver){observer=new ResizeObserver(()=>requestAnimationFrame(position));observer.observe(sheet)}
- if(!installed){installed=true;const refresh=()=>requestAnimationFrame(position);window.addEventListener('resize',refresh,{passive:true});window.addEventListener('scroll',refresh,{passive:true,capture:true});window.visualViewport?.addEventListener('resize',refresh,{passive:true});window.visualViewport?.addEventListener('scroll',refresh,{passive:true})}
+ if(!installed){
+  installed=true;
+  const refresh=()=>requestAnimationFrame(position);
+  window.addEventListener('resize',refresh,{passive:true});
+  window.addEventListener('scroll',refresh,{passive:true,capture:true});
+  window.visualViewport?.addEventListener('resize',refresh,{passive:true});
+  window.visualViewport?.addEventListener('scroll',refresh,{passive:true});
+  document.addEventListener('click',e=>{if(e.target.closest?.('.hf-savings-close'))forgetSavings()},{capture:true});
+ }
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
 new MutationObserver(()=>requestAnimationFrame(run)).observe(document.body,{childList:true,subtree:true});
