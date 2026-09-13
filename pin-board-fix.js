@@ -15,8 +15,8 @@ function position(){
  const maxW=Math.max(160,r.width-24),maxH=Math.max(120,r.height-24);
  set(pin,{position:'fixed',left:'0',top:'0',right:'0',bottom:'0',width:'100vw',height:'100vh',transform:'none',zIndex:'2147483000',pointerEvents:'none',background:'transparent'});
  const backdrop=pin.querySelector('.hf-pin-backdrop');
- if(backdrop)set(backdrop,{position:'fixed',left:r.left+'px',top:r.top+'px',right:'auto',bottom:'auto',width:r.width+'px',height:r.height+'px',inset:'auto',zIndex:'1',pointerEvents:'auto'});
- set(pinSheet,{position:'fixed',left:cx+'px',top:cy+'px',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',maxWidth:maxW+'px',maxHeight:maxH+'px',zIndex:'2',pointerEvents:'auto'});
+ if(backdrop)set(backdrop,{position:'fixed',left:r.left+'px',top:r.top+'px',right:'auto',bottom:'auto',width:r.width+'px',height:r.height+'px',inset:'auto',zIndex:'0',pointerEvents:'auto',borderRadius:getComputedStyle(savingsSheet).borderRadius,background:'rgba(2,18,11,.46)',backdropFilter:'blur(3px)',WebkitBackdropFilter:'blur(3px)'});
+ set(pinSheet,{position:'fixed',left:cx+'px',top:cy+'px',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',maxWidth:maxW+'px',maxHeight:maxH+'px',zIndex:'1',pointerEvents:'auto'});
 }
 function run(){
  position();
