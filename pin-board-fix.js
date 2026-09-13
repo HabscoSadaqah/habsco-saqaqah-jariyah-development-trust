@@ -3,7 +3,7 @@
 const css=`
 .hf-pin-modal.hf-pin-final-layer{position:fixed!important;inset:0!important;width:100vw!important;height:100vh!important;z-index:2147483000!important;pointer-events:none!important;background:transparent!important;overflow:hidden!important}
 .hf-pin-modal.hf-pin-final-layer .hf-pin-backdrop{position:fixed!important;z-index:0!important;pointer-events:auto!important;background:rgba(2,18,11,.48)!important;backdrop-filter:blur(5px)!important;border-radius:22px!important}
-.hf-pin-modal.hf-pin-final-layer .hf-pin-sheet{position:fixed!important;z-index:2!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;margin:0!important;box-sizing:border-box!important;overflow:auto!important;background:#fff!important;border:1px solid #dce9e2!important}
+.hf-pin-modal.hf-pin-final-layer .hf-pin-sheet{position:fixed!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;margin:0!important;box-sizing:border-box!important;overflow:auto!important;background:#fff!important;border:1px solid #dce9e2!important}
 .hf-pin-modal.hf-pin-final-layer .hf-pin-sheet input{display:block!important;width:100%!important;max-width:100%!important;box-sizing:border-box!important;margin-left:auto!important;margin-right:auto!important}
 .hf-pin-modal.hf-pin-final-layer .hf-pin-confirm{width:100%!important}
 `;
@@ -15,6 +15,7 @@ function position(){
  const pin=document.querySelector('.hf-pin-modal');
  const ps=pin?.querySelector('.hf-pin-sheet');
  if(!modal||!sheet||!pin||!ps||!pin.isConnected)return;
+ if(pin.parentElement!==document.body)document.body.appendChild(pin);
  const rect=sheet.getBoundingClientRect();
  if(rect.width<1||rect.height<1)return;
  pin.classList.add('hf-pin-final-layer');
