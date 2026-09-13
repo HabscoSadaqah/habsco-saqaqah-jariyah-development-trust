@@ -10,6 +10,15 @@
     s.onload=()=>{};
     (document.body||document.head).appendChild(s);
   }
+  function loadSavingsButtonFix(){
+    if(location.pathname.split('/').pop()!=='member.html')return;
+    if(document.querySelector('script[data-hf-savings-button-fix]'))return;
+    const s=document.createElement('script');
+    s.src='savings-button-fix.js?v=20260913-1';
+    s.dataset.hfSavingsButtonFix='1';
+    s.async=false;
+    (document.body||document.head).appendChild(s);
+  }
   function loadFinalPinPosition(){
     if(location.pathname.split('/').pop()!=='member.html')return;
     if(document.querySelector('script[data-hf-pin-final]'))return;
@@ -20,6 +29,7 @@
     (document.body||document.head).appendChild(s);
   }
   loadSavingsLoanExperience();
+  loadSavingsButtonFix();
   loadFinalPinPosition();
   function mount(){
     const panel=document.getElementById('hfSecurityCenter');
