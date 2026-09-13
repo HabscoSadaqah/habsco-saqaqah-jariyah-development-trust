@@ -1,7 +1,22 @@
 (()=>{
 'use strict';
 const set=(e,p)=>{if(!e)return;for(const[k,v]of Object.entries(p))e.style.setProperty(k,v,'important')};
-let installed=false,observer=null,lock=null;
+let installed=false,observer=null,lock=null,bodyLock=null;
+function setBodyLock(active){
+ const body=document.body,html=document.documentElement;
+ if(active){
+  if(bodyLock)return;
+  const y=window.scrollY||window.pageYOffset||0;
+  bodyLock={y,overflow:body.style.overflow,position:body.style.position,top:body.style.top,width:body.style.width};
+  set(body,{overflow:'hidden',position:'fixed',top:(-y)+'px',width:'100%'});
+  set(html,{overflow:'hidden'});
+ }else if(bodyLock){
+  const s=bodyLock;bodyLock=null;
+  body.style.overflow=s.overflow;body.style.position=s.position;body.style.top=s.top;body.style.width=s.width;
+  html.style.overflow='';
+  window.scrollTo(0,s.y);
+ }
+}
 function position(){
  const savings=document.getElementById('hfSavingsModal');
  const savingsSheet=savings?.querySelector('.hf-savings-sheet');
@@ -10,8 +25,10 @@ function position(){
  if(!savingsSheet||!pin||!pinSheet||!pin.isConnected){
   if(lock?.isConnected)lock.remove();
   lock=null;
+  setBodyLock(false);
   return;
  }
+ setBodyLock(true);
  if(pin.parentElement!==document.body)document.body.appendChild(pin);
  const r=savingsSheet.getBoundingClientRect();
  if(r.width<1||r.height<1)return;
