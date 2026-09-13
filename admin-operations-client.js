@@ -12,4 +12,6 @@ window.habscoAdminOperation=async function(operation,payload={}){
  if(data?.error)throw new Error(data.error);
  return data;
 };
+const loadAdminControls=()=>{if(document.getElementById('hfAdminControlsLoader'))return;const s=document.createElement('script');s.id='hfAdminControlsLoader';s.src='admin-controls.js?v=20260913-1';s.defer=true;document.head.appendChild(s)};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',loadAdminControls,{once:true});else loadAdminControls();
 })();
