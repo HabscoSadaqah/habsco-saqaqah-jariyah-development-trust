@@ -7,7 +7,11 @@ function position(){
  const savingsSheet=savings?.querySelector('.hf-savings-sheet');
  const pin=[...document.querySelectorAll('.hf-pin-modal')].find(x=>x.querySelector('#hfPinInput'));
  const pinSheet=pin?.querySelector('.hf-pin-sheet');
- if(!savingsSheet||!pin||!pinSheet||!pin.isConnected)return;
+ if(!savingsSheet||!pin||!pinSheet||!pin.isConnected){
+  if(lock?.isConnected)lock.remove();
+  lock=null;
+  return;
+ }
  if(pin.parentElement!==document.body)document.body.appendChild(pin);
  const r=savingsSheet.getBoundingClientRect();
  if(r.width<1||r.height<1)return;
