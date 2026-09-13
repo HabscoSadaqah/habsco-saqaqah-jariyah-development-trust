@@ -2,21 +2,21 @@
 'use strict';
 const set=(e,p)=>{if(!e)return;for(const[k,v]of Object.entries(p))e.style.setProperty(k,v,'important')};
 const SAVINGS_STATE='hf:savings-modal-open';
-let installed=false,observer=null,lock=null,pageLock=null,restoring=false;
+let installed=false,observer=null,lock=null,pageLock=null,restoring=false,orientationTimer=0;
 const nav=()=>{try{return performance.getEntriesByType('navigation')?.[0]?.type||''}catch(_){return ''}};
-const rememberSavings=()=>{try{localStorage.setItem(SAVINGS_STATE,'1');sessionStorage.setItem(SAVINGS_STATE,'1')}catch(_) {try{sessionStorage.setItem(SAVINGS_STATE,'1')}catch(__){}}};
-const forgetSavings=()=>{try{localStorage.removeItem(SAVINGS_STATE);sessionStorage.removeItem(SAVINGS_STATE)}catch(_){} };
+const rememberSavings=()=>{try{localStorage.setItem(SAVINGS_STATE,'1');sessionStorage.setItem(SAVINGS_STATE,'1')}catch(_){try{sessionStorage.setItem(SAVINGS_STATE,'1')}catch(__){}}};
+const forgetSavings=()=>{try{localStorage.removeItem(SAVINGS_STATE);sessionStorage.removeItem(SAVINGS_STATE)}catch(_){}};
 const savedSavings=()=>{try{return localStorage.getItem(SAVINGS_STATE)==='1'||sessionStorage.getItem(SAVINGS_STATE)==='1'}catch(_){return false}};
+function openSavingsImmediately(){
+ if(document.getElementById('hfSavingsModal'))return true;
+ if(!savedSavings())return false;
+ const a=document.querySelector('#savingsBalance')?.closest('a')||document.querySelector('a[href*="type=savings"]');
+ if(!a)return false;
+ try{a.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));return true}catch(_){return false}
+}
 function restoreSavings(){
  if(restoring||nav()!=='reload'||!savedSavings())return;
- const open=()=>{
-  if(document.getElementById('hfSavingsModal')){restoring=true;return true}
-  const a=document.querySelector('#savingsBalance')?.closest('a')||document.querySelector('a[href*="type=savings"]');
-  if(!a)return false;
-  restoring=true;
-  a.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:window}));
-  return true;
- };
+ const open=()=>{if(document.getElementById('hfSavingsModal')){restoring=true;return true}return openSavingsImmediately()?(restoring=true,true):false};
  let tries=0;const timer=setInterval(()=>{if(open()||++tries>=150)clearInterval(timer)},100);
 }
 function lockPage(){
@@ -54,7 +54,33 @@ function position(){
  set(savingsSheet,{position:'relative'});set(lock,{position:'absolute',left:'0',top:'0',right:'0',bottom:'0',width:'100%',height:'100%',zIndex:'2147483000',pointerEvents:'auto',background:'rgba(0,0,0,.34)',backdropFilter:'blur(3px)',WebkitBackdropFilter:'blur(3px)',borderRadius:getComputedStyle(savingsSheet).borderRadius});
  set(pinSheet,{position:'fixed',left:cx+'px',top:cy+'px',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',maxWidth:maxW+'px',maxHeight:maxH+'px',zIndex:'2147483647',pointerEvents:'auto'});
 }
-function run(){compactSavings();position();restoreSavings();if(observer)observer.disconnect();const sheet=document.querySelector('#hfSavingsModal .hf-savings-sheet');if(sheet&&window.ResizeObserver){observer=new ResizeObserver(()=>requestAnimationFrame(position));observer.observe(sheet)}if(!installed){installed=true;const refresh=()=>requestAnimationFrame(position);window.addEventListener('resize',refresh,{passive:true});window.addEventListener('orientationchange',refresh,{passive:true});window.addEventListener('pageshow',refresh,{passive:true});window.visualViewport?.addEventListener('resize',refresh,{passive:true});window.visualViewport?.addEventListener('scroll',refresh,{passive:true});document.addEventListener('click',e=>{if(e.target.closest?.('.hf-savings-close'))forgetSavings()},{capture:true})}}
+function immediateOrientation(){
+ if(orientationTimer)cancelAnimationFrame(orientationTimer);
+ orientationTimer=requestAnimationFrame(()=>{
+  orientationTimer=0;
+  if(savedSavings()&&!document.getElementById('hfSavingsModal'))openSavingsImmediately();
+  position();
+  requestAnimationFrame(position);
+ });
+}
+function run(){
+ compactSavings();
+ position();
+ restoreSavings();
+ if(observer)observer.disconnect();
+ const sheet=document.querySelector('#hfSavingsModal .hf-savings-sheet');
+ if(sheet&&window.ResizeObserver){observer=new ResizeObserver(()=>requestAnimationFrame(position));observer.observe(sheet)}
+ if(!installed){
+  installed=true;
+  const refresh=()=>requestAnimationFrame(position);
+  window.addEventListener('resize',refresh,{passive:true});
+  window.addEventListener('orientationchange',immediateOrientation,{passive:true});
+  window.addEventListener('pageshow',refresh,{passive:true});
+  window.visualViewport?.addEventListener('resize',immediateOrientation,{passive:true});
+  window.visualViewport?.addEventListener('scroll',refresh,{passive:true});
+  document.addEventListener('click',e=>{if(e.target.closest?.('.hf-savings-close'))forgetSavings()},{capture:true});
+ }
+}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run,{once:true});else run();
 new MutationObserver(()=>requestAnimationFrame(run)).observe(document.body,{childList:true,subtree:true});
 })();
