@@ -20,6 +20,19 @@
     const setOG=(prop,content)=>{let el=document.querySelector(`meta[property="${prop}"]`);if(!el){el=document.createElement('meta');el.setAttribute('property',prop);document.head.appendChild(el)}el.content=content};
     setOG('og:type','website'); setOG('og:url',canonical.href); setOG('og:title',data[0]); setOG('og:description',data[1]); setOG('og:site_name','Habsco Sadaqah Jariyah Development Trust');
   }
+  const removeLegacyEcosystem=()=>{
+    if(!document.body) return;
+    const bad=['THE HABSCO ECOSYSTEM','ONE HABSCO ECOSYSTEM. THREE CLEAR PURPOSES.'];
+    document.body.querySelectorAll('h1,h2,h3,h4,h5,h6,p,div,section,article,footer').forEach(el=>{
+      const text=String(el.textContent||'').replace(/\s+/g,' ').trim().toUpperCase();
+      if(!bad.some(phrase=>text.includes(phrase))) return;
+      let target=el.closest('section')||el.closest('article')||el.closest('[id]')||el.parentElement;
+      if(target&&target!==document.body&&target!==document.documentElement) target.remove();
+    });
+  };
+  const runLegacyCleanup=()=>{removeLegacyEcosystem();setTimeout(removeLegacyEcosystem,50);setTimeout(removeLegacyEcosystem,250);setTimeout(removeLegacyEcosystem,1000)};
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',runLegacyCleanup,{once:true});else runLegacyCleanup();
+  new MutationObserver(removeLegacyEcosystem).observe(document.documentElement,{childList:true,subtree:true});
   const isPublicPage = ['index','impact','finance','contact','donate'].includes(page);
   if (isPublicPage) {
     const applyPublicShell=()=>{
@@ -50,5 +63,5 @@
   const copyBtn=document.getElementById('copy-account');if(copyBtn)copyBtn.addEventListener('click',async()=>{const number=document.getElementById('account-number')?.textContent?.trim();const status=document.getElementById('copy-status');try{await navigator.clipboard.writeText(number);if(status)status.textContent='Account number copied.'}catch(e){if(status)status.textContent='Please copy the account number manually: '+number}setTimeout(()=>{if(status)status.textContent=''},3000)});
   document.querySelectorAll('[data-finance-tab]').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('[data-finance-tab]').forEach(item=>item.classList.remove('active'));document.querySelectorAll('.finance-panel').forEach(panel=>panel.classList.remove('active'));button.classList.add('active');document.getElementById(button.dataset.financeTab)?.classList.add('active');window.scrollTo({top:document.querySelector('.finance-shell')?.offsetTop-90||0,behavior:'smooth'})}));
   document.querySelectorAll('[data-finance-action]').forEach(button=>button.addEventListener('click',event=>{event.preventDefault();const action=button.dataset.financeAction;if(action==='dashboard'){window.location.href='auth.html';return}if(action==='admin'){window.location.href='admin.html';return}document.querySelector(`[data-finance-tab="${action}"]`)?.click()}));
-  document.querySelectorAll('[data-prototype-form]').forEach(form=>form.addEventListener('submit',event=>{event.preventDefault();const message=form.querySelector('[data-form-message]');if(message)message.textContent='This public prototype form is not active. Use the authenticated member dashboard for real requests.';form.reset()}));
+  document.querySelectorAll('[data-prototype-form]').forEach(form=>form.addEventListener('submit',event=>{event.preventDefault();const message=form.querySelector('[data-form-message]');if(message)message.textContent='This public prototype form is not active. Use the authenticated member dashboard for real requests.';form.reset() }));
 })();
