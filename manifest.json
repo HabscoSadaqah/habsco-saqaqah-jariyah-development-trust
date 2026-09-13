@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "Habsco Sadaqah Jariyah Development Trust",
-  "short_name": "Habsco Sadaqah",
-  "description": "Habsco Sadaqah Jariyah Development Trust — continuous charity, community development and Hassan Finance.",
+  "name": "Habsco Finance",
+  "short_name": "Habsco Finance",
+  "description": "Habsco Finance — the digital finance platform of Habsco Free Interest Multipurposes Cooperative Society.",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
@@ -16,7 +16,7 @@
   ],
   "shortcuts": [
     {
-      "name": "Hassan Finance",
+      "name": "Habsco Finance",
       "short_name": "Finance",
       "url": "/finance.html",
       "icons": [{"src":"favicon.svg","sizes":"any","type":"image/svg+xml"}]
