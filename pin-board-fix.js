@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 const set=(e,p)=>{if(!e)return;for(const[k,v]of Object.entries(p))e.style.setProperty(k,v,'important')};
-let installed=false,observer=null;
+let installed=false,observer=null,lock=null;
 function position(){
  const savings=document.getElementById('hfSavingsModal');
  const savingsSheet=savings?.querySelector('.hf-savings-sheet');
@@ -13,18 +13,16 @@ function position(){
  if(r.width<1||r.height<1)return;
  const cx=r.left+r.width/2,cy=r.top+r.height/2;
  const maxW=Math.max(160,r.width-24),maxH=Math.max(120,r.height-24);
- set(savingsSheet,{position:'relative'});
- let veil=savingsSheet.querySelector('.hf-pin-lock-veil');
- if(!veil){
-  veil=document.createElement('div');
-  veil.className='hf-pin-lock-veil';
-  savingsSheet.appendChild(veil);
- }
- set(veil,{position:'absolute',left:'0',top:'0',right:'0',bottom:'0',width:'100%',height:'100%',zIndex:'2147482999',pointerEvents:'auto',borderRadius:'inherit',background:'rgba(2,18,11,.42)',backdropFilter:'blur(2px)',WebkitBackdropFilter:'blur(2px)'});
- const oldBackdrop=pin.querySelector('.hf-pin-backdrop');
- if(oldBackdrop)set(oldBackdrop,{position:'fixed',left:'0',top:'0',right:'0',bottom:'0',width:'100vw',height:'100vh',inset:'0',zIndex:'0',pointerEvents:'none',background:'transparent',backdropFilter:'none',WebkitBackdropFilter:'none'});
  set(pin,{position:'fixed',left:'0',top:'0',right:'0',bottom:'0',width:'100vw',height:'100vh',transform:'none',zIndex:'2147483000',pointerEvents:'none',background:'transparent'});
- set(pinSheet,{position:'fixed',left:cx+'px',top:cy+'px',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',maxWidth:maxW+'px',maxHeight:maxH+'px',zIndex:'2147483001',pointerEvents:'auto'});
+ const oldBackdrop=pin.querySelector('.hf-pin-backdrop');
+ if(oldBackdrop)set(oldBackdrop,{display:'none',pointerEvents:'none',background:'transparent',backdropFilter:'none',WebkitBackdropFilter:'none'});
+ if(!lock||!lock.isConnected||lock.parentElement!==savingsSheet){
+  lock=savingsSheet.querySelector('.hf-savings-pin-lock');
+  if(!lock){lock=document.createElement('div');lock.className='hf-savings-pin-lock';savingsSheet.appendChild(lock)}
+ }
+ set(savingsSheet,{position:'relative'});
+ set(lock,{position:'absolute',left:'0',top:'0',right:'0',bottom:'0',width:'100%',height:'100%',zIndex:'2147483000',pointerEvents:'auto',background:'rgba(0,0,0,.34)',backdropFilter:'blur(3px)',WebkitBackdropFilter:'blur(3px)',borderRadius:getComputedStyle(savingsSheet).borderRadius});
+ set(pinSheet,{position:'fixed',left:cx+'px',top:cy+'px',right:'auto',bottom:'auto',transform:'translate(-50%,-50%)',maxWidth:maxW+'px',maxHeight:maxH+'px',zIndex:'2147483647',pointerEvents:'auto'});
 }
 function run(){
  position();
