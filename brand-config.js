@@ -7,6 +7,17 @@
   const charityPages=new Set(['index.html','about.html','impact.html','programs.html','contact.html','donate.html']);
   const brand=financePages.has(path)?{legal:'Habsco Free Interest Multipurposes Cooperative Society',service:'Cooperative Finance',descriptor:'Cooperative savings, shares, interest-free loans and financial services',type:'finance'}:businessPages.has(path)?{legal:'Habsco Universal Enterprises',service:'Habsco Universal Enterprises',descriptor:'Business, commercial and utility services',type:'business'}:{legal:'Habsco Sadaqah Jariyah Development Trust',service:'Habsco Sadaqah Jariyah Development Trust',descriptor:'Continuous charity, Waqf and community development',type:'charity'};
   function setMeta(name,content){let el=document.querySelector('meta[name="'+name+'"]');if(!el){el=document.createElement('meta');el.name=name;document.head.appendChild(el)}el.content=content}
+  function cleanLegacyFinanceBranding(){
+    if(!financePages.has(path))return;
+    const replaceNodeText=(root)=>{
+      const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+      const nodes=[];let n;while((n=walker.nextNode()))nodes.push(n);
+      nodes.forEach(node=>{const value=node.nodeValue;if(!value)return;const next=value.replace(/HASSAN FINANCE/g,'HABSCO COOPERATIVE').replace(/Hassan Finance/g,'Habsco Cooperative').replace(/HASSAN FINANCE/gi,'HABSCO COOPERATIVE');if(next!==value)node.nodeValue=next});
+    };
+    replaceNodeText(document.body);
+    const title=document.title;
+    if(/Hassan Finance/i.test(title))document.title=title.replace(/Hassan Finance/gi,'Habsco Cooperative');
+  }
   function setFooter(){
     let footer=document.querySelector('footer');
     if(!footer){footer=document.createElement('footer');document.body.appendChild(footer)}
@@ -44,6 +55,7 @@
   function init(){
     document.documentElement.dataset.habscoBrand=brand.type;
     setMeta('author',brand.legal);
+    cleanLegacyFinanceBranding();
     setFooter();
     addGovernanceBadge();
     loadMemberEcosystemUI();
