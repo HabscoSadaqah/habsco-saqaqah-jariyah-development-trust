@@ -1,0 +1,37 @@
+name: Fix electricity DISCO and customer name UI
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch bill payments
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('bill-payments.html')
+          s=p.read_text()
+          old=re.search(r"document\.getElementById\('powerState'\)\.onchange=.*?;async function verifyPowerMeter",s)
+          if not old:
+              raise SystemExit('power state handler not found')
+          new="""document.getElementById('powerState').onchange=async e=>{powerValidation=null;powerPay.disabled=true;powerCustomer.className='customer hidden';powerCustomerName.className='verified-name hidden';powerCustomerNameValue.textContent='—';powerVerifyKey='';powerProvider.innerHTML='<option value=\"\">Loading distribution companies…</option>';powerProvider.disabled=true;try{const state=e.target.value;const d=state?await invoke({action:'power-provider-by-state',state}):await invoke({action:'power-providers'}),rows=d?.data?.data||d?.data||[];if(!Array.isArray(rows)||!rows.length)throw new Error('No distribution company is available for the selected state.');powerProvider.innerHTML='<option value=\"\">Select distribution company</option>';rows.forEach(x=>{const o=document.createElement('option');o.value=x.short_name||x.code||x.provider||x.disco||x.name||'';o.textContent=x.disco||x.name||x.short_name||x.code||x.provider||'';powerProvider.appendChild(o)});powerProvider.disabled=false;maybeAutoVerifyPower()}catch(err){powerProvider.innerHTML='<option value=\"\">Unable to load distribution companies</option>';show(err?.message||'Unable to load electricity distribution companies.')}};async function verifyPowerMeter"""
+          s=s[:old.start()]+new+s[old.end():]
+          s=s.replace("const customerName=findCustomerName(d)||findCustomerName(v)||findCustomerName(ci);if(customerName)","const customerName=findCustomerName(d)||findCustomerName(v)||findCustomerName(ci)||ci.customer_name||ci.customerName||ci.full_name||ci.fullName||ci.name||v.customer_name||v.customerName||v.full_name||v.fullName;if(customerName)",1)
+          p.write_text(s)
+          PY
+      - name: Verify and remove workflow
+        run: |
+          grep -q "power-provider-by-state" bill-payments.html
+          grep -q "v.customer_name" bill-payments.html
+          rm .github/workflows/power-ui-root-fix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bill-payments.html .github/workflows/power-ui-root-fix.yml
+          git commit -m "fix: root electricity disco and customer name flow"
+          git push
