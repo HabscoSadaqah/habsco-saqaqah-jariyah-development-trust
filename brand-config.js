@@ -22,24 +22,22 @@
   function setFooter(){
     let footer=document.querySelector('footer');
     if(!footer){footer=document.createElement('footer');document.body.appendChild(footer)}
-    let copy=footer.querySelector('.copyright');
-    if(!copy){copy=document.createElement('div');copy.className='copyright';footer.appendChild(copy)}
-    copy.textContent='© '+new Date().getFullYear()+' HABSCO. All Rights Reserved.';
+    let legacyCopy=footer.querySelector('.copyright');
+    if(legacyCopy)legacyCopy.remove();
     let fb=footer.querySelector('.footer-brand');
     if(!fb){
       fb=document.createElement('div');
       fb.className='footer-brand';
       footer.insertBefore(fb,footer.firstChild);
     }
-    let h=fb.querySelector('.habsco-footer-wordmark');
-    if(!h){h=document.createElement('div');h.className='habsco-footer-wordmark';fb.appendChild(h)}
-    h.textContent=brand.name;
-    let p=fb.querySelector('.habsco-footer-tagline');
-    if(!p){p=document.createElement('div');p.className='habsco-footer-tagline';fb.appendChild(p)}
-    p.textContent=brand.tagline;
+    fb.innerHTML='';
+    const year=document.createElement('div');year.className='habsco-footer-year';year.textContent='© '+new Date().getFullYear();fb.appendChild(year);
+    const h=document.createElement('div');h.className='habsco-footer-wordmark';h.textContent=brand.name;fb.appendChild(h);
+    const p=document.createElement('div');p.className='habsco-footer-tagline';p.textContent=brand.tagline;fb.appendChild(p);
+    const rights=document.createElement('div');rights.className='habsco-footer-rights';rights.textContent='All Rights Reserved.';fb.appendChild(rights);
     const styleId='habsco-universal-footer-style';
     if(!document.getElementById(styleId)){
-      const style=document.createElement('style');style.id=styleId;style.textContent='.footer-brand .habsco-footer-wordmark{font-size:20px;line-height:1;font-weight:950;letter-spacing:.16em;color:#063d26;text-transform:uppercase}.footer-brand .habsco-footer-tagline{margin-top:7px;font-size:10px;line-height:1.2;font-weight:800;letter-spacing:.08em;color:#087443;text-transform:uppercase}@media(max-width:600px){.footer-brand .habsco-footer-wordmark{font-size:17px;letter-spacing:.13em}.footer-brand .habsco-footer-tagline{font-size:9px}}';document.head.appendChild(style);
+      const style=document.createElement('style');style.id=styleId;style.textContent=`footer .footer-brand{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;gap:0;padding:18px 12px 12px;box-sizing:border-box}footer .footer-brand .habsco-footer-year{font-size:11px;line-height:1.2;font-weight:700;letter-spacing:.08em;color:#52645b;margin-bottom:7px}footer .footer-brand .habsco-footer-wordmark{font-size:27px;line-height:1;font-weight:950;letter-spacing:.18em;color:#063d26;text-transform:uppercase}footer .footer-brand .habsco-footer-tagline{display:inline-flex;align-items:center;justify-content:center;min-width:210px;margin-top:8px;font-size:10px;line-height:1.2;font-weight:800;letter-spacing:.09em;color:#087443;text-transform:uppercase;white-space:nowrap}footer .footer-brand .habsco-footer-rights{font-size:10px;line-height:1.2;font-weight:600;color:#68776f;margin-top:9px}@media(max-width:600px){footer .footer-brand{padding-top:14px}footer .footer-brand .habsco-footer-wordmark{font-size:22px;letter-spacing:.15em}footer .footer-brand .habsco-footer-tagline{min-width:0;font-size:8px;letter-spacing:.065em}footer .footer-brand .habsco-footer-year,footer .footer-brand .habsco-footer-rights{font-size:9px}}`;document.head.appendChild(style);
     }
   }
   function loadMemberEcosystemUI(){
