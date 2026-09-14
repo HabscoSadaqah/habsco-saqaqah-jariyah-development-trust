@@ -3,11 +3,25 @@
 const SUPABASE_URL='https://ythnoeyxovapydbmymdo.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN';
 const supabaseAdminOps=window.supabase?.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const directRpc={
+ credit_wallet:'admin_credit_wallet',
+ debit_wallet:'admin_debit_wallet',
+ issue_member_id:'admin_issue_member_id'
+};
 window.habscoAdminOperation=async function(operation,payload={}){
  if(!supabaseAdminOps)throw new Error('Finance security client is unavailable.');
  const {data:{session},error:sessionError}=await supabaseAdminOps.auth.getSession();
  if(sessionError)throw new Error('Could not read the administrator session. Please sign in again.');
  if(!session?.access_token)throw new Error('Administrator session expired. Please sign in again.');
+ 
+ // Wallet and Member-ID RPCs enforce admin access inside PostgreSQL with SECURITY DEFINER
+ // and auth.uid(), so they do not depend on the Edge Function transport layer.
+ if(directRpc[operation]){
+  const {data,error}=await supabaseAdminOps.rpc(directRpc[operation],payload);
+  if(error)throw new Error(error.message||`${operation} failed.`);
+  return {ok:true,data};
+ }
+ 
  const endpoint=`${SUPABASE_URL}/functions/v1/admin-operations`;
  let response;
  try{
@@ -24,7 +38,7 @@ window.habscoAdminOperation=async function(operation,payload={}){
  if(body?.error)throw new Error(body.error);
  return body;
 };
-const loadAdminControls=()=>{if(document.getElementById('hfAdminControlsLoader'))return;const s=document.createElement('script');s.id='hfAdminControlsLoader';s.src='admin-controls.js?v=20260914-2';s.defer=true;document.head.appendChild(s)};
-const loadWalletFix=()=>{if(document.getElementById('hfAdminWalletFix'))return;const s=document.createElement('script');s.id='hfAdminWalletFix';s.src='admin-wallet-fix.js?v=20260914-5';s.defer=true;document.head.appendChild(s)};
+const loadAdminControls=()=>{if(document.getElementById('hfAdminControlsLoader'))return;const s=document.createElement('script');s.id='hfAdminControlsLoader';s.src='admin-controls.js?v=20260914-3';s.defer=true;document.head.appendChild(s)};
+const loadWalletFix=()=>{if(document.getElementById('hfAdminWalletFix'))return;const s=document.createElement('script');s.id='hfAdminWalletFix';s.src='admin-wallet-fix.js?v=20260914-6';s.defer=true;document.head.appendChild(s)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{loadAdminControls();loadWalletFix()},{once:true});else{loadAdminControls();loadWalletFix()}
 })();
