@@ -1,52 +1,54 @@
-name: Inject utility root fixes
+name: Attach utility integrations
 on:
   push:
     branches: [main]
 permissions:
   contents: write
 jobs:
-  inject:
-    if: github.event.head_commit.message != 'chore: inject utility root fixes'
+  attach:
+    if: github.event.head_commit.message != 'chore: attach utility integrations'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Attach utility root scripts with retry
+      - name: Attach utility scripts
+        shell: bash
         run: |
-          set -e
+          set -euo pipefail
           git config user.name 'Habsco Sadaqah Jariyah Development Trust'
           git config user.email '70951857+HabscoSadaqah@users.noreply.github.com'
           for attempt in 1 2 3 4 5; do
             git fetch origin main
-            git reset --hard origin/main
+            git checkout -B main origin/main
             python - <<'PY'
             from pathlib import Path
             p=Path('bill-payments.html')
             s=p.read_text(encoding='utf-8')
-            for tag in [
-                '<script src="power-root-fix.js?v=20260914-1"></script>',
-                '<script src="education-root-fix.js?v=20260914-1"></script>',
-                '<script src="data-root-fix.js?v=20260914-1"></script>'
-            ]:
-                if tag not in s:
-                    if '</body>' not in s:
-                        raise SystemExit('bill-payments.html has no closing body tag')
-                    s=s.replace('</body>',tag+'</body>',1)
+            tags=[
+              '<script src="power-root-fix.js?v=20260914-2"></script>',
+              '<script src="education-root-fix.js?v=20260914-2"></script>',
+              '<script src="data-root-fix.js?v=20260914-2"></script>'
+            ]
+            for tag in tags:
+              if tag not in s:
+                if '</body>' not in s:
+                  raise SystemExit('bill-payments.html has no closing body tag')
+                s=s.replace('</body>',tag+'</body>',1)
             p.write_text(s,encoding='utf-8')
             PY
             git add bill-payments.html
             if git diff --cached --quiet; then
-              echo 'Utility root scripts are already attached.'
+              echo 'Utility integrations already attached.'
               exit 0
             fi
-            git commit -m 'chore: inject utility root fixes'
-            if git push origin main; then
-              echo 'Utility root scripts attached successfully.'
+            git commit -m 'chore: attach utility integrations'
+            if git push origin HEAD:main; then
+              echo 'Utility integrations attached successfully.'
               exit 0
             fi
-            echo "Push race detected on attempt $attempt; retrying against latest main."
-            git reset --hard HEAD~1
-            sleep 2
+            git reset --hard origin/main
+            sleep 3
           done
+          echo 'Unable to push utility integration commit after retries.'
           exit 1
