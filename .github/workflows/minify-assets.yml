@@ -1,0 +1,66 @@
+name: Minify assets
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  minify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Minify JavaScript and CSS
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm init -y >/dev/null 2>&1
+          npm install --no-save terser clean-css-cli >/dev/null 2>&1
+
+          while IFS= read -r -d '' file; do
+            case "$file" in
+              *.min.js|*node_modules/*) continue ;;
+            esac
+            tmp="${file}.min.tmp"
+            npx terser "$file" --compress --mangle --comments false -o "$tmp"
+            if [ -s "$tmp" ]; then
+              mv "$tmp" "$file"
+            else
+              rm -f "$tmp"
+            fi
+          done < <(find . -type f -name '*.js' -not -path './.git/*' -print0)
+
+          while IFS= read -r -d '' file; do
+            case "$file" in
+              *.min.css|*node_modules/*) continue ;;
+            esac
+            tmp="${file}.min.tmp"
+            npx cleancss --level 1 -o "$tmp" "$file"
+            if [ -s "$tmp" ]; then
+              mv "$tmp" "$file"
+            else
+              rm -f "$tmp"
+            fi
+          done < <(find . -type f -name '*.css' -not -path './.git/*' -print0)
+
+      - name: Commit optimized assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'Habsco Sadaqah Jariyah Development Trust'
+          git config user.email '70951857+HabscoSadaqah@users.noreply.github.com'
+          git add -- '*.js' '*.css'
+          if git diff --cached --quiet; then
+            echo 'Assets are already minified.'
+            exit 0
+          fi
+          git commit -m 'perf: minify JavaScript and CSS assets'
+          git push origin HEAD:main
