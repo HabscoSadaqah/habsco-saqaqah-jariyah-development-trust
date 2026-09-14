@@ -7,7 +7,7 @@
   const charityPages=new Set(['index.html','about.html','impact.html','programs.html','contact.html','donate.html']);
   const pillar=financePages.has(path)?'Finance':businessPages.has(path)?'Business':'Charity';
   const brand={name:'HABSCO',tagline:'Business · Finance · Charity',pillar,legal:financePages.has(path)?'Habsco Free Interest Multipurposes Cooperative Society':businessPages.has(path)?'Habsco Universal Enterprises':'Habsco Sadaqah Jariyah Development Trust'};
-  function setMeta(name,content){let el=document.querySelector('meta[name="'+name+'"];');if(!el){el=document.createElement('meta');el.name=name;document.head.appendChild(el)}el.content=content}
+  function setMeta(name,content){let el=document.querySelector('meta[name="'+name+'"]');if(!el){el=document.createElement('meta');el.name=name;document.head.appendChild(el)}el.content=content}
   function cleanLegacyFinanceBranding(){
     if(!financePages.has(path))return;
     const replaceNodeText=(root)=>{const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);const nodes=[];let n;while((n=walker.nextNode()))nodes.push(n);nodes.forEach(node=>{const value=node.nodeValue;if(!value)return;const next=value.replace(/HASSAN FINANCE/g,'HABSCO').replace(/Hassan Finance/g,'HABSCO');if(next!==value)node.nodeValue=next})};
