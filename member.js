@@ -3,9 +3,17 @@ const SUPABASE_PUBLISHABLE_KEY='sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN';
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 const money=n=>new Intl.NumberFormat('en-NG',{style:'currency',currency:'NGN',minimumFractionDigits:2}).format(Number(n||0));
 const $=id=>document.getElementById(id);
+function setMemberDashboardName(user){
+  const welcome=$('welcome');
+  if(!welcome)return;
+  const metadata=user?.user_metadata||{};
+  const fullName=String(metadata.full_name||metadata.name||metadata.display_name||'').trim();
+  if(fullName)welcome.textContent=fullName;
+}
 async function loadDashboard(){
   const {data:{session},error}=await supabaseClient.auth.getSession();
   if(error||!session){window.location.href='auth.html';return;}
+  setMemberDashboardName(session.user);
   const {data:rpc,error:rpcError}=await supabaseClient.rpc('member_dashboard_balances');
   if(rpcError||!rpc)return;
   const available=Number(rpc.available||0),savings=Number(rpc.savings||0),shares=Number(rpc.shares||0),special=Number(rpc.special_savings||0);
