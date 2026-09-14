@@ -28,6 +28,24 @@ const fixPinButton=()=>{
   },false);
   return true;
 };
+const setMemberFullName=async()=>{
+  if(!location.pathname.toLowerCase().endsWith('/member.html')&&!location.pathname.toLowerCase().endsWith('member.html'))return false;
+  const welcome=document.getElementById('welcome');
+  if(!welcome)return false;
+  const sb=getClient();
+  if(!sb)return false;
+  const {data,error}=await sb.auth.getUser();
+  if(error||!data?.user)return false;
+  const metadata=data.user.user_metadata||{};
+  const first=String(metadata.first_name||'').trim();
+  const middle=String(metadata.middle_name||'').trim();
+  const surname=String(metadata.surname||metadata.last_name||'').trim();
+  const full=String(metadata.full_name||metadata.name||metadata.display_name||[first,middle,surname].filter(Boolean).join(' ')||'').trim();
+  if(!full)return false;
+  welcome.textContent=full;
+  welcome.setAttribute('data-member-name','1');
+  return true;
+};
 const removeLegacyCooperativeNotice=()=>{
   if(!location.pathname.toLowerCase().endsWith('/member.html')&&!location.pathname.toLowerCase().endsWith('member.html'))return;
   const target='Your balances and transactions are securely managed through Habsco Cooperative.';
@@ -35,7 +53,7 @@ const removeLegacyCooperativeNotice=()=>{
   clean();const observer=new MutationObserver(clean);observer.observe(document.body,{childList:true,subtree:true});setTimeout(()=>observer.disconnect(),10000);
 };
 const moveCharityBelowMoveMoney=()=>{
-  if(!location.pathname.toLowerCase().endsWith('/member.html')&&!location.pathname.toLowerCase().endsWith('member.html'))return;
+  if(!location.pathname.toLowerCase().endsWith('/member.html')&&!location.pathname.toLowerCase().endsWith('member.html'))return false;
   const titles=[...document.querySelectorAll('.section-title')];const charityTitle=titles.find(el=>el.querySelector('h2')?.textContent.trim().toLowerCase()==='charity');const moveTitle=titles.find(el=>el.querySelector('h2')?.textContent.trim().toLowerCase()==='move money');if(!charityTitle||!moveTitle)return false;const charityGrid=charityTitle.nextElementSibling;const moveGrid=moveTitle.nextElementSibling;if(!charityGrid?.classList.contains('charity-grid')||!moveGrid?.classList.contains('money-grid'))return false;moveTitle.parentElement.insertAdjacentElement('afterend',moveGrid);moveGrid.insertAdjacentElement('afterend',charityTitle);charityTitle.insertAdjacentElement('afterend',charityGrid);return true;
 };
 const loadRoleFloatNav=()=>{if(document.getElementById('hfRoleFloatNav')||document.querySelector('script[data-hf-role-nav]'))return;const s=document.createElement('script');s.src='role-float-nav.js?v=20260911-1';s.async=false;s.dataset.hfRoleNav='1';document.head.appendChild(s)};
@@ -46,6 +64,6 @@ const loadPinMobileStyle=()=>{if(document.querySelector('script[data-hf-pin-mobi
 const loadSecurityPinCenterFix=()=>{if(document.querySelector('script[data-hf-security-pin-center-fix]'))return;const s=document.createElement('script');s.src='security-pin-modal-fix.js?v=20260914-2';s.async=false;s.dataset.hfSecurityPinCenterFix='1';document.head.appendChild(s)};
 const applyMemberBranding=()=>{if(!location.pathname.toLowerCase().endsWith('/member.html')&&!location.pathname.toLowerCase().endsWith('member.html'))return;document.title='Habsco Finance | Member Dashboard';const brand=document.querySelector('.top .brand');if(brand)brand.textContent='HABSCO FINANCE';const heroLabel=document.querySelector('.hero small');if(heroLabel)heroLabel.remove();const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);const nodes=[];let n;while(n=walker.nextNode())nodes.push(n);nodes.forEach(node=>{if(node.nodeValue&&/Hassan Finance/i.test(node.nodeValue))node.nodeValue=node.nodeValue.replace(/Hassan Finance/gi,'Habsco Finance')})};
 loadSavingsPinFix();loadPinRefreshFix();loadOrientationFix();loadPinMobileStyle();loadSecurityPinCenterFix();loadRoleFloatNav();
-const start=()=>{const sb=getClient(),panel=document.getElementById('hfSecurityCenter');if(!sb||!panel){setTimeout(start,250);return}removeLegacyCooperativeNotice();applyMemberBranding();moveCharityBelowMoveMoney();addBiometricCard();fixPinButton();setTimeout(addBiometricCard,300);setTimeout(addBiometricCard,1000);setTimeout(fixPinButton,300);setTimeout(fixPinButton,1000)};
+const start=()=>{const sb=getClient(),panel=document.getElementById('hfSecurityCenter');if(!sb||!panel){setTimeout(start,250);return}removeLegacyCooperativeNotice();applyMemberBranding();moveCharityBelowMoveMoney();addBiometricCard();fixPinButton();setMemberFullName();setTimeout(setMemberFullName,500);setTimeout(setMemberFullName,1500);setTimeout(addBiometricCard,300);setTimeout(addBiometricCard,1000);setTimeout(fixPinButton,300);setTimeout(fixPinButton,1000)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
