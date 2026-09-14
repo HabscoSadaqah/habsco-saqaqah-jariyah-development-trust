@@ -27,8 +27,8 @@
     brand.tagline.split('·').map(v=>v.trim()).filter(Boolean).forEach(label=>{const span=document.createElement('span');span.textContent=label;p.appendChild(span)});
     fb.appendChild(p);
     const rights=document.createElement('div');rights.className='habsco-footer-rights';
-    const year=document.createElement('span');year.textContent='© '+new Date().getFullYear();rights.appendChild(year);
     const reserved=document.createElement('span');reserved.textContent='All Rights Reserved';rights.appendChild(reserved);
+    const year=document.createElement('span');year.textContent='© '+new Date().getFullYear();rights.appendChild(year);
     fb.appendChild(rights);
     const styleId='habsco-universal-footer-style';
     if(!document.getElementById(styleId)){
