@@ -1,0 +1,33 @@
+name: Root power customer-name fix
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch electricity verification
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('bill-payments.html')
+          s=p.read_text()
+          old="const customerName=ci.customer_name||ci.name||ci.customerName||ci.customer||'';if(customerName){powerCustomerNameValue.textContent=customerName;powerCustomerName.className='verified-name'}"
+          new="const findCustomerName=(root)=>{const keys=['customer_name','customerName','full_name','fullName'];const walk=(x,depth=0)=>{if(!x||depth>6)return '';if(Array.isArray(x)){for(const item of x){const n=walk(item,depth+1);if(n)return n}return ''}if(typeof x!=='object')return '';for(const k of keys){const v=x[k];if(typeof v==='string'&&v.trim())return v.trim()}for(const k of ['customer_info','customer','customerInfo','customer_details','customerDetails','data','result']){if(x[k]){const n=walk(x[k],depth+1);if(n)return n}}return ''};return walk(root)};const customerName=findCustomerName(d)||findCustomerName(v)||findCustomerName(ci);if(customerName){powerCustomerNameValue.textContent=customerName;powerCustomerName.className='verified-name'}"
+          if old not in s:
+              raise SystemExit('Expected customer-name code not found; refusing partial patch')
+          p.write_text(s.replace(old,new,1))
+          PY
+      - name: Commit patch and remove one-time workflow
+        run: |
+          grep -q "findCustomerName" bill-payments.html
+          rm .github/workflows/root-power-name-fix.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add bill-payments.html .github/workflows/root-power-name-fix.yml
+          git commit -m "fix: robust electricity customer name extraction"
+          git push
