@@ -11,13 +11,18 @@ body:not(.finance-page) .menu .donate{box-shadow:0 7px 18px rgba(13,91,43,.15)}
 body:not(.finance-page) .hero{position:relative;margin:18px auto 0;width:min(1360px,calc(100% - 24px));min-height:570px;border-radius:32px;overflow:hidden;background:radial-gradient(circle at 82% 42%,rgba(108,190,143,.28),transparent 19%),radial-gradient(circle at 90% 12%,rgba(244,201,79,.18),transparent 15%),radial-gradient(circle at 62% 100%,rgba(31,125,72,.20),transparent 30%),linear-gradient(135deg,#063b1e 0%,#07552a 48%,#0d6b35 100%);box-shadow:0 24px 58px rgba(5,47,24,.23);isolation:isolate}
 body:not(.finance-page) .hero:before{content:"";position:absolute;z-index:0;width:min(520px,42vw);height:150px;right:4%;top:50%;transform:translateY(-50%);background:url('logo.svg') center/contain no-repeat;opacity:.13;filter:brightness(0) invert(1) drop-shadow(0 10px 20px rgba(0,0,0,.18));pointer-events:none}
 body:not(.finance-page) .hero:after{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(3,38,19,.08) 0%,rgba(3,38,19,.05) 48%,rgba(255,255,255,.025) 100%);pointer-events:none}
-body:not(.finance-page) .hero img{display:none!important}
-body:not(.finance-page) .hero-copy{position:relative;z-index:2;padding:82px 52px;width:min(68%,850px)}
-body:not(.finance-page) .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid rgba(244,201,79,.34);border-radius:999px;background:rgba(255,255,255,.10);color:#f8d96f;box-shadow:0 8px 20px rgba(0,0,0,.10);font-size:12px;font-weight:700;letter-spacing:1.1px}
-body:not(.finance-page) .hero h1{font-size:clamp(42px,6vw,74px);letter-spacing:clamp(-1.8px,-.2vw,-2.2px);line-height:.98;margin:18px 0 20px;color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.16)}
-body:not(.finance-page) .hero h1 span{position:relative;display:inline-block;color:#f4c94f}
-body:not(.finance-page) .hero h1 span:after{content:"";position:absolute;left:2%;right:3%;bottom:-7px;height:7px;border-radius:50%;background:rgba(244,201,79,.48);transform:rotate(-1deg);z-index:-1}
-body:not(.finance-page) .hero p{max-width:650px;color:#e0eee4;line-height:1.75;font-size:clamp(15px,1.5vw,17px)}
+body:not(.finance-page) .hero img:first-child{display:none!important}
+body:not(.finance-page) .hero-copy{position:relative;z-index:2;padding:64px 52px 58px;width:min(76%,920px)}
+body:not(.finance-page) .hero-wordmark{display:block!important;width:clamp(170px,20vw,250px)!important;height:auto!important;max-height:58px!important;object-fit:contain!important;object-position:left center!important;filter:brightness(0) invert(1) drop-shadow(0 6px 14px rgba(0,0,0,.18));margin:0 0 24px!important}
+body:not(.finance-page) .hero-kicker{display:inline-flex;align-items:center;padding:8px 12px;border:1px solid rgba(244,201,79,.34);border-radius:999px;background:rgba(255,255,255,.09);color:#f8d96f;font-size:10px;font-weight:800;letter-spacing:1.7px}
+body:not(.finance-page) .hero h1{font-size:clamp(40px,5.5vw,70px);letter-spacing:clamp(-1.8px,-.2vw,-2.2px);line-height:1.02;margin:17px 0 16px;color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.16);max-width:900px}
+body:not(.finance-page) .hero h1 span{color:#f4c94f;padding:0 4px}
+body:not(.finance-page) .hero p{max-width:680px;color:#e0eee4;line-height:1.7;font-size:clamp(15px,1.5vw,17px);margin:0}
+body:not(.finance-page) .hero-pillars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:25px 0 0;max-width:760px}
+body:not(.finance-page) .hero-pillar{padding:13px 15px;border:1px solid rgba(255,255,255,.14);border-radius:15px;background:rgba(255,255,255,.075);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 20px rgba(0,0,0,.08);transition:transform .2s ease,background .2s ease,border-color .2s ease}
+body:not(.finance-page) .hero-pillar:hover{transform:translateY(-3px);background:rgba(255,255,255,.11);border-color:rgba(244,201,79,.35)}
+body:not(.finance-page) .hero-pillar strong{display:block;color:#fff;font-size:14px;letter-spacing:.2px;margin-bottom:4px}
+body:not(.finance-page) .hero-pillar small{display:block;color:#c7ddcd;font-size:10.5px;line-height:1.35}
 body:not(.finance-page) .actions{gap:12px;margin-top:25px;display:flex;flex-wrap:wrap}
 body:not(.finance-page) .actions .btn{border-radius:999px;padding:15px 24px;box-shadow:0 10px 24px rgba(0,0,0,.14);transition:transform .2s ease,box-shadow .2s ease,background .2s ease;min-height:48px}
 body:not(.finance-page) .actions .btn:hover{transform:translateY(-3px);box-shadow:0 15px 30px rgba(0,0,0,.20)}
@@ -48,11 +53,11 @@ body:not(.finance-page) footer{border-radius:30px 30px 0 0;margin-top:78px}
 @media(max-width:1050px){
   body:not(.finance-page) .nav{min-height:76px}
   body:not(.finance-page) .brand img{width:clamp(190px,29vw,290px);max-height:60px}
-  body:not(.finance-page) .hero-copy{width:76%;padding:70px 40px}
+  body:not(.finance-page) .hero-copy{width:80%;padding:58px 40px 52px}
   body:not(.finance-page) .hero{min-height:550px}
 }
 @media(max-width:900px){
-  body:not(.finance-page) .hero-copy{width:82%}
+  body:not(.finance-page) .hero-copy{width:88%}
   body:not(.finance-page) .hero:before{width:380px;opacity:.10}
 }
 @media(max-width:720px){
@@ -64,12 +69,18 @@ body:not(.finance-page) footer{border-radius:30px 30px 0 0;margin-top:78px}
   body:not(.finance-page) .brand img{width:min(240px,72vw);max-height:52px}
   body:not(.finance-page) .mobile-toggle{display:none!important}
   body:not(.finance-page) .menu{display:none!important}
-  body:not(.finance-page) .hero{margin:10px 10px 0;width:calc(100% - 20px);border-radius:24px;min-height:650px}
+  body:not(.finance-page) .hero{margin:10px 10px 0;width:calc(100% - 20px);border-radius:24px;min-height:700px}
   body:not(.finance-page) .hero:before{width:280px;height:84px;right:50%;top:17%;transform:translate(50%,-50%);opacity:.11}
   body:not(.finance-page) .hero:after{background:linear-gradient(180deg,rgba(3,38,19,.06) 0%,rgba(3,38,19,.04) 100%)}
-  body:not(.finance-page) .hero-copy{width:100%;padding:185px 22px 38px}
-  body:not(.finance-page) .hero h1{font-size:clamp(40px,12vw,52px);letter-spacing:-1.5px}
-  body:not(.finance-page) .hero p{font-size:15.5px;line-height:1.65}
+  body:not(.finance-page) .hero-copy{width:100%;padding:52px 22px 38px}
+  body:not(.finance-page) .hero-wordmark{width:min(210px,65vw)!important;max-height:50px!important;margin:0 auto 22px!important;object-position:center!important}
+  body:not(.finance-page) .hero-kicker{display:flex;width:max-content;max-width:100%;margin:0 auto;font-size:9px;letter-spacing:1.4px}
+  body:not(.finance-page) .hero h1{text-align:center;font-size:clamp(34px,10.5vw,48px);letter-spacing:-1.2px;line-height:1.05;margin:15px 0 16px}
+  body:not(.finance-page) .hero p{text-align:center;font-size:14.5px;line-height:1.62}
+  body:not(.finance-page) .hero-pillars{grid-template-columns:1fr;gap:8px;margin-top:22px;max-width:none}
+  body:not(.finance-page) .hero-pillar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 13px}
+  body:not(.finance-page) .hero-pillar strong{margin:0;font-size:13px}
+  body:not(.finance-page) .hero-pillar small{font-size:9.5px;text-align:right}
   body:not(.finance-page) .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:20px}
   body:not(.finance-page) .actions .btn{width:100%;padding:14px 18px}
   body:not(.finance-page) .stats{width:calc(100% - 30px);margin:0 15px;border-radius:20px;padding:10px;grid-template-columns:repeat(2,minmax(0,1fr));gap:0}
@@ -86,11 +97,13 @@ body:not(.finance-page) footer{border-radius:30px 30px 0 0;margin-top:78px}
 @media(max-width:420px){
   body:not(.finance-page) .nav{padding-left:10px;padding-right:10px}
   body:not(.finance-page) .brand img{width:min(215px,78vw);max-height:48px}
-  body:not(.finance-page) .hero{min-height:675px;margin-top:8px}
+  body:not(.finance-page) .hero{min-height:725px;margin-top:8px}
   body:not(.finance-page) .hero:before{width:235px;height:70px;top:15%}
-  body:not(.finance-page) .hero-copy{padding:160px 17px 32px}
-  body:not(.finance-page) .hero h1{font-size:39px;line-height:1.02}
-  body:not(.finance-page) .hero p{font-size:14.5px}
+  body:not(.finance-page) .hero-copy{padding:45px 17px 32px}
+  body:not(.finance-page) .hero-wordmark{width:min(190px,64vw)!important;max-height:45px!important}
+  body:not(.finance-page) .hero h1{font-size:35px;line-height:1.05}
+  body:not(.finance-page) .hero p{font-size:14px}
+  body:not(.finance-page) .hero-pillar small{font-size:9px}
   body:not(.finance-page) .stats{width:calc(100% - 20px);margin:0 10px}
   body:not(.finance-page) .stat{padding:10px 8px}
   body:not(.finance-page) .stat strong{font-size:15px}
@@ -102,4 +115,4 @@ body:not(.finance-page) footer{border-radius:30px 30px 0 0;margin-top:78px}
   body:not(.finance-page) .nav{min-height:88px}
   body:not(.finance-page) .brand img{width:340px;max-height:70px}
 }
-@media(prefers-reduced-motion:reduce){body:not(.finance-page) .actions .btn,body:not(.finance-page) .trust>div{transition:none}}
+@media(prefers-reduced-motion:reduce){body:not(.finance-page) .actions .btn,body:not(.finance-page) .trust>div,body:not(.finance-page) .hero-pillar{transition:none}}
