@@ -1,9 +1,1 @@
-(()=>{'use strict';
-let userOpened=false;
-const markUserIntent=e=>{const a=e.target?.closest?.('a[href="savings.html"],a[href*="type=savings"],#savingsBalance');if(a&&e.isTrusted)userOpened=true};
-document.addEventListener('pointerdown',markUserIntent,true);
-document.addEventListener('click',markUserIntent,true);
-const guard=()=>{const modal=document.getElementById('hfSavingsModal');if(modal&&!userOpened){modal.remove();return}if(!modal)userOpened=false};
-new MutationObserver(guard).observe(document.documentElement,{childList:true,subtree:true});
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',guard,{once:true});else guard();
-})();
+(()=>{"use strict";let userOpened=!1;const markUserIntent=e=>{const a=e.target?.closest?.('a[href="savings.html"],a[href*="type=savings"],#savingsBalance');a&&e.isTrusted&&(userOpened=!0)};document.addEventListener("pointerdown",markUserIntent,!0),document.addEventListener("click",markUserIntent,!0);const guard=()=>{const modal=document.getElementById("hfSavingsModal");!modal||userOpened?modal||(userOpened=!1):modal.remove()};new MutationObserver(guard).observe(document.documentElement,{childList:!0,subtree:!0}),"loading"===document.readyState?document.addEventListener("DOMContentLoaded",guard,{once:!0}):guard()})();

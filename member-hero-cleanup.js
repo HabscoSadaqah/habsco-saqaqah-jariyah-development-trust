@@ -1,18 +1,1 @@
-(()=>{
-'use strict';
-const clean=()=>{
- const hero=document.querySelector('.hero');
- if(!hero)return false;
- hero.querySelector('small')?.remove();
- hero.querySelector('#memberMeta')?.remove();
- const heading=hero.querySelector('#welcome');
- if(heading&&!heading.textContent.trim())heading.textContent='Finance Dashboard';
- hero.style.paddingBottom='20px';
- return true;
-};
-if(!clean()){
- const observer=new MutationObserver(()=>{if(clean())observer.disconnect()});
- observer.observe(document.documentElement,{childList:true,subtree:true});
- setTimeout(()=>observer.disconnect(),10000);
-}
-})();
+(()=>{"use strict";const clean=()=>{const hero=document.querySelector(".hero");if(!hero)return!1;hero.querySelector("small")?.remove(),hero.querySelector("#memberMeta")?.remove();const heading=hero.querySelector("#welcome");return heading&&!heading.textContent.trim()&&(heading.textContent="Finance Dashboard"),hero.style.paddingBottom="20px",!0};if(!clean()){const observer=new MutationObserver(()=>{clean()&&observer.disconnect()});observer.observe(document.documentElement,{childList:!0,subtree:!0}),setTimeout(()=>observer.disconnect(),1e4)}})();
