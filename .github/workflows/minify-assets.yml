@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: minify-assets-main
+  cancel-in-progress: true
+
 jobs:
   minify:
     runs-on: ubuntu-latest
@@ -18,36 +22,62 @@ jobs:
           fetch-depth: 0
           ref: main
 
-      - name: Minify JavaScript and CSS
+      - name: Install minifiers
+        run: npm install --no-save --no-package-lock terser clean-css-cli
+
+      - name: Safely minify browser assets
         shell: bash
         run: |
           set -euo pipefail
-          npm init -y >/dev/null 2>&1
-          npm install --no-save terser clean-css-cli >/dev/null 2>&1
 
+          # Only process browser-facing assets. Never touch dependencies,
+          # GitHub workflow code, server scripts, Supabase functions, or
+          # files that are already minified.
           while IFS= read -r -d '' file; do
             case "$file" in
-              *.min.js|*node_modules/*) continue ;;
+              ./.git/*|./node_modules/*|./supabase/functions/*|./scripts/*|./.github/*|*.min.js)
+                continue
+                ;;
             esac
+
             tmp="${file}.min.tmp"
-            npx terser "$file" --compress --mangle --comments false -o "$tmp"
-            if [ -s "$tmp" ]; then
-              mv "$tmp" "$file"
+            echo "Minifying JS: $file"
+
+            # Do not mangle names: page HTML, inline scripts and Supabase
+            # integrations may depend on global function/variable names.
+            if npx terser "$file" --compress --comments false -o "$tmp"; then
+              if [ -s "$tmp" ]; then
+                mv "$tmp" "$file"
+              else
+                rm -f "$tmp"
+                echo "Skipped empty output: $file"
+              fi
             else
               rm -f "$tmp"
+              echo "WARNING: skipped JS that Terser could not parse: $file"
             fi
           done < <(find . -type f -name '*.js' -not -path './.git/*' -print0)
 
           while IFS= read -r -d '' file; do
             case "$file" in
-              *.min.css|*node_modules/*) continue ;;
+              ./.git/*|./node_modules/*|./supabase/functions/*|./scripts/*|./.github/*|*.min.css)
+                continue
+                ;;
             esac
+
             tmp="${file}.min.tmp"
-            npx cleancss --level 1 -o "$tmp" "$file"
-            if [ -s "$tmp" ]; then
-              mv "$tmp" "$file"
+            echo "Minifying CSS: $file"
+
+            if npx cleancss --level 1 -o "$tmp" "$file"; then
+              if [ -s "$tmp" ]; then
+                mv "$tmp" "$file"
+              else
+                rm -f "$tmp"
+                echo "Skipped empty output: $file"
+              fi
             else
               rm -f "$tmp"
+              echo "WARNING: skipped CSS that CleanCSS could not parse: $file"
             fi
           done < <(find . -type f -name '*.css' -not -path './.git/*' -print0)
 
@@ -58,9 +88,11 @@ jobs:
           git config user.name 'Habsco Sadaqah Jariyah Development Trust'
           git config user.email '70951857+HabscoSadaqah@users.noreply.github.com'
           git add -- '*.js' '*.css'
+
           if git diff --cached --quiet; then
-            echo 'Assets are already minified.'
+            echo 'No asset changes to commit.'
             exit 0
           fi
-          git commit -m 'perf: minify JavaScript and CSS assets'
+
+          git commit -m 'perf: safely minify browser assets'
           git push origin HEAD:main
