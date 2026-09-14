@@ -1,34 +1,44 @@
-name: Inject electricity root fix
+name: Inject utility root fixes
 on:
   push:
     branches: [main]
-
+permissions:
+  contents: write
 jobs:
   inject:
-    if: github.event.head_commit.message != 'chore: inject electricity root fix'
+    if: github.event.head_commit.message != 'chore: inject utility root fixes'
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Inject root electricity script
+        with:
+          fetch-depth: 0
+      - name: Sync with latest main
+        run: git fetch origin main && git reset --hard origin/main
+      - name: Attach electricity and education root scripts
         run: |
           python - <<'PY'
           from pathlib import Path
           p=Path('bill-payments.html')
           s=p.read_text(encoding='utf-8')
-          tag='<script src="power-root-fix.js?v=20260914-1"></script>'
-          if tag not in s:
-              marker='</body>'
-              if marker not in s:
-                  raise SystemExit('bill-payments.html has no closing body tag')
-              s=s.replace(marker,tag+marker,1)
-              p.write_text(s,encoding='utf-8')
+          for tag in [
+              '<script src="power-root-fix.js?v=20260914-1"></script>',
+              '<script src="education-root-fix.js?v=20260914-1"></script>'
+          ]:
+              if tag not in s:
+                  marker='</body>'
+                  if marker not in s:
+                      raise SystemExit('bill-payments.html has no closing body tag')
+                  s=s.replace(marker,tag+marker,1)
+          p.write_text(s,encoding='utf-8')
           PY
-      - name: Commit injected script
+      - name: Commit only when changed
         run: |
           git config user.name 'Habsco Sadaqah Jariyah Development Trust'
           git config user.email '70951857+HabscoSadaqah@users.noreply.github.com'
           git add bill-payments.html
-          git diff --cached --quiet || git commit -m 'chore: inject electricity root fix'
-          git push
+          if git diff --cached --quiet; then
+            echo 'Utility root scripts are already attached; nothing to commit.'
+            exit 0
+          fi
+          git commit -m 'chore: inject utility root fixes'
+          git push origin main
