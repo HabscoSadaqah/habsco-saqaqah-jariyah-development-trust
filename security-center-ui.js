@@ -4,7 +4,7 @@ const onMember=()=>location.pathname.split('/').pop()==='member.html';
 const load=(src,mark)=>{if(!onMember()||document.querySelector(`script[data-${mark}]`))return;const s=document.createElement('script');s.src=src;s.dataset[mark]='1';s.async=false;(document.body||document.head).appendChild(s)};
 const open=()=>document.getElementById('hfSecuritySheet')?.classList.add('open');
 const close=()=>document.getElementById('hfSecuritySheet')?.classList.remove('open');
-function ensureSecurityCenter(){if(!onMember())return;if(document.getElementById('hfSecurityCenter'))return;load('member-security-center.js?v=20260914-5','hfMemberSecurityCenter');setTimeout(ensureSecurityCenter,300)}
+function ensureSecurityCenter(){if(!onMember())return;if(document.getElementById('hfSecurityCenter'))return;load('member-security-center.js?v=20260914-6','hfMemberSecurityCenter');setTimeout(ensureSecurityCenter,300)}
 function loadExtras(){if(!onMember())return;load('savings-borrowing-ui.js?v=20260912-2','hfSavingsLoan');load('savings-button-fix.js?v=20260913-1','hfSavingsButtonFix');load('pin-position-final.js?v=20260913-1','hfPinFinal')}
 function mount(){
  if(!onMember())return;
