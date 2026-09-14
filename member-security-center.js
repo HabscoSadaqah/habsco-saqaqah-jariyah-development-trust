@@ -22,23 +22,25 @@ function addStyles(){
  #hfSecurityCenter button{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.09);color:#fff;border-radius:13px;padding:13px 10px;text-align:left;cursor:pointer;min-height:74px;font-weight:800}
  #hfSecurityCenter button:hover{background:rgba(255,255,255,.15)}.hf-sc-icon{font-size:22px;display:block;margin-bottom:5px}.hf-sc-title{font-size:11px;display:block}.hf-sc-sub{font-size:9px;color:#c5ddd0;font-weight:500;display:block;margin-top:2px}
  #hfSecurityNotice{display:none;margin-top:10px;background:#fff7df;color:#6b5207;border-radius:10px;padding:10px;font-size:11px;line-height:1.45}#hfSecurityNotice.show{display:block}
- .hf-pin-modal{position:fixed;inset:0;z-index:1200;overscroll-behavior:contain;display:none}
- .hf-pin-modal.open{display:block}
- .hf-pin-backdrop{position:absolute;inset:0;background:rgba(2,18,11,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
- .hf-pin-sheet{position:absolute;left:50%;top:auto;bottom:calc(50% + (var(--hf-keyboard-offset,0px)/2));transform:translateX(-50%);width:min(360px,calc(100vw - 32px));max-height:calc(100dvh - 28px);overflow:auto;background:#fff;border-radius:20px;padding:22px;box-shadow:0 25px 80px rgba(0,0,0,.3);text-align:center;color:#17221c;font-family:Inter,system-ui,sans-serif;box-sizing:border-box;transition:bottom .12s ease}
- .hf-pin-close{position:absolute;right:12px;top:10px;border:0;background:#f1f5f2;color:#526159;border-radius:50%;width:32px;height:32px;font-size:20px;cursor:pointer}.hf-pin-icon{font-size:28px}.hf-pin-sheet h3{margin:8px 0 5px;font-size:17px}.hf-pin-help{margin:0 0 15px;color:#728079;font-size:10px;line-height:1.4}
- .hf-pin-form{display:grid;gap:9px;text-align:left}.hf-pin-form label{display:grid;gap:5px;font-size:10px;font-weight:800}.hf-pin-form label span{font-size:8px;color:#87938d;font-weight:500}.hf-pin-form input{width:100%;height:48px;border:1px solid #dfe9e3;border-radius:12px;padding:0 12px;text-align:center;font-size:18px;letter-spacing:5px;outline:none;box-sizing:border-box}.hf-pin-form input:focus{border-color:#087443;box-shadow:0 0 0 3px rgba(8,116,67,.08)}
+ /* Security PIN is deliberately isolated from the Savings PIN helpers so it can never sit in another stacking context. */
+ #hfSecurityPinModal{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;z-index:2147483647!important;display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important;isolation:isolate!important;overscroll-behavior:contain!important}
+ #hfSecurityPinModal.open{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+ #hfSecurityPinModal .hf-pin-backdrop{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;background:rgba(2,18,11,.62)!important;backdrop-filter:blur(6px)!important;-webkit-backdrop-filter:blur(6px)!important;z-index:1!important}
+ #hfSecurityPinModal .hf-pin-sheet{position:absolute!important;left:50%!important;top:50%!important;right:auto!important;bottom:auto!important;transform:translate(-50%,-50%)!important;width:min(360px,calc(100vw - 32px))!important;max-height:calc(100dvh - 28px)!important;overflow:auto!important;background:#fff!important;border-radius:20px!important;padding:22px!important;box-shadow:0 25px 80px rgba(0,0,0,.3)!important;text-align:center!important;color:#17221c!important;font-family:Inter,system-ui,sans-serif!important;box-sizing:border-box!important;z-index:2!important}
+ #hfSecurityPinModal .hf-pin-close{position:absolute!important;right:12px!important;top:10px!important;border:0!important;background:#f1f5f2!important;color:#526159!important;border-radius:50%!important;width:32px!important;height:32px!important;font-size:20px!important;cursor:pointer!important}
+ #hfSecurityPinModal .hf-pin-icon{font-size:28px!important}.hf-pin-sheet h3{margin:8px 0 5px;font-size:17px}.hf-pin-help{margin:0 0 15px;color:#728079;font-size:10px;line-height:1.4}
+ #hfSecurityPinModal .hf-pin-form{display:grid;gap:9px;text-align:left}.hf-pin-form label{display:grid;gap:5px;font-size:10px;font-weight:800}.hf-pin-form label span{font-size:8px;color:#87938d;font-weight:500}.hf-pin-form input{width:100%;height:48px;border:1px solid #dfe9e3;border-radius:12px;padding:0 12px;text-align:center;font-size:18px;letter-spacing:5px;outline:none;box-sizing:border-box}.hf-pin-form input:focus{border-color:#087443;box-shadow:0 0 0 3px rgba(8,116,67,.08)}
  .hf-pin-error{min-height:14px;font-size:9px;line-height:1.4;color:#9b3026;text-align:left}.hf-pin-error.success{background:#edf7f1;color:#0b6b45;padding:8px;border-radius:9px}.hf-pin-confirm{width:100%;border:0;border-radius:11px;padding:12px;background:#087443;color:#fff;font-weight:900;cursor:pointer}.hf-pin-confirm:disabled{opacity:.6;cursor:wait}
- @media(max-width:600px){#hfSecurityCenter{margin:18px 7px 14px;padding:13px;border-radius:15px}#hfSecurityCenter .hf-sc-row{gap:6px}#hfSecurityCenter button{padding:10px 8px;min-height:72px;border-radius:11px}.hf-sc-icon{font-size:19px}.hf-sc-title{font-size:10px}.hf-sc-sub{font-size:8px}}
+ @media(max-width:600px){#hfSecurityCenter{margin:18px 7px 14px;padding:13px;border-radius:15px}#hfSecurityCenter .hf-sc-row{gap:6px}#hfSecurityCenter button{padding:10px 8px;min-height:72px;border-radius:11px}.hf-sc-icon{font-size:19px}.hf-sc-title{font-size:10px}.hf-sc-sub{font-size:8px}#hfSecurityPinModal .hf-pin-sheet{width:min(360px,calc(100vw - 24px))!important;padding:18px!important}}
  `;document.head.appendChild(s);
 }
 function pinModal(){
  let modal=$('hfSecurityPinModal');
  if(!modal){
-  modal=document.createElement('div');modal.id='hfSecurityPinModal';modal.className='hf-pin-modal';
+  modal=document.createElement('div');modal.id='hfSecurityPinModal';modal.className='hf-security-pin-modal';
   modal.innerHTML='<div class="hf-pin-backdrop"></div><section class="hf-pin-sheet" role="dialog" aria-modal="true" aria-labelledby="hfSecurityPinTitle"><button class="hf-pin-close" type="button" aria-label="Close">×</button><div class="hf-pin-icon">🔐</div><h3 id="hfSecurityPinTitle">Set transaction PIN</h3><p class="hf-pin-help">Set your 6-digit transaction PIN. This PIN protects transfers and cooperative money movements.</p><form class="hf-pin-form" autocomplete="off"><label>Current PIN <span>Leave blank only if you have never set a PIN</span><input id="hfSecurityCurrentPin" inputmode="numeric" pattern="[0-9]*" maxlength="6" type="password" autocomplete="off" placeholder="Current PIN"></label><label>New PIN <span>Choose a new 6-digit PIN</span><input id="hfSecurityNewPin" inputmode="numeric" pattern="[0-9]*" maxlength="6" type="password" autocomplete="new-password" placeholder="New PIN"></label><label>Confirm new PIN <span>Enter the new PIN again</span><input id="hfSecurityConfirmPin" inputmode="numeric" pattern="[0-9]*" maxlength="6" type="password" autocomplete="new-password" placeholder="Confirm PIN"></label><div class="hf-pin-error" role="status" aria-live="polite"></div><button class="hf-pin-confirm" type="submit">Confirm</button></form></section></div>';
-  document.body.appendChild(modal);
-  const close=()=>{modal.classList.remove('open');document.body.style.overflow='';};
+  document.documentElement.appendChild(modal);
+  const close=()=>{modal.classList.remove('open');document.body.style.overflow='';document.documentElement.style.overflow='';};
   modal.querySelector('.hf-pin-close').onclick=close;modal.querySelector('.hf-pin-backdrop').onclick=close;
   ['hfSecurityCurrentPin','hfSecurityNewPin','hfSecurityConfirmPin'].forEach(id=>$(id)?.addEventListener('input',e=>{e.target.value=digits(e.target.value)}));
   modal.querySelector('form').onsubmit=async e=>{
@@ -52,7 +54,10 @@ function pinModal(){
    try{const {error}=await client().rpc('member_set_transaction_pin',{p_current_pin:cur||null,p_new_pin:next});if(error)throw error;status.textContent='Transaction PIN updated successfully.';status.className='hf-pin-error success';$('hfSecurityCurrentPin').value='';$('hfSecurityNewPin').value='';$('hfSecurityConfirmPin').value='';setTimeout(close,900)}catch(err){status.textContent=err?.message||'Unable to update transaction PIN. Please try again.'}finally{btn.disabled=false;btn.textContent='Confirm'}
   };
  }
- modal.classList.add('open');document.body.style.overflow='hidden';setTimeout(()=>$(modal.querySelector('#hfSecurityCurrentPin')?.id)?.focus(),60);
+ document.documentElement.appendChild(modal);
+ modal.classList.add('open');
+ document.body.style.overflow='hidden';document.documentElement.style.overflow='hidden';
+ setTimeout(()=>modal.querySelector('#hfSecurityCurrentPin')?.focus(),60);
 }
 function mount(){
  addStyles();
