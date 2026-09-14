@@ -21,7 +21,7 @@ window.habscoAdminOperation=async function(operation,payload={}){
  if(data?.error)throw new Error(data.error);
  return data;
 };
-const loadAdminControls=()=>{if(document.getElementById('hfAdminControlsLoader'))return;const s=document.createElement('script');s.id='hfAdminControlsLoader';s.src='admin-controls.js?v=20260914-1';s.defer=true;document.head.appendChild(s)};
-const loadWalletFix=()=>{if(document.getElementById('hfAdminWalletFix'))return;const s=document.createElement('script');s.id='hfAdminWalletFix';s.src='admin-wallet-fix.js?v=20260914-3';s.defer=true;document.head.appendChild(s)};
+const loadAdminControls=()=>{if(document.getElementById('hfAdminControlsLoader'))return;const s=document.createElement('script');s.id='hfAdminControlsLoader';s.src='admin-controls.js?v=20260914-2';s.defer=true;document.head.appendChild(s)};
+const loadWalletFix=()=>{if(document.getElementById('hfAdminWalletFix'))return;const s=document.createElement('script');s.id='hfAdminWalletFix';s.src='admin-wallet-fix.js?v=20260914-5';s.defer=true;document.head.appendChild(s)};
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{loadAdminControls();loadWalletFix()},{once:true});else{loadAdminControls();loadWalletFix()}
 })();
