@@ -1,0 +1,44 @@
+name: Root UI fixes
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  inject:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject root fix scripts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          targets = {
+            'member.html': '<script src="savings-root-fix.js?v=20260914-1"></script>',
+            'bill-payments.html': '<script src="bill-payments-root-fix.js?v=20260914-1"></script>'
+          }
+          for name, tag in targets.items():
+            p=Path(name)
+            if not p.exists():
+              continue
+            s=p.read_text()
+            if tag not in s:
+              s=s.replace('</body>', tag+'\n</body>')
+              p.write_text(s)
+          PY
+      - name: Commit injection
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add member.html bill-payments.html
+          git diff --cached --quiet && exit 0
+          git commit -m "fix: load root savings and utility UI fixes"
+          git push
+      - name: Remove one-time workflow
+        if: success()
+        run: |
+          rm -f .github/workflows/root-ui-inject.yml
+          git add .github/workflows/root-ui-inject.yml
+          git commit -m "chore: remove one-time root UI injector" || true
+          git push || true
