@@ -26,7 +26,8 @@ jobs:
             s=p.read_text(encoding='utf-8')
             for tag in [
                 '<script src="power-root-fix.js?v=20260914-1"></script>',
-                '<script src="education-root-fix.js?v=20260914-1"></script>'
+                '<script src="education-root-fix.js?v=20260914-1"></script>',
+                '<script src="data-root-fix.js?v=20260914-1"></script>'
             ]:
                 if tag not in s:
                     if '</body>' not in s:
