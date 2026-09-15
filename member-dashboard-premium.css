@@ -8,6 +8,9 @@
 .account-card .amount,.account-card .label{display:none!important}
 .account-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 .account-grid:after{content:"💰  Loan";display:flex;align-items:center;justify-content:flex-start;min-height:112px;background:#fff;border:1px solid var(--hf-line);border-radius:16px;padding:14px;color:var(--hf-ink);font-size:11px;font-weight:900;box-sizing:border-box}
+/* Cooperative aggregate analytics belong in the admin portal, not the individual member dashboard. */
+.balance-overview{grid-template-columns:1fr!important}
+.balance-card.coop{display:none!important}
 @media(max-width:800px){.account-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}.account-grid:after{min-height:102px;padding:12px;font-size:9.5px}}
 @media(max-width:600px){.account-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px}.account-grid:after{min-height:102px;padding:10px;border-radius:13px;font-size:9.5px}.section-title:has(+.account-grid) h2:after{font-size:13px!important}}
 @supports(height:100svh){#hfPinModal{height:100svh!important}#hfPinModal>section.hf-pin-modal{max-height:calc(100svh - 32px)!important}}
