@@ -1,6 +1,7 @@
 :root{--hf-ink:#10231a;--hf-green:#087443;--hf-deep:#063d26;--hf-line:#e4ece7;--hf-bg:#f4f7f5;--hf-card:rgba(255,255,255,.96)}
-/* PIN modal alignment: center the wrapper in the viewport and center the actual modal inside it. */
-#hfPinModal{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;margin:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;z-index:1200!important;overscroll-behavior:contain!important;box-sizing:border-box!important}
-#hfPinModal>.hf-pin-backdrop{position:absolute!important;inset:0!important;width:100%!important;height:100%!important}
-#hfPinModal>section.hf-pin-modal{position:relative!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;transform:none!important;margin:0 auto!important;width:min(92vw,430px)!important;max-width:430px!important;max-height:calc(100dvh - 32px)!important;overflow:auto!important;box-sizing:border-box!important;z-index:1!important}
-@media(max-width:600px){#hfPinModal{padding:16px!important}#hfPinModal>section.hf-pin-modal{width:100%!important;max-width:430px!important;max-height:calc(100dvh - 32px)!important;border-radius:20px!important}}
+/* PIN modal: use the same viewport-overlay centering model as a confirmation dialog. */
+#hfPinModal{position:fixed!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;padding:0!important;display:grid!important;place-items:center!important;z-index:99999!important;box-sizing:border-box!important;isolation:isolate!important}
+#hfPinModal>.hf-pin-backdrop{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;margin:0!important;z-index:0!important}
+#hfPinModal>section.hf-pin-modal{position:relative!important;inset:auto!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;transform:none!important;margin:0!important;width:min(430px,calc(100% - 28px))!important;max-width:430px!important;max-height:calc(100% - 32px)!important;overflow:auto!important;box-sizing:border-box!important;z-index:1!important;align-self:center!important;justify-self:center!important}
+@supports(height:100svh){#hfPinModal{height:100svh!important}#hfPinModal>section.hf-pin-modal{max-height:calc(100svh - 32px)!important}}
+@media(max-width:600px){#hfPinModal>section.hf-pin-modal{width:calc(100% - 24px)!important;max-width:430px!important;max-height:calc(100% - 24px)!important;border-radius:20px!important}}
