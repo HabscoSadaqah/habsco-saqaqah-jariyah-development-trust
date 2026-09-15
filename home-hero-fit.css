@@ -1,0 +1,38 @@
+/* Home hero: keep the first screen compact on desktop while preserving responsive behavior. */
+body:not(.finance-page){overflow-x:hidden}
+@media (min-width:721px){
+  body:not(.finance-page) .hero{
+    height:calc(100vh - 118px);
+    min-height:0;
+    max-height:760px;
+    margin-top:14px;
+  }
+  body:not(.finance-page) .hero-copy{
+    padding:clamp(28px,5vh,52px) 52px;
+    width:min(76%,920px);
+  }
+  body:not(.finance-page) .hero-wordmark{
+    margin-bottom:clamp(14px,2.5vh,22px)!important;
+  }
+  body:not(.finance-page) .hero h1{
+    font-size:clamp(38px,5vw,66px);
+    margin:clamp(11px,2vh,17px) 0 clamp(10px,1.8vh,16px);
+  }
+  body:not(.finance-page) .hero p{line-height:1.55}
+  body:not(.finance-page) .actions{margin-top:clamp(16px,2.5vh,25px)}
+}
+@media (min-width:721px) and (max-height:700px){
+  body:not(.finance-page) .nav{min-height:68px;padding-top:6px;padding-bottom:6px}
+  body:not(.finance-page) .brand img{max-height:54px}
+  body:not(.finance-page) .hero{height:calc(100vh - 94px);margin-top:10px;border-radius:26px}
+  body:not(.finance-page) .hero-copy{padding:24px 42px}
+  body:not(.finance-page) .hero-wordmark{width:clamp(150px,18vw,220px)!important;max-height:48px!important;margin-bottom:12px!important}
+  body:not(.finance-page) .hero-kicker{padding:6px 10px;font-size:9px}
+  body:not(.finance-page) .hero h1{font-size:clamp(34px,4.5vw,56px);margin:10px 0 10px}
+  body:not(.finance-page) .hero p{font-size:14px;line-height:1.45}
+  body:not(.finance-page) .actions{margin-top:14px}
+  body:not(.finance-page) .actions .btn{min-height:44px;padding:12px 21px}
+}
+@media (max-width:720px){
+  body:not(.finance-page) .hero{height:auto;min-height:700px;max-height:none}
+}
