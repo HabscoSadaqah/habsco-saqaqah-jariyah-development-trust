@@ -1,1 +1,15 @@
-const CLEANUP="<script>(function(){try{for(const s of [localStorage,sessionStorage]){for(let i=s.length-1;i>=0;i--){const k=s.key(i)||'';if(!/^sb-[a-z0-9]+-auth-token$/.test(k)&&!/^supabase./i.test(k))s.removeItem(k)}}if('caches'in window)caches.keys().then(a=>a.forEach(k=>caches.delete(k)));}catch(e){}})();<\/script>";self.addEventListener("install",event=>event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k))),await self.skipWaiting()})())),self.addEventListener("activate",event=>event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k))),await self.clients.claim()})())),self.addEventListener("fetch",event=>{if("GET"!==event.request.method)return;new URL(event.request.url).origin===self.location.origin&&event.respondWith((async()=>{const response=await fetch(event.request,{cache:"no-store",credentials:"same-origin"}),headers=new Headers(response.headers);headers.set("Cache-Control","no-store, no-cache, must-revalidate, max-age=0, private"),headers.set("Pragma","no-cache"),headers.set("Expires","0");if((headers.get("content-type")||"").includes("text/html")){const text=await response.text(),body=text.includes("</body>")?text.replace("</body>",CLEANUP+"</body>"):text+CLEANUP;return new Response(body,{status:response.status,statusText:response.statusText,headers:headers})}return new Response(response.body,{status:response.status,statusText:response.statusText,headers:headers})})())});
+/* Habsco service worker: deliberately disabled. Financial/member data must never be cached client-side. */
+self.addEventListener("install", event => {
+  event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener("activate", event => {
+  event.waitUntil((async () => {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(key => caches.delete(key)));
+      await self.clients.claim();
+      await self.registration.unregister();
+    } catch (_) {}
+  })());
+});
