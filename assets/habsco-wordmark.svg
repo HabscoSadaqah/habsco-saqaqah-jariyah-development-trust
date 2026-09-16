@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 150" role="img" aria-labelledby="title desc">
 <title id="title">HABSCO</title><desc id="desc">Premium HABSCO wordmark</desc>
-<g fill="none" stroke="#087443" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
+<g transform="translate(100 0)" fill="none" stroke="#087443" stroke-width="11" stroke-linecap="round" stroke-linejoin="round">
 <path d="M18 35v80M18 75h64M82 35v80"/>
 <path d="M105 115l38-80 38 80M119 85h48"/>
 <path d="M205 35h31c28 0 28 40 0 40h-31M205 75h34c30 0 30 40 0 40h-34M205 35v80"/>
