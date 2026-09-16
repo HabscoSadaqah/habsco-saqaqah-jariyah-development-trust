@@ -1,98 +1,16 @@
 name: Minify assets
 
+# Disabled: automatic asset rewriting after every push can create stale or
+# mismatched browser assets during deployment. Keep committed CSS/JS stable.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
-
-concurrency:
-  group: minify-assets-main
-  cancel-in-progress: true
+  contents: read
 
 jobs:
   minify:
+    if: ${{ false }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          ref: main
-
-      - name: Install minifiers
-        run: npm install --no-save --no-package-lock terser clean-css-cli
-
-      - name: Safely minify browser assets
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          # Only process browser-facing assets. Never touch dependencies,
-          # GitHub workflow code, server scripts, Supabase functions, or
-          # files that are already minified.
-          while IFS= read -r -d '' file; do
-            case "$file" in
-              ./.git/*|./node_modules/*|./supabase/functions/*|./scripts/*|./.github/*|*.min.js)
-                continue
-                ;;
-            esac
-
-            tmp="${file}.min.tmp"
-            echo "Minifying JS: $file"
-
-            # Do not mangle names: page HTML, inline scripts and Supabase
-            # integrations may depend on global function/variable names.
-            if npx terser "$file" --compress --comments false -o "$tmp"; then
-              if [ -s "$tmp" ]; then
-                mv "$tmp" "$file"
-              else
-                rm -f "$tmp"
-                echo "Skipped empty output: $file"
-              fi
-            else
-              rm -f "$tmp"
-              echo "WARNING: skipped JS that Terser could not parse: $file"
-            fi
-          done < <(find . -type f -name '*.js' -not -path './.git/*' -print0)
-
-          while IFS= read -r -d '' file; do
-            case "$file" in
-              ./.git/*|./node_modules/*|./supabase/functions/*|./scripts/*|./.github/*|*.min.css)
-                continue
-                ;;
-            esac
-
-            tmp="${file}.min.tmp"
-            echo "Minifying CSS: $file"
-
-            if npx cleancss --level 1 -o "$tmp" "$file"; then
-              if [ -s "$tmp" ]; then
-                mv "$tmp" "$file"
-              else
-                rm -f "$tmp"
-                echo "Skipped empty output: $file"
-              fi
-            else
-              rm -f "$tmp"
-              echo "WARNING: skipped CSS that CleanCSS could not parse: $file"
-            fi
-          done < <(find . -type f -name '*.css' -not -path './.git/*' -print0)
-
-      - name: Commit optimized assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'Habsco Sadaqah Jariyah Development Trust'
-          git config user.email '70951857+HabscoSadaqah@users.noreply.github.com'
-          git add -- '*.js' '*.css'
-
-          if git diff --cached --quiet; then
-            echo 'No asset changes to commit.'
-            exit 0
-          fi
-
-          git commit -m 'perf: safely minify browser assets'
-          git push origin HEAD:main
+      - run: echo "Automatic asset minification is disabled."
