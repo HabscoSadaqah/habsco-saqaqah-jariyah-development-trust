@@ -1,0 +1,68 @@
+name: Standardize Habsco footer
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  standardize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Standardize copyright on every HTML page
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          EXACT = '© 2026 Habsco. All Rights Reserved.'
+          STYLE = '''<style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style>'''
+
+          changed = []
+          for p in sorted(Path('.').glob('*.html')):
+              s = p.read_text(encoding='utf-8')
+              original = s
+
+              # Replace every existing copyright block, regardless of its old wording.
+              s = re.sub(r'<div\s+class=["\']([^"\']*\bcopyright\b[^"\']*)["\'][^>]*>.*?</div>',
+                          lambda m: f'<div class="{m.group(1)}">{EXACT}</div>', s, flags=re.I|re.S)
+
+              # If a footer exists without a copyright block, add one before </footer>.
+              if '<footer' in s.lower() and not re.search(r'class=["\'][^"\']*\bcopyright\b', s, re.I):
+                  s = re.sub(r'</footer>', f'<div class="copyright habsco-copyright">{EXACT}</div></footer>', s, count=1, flags=re.I)
+
+              # Pages without a footer get a minimal unobtrusive standard footer.
+              if '<footer' not in s.lower():
+                  s = s.replace('</body>', f'<footer class="habsco-standard-footer"><div class="copyright habsco-copyright">{EXACT}</div></footer></body>', 1)
+
+              # Add the shared tiny ash/grey styling once per page.
+              if 'data-habsco-footer-style' not in s:
+                  s = s.replace('</head>', STYLE + '</head>', 1)
+
+              if s != original:
+                  p.write_text(s, encoding='utf-8')
+                  changed.append(str(p))
+
+          print('Standardized:', ', '.join(changed) if changed else 'all pages already standardized')
+          PY
+
+          git config user.name 'Habsco Sadaqah Jariyah Development Trust'
+          git config user.email '70951857+HabscoSadaqah@users.noreply.github.com'
+          git add '*.html'
+          if git diff --cached --quiet; then
+            echo 'No footer changes required.'
+            exit 0
+          fi
+          git commit -m 'fix: standardize footer across all pages'
+          git push origin HEAD:main
