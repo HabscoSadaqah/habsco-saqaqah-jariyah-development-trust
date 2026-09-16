@@ -38,3 +38,35 @@
 @media(max-width:800px){.finance-page .finance-hero-grid{animation-duration:24s}.finance-page .finance-hero-content{animation:none}.finance-page .finance-3d-card.is-open{transform:translateY(-7px) scale(1.16)!important;min-height:92px!important}.finance-page .finance-3d-card.is-open .finance-card-icon{transform:scale(1.12)!important}.finance-page .finance-3d-card.is-open h2{font-size:9px!important}.finance-page .finance-3d-card.is-open .service-info{font-size:6px!important}.finance-page .finance-3d-card:not(.is-open){animation-duration:6s}}
 @media(max-width:480px){.finance-page .finance-3d-card.is-open{transform:translateY(-5px) scale(1.12)!important;min-height:84px!important}.finance-page .finance-3d-card.is-open h2{font-size:8px!important}.finance-page .finance-3d-card.is-open .service-info{font-size:5.5px!important}.finance-page .finance-3d-card.is-open .finance-card-icon{transform:scale(1.1)!important}}
 @media(prefers-reduced-motion:reduce){.finance-page .finance-hero-grid,.finance-page .finance-hero-ring,.finance-page .finance-hero-content,.finance-page .finance-3d-card,.finance-page .finance-main-action{animation:none!important}.finance-page .finance-3d-card.is-open{transform:translateY(-2px) scale(1.08)!important}}
+
+/* Desktop home: bold full-viewport service cards, while keeping the page single-screen */
+@media(min-width:801px){
+  html,body{height:100%;overflow:hidden!important}
+  .finance-page,.finance-shell,.finance-hero-3d{height:100svh!important;min-height:100svh!important;max-height:100svh!important}
+  .finance-shell{width:100%!important;max-width:none!important;margin:0!important;padding:0!important}
+  .finance-hero-3d{border-radius:0!important;box-shadow:none!important;overflow:hidden!important}
+  .finance-hero-content{width:100%!important;max-width:1440px!important;height:100%!important;box-sizing:border-box!important;padding:clamp(8px,1.2vh,16px) clamp(20px,3vw,44px) clamp(5px,1vh,10px)!important}
+  .finance-hero-brand{font-weight:950!important}
+  .finance-hero-slogan{font-weight:750!important}
+  .finance-hero-services{width:100%!important;margin:clamp(7px,1vh,12px) auto 0!important}
+  .finance-hero-services .finance-section-title{margin:0 0 clamp(4px,.7vh,7px)!important;text-align:center!important}
+  .finance-hero-services .finance-section-title h2{font-size:clamp(22px,2.4vw,32px)!important;font-weight:950!important}
+  .finance-service-group{width:100%!important;margin:0 0 clamp(4px,.75vh,7px)!important}
+  .service-group-title{font-size:clamp(9px,1vw,12px)!important;font-weight:950!important;margin:0 0 3px!important}
+  .service-group-title span{font-size:clamp(6px,.65vw,8px)!important;font-weight:700!important}
+  .finance-service-grid{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:clamp(6px,.75vw,11px)!important;width:100%!important;margin:0!important;padding:0!important;overflow:visible!important}
+  .finance-3d-card{width:100%!important;min-width:0!important;min-height:clamp(76px,8.6vh,106px)!important;padding:clamp(8px,1vh,13px) clamp(6px,.6vw,11px)!important;border-radius:15px!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;gap:4px!important;text-align:center!important;font-weight:900!important;overflow:visible!important;contain:none!important;transform:translateZ(0)!important}
+  .finance-3d-card small{font-size:clamp(6px,.55vw,8px)!important;font-weight:950!important}
+  .finance-3d-card h2{font-size:clamp(11px,1.05vw,16px)!important;font-weight:950!important;line-height:1.05!important;margin:1px 0!important}
+  .finance-card-icon{width:clamp(34px,3vw,48px)!important;height:clamp(34px,3vw,48px)!important;flex:0 0 clamp(34px,3vw,48px)!important;border-radius:12px!important}
+  .finance-card-icon svg{width:clamp(20px,2vw,29px)!important;height:clamp(20px,2vw,29px)!important;stroke-width:3.5!important}
+  .finance-3d-card>b{right:7px!important;bottom:5px!important;font-size:clamp(11px,1vw,15px)!important;font-weight:950!important}
+  .finance-3d-card:hover{transform:translateY(-4px) scale(1.025)!important;box-shadow:0 22px 42px rgba(7,55,30,.22)!important}
+  .finance-page .finance-3d-card.is-open{min-height:clamp(105px,12vh,145px)!important;transform:translateY(-5px) scale(1.18)!important;z-index:60!important;box-shadow:0 30px 60px rgba(0,0,0,.3),0 0 0 2px rgba(255,255,255,.22)!important}
+  .finance-page .finance-3d-card.is-open .finance-card-icon{transform:scale(1.16)!important}
+  .finance-page .finance-3d-card.is-open h2{font-size:clamp(13px,1.25vw,19px)!important;font-weight:950!important}
+  .finance-page .finance-3d-card.is-open .service-info{display:block!important;font-size:clamp(7px,.72vw,10px)!important;line-height:1.25!important;font-weight:750!important;max-width:96%!important;margin-top:2px!important}
+}
+
+/* Preserve the mobile single-screen layout and prevent any page-level scroll. */
+@media(max-width:800px){html,body,.finance-page,.finance-shell,.finance-hero-3d{overflow:hidden!important}}
