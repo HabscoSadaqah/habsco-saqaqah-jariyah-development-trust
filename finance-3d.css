@@ -100,3 +100,11 @@
 .finance-page .finance-3d-card h2{font-weight:950!important;text-shadow:0 .4px 0 currentColor!important}
 @media(max-width:800px){.finance-page .finance-card-icon svg{stroke-width:4.25!important}.finance-page .finance-3d-card h2{font-weight:950!important}}
 @media(max-width:480px){.finance-page .finance-card-icon svg{stroke-width:4!important}.finance-page .finance-3d-card h2{font-weight:950!important}}
+
+/* Equal W × H service cards across desktop, tablet and mobile. */
+.finance-page .finance-service-grid{display:grid!important;align-items:start!important;align-content:start!important;overflow:visible!important}
+.finance-page .finance-3d-card{width:100%!important;min-width:0!important;height:auto!important;min-height:0!important;aspect-ratio:1 / 1!important;align-self:start!important;box-sizing:border-box!important}
+@media(min-width:1001px){.finance-page .finance-service-grid{grid-template-columns:repeat(6,minmax(0,1fr))!important}}
+@media(max-width:1000px) and (min-width:801px){.finance-page .finance-service-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important}}
+@media(max-width:800px){.finance-page .finance-service-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:clamp(5px,1.2vw,10px)!important}.finance-page .finance-3d-card{padding:clamp(5px,1.5vw,10px)!important;border-radius:clamp(10px,2.5vw,16px)!important}}
+.finance-page .finance-3d-card.is-open{aspect-ratio:auto!important;height:auto!important}
