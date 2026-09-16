@@ -94,3 +94,9 @@
   .finance-page .finance-service-grid{min-height:clamp(43px,8.5vh,70px)!important}
   .finance-page .finance-3d-card{min-height:clamp(43px,8.5vh,70px)!important}
 }
+
+/* Stronger service-card icon and name emphasis */
+.finance-page .finance-card-icon svg{stroke-width:4.5!important;filter:drop-shadow(0 4px 3px rgba(0,0,0,.2))!important}
+.finance-page .finance-3d-card h2{font-weight:950!important;text-shadow:0 .4px 0 currentColor!important}
+@media(max-width:800px){.finance-page .finance-card-icon svg{stroke-width:4.25!important}.finance-page .finance-3d-card h2{font-weight:950!important}}
+@media(max-width:480px){.finance-page .finance-card-icon svg{stroke-width:4!important}.finance-page .finance-3d-card h2{font-weight:950!important}}
