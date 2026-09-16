@@ -1,13 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 150" role="img" aria-labelledby="title desc">
-<title id="title">HABSCO</title><desc id="desc">Premium HABSCO wordmark</desc>
-<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#f5fff9"/><stop offset="1" stop-color="#d8f5e5"/></linearGradient></defs>
-<g fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
-<path d="M18 35v80M18 75h64M82 35v80"/>
-<path d="M105 35h36c22 0 22 32 0 32h-36M105 67h40c24 0 24 48 0 48h-40M105 35v80"/>
-<path d="M182 115V35h55c22 0 22 32 0 32h-55M182 67h58c24 0 24 48 0 48h-58"/>
-<path d="M265 115V35h58M265 75h45"/>
-<path d="M354 115V35h48c48 0 48 80 0 80h-48"/>
-<path d="M438 115V35h66M438 75h51M438 115h66"/>
-</g>
-<path d="M18 134h486" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".9"/>
+<title id="title">HABSCO</title>
+<desc id="desc">HABSCO wordmark</desc>
+<text x="18" y="108" fill="#087443" font-family="Arial, Helvetica, sans-serif" font-size="96" font-weight="900" letter-spacing="2">HABSCO</text>
+<path d="M18 134H742" stroke="#087443" stroke-width="4" stroke-linecap="round"/>
 </svg>
