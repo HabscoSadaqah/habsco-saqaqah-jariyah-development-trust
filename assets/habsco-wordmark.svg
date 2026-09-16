@@ -1,6 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 150" role="img" aria-labelledby="title desc">
-<title id="title">HABSCO</title>
-<desc id="desc">HABSCO wordmark</desc>
-<text x="18" y="108" fill="#087443" font-family="Arial, Helvetica, sans-serif" font-size="96" font-weight="900" letter-spacing="2">HABSCO</text>
-<path d="M18 134H742" stroke="#087443" stroke-width="4" stroke-linecap="round"/>
+<title id="title">HABSCO</title><desc id="desc">Premium HABSCO wordmark</desc>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b9a5b"/><stop offset=".55" stop-color="#087443"/><stop offset="1" stop-color="#064f31"/></linearGradient></defs>
+<g fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+<path d="M18 35v80M18 75h64M82 35v80"/>
+<path d="M105 115l38-80 38 80M119 85h48"/>
+<path d="M205 35h31c28 0 28 40 0 40h-31M205 75h34c30 0 30 40 0 40h-34M205 35v80"/>
+<path d="M350 45c-12-14-50-14-50 10 0 19 25 20 38 27 20 10 11 33-9 33-16 0-28-5-36-14"/>
+<path d="M445 48c-9-9-19-13-32-13-30 0-45 18-45 40s15 40 45 40c13 0 23-4 32-13"/>
+<path d="M475 75c0-24 15-40 40-40s40 16 40 40-15 40-40 40-40-16-40-40z"/>
+</g>
+<path d="M18 134H555" stroke="#087443" stroke-width="4" stroke-linecap="round" opacity=".9"/>
 </svg>
