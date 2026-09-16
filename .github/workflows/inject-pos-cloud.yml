@@ -1,0 +1,30 @@
+name: Inject POS cloud client
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  inject:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject POS cloud client
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('pos.html')
+          s=p.read_text()
+          tag='<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script><script src="pos-cloud.js?v=20260916"></script>'
+          import re
+          s=re.sub(r'<script>\(\(\)=>\{const K=.*?</script>',tag,s,flags=re.S)
+          if 'pos-cloud.js?v=20260916' not in s:
+              s=s.replace('</body>',tag+'</body>')
+          p.write_text(s)
+          PY
+          git config user.name 'HabscoSadaqah'
+          git config user.email '70951857+HabscoSadaqah@users.noreply.github.com'
+          git add pos.html
+          git diff --cached --quiet || git commit -m 'Connect POS to Supabase cloud storage'
+          git push
