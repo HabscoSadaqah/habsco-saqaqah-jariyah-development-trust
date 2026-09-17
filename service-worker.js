@@ -1,4 +1,4 @@
-const CACHE_NAME = "habsco-static-v1";
+const CACHE_NAME = "habsco-static-v2";
 const STATIC_DESTINATIONS = new Set(["style", "script", "image", "font", "manifest"]);
 
 self.addEventListener("install", (event) => {
@@ -10,6 +10,7 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+      .then(() => self.registration.navigationPreload?.enable())
       .then(() => self.clients.claim())
   );
 });
@@ -21,11 +22,11 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Never cache authenticated pages or API/data responses. HTML stays network-first
-  // so deployments become visible immediately while repeat visits remain resilient.
+  // HTML must always see the latest deployment. Use navigation preload when available
+  // and fall back to the network; only use the cached document when offline.
   if (request.destination === "document") {
     event.respondWith(
-      fetch(request, { cache: "no-store" })
+      (event.preloadResponse || fetch(request, { cache: "no-store" }))
         .then((response) => response)
         .catch(() => caches.match(request))
     );
@@ -34,9 +35,11 @@ self.addEventListener("fetch", (event) => {
 
   if (!STATIC_DESTINATIONS.has(request.destination)) return;
 
+  // Versioned/static assets are safe to cache. Serve the cached copy immediately and
+  // refresh it in the background so repeat visits stay fast without going stale forever.
   event.respondWith(
     caches.match(request).then((cached) => {
-      const network = fetch(request)
+      const network = fetch(request, { cache: "no-store" })
         .then((response) => {
           if (response.ok) {
             const copy = response.clone();
@@ -46,7 +49,6 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(() => cached);
 
-      // Cached assets render immediately; the network refreshes them in the background.
       return cached || network;
     })
   );
