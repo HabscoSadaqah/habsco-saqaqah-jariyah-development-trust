@@ -1,0 +1,10 @@
+# HABSCO clean route rewrites
+/member /member.html 200
+/auth /auth.html 200
+/admin /admin.html 200
+/home /home.html 200
+/statement /statement.html 200
+/savings /savings.html 200
+/pos /pos.html 200
+/donate /donate.html 200
+/reset-password /reset-password.html 200
