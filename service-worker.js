@@ -1,4 +1,4 @@
-const CACHE_NAME = "habsco-static-v2";
+const CACHE_NAME = "habsco-static-v3";
 const STATIC_DESTINATIONS = new Set(["style", "script", "image", "font", "manifest"]);
 
 self.addEventListener("install", (event) => {
