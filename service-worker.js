@@ -1,4 +1,7 @@
-const CACHE_NAME = "habsco-static-v16";
+// HABSCO FAST WORKER: cache-first static assets, immediate cached HTML, background refresh.
+// Old worker caches are invalidated by the version bump above.
+// Keep this worker intentionally small: no polling, no repeated network loops, no heavy runtime work.
+const CACHE_NAME = "habsco-static-v17";
 
 const STATIC_DESTINATIONS = new Set([
   "style",
