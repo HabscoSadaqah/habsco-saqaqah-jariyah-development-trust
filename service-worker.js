@@ -21,11 +21,11 @@ const PRECACHE = [
   "/biometric-gate.js?v=20260912-13",
   "/favicon.svg",
   "/index.html",
-  "/main.js?v=6",
+  "/main.js?v=7",
   "/style.css",
   "/app.css?v=home-shell-5",
   "/member.html",
-  "/member.js?v=20260919-6",
+  "/member.js?v=20260919-7",
   "/member-unified-balance.js?v=20260919-5",
   "/security-center-ui.js?v=20260915-2",
   "/savings-root-fix.js?v=20260915-2"
