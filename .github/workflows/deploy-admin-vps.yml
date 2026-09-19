@@ -1,0 +1,48 @@
+name: Deploy Admin Portal to VPS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "admin.html"
+      - "admin.js"
+      - "admin-*.js"
+      - "inventory.html"
+      - "inventory.js"
+      - "vps/**"
+      - ".github/workflows/deploy-admin-vps.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: admin-vps
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy repository to Habsco VPS
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_PORT: ${{ secrets.VPS_PORT }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/habsco_vps
+          chmod 600 ~/.ssh/habsco_vps
+          ssh-keyscan -p "${VPS_PORT:-22}" "$VPS_HOST" >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/habsco_vps -p "${VPS_PORT:-22}" "$VPS_USER@$VPS_HOST" '
+            set -e
+            cd /var/www/habsco-admin
+            git fetch origin main
+            git reset --hard origin/main
+            nginx -t
+            systemctl reload nginx
+          '
+          rm -f ~/.ssh/habsco_vps
