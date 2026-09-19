@@ -1,5 +1,5 @@
-// HABSCO FAST WORKER v27: member/admin documents are always network-fresh.
-const CACHE_NAME = "habsco-static-v27";
+// HABSCO FAST WORKER v28: member/admin documents are always network-fresh.
+const CACHE_NAME = "habsco-static-v28";
 
 const STATIC_DESTINATIONS = new Set(["style","script","image","font","manifest"]);
 
@@ -7,7 +7,7 @@ const PRECACHE = [
   "/auth.html","/home.html","/style.css","/auth.js?v=20260917-14",
   "/biometric-gate.js?v=20260912-13","/favicon.svg","/index.html",
   "/main.js?v=7","/app.css?v=home-shell-5","/member.html",
-  "/member.js?v=20260919-8","/member-unified-balance.js?v=20260919-5",
+  "/member.js?v=20260919-9","/member-unified-balance.js?v=20260919-5",
   "/security-center-ui.js?v=20260915-2","/savings-root-fix.js?v=20260915-2"
 ];
 
