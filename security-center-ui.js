@@ -19,11 +19,7 @@ function boot(){
  if(!onMember())return;
  /* member.js creates the security panel during its normal startup; avoid a polling loop. */
  if(!document.getElementById("hfSecurityCenter"))load("member-security-center.js?v=20260917-10","hfMemberSecurityCenter");
- load("savings-borrowing-ui.js?v=20260912-2","hfSavingsLoan");
- load("savings-button-fix.js?v=20260913-1","hfSavingsButtonFix");
- load("security-pin-savings-style.js?v=20260917-3","hfSecurityPinSavingsStyle");
  mount();
- if(!document.getElementById("hfSecuritySheet"))window.setTimeout(mount,1000);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
 })();
