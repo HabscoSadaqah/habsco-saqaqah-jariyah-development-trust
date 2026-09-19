@@ -1,4 +1,4 @@
-const CACHE_NAME = "habsco-static-v15";
+const CACHE_NAME = "habsco-static-v16";
 
 const STATIC_DESTINATIONS = new Set([
   "style",
