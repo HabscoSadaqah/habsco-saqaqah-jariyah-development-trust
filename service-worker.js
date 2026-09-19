@@ -1,7 +1,7 @@
-// HABSCO FAST WORKER v18: current deployment only; previous cache is retired on activation.
+// HABSCO FAST WORKER v20: lean cache; old worker/cache variants are retired on activation.
 // Previous worker cache is retired automatically during activation.
 // Keep this worker intentionally small: no polling, no repeated network loops, no heavy runtime work.
-const CACHE_NAME = "habsco-static-v19";
+const CACHE_NAME = "habsco-static-v20";
 
 const STATIC_DESTINATIONS = new Set([
   "style",
@@ -19,7 +19,6 @@ const PRECACHE = [
   "/style.css",
   "/auth.js?v=20260917-14",
   "/biometric-gate.js?v=20260912-13",
-  "/finance-3d.css?v=11",
   "/favicon.svg",
   "/index.html",
   "/main.js?v=6",
