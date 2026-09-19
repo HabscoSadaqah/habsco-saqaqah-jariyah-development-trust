@@ -1,4 +1,4 @@
-const CACHE_NAME = "habsco-static-v13";
+const CACHE_NAME = "habsco-static-v14";
 
 const STATIC_DESTINATIONS = new Set([
   "style",
@@ -54,12 +54,21 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  // Always get fresh HTML. This prevents stale pages after deployments.
+  // Return cached HTML immediately on repeat visits; refresh it in the background.
   if (request.destination === "document") {
     event.respondWith(
-      (event.preloadResponse || fetch(request, { cache: "no-store" }))
-        .then((response) => response)
-        .catch(() => caches.match(request))
+      caches.match(request).then((cached) => {
+        const update = (event.preloadResponse || fetch(request, { cache: "no-store" }))
+          .then((response) => {
+            if (response && response.ok) {
+              const copy = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+            }
+            return response;
+          })
+          .catch(() => cached);
+        return cached || update;
+      })
     );
     return;
   }
