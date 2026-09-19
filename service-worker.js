@@ -1,7 +1,7 @@
 // HABSCO FAST WORKER v18: current deployment only; previous cache is retired on activation.
 // Previous worker cache is retired automatically during activation.
 // Keep this worker intentionally small: no polling, no repeated network loops, no heavy runtime work.
-const CACHE_NAME = "habsco-static-v18";
+const CACHE_NAME = "habsco-static-v19";
 
 const STATIC_DESTINATIONS = new Set([
   "style",
@@ -26,7 +26,7 @@ const PRECACHE = [
   "/style.css",
   "/app.css?v=home-shell-5",
   "/member.html",
-  "/member.js?v=20260919-5",
+  "/member.js?v=20260919-6",
   "/member-unified-balance.js?v=20260919-5",
   "/security-center-ui.js?v=20260915-2",
   "/savings-root-fix.js?v=20260915-2"
