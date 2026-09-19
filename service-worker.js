@@ -1,7 +1,7 @@
-// HABSCO FAST WORKER v22: lean cache; old worker/cache variants are retired on activation.
+// HABSCO FAST WORKER v23: lean cache; old worker/cache variants are retired on activation.
 // Previous worker caches and legacy service-worker caches are retired automatically during activation.
 // Keep this worker intentionally small: no polling, no repeated network loops, no heavy runtime work.
-const CACHE_NAME = "habsco-static-v22";
+const CACHE_NAME = "habsco-static-v23";
 
 const STATIC_DESTINATIONS = new Set([
   "style",
@@ -25,7 +25,7 @@ const PRECACHE = [
   "/style.css",
   "/app.css?v=home-shell-5",
   "/member.html",
-  "/member.js?v=20260919-7",
+  "/member.js?v=20260919-8",
   "/member-unified-balance.js?v=20260919-5",
   "/security-center-ui.js?v=20260915-2",
   "/savings-root-fix.js?v=20260915-2"
