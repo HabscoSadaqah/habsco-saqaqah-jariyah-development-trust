@@ -1,4 +1,4 @@
-const CACHE_NAME = "habsco-static-v12";
+const CACHE_NAME = "habsco-static-v13";
 
 const STATIC_DESTINATIONS = new Set([
   "style",
@@ -66,21 +66,17 @@ self.addEventListener("fetch", (event) => {
 
   if (!STATIC_DESTINATIONS.has(request.destination)) return;
 
-  // Cache-first makes repeat visits essentially instant. A background refresh
-  // keeps assets current without delaying the page.
+  // Cache-first: cached assets return immediately. Network runs only on a cold cache.
   event.respondWith(
     caches.match(request).then((cached) => {
-      const network = fetch(request, { cache: "no-store" })
-        .then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          }
-          return response;
-        })
-        .catch(() => cached);
-
-      return cached || network;
+      if (cached) return cached;
+      return fetch(request).then((response) => {
+        if (response.ok) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+        }
+        return response;
+      });
     })
   );
 });
