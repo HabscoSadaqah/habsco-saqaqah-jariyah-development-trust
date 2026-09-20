@@ -39,7 +39,7 @@ jobs:
           grep -q "habsco-utility-direct-v1" bill-payments.html
           echo "Current Bill Payments version verified"
           test -f member-actions.html
-          grep -q "member-actions.js?v=20260920-2" member-actions.html
+          grep -q "member-actions.js?v=20260920-3" member-actions.html
           echo "Current member actions version verified"
 
       - name: Upload Pages artifact
