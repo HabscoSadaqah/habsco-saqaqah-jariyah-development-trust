@@ -10,6 +10,8 @@ on:
       - "inventory.html"
       - "inventory.js"
       - "vps/**"
+      - "bill-payments.html"
+      - "bill-payments-root-fix.js"
       - ".github/workflows/deploy-admin-vps.yml"
   workflow_dispatch:
 
@@ -42,6 +44,8 @@ jobs:
             cd /var/www/habsco-admin
             git fetch origin main
             git reset --hard origin/main
+            bash vps/setup-admin-vps.sh
+            bash vps/setup-utility-gateway.sh
             nginx -t
             systemctl reload nginx
           '
