@@ -25,6 +25,16 @@ nginx -t
 systemctl enable --now nginx
 systemctl reload nginx
 
-echo "Admin portal is now available on http://$DOMAIN"
-echo "After DNS points admin.$DOMAIN to this VPS, run:"
-echo "certbot --nginx -d $DOMAIN"
+# The utility gateway uses a separate DNS-only origin hostname so Supabase
+# server-to-server traffic does not traverse the proxied admin hostname.
+UTILITY_ORIGIN="utility-origin.habscosadaqah.org"
+if getent hosts "$UTILITY_ORIGIN" >/dev/null 2>&1; then
+  certbot --nginx --non-interactive --agree-tos --register-unsafely-without-email \
+    -d "$DOMAIN" -d "$UTILITY_ORIGIN" --keep-until-expiring || true
+  nginx -t
+  systemctl reload nginx
+fi
+
+echo "Admin portal: https://$DOMAIN"
+echo "Utility origin: https://$UTILITY_ORIGIN"
+echo "If utility-origin DNS is not configured yet, create a DNS-only A record to 45.43.27.75 and rerun this setup script."
