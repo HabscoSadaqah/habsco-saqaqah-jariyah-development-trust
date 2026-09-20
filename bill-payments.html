@@ -34,4 +34,18 @@ document.querySelectorAll("#airtimePay,#dataPay,#tvPay,#educationPay,#powerPay")
  btn.onclick=e=>{e.preventDefault();run(btn.id==="airtimePay"?"airtime":btn.id==="dataPay"?"data":btn.id==="tvPay"?"tv":btn.id==="educationPay"?"education":"power",btn)}
 });
 })();
+</script><script id="habsco-utility-diagnostic-v1">
+(()=>{"use strict";
+const b=document.createElement("div");b.id="utilityDiagnostic";b.style.cssText="position:fixed;left:12px;right:12px;bottom:12px;z-index:99999;padding:12px;border:1px solid #dfe9e3;border-radius:10px;background:#fff;font:12px system-ui;color:#17221c;box-shadow:0 4px 18px #0002;display:none";
+document.body.appendChild(b);
+function msg(t){b.textContent=t;b.style.display="block"}
+async function test(){
+ msg("Utility server: testing connection…");
+ try{
+  const r=await fetch("https://admin.habscosadaqah.org/api/utility",{method:"OPTIONS",cache:"no-store"});
+  msg("Utility server connection: HTTP "+r.status+(r.ok?" — connected":" — server returned an error"));
+ }catch(e){msg("Utility server connection failed: "+(e?.message||e))}
+}
+window.addEventListener("load",()=>setTimeout(test,500));
+})();
 </script></body></html>
