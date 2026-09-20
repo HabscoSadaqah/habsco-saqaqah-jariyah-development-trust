@@ -1,7 +1,7 @@
 const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY),$=id=>document.getElementById(id),p=new URLSearchParams(location.search),action=p.get("action")||"send",effectiveAction=action==="request-loan"?"request-qard":action==="transfer"?"send":action;
 
 const configs={
- send:["Wallet Transfer","Transfer funds securely to another active Habsco Cooperative member."],
+ send:["Inter-Wallet Transfer","Transfer funds securely to another active Habsco Cooperative member."],
  fund:["Add Money","Submit a wallet funding payment for verification."],save:["Save in Cooperative","Move money into a cooperative account."],
  qard:["Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"request-qard":["Request Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"repay-qard":["Repay Interest-Free Loan","Submit repayment details for a disbursed loan."],
  receive:["Receive Fund","Approved funding and member transfers are credited server-side."],
