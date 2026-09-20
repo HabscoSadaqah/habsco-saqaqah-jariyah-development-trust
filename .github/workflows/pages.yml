@@ -36,8 +36,10 @@ jobs:
           test -f bill-payments.html
           test -f CNAME
           echo "Pages source verified"
-          grep -q "habsco-utility-direct-v1" bill-payments.html
-          echo "Current Bill Payments version verified"
+          ! grep -q "habsco-utility-direct-v1" bill-payments.html
+          ! grep -q "admin.habscosadaqah.org/api/utility" bill-payments.html
+          grep -q "utility-vps-proxy" bill-payments.html
+          echo "Current Bill Payments proxy version verified"
           test -f member-actions.html
           grep -q "member-actions.js?v=20260920-5" member-actions.html
           echo "Current member actions version verified"
