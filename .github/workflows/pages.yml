@@ -1,4 +1,4 @@
-name: Deploy static site to GitHub Pages
+name: Deploy Habsco Website to GitHub Pages
 
 on:
   push:
@@ -11,27 +11,39 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
+  group: github-pages
   cancel-in-progress: true
 
 jobs:
   deploy:
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload site
-        uses: actions/upload-pages-artifact@v3
+      - name: Verify website files
+        run: |
+          test -f index.html
+          test -f bill-payments.html
+          test -f CNAME
+          echo "Pages source verified"
+          grep -q "habsco-utility-direct-v1" bill-payments.html
+          echo "Current Bill Payments version verified"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
         with:
           path: .
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
