@@ -4,18 +4,7 @@ const status=t=>{const e=q("#status");if(e){e.textContent=t;e.className="status 
 const ok=t=>{const e=q("#status");if(e){e.textContent=t;e.className="status show ok"}};
 const pin=id=>q(id)?.value?.trim()||"";
 const busy=(b,v)=>{if(!b)return;b.disabled=v;b.dataset.oldText=b.dataset.oldText||b.textContent;b.textContent=v?"Processing…":b.dataset.oldText};
-async function call(body){
- const client=window.supabase?.createClient?window.supabase.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN"):null;
- if(!client)throw Error("Payment service is not ready. Refresh the page.");
- const {data:{session}}=await client.auth.getSession();
- if(!session?.access_token)throw Error("Please sign in again.");
- let r;
- try{r=await fetch("https://admin.habscosadaqah.org/api/utility",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,"Content-Type":"application/json"},body:JSON.stringify(body),cache:"no-store"})}
- catch(e){throw Error("Could not connect to the utility server. Please try again.")}
- const data=await r.json().catch(()=>({}));
- if(!r.ok)throw Error(data?.error||data?.message||("Utility server returned HTTP "+r.status));
- return data;
-}
+async function call(body){if(!window.supabase||typeof supabase?.functions?.invoke!=="function")throw Error("Payment service is not ready. Refresh the page.");const {data,error}=await supabase.functions.invoke("utility-vps-proxy",{body});if(error){let detail="";try{detail=error.context?JSON.stringify(await error.context.json()):""}catch{}throw Error(detail||error.message||"Utility service request failed.")}return data||{}}
 function providerFor(kind){
  const map={airtime:"[data-provider]",data:"[data-data-provider]",tv:"[data-tv-provider]",education:"[data-education-provider]"};
  const sel=map[kind];const a=sel?document.querySelector(sel+".active"):null;
