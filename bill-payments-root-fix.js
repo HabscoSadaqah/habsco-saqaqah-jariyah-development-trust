@@ -24,11 +24,11 @@ function providerFor(kind){
 async function purchase(kind){
  const p=providerFor(kind);if(!p){status("Select a provider first.");return null}
  let body={action:kind,provider:p};
- if(kind==="airtime"){body.receiver=q("#airtimePhone")?.value.trim()||"";body.amount=Number(q("#airtimeAmount")?.value);body.transaction_pin=pin("airtimePin");if(!/^\\+?234\\d{10}$|^0\\d{10}$/.test(body.receiver))return status("Enter a valid Nigerian phone number.");if(!Number.isFinite(body.amount)||body.amount<=0)return status("Enter a valid airtime amount.")}
+ if(kind==="airtime"){body.receiver=q("#airtimePhone")?.value.trim()||"";body.amount=Number(q("#airtimeAmount")?.value);body.transaction_pin=pin("airtimePin");if(!/^\+?234\d{10}$|^0\d{10}$/.test(body.receiver))return status("Enter a valid Nigerian phone number.");if(!Number.isFinite(body.amount)||body.amount<=0)return status("Enter a valid airtime amount.")}
  if(kind==="data"){body.receiver=q("#dataPhone")?.value.trim()||"";body.code=q("#dataPackage")?.value||"";body.transaction_pin=pin("dataPin");if(!body.code)return status("Select a data package.")}
  if(kind==="tv"){body.receiver=q("#tvReceiver")?.value.trim()||"";body.package=q("#tvPackage")?.value||"";body.phone_number=q("#tvPhone")?.value.trim()||"";body.email=q("#tvEmail")?.value.trim()||"";body.transaction_pin=pin("tvPin");if(!body.package)return status("Select a TV package.")}
  if(kind==="education"){body.receiver=q("#educationReceiver")?.value.trim()||"";body.code=q("#educationPackage")?.value||"";body.phone_number=q("#educationPhone")?.value.trim()||"";body.email=q("#educationEmail")?.value.trim()||"";body.transaction_pin=pin("educationPin");if(!body.code)return status("Select an education package.")}
- if(!/^\\d{6}$/.test(body.transaction_pin))return status("Enter your 6-digit transaction PIN.");
+ if(!/^\d{6}$/.test(body.transaction_pin))return status("Enter your 6-digit transaction PIN.");
  if(!body.receiver)return status("Enter the required receiver/account number.");
  return call(body);
 }
@@ -36,7 +36,7 @@ async function power(){
  const provider=q("#powerProvider")?.value||"",meter=q("#powerMeter")?.value.trim()||"",amount=Number(q("#powerAmount")?.value),phone=q("#powerPhone")?.value.trim()||"",email=q("#powerEmail")?.value.trim()||"",transaction_pin=pin("powerPin"),meter_type=q("#powerMeterType")?.value||"PREPAID";
  if(!provider||!meter)return status("Select the distribution company and enter the meter number.");
  if(!Number.isFinite(amount)||amount<=0)return status("Enter a valid electricity amount.");
- if(!/^\\d{6}$/.test(transaction_pin))return status("Enter your 6-digit transaction PIN.");
+ if(!/^\d{6}$/.test(transaction_pin))return status("Enter your 6-digit transaction PIN.");
  return call({action:"power",provider,receiver:meter,amount,meter_type,phone_number:phone,email,transaction_pin});
 }
 async function finish(btn,fn){
