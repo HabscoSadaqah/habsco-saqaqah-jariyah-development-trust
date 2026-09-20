@@ -41,7 +41,7 @@ jobs:
           grep -q "utility-vps-proxy" bill-payments.html
           echo "Current Bill Payments proxy version verified"
           test -f member-actions.html
-          grep -q "member-actions.js?v=20260920-5" member-actions.html
+          grep -q "member-actions.js?v=20260920-7" member-actions.html
           echo "Current member actions version verified"
 
       - name: Upload Pages artifact
