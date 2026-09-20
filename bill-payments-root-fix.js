@@ -1,1 +1,57 @@
-(()=>{"use strict";const sb=window.supabase?.createClient?window.supabase.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN"):null,q=s=>document.querySelector(s),show=(t,ok=!1)=>{const e=q("#status");e&&(e.textContent=t,e.className="status show "+(ok?"ok":"err"))},call=async body=>{if(!sb)throw Error("Payment service is not ready.");const{data:{session}}=await sb.auth.getSession();if(!session?.access_token)throw Error("Please sign in again.");const r=await fetch("https://admin.habscosadaqah.org/api/utility",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,"Content-Type":"application/json"},body:JSON.stringify(body)});const data=await r.json().catch(()=>({}));if(!r.ok)throw Error(data?.error||data?.message||"Utility service request failed.");return data},pin=id=>q(id)?.value?.trim()||"",busy=(b,v)=>{b.disabled=v,b.dataset.oldText=b.dataset.oldText||b.textContent,b.textContent=v?"Processing…":b.dataset.oldText},purchase=async(kind,b)=>{const p=(s="airtime"===kind?"[data-provider]":"data"===kind?"[data-data-provider]":"tv"===kind?"[data-tv-provider]":"[data-education-provider]",document.querySelector(s+".active")?.dataset?.provider||document.querySelector(s+".active")?.dataset?.dataProvider||document.querySelector(s+".active")?.dataset?.tvProvider||document.querySelector(s+".active")?.dataset?.educationProvider||"");var s;if(!p)return show("Select a provider first.");let body={action:kind,provider:p};if("airtime"===kind){if(body.receiver=q("#airtimePhone").value.trim(),body.amount=Number(q("#airtimeAmount").value),body.transaction_pin=pin("#airtimePin"),!/^\+?234\d{10}$|^0\d{10}$/.test(body.receiver))return show("Enter a valid Nigerian phone number.");if(!Number.isFinite(body.amount)||body.amount<=0)return show("Enter a valid airtime amount.")}if("data"===kind){if(body.receiver=q("#dataPhone").value.trim(),body.code=q("#dataPackage").value,!body.code)return show("Select a data package.");body.transaction_pin=pin("#dataPin")}return"tv"!==kind||(body.receiver=q("#tvReceiver").value.trim(),body.package=q("#tvPackage").value,body.phone_number=q("#tvPhone").value.trim(),body.email=q("#tvEmail").value.trim(),body.transaction_pin=pin("#tvPin"),body.package)?"education"!==kind||(body.receiver=q("#educationReceiver").value.trim(),body.code=q("#educationPackage").value,body.phone_number=q("#educationPhone").value.trim(),body.email=q("#educationEmail").value.trim(),body.transaction_pin=pin("#educationPin"),body.code)?/^\d{6}$/.test(body.transaction_pin)?body.receiver?call(body):show("Enter the required receiver/account number."):show("Enter your 6-digit transaction PIN."):show("Select an education package."):show("Select a TV package.")},power=async b=>{const provider=q("#powerProvider").value,meter=q("#powerMeter").value.trim(),amount=Number(q("#powerAmount").value),phone=q("#powerPhone").value.trim(),email=q("#powerEmail").value.trim(),transaction_pin=pin("#powerPin"),meter_type=q("#powerMeterType").value;return provider&&meter?!Number.isFinite(amount)||amount<=0?show("Enter a valid electricity amount."):/^\d{6}$/.test(transaction_pin)?call({action:"power",provider:provider,receiver:meter,amount:amount,meter_type:meter_type,phone_number:phone,email:email,transaction_pin:transaction_pin}):show("Enter your 6-digit transaction PIN."):show("Select the distribution company and enter the meter number.")},finish=async(btn,fn)=>{busy(btn,!0);try{const d=await fn();if(d?.pending){show("Purchase accepted and is being processed. We will reconcile the transaction automatically.",!0);let n=0;const ref=d.reference,poll=async()=>{!ref||n++>=5||setTimeout(async()=>{try{const r=await call({action:"requery",transaction_reference:ref});if(r?.pending)return poll();show(r?.success?"Purchase completed successfully.":"Purchase could not be completed. "+(r?.status||""),!!r?.success)}catch(_){poll()}},2500)};poll()}else d?.success?show("Purchase completed successfully.",!0):show(d?.error||"Purchase failed.")}catch(e){show(e?.message||"Purchase failed.")}finally{busy(btn,!1)}},bind=()=>{const a=q("#airtimePay"),d=q("#dataPay"),t=q("#tvPay"),ed=q("#educationPay"),pw=q("#powerPay");a&&!a.dataset.rootBound&&(a.dataset.rootBound="1",a.onclick=()=>finish(a,()=>purchase("airtime"))),d&&!d.dataset.rootBound&&(d.dataset.rootBound="1",d.onclick=()=>finish(d,()=>purchase("data"))),t&&!t.dataset.rootBound&&(t.dataset.rootBound="1",t.onclick=()=>finish(t,()=>purchase("tv"))),ed&&!ed.dataset.rootBound&&(ed.dataset.rootBound="1",ed.onclick=()=>finish(ed,()=>purchase("education"))),pw&&!pw.dataset.rootBound&&(pw.dataset.rootBound="1",pw.onclick=()=>finish(pw,power))};"loading"===document.readyState?document.addEventListener("DOMContentLoaded",bind,{once:!0}):bind(),new MutationObserver(bind).observe(document.body,{childList:!0,subtree:!0})})();
+(()=>{"use strict";
+const q=s=>document.querySelector(s);
+const status=t=>{const e=q("#status");if(e){e.textContent=t;e.className="status show err"}};
+const ok=t=>{const e=q("#status");if(e){e.textContent=t;e.className="status show ok"}};
+const pin=id=>q(id)?.value?.trim()||"";
+const busy=(b,v)=>{if(!b)return;b.disabled=v;b.dataset.oldText=b.dataset.oldText||b.textContent;b.textContent=v?"Processing…":b.dataset.oldText};
+async function call(body){
+ const client=window.supabase?.createClient?window.supabase.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN"):null;
+ if(!client)throw Error("Payment service is not ready. Refresh the page.");
+ const {data:{session}}=await client.auth.getSession();
+ if(!session?.access_token)throw Error("Please sign in again.");
+ let r;
+ try{r=await fetch("https://admin.habscosadaqah.org/api/utility",{method:"POST",headers:{Authorization:"Bearer "+session.access_token,"Content-Type":"application/json"},body:JSON.stringify(body),cache:"no-store"})}
+ catch(e){throw Error("Could not connect to the utility server. Please try again.")}
+ const data=await r.json().catch(()=>({}));
+ if(!r.ok)throw Error(data?.error||data?.message||("Utility server returned HTTP "+r.status));
+ return data;
+}
+function providerFor(kind){
+ const map={airtime:"[data-provider]",data:"[data-data-provider]",tv:"[data-tv-provider]",education:"[data-education-provider]"};
+ const sel=map[kind];const a=sel?document.querySelector(sel+".active"):null;
+ return a?.dataset?.provider||a?.dataset?.dataProvider||a?.dataset?.tvProvider||a?.dataset?.educationProvider||"";
+}
+async function purchase(kind){
+ const p=providerFor(kind);if(!p){status("Select a provider first.");return null}
+ let body={action:kind,provider:p};
+ if(kind==="airtime"){body.receiver=q("#airtimePhone")?.value.trim()||"";body.amount=Number(q("#airtimeAmount")?.value);body.transaction_pin=pin("airtimePin");if(!/^\\+?234\\d{10}$|^0\\d{10}$/.test(body.receiver))return status("Enter a valid Nigerian phone number.");if(!Number.isFinite(body.amount)||body.amount<=0)return status("Enter a valid airtime amount.")}
+ if(kind==="data"){body.receiver=q("#dataPhone")?.value.trim()||"";body.code=q("#dataPackage")?.value||"";body.transaction_pin=pin("dataPin");if(!body.code)return status("Select a data package.")}
+ if(kind==="tv"){body.receiver=q("#tvReceiver")?.value.trim()||"";body.package=q("#tvPackage")?.value||"";body.phone_number=q("#tvPhone")?.value.trim()||"";body.email=q("#tvEmail")?.value.trim()||"";body.transaction_pin=pin("tvPin");if(!body.package)return status("Select a TV package.")}
+ if(kind==="education"){body.receiver=q("#educationReceiver")?.value.trim()||"";body.code=q("#educationPackage")?.value||"";body.phone_number=q("#educationPhone")?.value.trim()||"";body.email=q("#educationEmail")?.value.trim()||"";body.transaction_pin=pin("educationPin");if(!body.code)return status("Select an education package.")}
+ if(!/^\\d{6}$/.test(body.transaction_pin))return status("Enter your 6-digit transaction PIN.");
+ if(!body.receiver)return status("Enter the required receiver/account number.");
+ return call(body);
+}
+async function power(){
+ const provider=q("#powerProvider")?.value||"",meter=q("#powerMeter")?.value.trim()||"",amount=Number(q("#powerAmount")?.value),phone=q("#powerPhone")?.value.trim()||"",email=q("#powerEmail")?.value.trim()||"",transaction_pin=pin("powerPin"),meter_type=q("#powerMeterType")?.value||"PREPAID";
+ if(!provider||!meter)return status("Select the distribution company and enter the meter number.");
+ if(!Number.isFinite(amount)||amount<=0)return status("Enter a valid electricity amount.");
+ if(!/^\\d{6}$/.test(transaction_pin))return status("Enter your 6-digit transaction PIN.");
+ return call({action:"power",provider,receiver:meter,amount,meter_type,phone_number:phone,email,transaction_pin});
+}
+async function finish(btn,fn){
+ busy(btn,true);
+ try{const d=await fn();if(!d)return;
+  if(d.pending){ok("Purchase accepted and is being processed. We will reconcile the transaction automatically.");return}
+  if(d.success)ok("Purchase completed successfully.");
+  else status(d.error||d.message||"Purchase failed.");
+ }catch(e){status(e?.message||"Utility purchase failed.");}
+ finally{busy(btn,false)}
+}
+function bind(){
+ const defs=[["airtimePay",()=>purchase("airtime")],["dataPay",()=>purchase("data")],["tvPay",()=>purchase("tv")],["educationPay",()=>purchase("education")],["powerPay",power]];
+ for(const [id,fn] of defs){const b=q("#"+id);if(!b||b.dataset.vpsBound==="1")continue;b.dataset.vpsBound="1";b.addEventListener("click",e=>{e.preventDefault();e.stopImmediatePropagation();finish(b,fn)},true)}
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind,{once:true});else bind();
+new MutationObserver(bind).observe(document.body,{childList:true,subtree:true});
+})();
