@@ -1,5 +1,5 @@
 (()=>{"use strict";
-const onMember=()=>/member\.html$/i.test(location.pathname.split("/").pop()||"");
+const onMember=()=>/^(member\.html|member)$/i.test(location.pathname.split("/").pop()||"");
 const load=(src,mark)=>{if(!onMember()||document.querySelector(`script[data-${mark}]`))return;const s=document.createElement("script");s.src=src;s.dataset[mark]="1";s.defer=true;(document.body||document.head).appendChild(s)};
 function mount(){
  if(!onMember()||document.getElementById("hfSecuritySheet"))return;
