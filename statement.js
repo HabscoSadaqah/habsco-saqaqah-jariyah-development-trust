@@ -9,5 +9,28 @@ async function shareReceipt(t){const blob=makePdf(t),name="Habsco-Receipt-"+Stri
 function inRange(d,from,to){const x=new Date(d);return(!from||x>=new Date(from+"T00:00:00"))&&(!to||x<=new Date(to+"T23:59:59.999"))}
 function render(){const from=$("fromDate").value,to=$("toDate").value,rows=rowsAll.filter(t=>inRange(t.created_at,from,to)).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)),start=pageIndex*pageSize,visible=rows.slice(start,start+pageSize),body=$("statementRows"),more=$("loadMore");if(!rows.length){body.innerHTML='<tr><td colspan="7" class="empty">No Available to Spend transactions yet.</td></tr>';if(more)more.hidden=true;return}if(start>=rows.length){pageIndex=Math.max(0,Math.ceil(rows.length/pageSize)-1);return render()}if(more){more.hidden=rows.length<=pageSize;more.textContent=(start+pageSize<rows.length)?"NEXT 20 →":"";more.disabled=start+pageSize>=rows.length}body.innerHTML=visible.map((t,i)=>{const s=signedAmount(t),cls=s>=0?"credit":"debit";return '<tr><td>'+new Date(t.created_at).toLocaleString("en-NG")+'</td><td>'+esc(t.reference||"—")+'</td><td>'+esc(description(t))+'</td><td class="'+cls+'">'+(s>=0?"+":"−")+" "+money(Math.abs(s))+'</td><td>'+money(t.balance_after)+'</td><td>'+esc(t.status||"posted")+'</td><td><button class="receipt-btn" type="button" data-i="'+i+'">SHARE RECEIPT</button></td></tr>'}).join("");body.querySelectorAll(".receipt-btn").forEach((b,i)=>b.onclick=()=>shareReceipt(visible[i]))}
 async function getStatementRows(userId){
-  rowsAll=await getStatementRows(user.id)$("memberInfo").textContent="Your transaction history is shown here independently from the dashboard recent activity.";render()}catch(e){console.warn("Statement load failed:",e);if(body)body.innerHTML='<tr><td colspan="7" class="empty">Unable to load statement. Please try again.</td></tr>'}finally{loading=false}}
+  const direct=await db.from("transactions").select("*").eq("user_id",userId).order("created_at",{ascending:false}).limit(100);
+  if(!direct.error&&Array.isArray(direct.data))return direct.data;
+  const rpc=await db.rpc("member_available_statement_data",{p_limit:100});
+  if(rpc.error)throw rpc.error;
+  return Array.isArray(rpc.data?.transactions)?rpc.data.transactions:(Array.isArray(rpc.data)?rpc.data:[]);
+}
+async function load(){
+  if(loading)return;
+  loading=true;
+  const body=$("statementRows");
+  if(body)body.innerHTML='<tr><td colspan="7" class="empty">Loading statement…</td></tr>';
+  try{
+    const {data:{user},error:authError}=await db.auth.getUser();
+    if(authError)throw authError;
+    if(!user){location.href="auth.html";return}
+    rowsAll=await getStatementRows(user.id);
+    $("memberInfo").textContent="Your transaction history is shown here independently from the dashboard recent activity.";
+    pageIndex=0;
+    render();
+  }catch(e){
+    console.warn("Statement load failed:",e);
+    if(body)body.innerHTML='<tr><td colspan="7" class="empty">Unable to load statement. Please try again.</td></tr>';
+  }finally{loading=false}
+}
 $("apply").onclick=()=>{pageIndex=0;render()};$("loadMore").onclick=()=>{pageIndex++;render()};if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",load,{once:true});else load();setInterval(()=>{"visible"===document.visibilityState&&load()},6e4);document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&load()});
