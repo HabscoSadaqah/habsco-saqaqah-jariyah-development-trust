@@ -13,9 +13,33 @@
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const URL="https://ythnoeyxovapydbmymdo.supabase.co",KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",db=window.supabase.createClient(URL,KEY),$=id=>document.getElementById(id),money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0)),esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let loading=false;
-async function load(){if(loading)return;loading=true;try{const{data:{session},error}=await db.auth.getSession();if(error||!session)return location.href="auth.html";const{data:isAdmin,error:ae}=await db.rpc("is_admin");if(ae||!isAdmin)return location.href="member.html";const{data,error}=await db.rpc("admin_service_balance_history",{p_limit:100});if(error)throw error;const rows=Array.isArray(data?.history)?data.history:[];const total=rows.reduce((sum,r)=>sum+Number(r.amount||0),0);$("serviceBalance").textContent=money(data?.service_balance);$("mainBalance").textContent=money(data?.main_balance);$("feeCount").textContent=rows.length;$("feeTotal").textContent="Total recorded fees: "+money(total);const sweep=$("sweepBtn");sweep.disabled=Number(data?.service_balance||0)<=0;sweep.style.opacity=sweep.disabled?".55":"1";$("history").innerHTML=rows.map(r=>'<tr><td>'+esc(new Date(r.created_at).toLocaleString("en-NG",{dateStyle:"medium",timeStyle:"short"}))+'</td><td><strong>'+esc(r.reference)+'</strong></td><td>'+money(r.amount)+'</td><td>'+esc(r.description)+'</td><td>'+esc(r.status)+'</td><td><details><summary>View</summary><small>'+esc(JSON.stringify(r.metadata||{}))+'</small></details></td></tr>').join("")||'<tr><td colspan="6" class="empty">No service-fee history yet.</td></tr>'}finally{loading=false}}
-$("refreshBtn").addEventListener("click",async()=>{const b=$("refreshBtn");b.disabled=true;b.textContent="REFRESHING…";try{await load()}catch(e){$("msg").textContent=e?.message||"Unable to refresh.";$("msg").className="msg show"}finally{b.disabled=false;b.textContent="REFRESH"}});$("sweepBtn").addEventListener("click",async()=>{if(!confirm("Sweep the full available Admin Service Balance into the Main Account?"))return;const b=$("sweepBtn");b.disabled=true;b.textContent="SWEEPING…";$("msg").className="msg";try{const{data,error}=await db.rpc("admin_sweep_service_balance");if(error)throw error;$("msg").textContent="Sweep completed. "+money(data?.amount||0)+" moved to the Main Account. Reference: "+(data?.reference||"");$("msg").className="msg show";await load()}catch(e){$("msg").textContent=e?.message||"Sweep failed.";$("msg").className="msg show"}finally{b.disabled=false;b.textContent="SWEEP TO MAIN ACCOUNT"}});
-load().catch(e=>{$("msg").textContent=e?.message||"Unable to load service balance."; $("msg").className="msg show"});
+const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co";
+const SUPABASE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN";
+const $=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0));
+const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let db=null,loading=false;
+function showError(e){const m=$("msg");if(m){m.textContent=(e&&e.message)||"Unable to load service balance.";m.className="msg show";}}
+async function load(){
+ if(loading||!db)return; loading=true;
+ try{
+  const {data:{session},error:se}=await db.auth.getSession(); if(se)throw se;
+  if(!session){location.href="auth.html";return;}
+  const {data:isAdmin,error:ae}=await db.rpc("is_admin"); if(ae)throw ae;
+  if(isAdmin!==true){location.href="member.html";return;}
+  const {data,error}=await db.rpc("admin_service_balance_history",{p_limit:100}); if(error)throw error;
+  const rows=Array.isArray(data?.history)?data.history:[];
+  $("serviceBalance").textContent=money(data?.service_balance);
+  $("mainBalance").textContent=money(data?.main_balance);
+  $("feeCount").textContent=rows.length;
+  $("feeTotal").textContent="Total recorded fees: "+money(rows.reduce((s,r)=>s+Number(r.amount||0),0));
+  const sweep=$("sweepBtn"),available=Number(data?.service_balance||0);
+  sweep.disabled=available<=0;sweep.style.opacity=sweep.disabled?".55":"1";
+  $("history").innerHTML=rows.length?rows.map(r=>"<tr><td>"+esc(new Date(r.created_at).toLocaleString("en-NG",{dateStyle:"medium",timeStyle:"short"}))+"</td><td><strong>"+esc(r.reference)+"</strong></td><td>"+money(r.amount)+"</td><td>"+esc(r.description)+"</td><td>"+esc(r.status)+"</td><td><details><summary>View</summary><small>"+esc(JSON.stringify(r.metadata||{}))+"</small></details></td></tr>").join(""):"<tr><td colspan=\"6\" class=\"empty\">No service-fee history yet.</td></tr>";
+ }finally{loading=false;}
+}
+async function refreshPage(){const b=$("refreshBtn");b.disabled=true;b.textContent="REFRESHING…";$("msg").className="msg";try{await load();}catch(e){showError(e);}finally{b.disabled=false;b.textContent="REFRESH";}}
+async function sweep(){if(!db||!confirm("Sweep the full available Admin Service Balance into the Main Account?"))return;const b=$("sweepBtn");b.disabled=true;b.textContent="SWEEPING…";$("msg").className="msg";try{const{data,error}=await db.rpc("admin_sweep_service_balance");if(error)throw error;$("msg").textContent="Sweep completed. "+money(data?.amount)+" moved to the Main Account. Reference: "+(data?.reference||"");$("msg").className="msg show";await load();}catch(e){showError(e);}finally{b.disabled=false;b.textContent="SWEEP TO MAIN ACCOUNT";}}
+function start(){try{if(!window.supabase?.createClient)throw new Error("Database client failed to load. Please refresh.");db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});$("refreshBtn").addEventListener("click",refreshPage);$("sweepBtn").addEventListener("click",sweep);load().catch(showError);}catch(e){showError(e);}}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
 </script><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body></html>
