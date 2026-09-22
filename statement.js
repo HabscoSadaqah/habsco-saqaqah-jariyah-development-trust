@@ -28,11 +28,12 @@ function storedAccessToken(){
   return null;
 }
 async function getStatementRowsRest(userId,token){
+  const rpc=await restJson("/rest/v1/rpc/member_available_statement_data",token,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({p_limit:1000})});
+  const list=Array.isArray(rpc?.transactions)?rpc.transactions:(Array.isArray(rpc)?rpc:[]);
+  if(list.length||rpc?.balance!==undefined)return list;
   const uid=encodeURIComponent(userId);
   const tx=await restJson("/rest/v1/transactions?select=id,reference,type,amount,status,description,metadata,created_at,direction&user_id=eq."+uid+"&order=created_at.desc&limit=1000",token);
-  const wallet=await restJson("/rest/v1/wallets?select=balance&user_id=eq."+uid+"&limit=1",token).catch(()=>[]);
-  let running=Number(wallet?.[0]?.balance||0);
-  return (Array.isArray(tx)?tx:[]).map(t=>{const balance=running;running-=signedAmount(t);return {...t,balance_after:balance}});
+  return Array.isArray(tx)?tx:[];
 }
 async function getStatementRows(userId){
   const token=storedAccessToken();
