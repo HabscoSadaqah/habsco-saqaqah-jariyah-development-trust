@@ -12,9 +12,9 @@ function render(){
   const from=$("fromDate").value,to=$("toDate").value;
   const rows=rowsAll.filter(t=>inRange(t.created_at,from,to)).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
   const visible=expanded?rows:rows.slice(0,pageSize),body=$("statementRows"),more=$("loadMore");
-  if(!rows.length){body.innerHTML='<div class="history-empty">No Available to Spend transactions yet.</div>';if(more)more.hidden=true;return}
+  if(!rows.length){body.innerHTML='<div class="history-empty">No transactions yet.</div>';if(more)more.hidden=true;return}
   if(more){more.hidden=rows.length<=pageSize;more.textContent=expanded?"Show Recent 5":"View More";more.disabled=false}
-  body.innerHTML=visible.map((t,i)=>{const s=signedAmount(t),credit=s>=0,date=new Date(t.created_at),status=String(t.status||"posted").replace(/_/g," ");return '<article class="history-item '+(credit?"history-credit":"history-debit")+'"><div class="history-icon" aria-hidden="true">'+(credit?"↓":"↑")+'</div><div class="history-main"><div class="history-title">'+esc(description(t))+'</div><div class="history-ref">'+esc(t.reference||"No reference")+'</div></div><div class="history-amount">'+(credit?"+":"−")+" "+money(Math.abs(s))+'</div><div class="history-meta"><span>'+date.toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:!0})+'</span><span class="history-balance">Balance '+money(t.balance_after)+'</span></div><div class="history-meta"><span class="history-status">'+esc(status)+'</span><span>Available to Spend</span></div><div class="history-actions"><button class="history-receipt" type="button" data-i="'+i+'">Share Receipt</button></div></article>'}).join("");
+  body.innerHTML=visible.map((t,i)=>{const s=signedAmount(t),credit=s>=0,date=new Date(t.created_at),status=String(t.status||"posted").replace(/_/g," ");return '<article class="history-item '+(credit?"history-credit":"history-debit")+'"><div class="history-icon">'+(credit?"↓":"↑")+'</div><div class="history-main"><div class="history-title">'+esc(description(t))+'</div><div class="history-ref">'+esc(t.reference||"—")+'</div></div><div class="history-amount">'+(credit?"+":"−")+" "+money(Math.abs(s))+'</div><div class="history-meta"><span>'+date.toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:!0})+'</span><span class="history-balance">Balance '+money(t.balance_after)+'</span></div><div class="history-meta"><span class="history-status">'+esc(status)+'</span><span>Available to Spend</span></div><div class="history-actions"><button class="history-receipt" type="button" data-i="'+i+'">Share Receipt</button></div></article>'}).join("");
   body.querySelectorAll(".history-receipt").forEach((b,i)=>b.onclick=()=>shareReceipt(visible[i]));
 }
 const withTimeout=(promise,ms,label)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+" timed out")),ms))]);
@@ -74,7 +74,7 @@ async function load(){
   loading=true;
   const body=$("statementRows");
   try{
-    if(body)body.innerHTML='<div class="history-empty">Loading statement…</div>';
+    if(body)body.innerHTML='<div class="history-empty">Loading transaction history…</div>';
     const session=await getAuthSession();
     const user=session?.user;
     if(!user){location.href="auth.html";return}
