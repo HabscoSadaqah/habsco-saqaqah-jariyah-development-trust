@@ -34,7 +34,7 @@ const moveSecurityPopupIntoDropdown=(d,id)=>{
  d.appendChild(sheet);popup.remove();return true;
 };
 makeSecurityDropdown("hfPinCard",async d=>{
- openPinManager();
+ await openPinManager();
  setTimeout(()=>moveSecurityPopupIntoDropdown(d,"hfPinModal"),30);
 });
 const originalPasswordAction=$("hfPasswordCard")?.onclick;
