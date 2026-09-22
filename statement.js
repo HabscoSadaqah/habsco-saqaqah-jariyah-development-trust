@@ -16,16 +16,14 @@ async function restJson(path,token,options={}){
   if(!r.ok)throw new Error((data&&data.message)||data?.error_description||("Supabase request failed ("+r.status+")"));
   return data;
 }
-function storedAccessToken(){
-  try{
-    const direct=localStorage.getItem("sb-"+SUPABASE_URL.split("//")[1].split(".")[0]+"-auth-token");
-    if(direct){const x=JSON.parse(direct);if(x?.access_token)return x.access_token}
-    for(let i=0;i<localStorage.length;i++){
-      const k=localStorage.key(i)||"";if(!k.includes("auth-token"))continue;
-      const x=JSON.parse(localStorage.getItem(k)||"null");if(x?.access_token)return x.access_token;
-    }
-  }catch(e){}
-  return null;
+async function getAuthSession(){
+  await ensureDb();
+  const {data,error}=await withTimeout(db.auth.getSession(),8000,"Authentication");
+  if(error)throw error;
+  if(data?.session)return data.session;
+  const {data:userData,error:userError}=await withTimeout(db.auth.getUser(),8000,"Authentication");
+  if(userError)throw userError;
+  return userData?.user?{user:userData.user}:null;
 }
 async function getStatementRowsRest(userId,token){
   const rpc=await restJson("/rest/v1/rpc/member_available_statement_data",token,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({p_limit:1000})});
@@ -36,18 +34,16 @@ async function getStatementRowsRest(userId,token){
   return Array.isArray(tx)?tx:[];
 }
 async function getStatementRows(userId){
-  const token=storedAccessToken();
-  if(token){try{return await withTimeout(getStatementRowsRest(userId,token),10000,"Transaction history")}catch(e){console.warn("REST statement unavailable:",e)}}
-  await ensureDb();
-  let rpc=null;
-  try{rpc=await withTimeout(db.rpc("member_available_statement_data",{p_limit:1000}),10000,"Statement service");}catch(e){console.warn("Statement RPC unavailable:",e)}
-  if(rpc&&!rpc.error){
-    const list=Array.isArray(rpc.data?.transactions)?rpc.data.transactions:(Array.isArray(rpc.data)?rpc.data:[]);
-    if(list.length||rpc.data?.balance!==undefined)return list;
+  const session=await getAuthSession();
+  const token=session?.access_token;
+  if(token){
+    try{return await withTimeout(getStatementRowsRest(userId,token),10000,"Transaction history")}
+    catch(e){console.warn("REST statement unavailable:",e)}
   }
-  const direct=await withTimeout(db.from("transactions").select("id,reference,type,amount,status,description,metadata,created_at,direction").eq("user_id",userId).order("created_at",{ascending:false}).limit(1000),10000,"Transaction history");
-  if(direct.error)throw direct.error;
-  return Array.isArray(direct.data)?direct.data:[];
+  const rpc=await withTimeout(db.rpc("member_available_statement_data",{p_limit:1000}),10000,"Statement service");
+  if(rpc.error)throw rpc.error;
+  const list=Array.isArray(rpc.data?.transactions)?rpc.data.transactions:(Array.isArray(rpc.data)?rpc.data:[]);
+  return list;
 }
 async function ensureDb(){
   if(db)return db;
@@ -64,21 +60,11 @@ async function load(){
   const body=$("statementRows");
   try{
     if(body)body.innerHTML='<tr><td colspan="7" class="empty">Loading statement…</td></tr>';
-    let user=null;
-    const token=storedAccessToken();
-    if(token){
-      const payload=JSON.parse(atob(token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/").padEnd(Math.ceil(token.split(".")[1].length/4)*4,"=")));
-      if(payload?.sub)user={id:payload.sub};
-    }
-    if(!user){
-      await ensureDb();
-      const sessionResult=await withTimeout(db.auth.getSession(),8000,"Authentication");
-      user=sessionResult?.data?.session?.user||null;
-      if(!user){const userResult=await withTimeout(db.auth.getUser(),8000,"Authentication");if(userResult.error)throw userResult.error;user=userResult.data.user}
-    }
+    const session=await getAuthSession();
+    const user=session?.user;
     if(!user){location.href="auth.html";return}
     rowsAll=await getStatementRows(user.id);
-    $("memberInfo").textContent="Your transaction history is shown here independently from the dashboard recent activity.";
+    $("memberInfo").textContent="Only money entering or leaving your Available to Spend balance is shown here.";
     pageIndex=0;
     render();
   }catch(e){
