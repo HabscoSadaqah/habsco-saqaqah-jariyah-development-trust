@@ -8,13 +8,15 @@ function makePdf(t){const lines=["HABSCO AVAILABLE TO SPEND RECEIPT","Habsco Sad
 async function shareReceipt(t){const blob=makePdf(t),name="Habsco-Receipt-"+String(t.reference||"transaction").replace(/[^a-z0-9_-]/gi,"-")+".pdf",file=new File([blob],name,{type:"application/pdf"});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({title:"Habsco Transaction Receipt",files:[file]});return}catch(e){if(e?.name==="AbortError")return}}const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function inRange(d,from,to){const x=new Date(d);return(!from||x>=new Date(from+"T00:00:00"))&&(!to||x<=new Date(to+"T23:59:59.999"))}
 function render(){const from=$("fromDate").value,to=$("toDate").value,rows=rowsAll.filter(t=>inRange(t.created_at,from,to)).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)),start=pageIndex*pageSize,visible=rows.slice(start,start+pageSize),body=$("statementRows"),more=$("loadMore");if(!rows.length){body.innerHTML='<tr><td colspan="7" class="empty">No Available to Spend transactions yet.</td></tr>';if(more)more.hidden=true;return}if(start>=rows.length){pageIndex=Math.max(0,Math.ceil(rows.length/pageSize)-1);return render()}if(more){more.hidden=rows.length<=pageSize;more.textContent=(start+pageSize<rows.length)?"NEXT 20 →":"";more.disabled=start+pageSize>=rows.length}body.innerHTML=visible.map((t,i)=>{const s=signedAmount(t),cls=s>=0?"credit":"debit";return '<tr><td>'+new Date(t.created_at).toLocaleString("en-NG")+'</td><td>'+esc(t.reference||"—")+'</td><td>'+esc(description(t))+'</td><td class="'+cls+'">'+(s>=0?"+":"−")+" "+money(Math.abs(s))+'</td><td>'+money(t.balance_after)+'</td><td>'+esc(t.status||"posted")+'</td><td><button class="receipt-btn" type="button" data-i="'+i+'">SHARE RECEIPT</button></td></tr>'}).join("");body.querySelectorAll(".receipt-btn").forEach((b,i)=>b.onclick=()=>shareReceipt(visible[i]))}
+const withTimeout=(promise,ms,label)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+" timed out")),ms))]);
 async function getStatementRows(userId){
-  const rpc=await db.rpc("member_available_statement_data",{p_limit:1000});
+  let rpc;
+  try{rpc=await withTimeout(db.rpc("member_available_statement_data",{p_limit:1000}),10000,"Statement service");}catch(e){rpc={error:e}}
   if(!rpc.error){
     const list=Array.isArray(rpc.data?.transactions)?rpc.data.transactions:(Array.isArray(rpc.data)?rpc.data:[]);
     if(list.length||rpc.data?.balance!==undefined)return list;
   }
-  const direct=await db.from("transactions").select("id,reference,type,amount,status,description,metadata,created_at,direction").eq("user_id",userId).order("created_at",{ascending:false}).limit(1000);
+  const direct=await withTimeout(db.from("transactions").select("id,reference,type,amount,status,description,metadata,created_at,direction").eq("user_id",userId).order("created_at",{ascending:false}).limit(1000),10000,"Transaction history");
   if(direct.error)throw direct.error;
   return Array.isArray(direct.data)?direct.data:[];
 }
@@ -34,10 +36,10 @@ async function load(){
   if(body)body.innerHTML='<tr><td colspan="7" class="empty">Loading statement…</td></tr>';
   try{
     let user=null;
-    const sessionResult=await db.auth.getSession();
+    const sessionResult=await withTimeout(db.auth.getSession(),8000,"Authentication");
     user=sessionResult?.data?.session?.user||null;
     if(!user){
-      const userResult=await db.auth.getUser();
+      const userResult=await withTimeout(db.auth.getUser(),8000,"Authentication");
       if(userResult.error)throw userResult.error;
       user=userResult.data.user;
     }
