@@ -12,10 +12,10 @@ function render(){
   const from=$("fromDate").value,to=$("toDate").value;
   const rows=rowsAll.filter(t=>inRange(t.created_at,from,to)).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
   const visible=expanded?rows:rows.slice(0,pageSize),body=$("statementRows"),more=$("loadMore");
-  if(!rows.length){body.innerHTML='<tr><td colspan="7" class="empty">No Available to Spend transactions yet.</td></tr>';if(more)more.hidden=true;return}
+  if(!rows.length){body.innerHTML='<div class="history-empty">No Available to Spend transactions yet.</div>';if(more)more.hidden=true;return}
   if(more){more.hidden=rows.length<=pageSize;more.textContent=expanded?"Show Recent 5":"View More";more.disabled=false}
-  body.innerHTML=visible.map((t,i)=>{const s=signedAmount(t),cls=s>=0?"credit":"debit";return '<tr><td>'+new Date(t.created_at).toLocaleString("en-NG")+'</td><td>'+esc(t.reference||"—")+'</td><td>'+esc(description(t))+'</td><td class="'+cls+'">'+(s>=0?"+":"−")+" "+money(Math.abs(s))+'</td><td>'+money(t.balance_after)+'</td><td>'+esc(t.status||"posted")+'</td><td><button class="receipt-btn" type="button" data-i="'+i+'">SHARE RECEIPT</button></td></tr>'}).join("");
-  body.querySelectorAll(".receipt-btn").forEach((b,i)=>b.onclick=()=>shareReceipt(visible[i]))
+  body.innerHTML=visible.map((t,i)=>{const s=signedAmount(t),credit=s>=0,date=new Date(t.created_at),status=String(t.status||"posted").replace(/_/g," ");return '<article class="history-item '+(credit?"history-credit":"history-debit")+'"><div class="history-icon" aria-hidden="true">'+(credit?"↓":"↑")+'</div><div class="history-main"><div class="history-title">'+esc(description(t))+'</div><div class="history-ref">'+esc(t.reference||"No reference")+'</div></div><div class="history-amount">'+(credit?"+":"−")+" "+money(Math.abs(s))+'</div><div class="history-meta"><span>'+date.toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:!0})+'</span><span class="history-balance">Balance '+money(t.balance_after)+'</span></div><div class="history-meta"><span class="history-status">'+esc(status)+'</span><span>Available to Spend</span></div><div class="history-actions"><button class="history-receipt" type="button" data-i="'+i+'">Share Receipt</button></div></article>'}).join("");
+  body.querySelectorAll(".history-receipt").forEach((b,i)=>b.onclick=()=>shareReceipt(visible[i]));
 }
 const withTimeout=(promise,ms,label)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+" timed out")),ms))]);
 async function restJson(path,token,options={}){
@@ -74,7 +74,7 @@ async function load(){
   loading=true;
   const body=$("statementRows");
   try{
-    if(body)body.innerHTML='<tr><td colspan="7" class="empty">Loading statement…</td></tr>';
+    if(body)body.innerHTML='<div class="history-empty">Loading statement…</div>';
     const session=await getAuthSession();
     const user=session?.user;
     if(!user){location.href="auth.html";return}
@@ -84,7 +84,7 @@ async function load(){
     render();
   }catch(e){
     console.error("Statement load failed:",e);
-    if(body)body.innerHTML='<tr><td colspan="7" class="empty">Unable to load transaction history. Please refresh and try again.</td></tr>';
+    if(body)body.innerHTML='<div class="history-empty">Unable to load transaction history. Please refresh and try again.</div>';
   }finally{loading=false}
 }
 function initStatementPage(){const apply=$("apply"),more=$("loadMore"),from=$("fromDate"),to=$("toDate");if(apply)apply.onclick=()=>{pageIndex=0;render()};if(more)more.onclick=()=>{expanded=!expanded;render()};if(from)from.addEventListener("change",()=>{pageIndex=0;render()});if(to)to.addEventListener("change",()=>{pageIndex=0;render()});load();setInterval(()=>{"visible"===document.visibilityState&&load()},6e4);document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&load()})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initStatementPage,{once:true});else initStatementPage();
