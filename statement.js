@@ -49,11 +49,8 @@ async function load(){
     pageIndex=0;
     render();
   }catch(e){
-    console.warn("Statement load failed:",e);
-    if(body)body.innerHTML='<tr><td colspan="7" class="empty">Unable to load statement. Please try again.</td></tr>';
-  }catch(e){
     console.error("Statement load failed:",e);
-    if(body)body.innerHTML='<tr><td colspan="7" class="empty">Statement could not load. Please refresh and try again.</td></tr>';
+    if(body)body.innerHTML='<tr><td colspan="7" class="empty">Unable to load transaction history. Please refresh and try again.</td></tr>';
   }finally{loading=false}
 }
 function initStatementPage(){const apply=$("apply"),more=$("loadMore"),from=$("fromDate"),to=$("toDate");if(apply)apply.onclick=()=>{pageIndex=0;render()};if(more)more.onclick=()=>{pageIndex++;render()};if(from)from.addEventListener("change",()=>{pageIndex=0;render()});if(to)to.addEventListener("change",()=>{pageIndex=0;render()});load();setInterval(()=>{"visible"===document.visibilityState&&load()},6e4);document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&load()})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initStatementPage,{once:true});else initStatementPage();
