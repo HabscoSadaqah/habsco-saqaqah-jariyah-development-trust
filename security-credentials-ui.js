@@ -35,6 +35,7 @@
     form.onsubmit=async e=>{e.preventDefault();err.textContent='';const next=a.value.trim(),confirm=b.value.trim();if(!/^\d{6}$/.test(next)){err.textContent='PIN must be exactly 6 digits.';a.focus();return}if(next!==confirm){err.textContent='The PINs do not match.';b.focus();return}const sb=window.supabaseClient;if(!sb){err.textContent='Security service is still loading. Please try again.';return}submit.disabled=true;submit.textContent='Saving…';try{const {error}=await sb.rpc('member_set_transaction_pin',{p_current_pin:null,p_new_pin:next});if(error)throw error;err.style.color='#087443';err.textContent='Transaction PIN set successfully.';setTimeout(closeModal,900)}catch(e2){err.style.color='#9b3026';err.textContent=String(e2?.message||'Unable to set PIN. Please try again.').replace(/^.*?: /)}finally{submit.disabled=false;submit.textContent='Confirm PIN'}};
     setTimeout(()=>a.focus(),100);
   }
+  window.hfOpenSecurityPin=pinModal;
   function bindSecurityCenterPin(){
     const b=$('hfScPin');
     if(!b||b.dataset.hfPinBound==='1')return;
