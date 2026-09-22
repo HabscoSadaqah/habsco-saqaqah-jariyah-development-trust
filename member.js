@@ -15,23 +15,13 @@ const boot=async()=>{
  const meta=user.user_metadata||{};
  const name=String(meta.full_name||meta.name||meta.display_name||user.email?.split("@")[0]||"Member").trim();
  const welcome=$("welcome"); if(welcome)welcome.textContent=name;
- let bar=$("hfRootActions");
- if(bar)bar.remove();
- if(false){
-  bar=document.createElement("div");bar.id="hfRootActions";
-  bar.innerHTML='<a href="admin.html" class="hf-root-action admin">Admin</a><button type="button" class="hf-root-action security" id="hfRootSecurity">Security Center</button>';
-  const wrap=document.querySelector(".wrap"); const hero=document.querySelector(".hero");
-  if(wrap&&hero){wrap.insertBefore(bar,hero);}
-  const s=document.createElement("style");s.textContent="#hfRootActions{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin:0 0 12px}.hf-root-action{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 13px;border-radius:10px;border:1px solid #dfe9e3;background:#fff;color:#087443;text-decoration:none;font:800 10px system-ui;cursor:pointer}.hf-root-action.admin{background:#087443;color:#fff}.hf-root-action.security{background:#edf7f1}@media(max-width:520px){#hfRootActions{justify-content:stretch}.hf-root-action{flex:1;font-size:9px}}";document.head.appendChild(s);
-  $("hfRootSecurity").onclick=()=>document.getElementById("hfSecurityCenter")?.scrollIntoView({behavior:"smooth",block:"center"});
- }
- let sec=$("hfSecurityCenter");
+ let sec;
  if(!sec){
   sec=document.createElement("section");sec.id="hfSecurityCenter";sec.className="hf-dashboard-security";
   sec.innerHTML='<div class="hf-security-head"><div><h2>🔐 Security Center</h2><p>Protect your account and transaction access.</p></div></div><div class="hf-security-row"><button type="button" id="hfPinCard"><span class="ico">🔐</span><span><b class="ttl">Transaction PIN</b><small class="sub">Set or change your PIN</small></span></button><button type="button" id="hfPasswordCard"><span class="ico">🔑</span><span><b class="ttl">Password</b><small class="sub">Change sign-in password</small></span></button><button type="button" id="hfForgotPinCard"><span class="ico">🛡️</span><span><b class="ttl">Forgot PIN</b><small class="sub">Get secure recovery help</small></span></button></div>';
   const wrap=document.querySelector(".wrap");if(wrap){const activity=wrap.querySelector(".activity");if(activity)activity.parentNode.insertBefore(sec,activity);else wrap.appendChild(sec);}
  }
- document.getElementById("hfRootActions")?.remove();const top=document.querySelector(".top"),logout=$("logout");if(top&&logout){if(!$("hfTopAdmin")){const a=document.createElement("a");a.id="hfTopAdmin";a.href="admin.html";a.textContent="ADMIN";a.className="hf-top-admin";logout.parentNode.insertBefore(a,logout)}if(!$("hfTopSecurity")){const b=document.createElement("button");b.id="hfTopSecurity";b.type="button";b.textContent="SECURITY CENTER";b.className="hf-top-security";b.onclick=()=>sec.scrollIntoView({behavior:"smooth",block:"center"});logout.parentNode.insertBefore(b,logout)}}const st=document.createElement("style");st.textContent=".top{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important}.top>div:first-child{margin-right:auto!important}.hf-top-admin,.hf-top-security{display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:34px!important;padding:0 10px!important;border:1px solid var(--line,#dfe9e3)!important;border-radius:9px!important;font-size:9px!important;font-weight:800!important;cursor:pointer!important;text-decoration:none!important}.hf-top-admin{background:#087443!important;color:#fff!important}.hf-top-security{background:#edf7f1!important;color:#087443!important}.top #logout{margin-left:0!important}@media(max-width:520px){.hf-top-admin,.hf-top-security{font-size:8px!important;padding:0 7px!important}.top{gap:5px!important}}";document.head.appendChild(st)}
+ const securityButton=$("hfTopSecurity");if(securityButton)securityButton.onclick=()=>sec?.scrollIntoView({behavior:"smooth",block:"center"});}
 };
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(boot,0),{once:true});else setTimeout(boot,0);
 })();
