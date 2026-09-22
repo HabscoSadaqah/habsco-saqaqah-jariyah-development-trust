@@ -16,7 +16,8 @@ const boot=async()=>{
  const name=String(meta.full_name||meta.name||meta.display_name||user.email?.split("@")[0]||"Member").trim();
  const welcome=$("welcome"); if(welcome)welcome.textContent=name;
  let bar=$("hfRootActions");
- if(!bar){
+ if(bar)bar.remove();
+ if(false){
   bar=document.createElement("div");bar.id="hfRootActions";
   bar.innerHTML='<a href="admin.html" class="hf-root-action admin">Admin</a><button type="button" class="hf-root-action security" id="hfRootSecurity">Security Center</button>';
   const wrap=document.querySelector(".wrap"); const hero=document.querySelector(".hero");
