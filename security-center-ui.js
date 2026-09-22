@@ -18,7 +18,7 @@ function mount(){
 function boot(){
  if(!onMember())return;
  /* member.js creates the security panel during its normal startup; avoid a polling loop. */
- if(!document.getElementById("hfSecurityCenter"))load("member-security-center.js?v=20260921-13","hfMemberSecurityCenter");
+ if(!document.getElementById("hfSecurityCenter"))load("member-security-center.js?v=20260922-1","hfMemberSecurityCenter");
  mount();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});else boot();
