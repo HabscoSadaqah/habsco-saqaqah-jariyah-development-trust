@@ -38,6 +38,7 @@ async function getStatementRowsRest(userId,token){
 async function getStatementRows(userId){
   const token=storedAccessToken();
   if(token){try{return await withTimeout(getStatementRowsRest(userId,token),10000,"Transaction history")}catch(e){console.warn("REST statement unavailable:",e)}}
+  await ensureDb();
   let rpc=null;
   try{rpc=await withTimeout(db.rpc("member_available_statement_data",{p_limit:1000}),10000,"Statement service");}catch(e){console.warn("Statement RPC unavailable:",e)}
   if(rpc&&!rpc.error){
