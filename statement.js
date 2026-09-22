@@ -1,4 +1,4 @@
-const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY),$=id=>document.getElementById(id),moneyFormat=new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}),money=n=>moneyFormat.format(Number(n||0)),esc=v=>String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]||c));let rowsAll=[],loading=!1,pageSize=20,pageIndex=0;
+const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",$=id=>document.getElementById(id),moneyFormat=new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}),money=n=>moneyFormat.format(Number(n||0)),esc=v=>String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]||c));let db=null,rowsAll=[],loading=!1,pageSize=20,pageIndex=0;
 function statusOf(t){return String(t.status||"posted").toLowerCase().replace(/[- ]/g,"_")}
 function directionOf(t){const d=String(t.direction||"").toLowerCase();return d==="credit"||d==="inflow"||d==="in"?"credit":"debit"}
 function signedAmount(t){const s=statusOf(t);if(["rejected","declined","failed","cancelled","canceled"].includes(s))return 0;const n=Math.abs(Number(t.amount||0));return directionOf(t)==="credit"?n:-n}
@@ -19,6 +19,15 @@ async function getStatementRows(userId){
   return Array.isArray(direct.data)?direct.data:[];
 }
 async function load(){
+  if(!db){
+    if(!window.supabase?.createClient){
+      const body=$("statementRows");
+      if(body)body.innerHTML='<tr><td colspan="7" class="empty">Connecting to statement service…</td></tr>';
+      setTimeout(load,300);
+      return;
+    }
+    db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+  }
   if(loading)return;
   loading=true;
   const body=$("statementRows");
@@ -42,4 +51,4 @@ async function load(){
     if(body)body.innerHTML='<tr><td colspan="7" class="empty">Unable to load statement. Please try again.</td></tr>';
   }finally{loading=false}
 }
-$("apply").onclick=()=>{pageIndex=0;render()};$("loadMore").onclick=()=>{pageIndex++;render()};$("fromDate").addEventListener("change",()=>{pageIndex=0;render()});$("toDate").addEventListener("change",()=>{pageIndex=0;render()});if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",load,{once:true});else load();setInterval(()=>{"visible"===document.visibilityState&&load()},6e4);document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&load()});
+function initStatementPage(){const apply=$("apply"),more=$("loadMore"),from=$("fromDate"),to=$("toDate");if(apply)apply.onclick=()=>{pageIndex=0;render()};if(more)more.onclick=()=>{pageIndex++;render()};if(from)from.addEventListener("change",()=>{pageIndex=0;render()});if(to)to.addEventListener("change",()=>{pageIndex=0;render()});load();setInterval(()=>{"visible"===document.visibilityState&&load()},6e4);document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&load()})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initStatementPage,{once:true});else initStatementPage();
