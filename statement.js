@@ -20,21 +20,21 @@ async function getStatementRows(userId){
   if(direct.error)throw direct.error;
   return Array.isArray(direct.data)?direct.data:[];
 }
-async function load(){
-  if(!db){
-    if(!window.supabase?.createClient){
-      const body=$("statementRows");
-      if(body)body.innerHTML='<tr><td colspan="7" class="empty">Connecting to statement service…</td></tr>';
-      setTimeout(load,300);
-      return;
-    }
-    db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+async function ensureDb(){
+  if(db)return db;
+  if(window.supabase?.createClient){db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);return db}
+  for(let i=0;i<30;i++){
+    await new Promise(r=>setTimeout(r,200));
+    if(window.supabase?.createClient){db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);return db}
   }
+  throw new Error("Supabase library did not load");
+}
+async function load(){
   if(loading)return;
   loading=true;
   const body=$("statementRows");
+  try{await ensureDb();
   if(body)body.innerHTML='<tr><td colspan="7" class="empty">Loading statement…</td></tr>';
-  try{
     let user=null;
     const sessionResult=await withTimeout(db.auth.getSession(),8000,"Authentication");
     user=sessionResult?.data?.session?.user||null;
@@ -51,6 +51,9 @@ async function load(){
   }catch(e){
     console.warn("Statement load failed:",e);
     if(body)body.innerHTML='<tr><td colspan="7" class="empty">Unable to load statement. Please try again.</td></tr>';
+  }catch(e){
+    console.error("Statement load failed:",e);
+    if(body)body.innerHTML='<tr><td colspan="7" class="empty">Statement could not load. Please refresh and try again.</td></tr>';
   }finally{loading=false}
 }
 function initStatementPage(){const apply=$("apply"),more=$("loadMore"),from=$("fromDate"),to=$("toDate");if(apply)apply.onclick=()=>{pageIndex=0;render()};if(more)more.onclick=()=>{pageIndex++;render()};if(from)from.addEventListener("change",()=>{pageIndex=0;render()});if(to)to.addEventListener("change",()=>{pageIndex=0;render()});load();setInterval(()=>{"visible"===document.visibilityState&&load()},6e4);document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&load()})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initStatementPage,{once:true});else initStatementPage();
