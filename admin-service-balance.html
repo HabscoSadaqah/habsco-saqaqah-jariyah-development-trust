@@ -7,7 +7,7 @@
 </style><style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style></head><body><main class="wrap">
 <div class="top"><strong class="brand">HABSCO</strong><a class="btn gray" href="member.html">← MEMBER DASHBOARD</a></div>
 <section class="hero"><div class="label">ADMIN SERVICE BALANCE</div><div class="balance" id="serviceBalance">₦0.00</div><p class="sub">Accumulated service fees, including the 5% share liquidation service charge. Sweep sends the full balance directly to your Admin Available Fund.</p><div class="actions"><button class="btn" id="sweepBtn" type="button">SWEEP TO MY ADMIN AVAILABLE FUND</button><button class="btn gray" id="refreshBtn" type="button">REFRESH</button><a class="btn gray" href="admin.html">ADMIN DASHBOARD</a></div><div id="msg" class="msg"></div></section>
-<div class="grid"><section class="panel"><div class="label">SERVICE FEE HISTORY</div><div class="metric" id="feeCount">0</div><p class="notice">Recorded service-fee entries currently shown below.</p><div id="feeTotal" class="notice" style="margin-top:5px;font-weight:800;color:#126b42">Total recorded fees: ₦0.00</div></section></div>
+<div class="grid"><section class="panel"><div class="label">SERVICE FEE HISTORY</div><div class="metric" id="feeCount">0</div><p class="notice">Actual share-liquidation service-fee entries recorded below.</p><div id="feeTotal" class="notice" style="margin-top:5px;font-weight:800;color:#126b42">Total service fees collected: ₦0.00</div></section></div>
 <section class="panel"><h2 style="margin:0 0 10px">How the Service Balance Accumulates</h2><p class="notice">Every qualifying service fee is recorded with its reference, amount, date, description and source metadata. The history below provides the audit trail before funds are swept directly to your Admin Available Fund.</p>
 <div class="table-wrap"><table><thead><tr><th>Date</th><th>Reference</th><th>Amount</th><th>Description</th><th>Status</th><th>Details</th></tr></thead><tbody id="history"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody></table></div></section>
 </main>
@@ -29,7 +29,7 @@ async function load(){
   const rows=Array.isArray(data?.history)?data.history:[];
   $("serviceBalance").textContent=money(data?.service_balance);
   $("feeCount").textContent=rows.length;
-  $("feeTotal").textContent="Total recorded fees: "+money(rows.reduce((s,r)=>s+Number(r.amount||0),0));
+  $("feeTotal").textContent="Total service fees collected: "+money(rows.reduce((s,r)=>s+Number(r.amount||0),0));
   const sweep=$("sweepBtn"),available=Number(data?.service_balance||0);
   sweep.disabled=available<=0;sweep.style.opacity=sweep.disabled?".55":"1";
   $("history").dataset.loaded="1";
