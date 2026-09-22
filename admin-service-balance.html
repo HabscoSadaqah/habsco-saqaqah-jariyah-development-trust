@@ -19,14 +19,12 @@ const $=id=>document.getElementById(id);
 const money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0));
 const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let db=null,loading=false;
-function showError(e){const m=$("msg");if(m){m.textContent=(e&&e.message)||"Unable to load service balance.";m.className="msg show";}}
+function showError(e){const m=$("msg");if(m){m.textContent=(e&&e.message)||"Unable to load service balance.";m.className="msg show";}const h=$("history");if(h&&(!h.dataset.loaded||h.dataset.loaded!=="1"))h.innerHTML="<tr><td colspan=\"6\" class=\"empty\">Unable to load service-fee history. "+esc((e&&e.message)||"Please refresh and try again.")+"</td></tr>";}
 async function load(){
  if(loading||!db)return; loading=true;
  try{
   const {data:{session},error:se}=await db.auth.getSession(); if(se)throw se;
   if(!session){location.href="auth.html";return;}
-  const {data:isAdmin,error:ae}=await db.rpc("is_admin"); if(ae)throw ae;
-  if(isAdmin!==true){location.href="member.html";return;}
   const {data,error}=await db.rpc("admin_service_balance_history",{p_limit:100}); if(error)throw error;
   const rows=Array.isArray(data?.history)?data.history:[];
   $("serviceBalance").textContent=money(data?.service_balance);
@@ -35,6 +33,7 @@ async function load(){
   $("feeTotal").textContent="Total recorded fees: "+money(rows.reduce((s,r)=>s+Number(r.amount||0),0));
   const sweep=$("sweepBtn"),available=Number(data?.service_balance||0);
   sweep.disabled=available<=0;sweep.style.opacity=sweep.disabled?".55":"1";
+  $("history").dataset.loaded="1";
   $("history").innerHTML=rows.length?rows.map(r=>"<tr><td>"+esc(new Date(r.created_at).toLocaleString("en-NG",{dateStyle:"medium",timeStyle:"short"}))+"</td><td><strong>"+esc(r.reference)+"</strong></td><td>"+money(r.amount)+"</td><td>"+esc(r.description)+"</td><td>"+esc(r.status)+"</td><td><details><summary>View</summary><small>"+esc(JSON.stringify(r.metadata||{}))+"</small></details></td></tr>").join(""):"<tr><td colspan=\"6\" class=\"empty\">No service-fee history yet.</td></tr>";
  }finally{loading=false;}
 }
