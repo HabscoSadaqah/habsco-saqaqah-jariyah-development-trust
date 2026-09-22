@@ -11,13 +11,21 @@ function inRange(d,from,to){const x=new Date(d);return(!from||x>=new Date(from+"
 function render(){const from=$("fromDate").value,to=$("toDate").value,rows=rowsAll.filter(t=>inRange(t.created_at,from,to)).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)),start=pageIndex*pageSize,visible=rows.slice(start,start+pageSize),body=$("statementRows"),more=$("loadMore");if(!rows.length){body.innerHTML='<tr><td colspan="7" class="empty">No Available to Spend transactions yet.</td></tr>';if(more)more.hidden=true;return}if(start>=rows.length){pageIndex=Math.max(0,Math.ceil(rows.length/pageSize)-1);return render()}if(more){more.hidden=rows.length<=pageSize;more.textContent=(start+pageSize<rows.length)?"NEXT 20 →":"";more.disabled=start+pageSize>=rows.length}body.innerHTML=visible.map((t,i)=>{const s=signedAmount(t),cls=s>=0?"credit":"debit";return '<tr><td>'+new Date(t.created_at).toLocaleString("en-NG")+'</td><td>'+esc(t.reference||"—")+'</td><td>'+esc(description(t))+'</td><td class="'+cls+'">'+(s>=0?"+":"−")+" "+money(Math.abs(s))+'</td><td>'+money(t.balance_after)+'</td><td>'+esc(t.status||"posted")+'</td><td><button class="receipt-btn" type="button" data-i="'+i+'">SHARE RECEIPT</button></td></tr>'}).join("");body.querySelectorAll(".receipt-btn").forEach((b,i)=>b.onclick=()=>shareReceipt(visible[i]))}
 const withTimeout=(promise,ms,label)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label+" timed out")),ms))]);
 async function getStatementRows(userId){
-  let rpc;
-  try{rpc=await withTimeout(db.rpc("member_available_statement_data",{p_limit:1000}),10000,"Statement service");}catch(e){rpc={error:e}}
-  if(!rpc.error){
+  let rpc=null;
+  try{rpc=await withTimeout(db.rpc("member_available_statement_data",{p_limit:1000}),10000,"Statement service");}catch(e){console.warn("Statement RPC unavailable:",e)}
+  if(rpc&&!rpc.error){
     const list=Array.isArray(rpc.data?.transactions)?rpc.data.transactions:(Array.isArray(rpc.data)?rpc.data:[]);
     if(list.length||rpc.data?.balance!==undefined)return list;
   }
-  const direct=await withTimeout(db.from("transactions").select("id,reference,type,amount,status,description,metadata,created_at,direction").eq("user_id",userId).order("created_at",{ascending:false}).limit(1000),10000,"Transaction history");
+  const direct=await withTimeout(
+    db.from("transactions")
+      .select("id,reference,type,amount,status,description,metadata,created_at,direction")
+      .eq("user_id",userId)
+      .order("created_at",{ascending:false})
+      .limit(1000),
+    10000,
+    "Transaction history"
+  );
   if(direct.error)throw direct.error;
   return Array.isArray(direct.data)?direct.data:[];
 }
