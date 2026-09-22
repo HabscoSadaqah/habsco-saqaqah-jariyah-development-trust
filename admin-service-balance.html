@@ -28,7 +28,10 @@ async function load(){
   const {data,error}=await db.rpc("admin_service_balance_history",{p_limit:100}); if(error)throw error;
   const rows=Array.isArray(data?.history)?data.history:[];
   $("serviceBalance").textContent=money(data?.service_balance);
-  $("mainBalance").textContent=money(data?.main_balance);\n  $("moveMainBtn").disabled=Number(data?.main_balance||0)<=0;\n  $("moveMainBtn").style.opacity=Number(data?.main_balance||0)<=0?".55":"1";\n  $("moveMainBtn").dataset.amount=String(Number(data?.main_balance||0));
+  $("mainBalance").textContent=money(data?.main_balance);
+  $("moveMainBtn").disabled=Number(data?.main_balance||0)<=0;
+  $("moveMainBtn").style.opacity=Number(data?.main_balance||0)<=0?".55":"1";
+  $("moveMainBtn").dataset.amount=String(Number(data?.main_balance||0));
   $("feeCount").textContent=rows.length;
   $("feeTotal").textContent="Total recorded fees: "+money(rows.reduce((s,r)=>s+Number(r.amount||0),0));
   const sweep=$("sweepBtn"),available=Number(data?.service_balance||0);
