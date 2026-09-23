@@ -103,20 +103,7 @@ function nextRecentActivity(){
     renderRecentTransactions();
   }
 }
-function downloadRecentTransactions(){
-  const{from,to}=recentActivityDateRange();
-  if(from&&to&&from>to){alert("The From date cannot be after the To date.");return;}
-  const rows=getRecentActivityFiltered();
-  if(!rows.length){alert("No transactions found for the selected date range.");return;}
-  const head=["Date","Type","Description","Reference","Direction","Amount","Status","Balance Before","Balance After"];
-  const esc=v=>'"'+String(v??"").replace(/"/g,'""')+'"';
-  const body=rows.map(x=>[new Date(x.created_at).toLocaleString("en-NG"),x.type||"Transaction",x.description||"",x.reference||"",x.direction||"",Math.abs(Number(x.amount||0)).toFixed(2),x.status||"approved",Number(x._before||0).toFixed(2),Number(x._after||0).toFixed(2)].map(esc).join(","));
-  const csv="\uFEFF"+[head.map(esc).join(","),...body].join("\r\n");
-  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
-  const url=URL.createObjectURL(blob),a=document.createElement("a");
-  a.href=url;a.download="Habsco-Transactions"+(from?"-"+from:"")+(to?"-to-"+to:"")+".csv";
-  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
+function downloadRecentTransactions(){const{from,to}=recentActivityDateRange();if(from&&to&&from>to){alert("The From date cannot be after the To date.");return}const rows=getRecentActivityFiltered();if(!rows.length){alert("No transactions found for the selected date range.");return}const esc=v=>String(v??"").replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));const body=rows.map(x=>"<tr><td>"+esc(new Date(x.created_at).toLocaleString("en-NG"))+"</td><td>"+esc(x.type||"Transaction")+"</td><td>"+esc(x.description||"")+"</td><td>"+esc(x.reference||"")+"</td><td>"+esc(x.direction||"")+"</td><td>"+esc(money(Math.abs(Number(x.amount||0))))+"</td><td>"+esc(x.status||"approved")+"</td></tr>").join("");const html="<!doctype html><html><head><meta charset='utf-8'><title>HABSCO Transaction Statement</title><style>@page{size:A4 portrait;margin:12mm}body{font-family:Arial,sans-serif;color:#17221c;font-size:9pt}h1{color:#064f2e;margin:0}p{color:#68756e;font-size:8pt}table{width:100%;border-collapse:collapse;margin-top:12px}th,td{border:1px solid #dfe9e3;padding:6px;text-align:left}th{background:#edf7f1;color:#064f2e}footer{margin-top:16px;color:#7a8780;font-size:7pt;border-top:1px solid #dfe9e3;padding-top:6px}</style></head><body><h1>HABSCO</h1><strong>Transaction Statement</strong><p>"+(from?esc(from):"All dates")+(to?" to "+esc(to):"")+"</p><table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Reference</th><th>Direction</th><th>Amount</th><th>Status</th></tr></thead><tbody>"+body+"</tbody></table><footer>Official HABSCO transaction statement · Generated "+esc(new Date().toLocaleString("en-NG"))+"</footer><script>window.onload=()=>setTimeout(()=>window.print(),250)<\/script></body></html>";const blob=new Blob([html],{type:"text/html;charset=utf-8"}),url=URL.createObjectURL(blob),w=window.open(url,"_blank","noopener,noreferrer");if(!w)alert("Please allow pop-ups to print/save the PDF.");setTimeout(()=>URL.revokeObjectURL(url),60000)}
 function initRecentActivityControls(){
   const root=$("recentFundingList")?.closest(".activity-history")?.querySelector(".recent-activity-tools")||document.querySelector(".recent-activity-tools");
   if(!root||root.dataset.wired==="1")return;
