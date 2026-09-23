@@ -3,12 +3,17 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zuns";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 async function getStatementSession(){
-  for(let attempt=0;attempt<8;attempt++){
-    const result=await supabaseClient.auth.getSession();
-    if(result?.data?.session||result?.error) return result;
-    await new Promise(resolve=>setTimeout(resolve,250));
-  }
-  return supabaseClient.auth.getSession();
+  const ready=()=>supabaseClient.auth.getSession();
+  const first=await ready();
+  if(first?.data?.session||first?.error)return first;
+  return new Promise(resolve=>{
+    let settled=false;
+    const finish=value=>{if(settled)return;settled=true;resolve(value)};
+    const timer=setTimeout(async()=>finish(await ready()),4000);
+    const sub=supabaseClient.auth.onAuthStateChange((event,session)=>{
+      if(session||event==="SIGNED_OUT"){clearTimeout(timer);sub.data.subscription.unsubscribe();finish({data:{session},error:null});}
+    });
+  });
 }
 const $=id=>document.getElementById(id);
 const money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0));
