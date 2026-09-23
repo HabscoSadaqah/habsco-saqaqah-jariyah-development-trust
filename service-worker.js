@@ -1,5 +1,5 @@
 // HABSCO FAST WORKER v28: member/admin documents are always network-fresh.
-const CACHE_NAME = "habsco-static-v29";
+const CACHE_NAME = "habsco-static-v30";
 
 const STATIC_DESTINATIONS = new Set(["style","script","image","font","manifest"]);
 
@@ -32,7 +32,7 @@ self.addEventListener("fetch",event=>{
   }
 
   if(request.destination==="document"){
-    if(url.pathname==="/statement.html"||url.pathname==="/statement"){
+    if(url.pathname==="/statement.html"||url.pathname==="/statement"||url.pathname==="/statement.js"){
       event.respondWith(fetch(new Request(request,{cache:"no-store"})));
       return;
     }
