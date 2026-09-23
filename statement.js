@@ -1,5 +1,5 @@
 window.habscoStatementBooted=true;
-const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zuns",supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY),sessionPromise=window.habscoSessionPromise||(window.habscoSessionPromise=supabaseClient.auth.getSession()),$=id=>document.getElementById(id),moneyFormat=new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}),money=n=>moneyFormat.format(Number(n||0)),esc=v=>String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]||c));let rowsAll=[],loading=!1,pageSize=5,pageIndex=0,expanded=!1;
+const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zuns",supabaseClient=window.supabase?.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY),$=id=>document.getElementById(id),moneyFormat=new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}),money=n=>moneyFormat.format(Number(n||0)),esc=v=>String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]||c));let rowsAll=[],loading=!1,pageSize=5,pageIndex=0,expanded=!1;
 function statusOf(t){return String(t.status||"posted").toLowerCase().replace(/[- ]/g,"_")}
 function directionOf(t){const d=String(t.direction||"").toLowerCase();return d==="credit"||d==="inflow"||d==="in"?"credit":"debit"}
 function signedAmount(t){const s=statusOf(t);if(["rejected","declined","failed","cancelled","canceled"].includes(s))return 0;const n=Math.abs(Number(t.amount||0));return directionOf(t)==="credit"?n:-n}
@@ -9,7 +9,7 @@ function makePdf(t){const lines=["HABSCO AVAILABLE TO SPEND RECEIPT","Habsco Sad
 async function shareReceipt(t){const blob=makePdf(t),name="Habsco-Receipt-"+String(t.reference||"transaction").replace(/[^a-z0-9_-]/gi,"-")+".pdf",file=new File([blob],name,{type:"application/pdf"});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({title:"Habsco Transaction Receipt",files:[file]});return}catch(e){if(e?.name==="AbortError")return}}const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function inRange(d,from,to){const x=new Date(d);return(!from||x>=new Date(from+"T00:00:00"))&&(!to||x<=new Date(to+"T23:59:59.999"))}
 function render(){
-  const from=$("fromDate").value,to=$("toDate").value;
+  const from=$("fromDate")?.value||"",to=$("toDate")?.value||"";
   const rows=rowsAll.filter(t=>inRange(t.created_at,from,to)).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
   const visible=expanded?rows:rows.slice(0,pageSize),body=$("statementRows"),more=$("loadMore");
   if(!rows.length){body.innerHTML='<div class="history-empty">No transactions yet.</div>';if(more)more.hidden=true;return}
@@ -24,14 +24,14 @@ async function restJson(path,token,options={}){
   if(!r.ok)throw new Error((data&&data.message)||data?.error_description||("Supabase request failed ("+r.status+")"));
   return data;
 }
-async function getAuthSession(){const{data,error}=await sessionPromise;if(error)throw error;return data?.session||null}
+async function getAuthSession(){if(!supabaseClient)throw new Error("Supabase client failed to load");const{data,error}=await supabaseClient.auth.getSession();if(error)throw error;return data?.session||null}
 async function getStatementRows(userId){
   const{data,error}=await supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",userId).order("created_at",{ascending:false}).limit(1000);
   if(error)throw error;
   const rows=Array.isArray(data)?data:[];
   const{data:wallet}=await supabaseClient.from("wallets").select("balance").eq("user_id",userId).maybeSingle();
   let running=Number(wallet?.balance||0);
-  const valid=rows.filter(t=>Number.isFinite(Number(t.amount))&&!["pending","processing","rejected","declined","failed","cancelled","canceled"].includes(statusOf(t)));
+  const valid=rows.filter(t=>Number.isFinite(Number(t.amount)));
   return valid.map(t=>{
     const amount=Math.abs(Number(t.amount||0)),credit=directionOf(t)==="credit",balance_after=running,balance_before=credit?balance_after-amount:balance_after+amount;
     running=balance_before;
@@ -43,6 +43,7 @@ async function load(){
   loading=true;
   const body=$("statementRows");
   try{
+    if(!supabaseClient)throw new Error("Supabase library did not load");
     if(body)body.innerHTML='<div class="history-empty">Loading transaction history…</div>';
     let session=null;
     for(let attempt=0;attempt<3&&!session;attempt++){
