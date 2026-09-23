@@ -94,12 +94,12 @@ async function load(){
       return;
     }
 
-    // Explicitly attach the persisted member session to this client before querying RLS-protected tables.
-    await supabaseClient.auth.setSession({
-      access_token:session.access_token,
-      refresh_token:session.refresh_token||""
-    });
-
+    const userResult=await supabaseClient.auth.getUser();
+    if(userResult?.error||!userResult?.data?.user?.id){
+      list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';
+      return;
+    }
+    const userId=userResult.data.user.id;
     const fields="reference,type,amount,direction,description,status,created_at";
     let txRes=await supabaseClient
       .from("transactions")
