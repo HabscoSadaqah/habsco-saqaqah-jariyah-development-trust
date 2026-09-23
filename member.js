@@ -105,6 +105,8 @@ document.addEventListener("click",e=>{const b=e.target.closest(".activity-view-r
 window.habscoRecentActivity={
   refresh:loadRecentTransactions,
   filter:renderRecentTransactions,
+  apply:()=>{const{from,to}=recentActivityDateRange();if(from&&to&&from>to){alert("The From date cannot be after the To date.");return}recentActivityPage=0;renderRecentTransactions()},
+  clear:()=>{const f=$("recentFromDate"),t=$("recentToDate");if(f)f.value="";if(t)t.value="";recentActivityPage=0;renderRecentTransactions()},
   download:downloadRecentTransactions,
   previous:()=>{if(recentActivityPage>0){recentActivityPage--;renderRecentTransactions()}},
   next:()=>{const{from,to}=recentActivityDateRange(),n=recentActivityRows.filter(x=>recentActivityInRange(x.created_at,from,to)).length;if((recentActivityPage+1)*RECENT_ACTIVITY_PAGE_SIZE<n){recentActivityPage++;renderRecentTransactions()}}
