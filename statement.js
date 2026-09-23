@@ -5,7 +5,7 @@ function directionOf(t){const d=String(t.direction||"").toLowerCase();return d==
 function signedAmount(t){const s=statusOf(t);if(["rejected","declined","failed","cancelled","canceled"].includes(s))return 0;const n=Math.abs(Number(t.amount||0));return directionOf(t)==="credit"?n:-n}
 function utilityDestination(t){const m=t.metadata||{},type=String(m.service||m.utility_service||"").toLowerCase(),provider=m.provider||m.network||m.disco||m.distribution_company||"",receiver=m.receiver||m.phone||m.phone_number||m.meter_number||m.account_number||"",pkg=m.package||m.variation_code||m.code||"";if(!type&&!provider&&!receiver)return"";const label={airtime:"Airtime",data:"Mobile Data",tv:"Cable TV",education:"Education",power:"Electricity",electricity:"Electricity"}[type]||"Utility";return[label,provider,((type==="power"||type==="electricity")?"Meter ":"")+receiver,pkg].filter(Boolean).join(" · ")}
 function description(t){const raw=String(t.description||"").trim();if(raw)return raw;const type=String(t.type||"Transaction").replace(/_/g," ");if(t.type==="utility"){const u=utilityDestination(t);return u?"Utility · "+u:"Utility payment"}return type}
-function makePdf(t){const lines=["HABSCO AVAILABLE TO SPEND RECEIPT","Habsco Sadaqah Jariyah Development Trust","Date: "+new Date(t.created_at).toLocaleString("en-NG"),"Reference: "+(t.reference||"—"),"Description: "+description(t),"Amount: "+(signedAmount(t)>=0?"+ ":"− ")+money(Math.abs(signedAmount(t))),"Balance: "+money(t.balance_after),"Status: "+(t.status||"posted")],e=v=>String(v??"").replace(/\\/g,"\\\\").replace(/\\(/g,"\\\\(").replace(/\\)/g,"\\\\)"),o=[],s=["BT","/F1 12 Tf","50 760 Td","14 TL"];lines.forEach((x,i)=>s.push("/F1 "+(i===0?15:i===1?11:10)+" Tf","0 -"+(i===0?20:16)+" Td","("+e(x.slice(0,105))+") Tj"));s.push("ET");const body=s.join("\n").replace(/[^\x00-\x7F]/g," ");o.push("<< /Type /Catalog /Pages 2 0 R >>","<< /Type /Pages /Kids [3 0 R] /Count 1 >>","<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>","<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>","<< /Length "+body.length+" >>\nstream\n"+body+"\nendstream");let pdf="%PDF-1.4\n",off=[0];o.forEach((x,i)=>{off[i+1]=pdf.length;pdf+=(i+1)+" 0 obj\n"+x+"\nendobj\n"});const xr=pdf.length;pdf+="xref\n0 "+(o.length+1)+"\n0000000000 65535 f \n";for(let i=1;i<=o.length;i++)pdf+=String(off[i]).padStart(10,"0")+" 00000 n \n";pdf+="trailer\n<< /Size "+(o.length+1)+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF";return new Blob([pdf],{type:"application/pdf"})}
+function makePdf(t){const lines=["HABSCO AVAILABLE TO SPEND RECEIPT","Habsco Sadaqah Jariyah Development Trust","Date: "+new Date(t.created_at).toLocaleString("en-NG"),"Reference: "+(t.reference||"—"),"Description: "+description(t),"Amount: "+(signedAmount(t)>=0?"+ ":"− ")+money(Math.abs(signedAmount(t))),"Status: "+(t.status||"posted")],e=v=>String(v??"").replace(/\\/g,"\\\\").replace(/\\(/g,"\\\\(").replace(/\\)/g,"\\\\)"),o=[],s=["BT","/F1 12 Tf","50 760 Td","14 TL"];lines.forEach((x,i)=>s.push("/F1 "+(i===0?15:i===1?11:10)+" Tf","0 -"+(i===0?20:16)+" Td","("+e(x.slice(0,105))+") Tj"));s.push("ET");const body=s.join("\n").replace(/[^\x00-\x7F]/g," ");o.push("<< /Type /Catalog /Pages 2 0 R >>","<< /Type /Pages /Kids [3 0 R] /Count 1 >>","<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>","<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>","<< /Length "+body.length+" >>\nstream\n"+body+"\nendstream");let pdf="%PDF-1.4\n",off=[0];o.forEach((x,i)=>{off[i+1]=pdf.length;pdf+=(i+1)+" 0 obj\n"+x+"\nendobj\n"});const xr=pdf.length;pdf+="xref\n0 "+(o.length+1)+"\n0000000000 65535 f \n";for(let i=1;i<=o.length;i++)pdf+=String(off[i]).padStart(10,"0")+" 00000 n \n";pdf+="trailer\n<< /Size "+(o.length+1)+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF";return new Blob([pdf],{type:"application/pdf"})}
 async function shareReceipt(t){const blob=makePdf(t),name="Habsco-Receipt-"+String(t.reference||"transaction").replace(/[^a-z0-9_-]/gi,"-")+".pdf",file=new File([blob],name,{type:"application/pdf"});if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({title:"Habsco Transaction Receipt",files:[file]});return}catch(e){if(e?.name==="AbortError")return}}const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function inRange(d,from,to){const x=new Date(d);return(!from||x>=new Date(from+"T00:00:00"))&&(!to||x<=new Date(to+"T23:59:59.999"))}
 function render(){
@@ -59,6 +59,7 @@ async function getStatementRows(userId){
     );
     if(txRes.error)throw txRes.error;
     rows=Array.isArray(txRes.data)?txRes.data:[];
+    if(!rows.length&&session.access_token)rows=await getStatementRowsRest(userId,session.access_token);
   }catch(e){
     const token=session.access_token;
     if(!token)throw e;
@@ -100,7 +101,11 @@ async function load(){
   const body=$("statementRows");
   try{
     if(body)body.innerHTML='<div class="history-empty">Loading transaction history…</div>';
-    const session=await getAuthSession();
+    let session=null;
+    for(let attempt=0;attempt<3&&!session;attempt++){
+      try{session=await getAuthSession()}catch(e){if(attempt===2)throw e}
+      if(!session?.user&&attempt<2)await new Promise(r=>setTimeout(r,700));
+    }
     const user=session?.user;
     if(!user){location.href="auth.html";return}
     rowsAll=await getStatementRows(user.id);
