@@ -1,5 +1,5 @@
 // HABSCO FAST WORKER v28: member/admin documents are always network-fresh.
-const CACHE_NAME = "habsco-static-v28";
+const CACHE_NAME = "habsco-static-v29";
 
 const STATIC_DESTINATIONS = new Set(["style","script","image","font","manifest"]);
 
@@ -7,7 +7,7 @@ const PRECACHE = [
   "/auth.html","/home.html","/style.css","/auth.js?v=20260917-14",
   "/biometric-gate.js?v=20260912-13","/favicon.svg","/index.html",
   "/main.js?v=7","/app.css?v=home-shell-5","/member.html",
-  "/member.js?v=20260919-10","/member-unified-balance.js?v=20260919-5"
+  "/member.js?v=20260919-10","/member-unified-balance.js?v=20260919-5",
   "/security-center-ui.js?v=20260915-2"
 ];
 
@@ -32,6 +32,10 @@ self.addEventListener("fetch",event=>{
   }
 
   if(request.destination==="document"){
+    if(url.pathname==="/statement.html"||url.pathname==="/statement"){
+      event.respondWith(fetch(new Request(request,{cache:"no-store"})));
+      return;
+    }
     event.respondWith(
       caches.match(request).then(cached=>{
         const update=(event.preloadResponse||fetch(request,{cache:"no-store"})).then(response=>{
