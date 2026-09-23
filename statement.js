@@ -3,16 +3,30 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zuns";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 async function getStatementSession(){
-  const ready=()=>supabaseClient.auth.getSession();
-  const first=await ready();
+  const first=await supabaseClient.auth.getSession();
   if(first?.data?.session||first?.error)return first;
   return new Promise(resolve=>{
-    let settled=false;
-    const finish=value=>{if(settled)return;settled=true;resolve(value)};
-    const timer=setTimeout(async()=>finish(await ready()),4000);
-    const sub=supabaseClient.auth.onAuthStateChange((event,session)=>{
-      if(session||event==="SIGNED_OUT"){clearTimeout(timer);sub.data.subscription.unsubscribe();finish({data:{session},error:null});}
+    let subscription=null,settled=false;
+    const finish=value=>{
+      if(settled)return;
+      settled=true;
+      try{subscription?.unsubscribe()}catch(_){}
+      resolve(value);
+    };
+    const timer=setTimeout(async()=>{
+      const latest=await supabaseClient.auth.getSession();
+      finish(latest);
+    },5000);
+    const result=supabaseClient.auth.onAuthStateChange((event,session)=>{
+      if(session){
+        clearTimeout(timer);
+        finish({data:{session},error:null});
+      }else if(event==="SIGNED_OUT"){
+        clearTimeout(timer);
+        finish({data:{session:null},error:null});
+      }
     });
+    subscription=result?.data?.subscription||null;
   });
 }
 const $=id=>document.getElementById(id);
