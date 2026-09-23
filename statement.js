@@ -88,20 +88,14 @@ async function load(){
       return;
     }
     const user=session.user;
-    const txRes=await supabaseClient
-      .from("transactions")
+    const txRes=await supabaseClient.from("transactions")
       .select("reference,type,amount,direction,description,status,created_at")
-      .eq("user_id",user.id)
-      .order("created_at",{ascending:false})
-      .limit(100);
-    if(txRes.error){
-      console.error("Statement transactions query failed:",txRes.error);
-      list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
-      return;
-    }
+      .eq("user_id",user.id).order("created_at",{ascending:false}).limit(100);
+    if(txRes.error)throw txRes.error;
+
+    const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
     const walletRes=await supabaseClient.from("wallets").select("balance").eq("user_id",user.id).maybeSingle();
     let running=Number(walletRes?.data?.balance||0);
-    const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
     allRows=rows.map(x=>{
       const amount=Math.abs(Number(x.amount||0));
       const credit="credit"===String(x.direction||"").toLowerCase();
@@ -112,17 +106,31 @@ async function load(){
     });
     expanded=false;
     render();
-    try{
-      if(window.habscoStatementChannel) await supabaseClient.removeChannel(window.habscoStatementChannel);
-      window.habscoStatementChannel=supabaseClient.channel("statement-transactions-"+user.id)
-        .on("postgres_changes",{event:"*",schema:"public",table:"transactions",filter:"user_id=eq."+user.id},()=>load())
-        .subscribe();
-    }catch(realtimeError){console.warn("Statement realtime sync unavailable:",realtimeError)}
   }catch(e){
     console.error("Statement load failed:",e);
     list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
   }
 }
+function startStatementSync(){
+  if(!window.supabaseClient)return;
+  const userPromise=supabaseClient.auth.getUser().then(({data})=>data?.user);
+  userPromise.then(user=>{
+    if(!user)return;
+    if(window.habscoStatementChannel)supabaseClient.removeChannel(window.habscoStatementChannel);
+    window.habscoStatementChannel=supabaseClient.channel("statement-sync-"+user.id)
+      .on("postgres_changes",{event:"INSERT",schema:"public",table:"transactions"},p=>{
+        if(p.new?.user_id===user.id)load();
+      })
+      .on("postgres_changes",{event:"UPDATE",schema:"public",table:"transactions"},p=>{
+        if(p.new?.user_id===user.id)load();
+      })
+      .on("postgres_changes",{event:"DELETE",schema:"public",table:"transactions"},p=>{
+        if(p.old?.user_id===user.id)load();
+      })
+      .subscribe();
+  });
+}
+
 function init(){
   const apply=$("apply"),more=$("loadMore"),from=$("fromDate"),to=$("toDate"),print=$("printBtn");
   apply&&(apply.onclick=()=>{expanded=false;render()});
@@ -131,6 +139,7 @@ function init(){
   to&&to.addEventListener("change",()=>{expanded=false;render()});
   print&&(print.onclick=()=>window.print());
   load();
+  startStatementSync();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 
