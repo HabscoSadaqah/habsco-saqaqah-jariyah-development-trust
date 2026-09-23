@@ -60,18 +60,16 @@ function makePdf(t){
 function closeReceipt(){document.getElementById("statementReceipt")?.remove()}
 function showReceipt(t){
   closeReceipt();
-  const amount=Math.abs(Number(t.amount||0));
-  const credit="credit"===String(t.direction||"").toLowerCase();
+  const amount=Math.abs(Number(t.amount||0)),credit="credit"===String(t.direction||"").toLowerCase();
   const date=t.created_at?new Date(t.created_at).toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true}):"—";
-  const wrap=document.createElement("div");
-  wrap.id="statementReceipt";
-  wrap.innerHTML='<div class="statement-receipt-backdrop"></div><section class="statement-receipt-sheet" role="dialog" aria-modal="true" aria-label="Transaction receipt"><button type="button" class="statement-receipt-close" aria-label="Close">×</button><div class="statement-receipt-head"><strong>HABSCO</strong><span>TRANSACTION RECEIPT</span></div><div class="statement-receipt-body"><div class="statement-receipt-line"><span>Date</span><b>'+escapeHtml(date)+'</b></div><div class="statement-receipt-line"><span>Reference</span><b>'+escapeHtml(t.reference||"—")+'</b></div><div class="statement-receipt-line"><span>Description</span><b>'+escapeHtml(t.description||t.type||"Transaction")+'</b></div><div class="statement-receipt-amount '+(credit?"credit":"debit")+'">'+(credit?"+":"−")+" "+money(amount)+'</div><div class="statement-receipt-status">'+escapeHtml(String(t.status||"approved").replace(/_/g," "))+'</div></div><div class="statement-receipt-actions"><button type="button" class="statement-receipt-share" type="button">Print / Save PDF</button></div></section>';
+  const type=String(t.type||"Transaction").replace(/_/g," ");
+  const wrap=document.createElement("div");wrap.id="statementReceipt";
+  wrap.innerHTML='<div class="statement-receipt-backdrop"></div><section class="statement-receipt-sheet" role="dialog" aria-modal="true" aria-label="Transaction receipt"><button type="button" class="statement-receipt-close" aria-label="Close">×</button><div class="statement-receipt-head"><img src="favicon.svg" alt="HABSCO" class="statement-receipt-logo"><span>OFFICIAL TRANSACTION DOCUMENT</span><strong>Transaction Receipt</strong></div><div class="statement-receipt-body"><div class="statement-receipt-line"><span>Date</span><b>'+escapeHtml(date)+'</b></div><div class="statement-receipt-line"><span>Reference</span><b>'+escapeHtml(t.reference||"—")+'</b></div><div class="statement-receipt-line"><span>Transaction type</span><b>'+escapeHtml(type)+'</b></div><div class="statement-receipt-line"><span>Full description</span><b>'+escapeHtml(t.description||type)+'</b></div><div class="statement-receipt-amount '+(credit?"credit":"debit")+'">'+(credit?"+":"−")+" "+money(amount)+'</div><div class="statement-receipt-status">'+escapeHtml(String(t.status||"approved").replace(/_/g," "))+'</div></div><div class="statement-receipt-actions"><button type="button" class="statement-receipt-share">Print / Save PDF</button></div></section>';
   document.body.appendChild(wrap);
   wrap.querySelector(".statement-receipt-close").onclick=closeReceipt;
   wrap.querySelector(".statement-receipt-backdrop").onclick=closeReceipt;
-  wrap.querySelector(".statement-receipt-share").onclick=()=>shareReceipt(t);
+  wrap.querySelector(".statement-receipt-share").onclick=()=>printStatementReceipt(t);
 }
-async function printStatementReceipt(t){const blob=makePdf(t),url=URL.createObjectURL(blob),w=window.open(url,"_blank");if(!w){alert("Please allow pop-ups to print or save the receipt.");return}setTimeout(()=>URL.revokeObjectURL(url),60000)}
 function shareReceipt(t){printStatementReceipt(t)}
 async function load(){
   const list=$("statementRows");
