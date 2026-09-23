@@ -1,6 +1,6 @@
 window.habscoStatementBooted=true;
 const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zuns";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 async function getStatementSession(){
   try{
