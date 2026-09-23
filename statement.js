@@ -34,11 +34,13 @@ async function getAuthSession(){
   return userData?.user?{user:userData.user}:null;
 }
 async function getStatementRowsRest(userId,token){
-  const rpc=await restJson("/rest/v1/rpc/member_available_statement_data",token,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({p_limit:1000})});
-  const list=Array.isArray(rpc?.transactions)?rpc.transactions:(Array.isArray(rpc)?rpc:[]);
-  if(list.length||rpc?.balance!==undefined)return list;
   const uid=encodeURIComponent(userId);
-  const tx=await restJson("/rest/v1/transactions?select=id,reference,type,amount,status,description,metadata,created_at,direction&user_id=eq."+uid+"&order=created_at.desc&limit=1000",token);
+  try{
+    const rpc=await restJson("/rest/v1/rpc/member_available_statement_data",token,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({p_limit:1000})});
+    const list=Array.isArray(rpc?.transactions)?rpc.transactions:(Array.isArray(rpc)?rpc:[]);
+    if(list.length||rpc?.balance!==undefined)return list;
+  }catch(e){console.warn("Statement RPC unavailable; using transactions directly:",e)}
+  const tx=await restJson("/rest/v1/transactions?select=reference,type,amount,status,description,metadata,created_at,direction&user_id=eq."+uid+"&order=created_at.desc&limit=1000",token);
   return Array.isArray(tx)?tx:[];
 }
 async function getStatementRows(userId){
@@ -109,4 +111,4 @@ async function load(){
     if(body)body.innerHTML='<div class="history-empty">Unable to load transaction history. Please refresh and try again.</div>';
   }finally{loading=false}
 }
-function initStatementPage(){const apply=$("apply"),more=$("loadMore"),from=$("fromDate"),to=$("toDate"),print=$("printBtn");if(apply)apply.onclick=()=>{pageIndex=0;render()};if(more)more.onclick=()=>{expanded=!expanded;render()};if(from)from.addEventListener("change",()=>{pageIndex=0;render()});if(to)to.addEventListener("change",()=>{pageIndex=0;render()});if(print)print.onclick=()=>window.print();load();setInterval(()=>{"visible"===document.visibilityState&&load()},6e4);document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&load()})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initStatementPage,{once:true});else initStatementPage();
+function initStatementPage(){if(window.habscoStatementInitialized)return;window.habscoStatementInitialized=true;const apply=$("apply"),more=$("loadMore"),from=$("fromDate"),to=$("toDate"),print=$("printBtn");if(apply)apply.onclick=()=>{pageIndex=0;expanded=false;render()};if(more)more.onclick=()=>{expanded=!expanded;render()};if(from)from.addEventListener("change",()=>{pageIndex=0;expanded=false;render()});if(to)to.addEventListener("change",()=>{pageIndex=0;expanded=false;render()});if(print)print.onclick=()=>window.print();load();setInterval(()=>{"visible"===document.visibilityState&&load()},6e4);document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&load()})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initStatementPage,{once:true});else initStatementPage();
