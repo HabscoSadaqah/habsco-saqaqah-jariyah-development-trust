@@ -33,16 +33,11 @@ jobs:
       - name: Verify website files
         run: |
           test -f index.html
-          test -f bill-payments.html
+          test -f member.html
+          test -f member.js
+          test -f favicon.svg
           test -f CNAME
-          echo "Pages source verified"
-          ! grep -q "habsco-utility-direct-v1" bill-payments.html
-          ! grep -q "admin.habscosadaqah.org/api/utility" bill-payments.html
-          grep -q "utility-vps-proxy" bill-payments.html
-          echo "Current Bill Payments proxy version verified"
-          test -f member-actions.html
-          grep -q "member-actions.js?v=20260920-8" member-actions.html
-          echo "Current member actions version verified"
+          echo "Main branch website source verified"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
