@@ -81,29 +81,45 @@ async function load(){
   if(!list)return;
   list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
   try{
-    const sessionResult=await getStatementSession();
-    const session=sessionResult?.data?.session;
-    if(sessionResult?.error)throw sessionResult.error;
+    let session=null;
+    for(let attempt=0;attempt<3&&!session;attempt++){
+      try{
+        const res=await supabaseClient.auth.getSession();
+        if(res?.error)throw res.error;
+        session=res?.data?.session||null;
+      }catch(e){console.warn("Statement session attempt",attempt+1,e)}
+      if(!session&&attempt<2)await new Promise(r=>setTimeout(r,700));
+    }
     if(!session?.user){
       list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';
       return;
     }
-    const userId=session.user.id;
-    const [txRes,walletRes]=await Promise.all([
-      supabaseClient.from("transactions")
-        .select("reference,type,amount,direction,description,status,created_at")
-        .eq("user_id",userId)
-        .order("created_at",{ascending:false})
-        .limit(100),
-      supabaseClient.from("wallets")
-        .select("balance")
-        .eq("user_id",userId)
-        .maybeSingle()
-    ]);
-    if(txRes.error)throw txRes.error;
-    if(walletRes.error)throw walletRes.error;
+
+    const txRes=await supabaseClient
+      .from("transactions")
+      .select("reference,type,amount,direction,description,status,created_at")
+      .eq("user_id",session.user.id)
+      .order("created_at",{ascending:false})
+      .limit(100);
+
+    if(txRes.error){
+      console.error("Statement transactions query failed:",txRes.error);
+      list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
+      return;
+    }
+
     const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
-    let running=Number(walletRes.data?.balance||0);
+
+    let running=0;
+    try{
+      const walletRes=await supabaseClient
+        .from("wallets")
+        .select("balance")
+        .eq("user_id",session.user.id)
+        .maybeSingle();
+      if(!walletRes.error)running=Number(walletRes.data?.balance||0);
+    }catch(e){console.warn("Statement wallet query failed:",e)}
+
     allRows=rows.map(x=>{
       const amount=Math.abs(Number(x.amount||0));
       const credit="credit"===String(x.direction||"").toLowerCase();
@@ -112,11 +128,12 @@ async function load(){
       running=before;
       return {...x,_before:before,_after:after};
     });
+
     expanded=false;
     render();
   }catch(e){
     console.error("Statement load failed:",e);
-    list.innerHTML='<div class="funding-empty">Unable to load recent activity. Please reload the page.</div>';
+    list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
   }
 }
 function init(){
