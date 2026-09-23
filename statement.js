@@ -44,8 +44,9 @@ async function getStatementRowsRest(userId,token){
 async function getStatementRows(userId){
   const session=await getAuthSession();
   if(!session?.user)throw new Error("No authenticated member session");
-  const [txRes,walletRes]=await Promise.all([
-    withTimeout(
+  let rows=[];
+  try{
+    const txRes=await withTimeout(
       db.from("transactions")
         .select("reference,type,amount,direction,description,status,created_at")
         .eq("user_id",userId)
@@ -53,21 +54,27 @@ async function getStatementRows(userId){
         .limit(1000),
       10000,
       "Transaction history"
-    ),
-    withTimeout(
-      db.from("wallets")
-        .select("balance")
-        .eq("user_id",userId)
-        .maybeSingle(),
+    );
+    if(txRes.error)throw txRes.error;
+    rows=Array.isArray(txRes.data)?txRes.data:[];
+  }catch(e){
+    const token=session.access_token;
+    if(!token)throw e;
+    rows=await getStatementRowsRest(userId,token);
+  }
+  rows=rows.filter(t=>Number.isFinite(Number(t.amount)));
+  let balance=0;
+  try{
+    const walletRes=await withTimeout(
+      db.from("wallets").select("balance").eq("user_id",userId).maybeSingle(),
       10000,
       "Available balance"
-    )
-  ]);
-  if(txRes.error)throw txRes.error;
-  if(walletRes.error)throw walletRes.error;
-  const rows=(txRes.data||[]).filter(t=>Number.isFinite(Number(t.amount)));
-  let running=Number(walletRes.data?.balance||0);
-  return rows.map(t=>{
+    );
+    if(!walletRes.error)balance=Number(walletRes.data?.balance||0);
+  }catch(e){console.warn("Statement wallet balance unavailable:",e)}
+  const valid=rows.filter(t=>!["pending","processing","rejected","declined","failed","cancelled","canceled"].includes(statusOf(t)));
+  let running=balance;
+  return valid.map(t=>{
     const amount=Math.abs(Number(t.amount||0));
     const credit=String(t.direction||"").toLowerCase()==="credit";
     const balance_after=running;
