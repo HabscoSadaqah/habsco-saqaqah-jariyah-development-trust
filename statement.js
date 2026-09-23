@@ -3,31 +3,16 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zuns";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
 async function getStatementSession(){
-  const first=await supabaseClient.auth.getSession();
-  if(first?.data?.session||first?.error)return first;
-  return new Promise(resolve=>{
-    let subscription=null,settled=false;
-    const finish=value=>{
-      if(settled)return;
-      settled=true;
-      try{subscription?.unsubscribe()}catch(_){}
-      resolve(value);
-    };
-    const timer=setTimeout(async()=>{
-      const latest=await supabaseClient.auth.getSession();
-      finish(latest);
-    },5000);
-    const result=supabaseClient.auth.onAuthStateChange((event,session)=>{
-      if(session){
-        clearTimeout(timer);
-        finish({data:{session},error:null});
-      }else if(event==="SIGNED_OUT"){
-        clearTimeout(timer);
-        finish({data:{session:null},error:null});
-      }
-    });
-    subscription=result?.data?.subscription||null;
-  });
+  try{
+    const first=await supabaseClient.auth.getSession();
+    if(first?.data?.session)return first;
+    if(first?.error)throw first.error;
+  }catch(e){console.warn("Statement getSession:",e)}
+  try{
+    const refreshed=await supabaseClient.auth.refreshSession();
+    if(refreshed?.data?.session)return refreshed;
+  }catch(e){console.warn("Statement refreshSession:",e)}
+  return {data:{session:null},error:null};
 }
 const $=id=>document.getElementById(id);
 const money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0));
@@ -96,26 +81,42 @@ async function load(){
   if(!list)return;
   list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
   try{
-    const {data:{session},error}=await getStatementSession();
-    if(error)throw error;
-    if(!session?.user){list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';return;}
-    const txRes=await supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",session.user.id).order("created_at",{ascending:false}).limit(100);
+    const sessionResult=await getStatementSession();
+    const session=sessionResult?.data?.session;
+    if(sessionResult?.error)throw sessionResult.error;
+    if(!session?.user){
+      list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';
+      return;
+    }
+    const userId=session.user.id;
+    const [txRes,walletRes]=await Promise.all([
+      supabaseClient.from("transactions")
+        .select("reference,type,amount,direction,description,status,created_at")
+        .eq("user_id",userId)
+        .order("created_at",{ascending:false})
+        .limit(100),
+      supabaseClient.from("wallets")
+        .select("balance")
+        .eq("user_id",userId)
+        .maybeSingle()
+    ]);
     if(txRes.error)throw txRes.error;
+    if(walletRes.error)throw walletRes.error;
     const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
-    let running=0;
-    try{
-      const walletRes=await supabaseClient.from("wallets").select("balance").eq("user_id",session.user.id).maybeSingle();
-      if(!walletRes.error)running=Number(walletRes.data?.balance||0);
-    }catch(_){}
+    let running=Number(walletRes.data?.balance||0);
     allRows=rows.map(x=>{
-      const amount=Math.abs(Number(x.amount||0)),credit="credit"===String(x.direction||"").toLowerCase(),after=running,before=credit?after-amount:after+amount;
+      const amount=Math.abs(Number(x.amount||0));
+      const credit="credit"===String(x.direction||"").toLowerCase();
+      const after=running;
+      const before=credit?after-amount:after+amount;
       running=before;
       return {...x,_before:before,_after:after};
     });
-    expanded=false;render();
+    expanded=false;
+    render();
   }catch(e){
     console.error("Statement load failed:",e);
-    list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
+    list.innerHTML='<div class="funding-empty">Unable to load recent activity. Please reload the page.</div>';
   }
 }
 function init(){
