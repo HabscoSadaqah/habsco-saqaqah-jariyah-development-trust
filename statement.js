@@ -1,7 +1,7 @@
 window.habscoStatementBooted=true;
 const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN";
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);\nconst sessionPromise=window.habscoSessionPromise||(window.habscoSessionPromise=supabaseClient.auth.getSession());
 async function getStatementSession(){
   try{
     const first=await supabaseClient.auth.getSession();
@@ -80,49 +80,28 @@ async function load(){
   const list=$("statementRows");
   if(!list)return;
   list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
+
   try{
-    const sessionResult=await supabaseClient.auth.getSession();
-    let session=sessionResult?.data?.session||null;
-
-    if(!session?.access_token){
-      const refreshed=await supabaseClient.auth.refreshSession().catch(()=>null);
-      session=refreshed?.data?.session||null;
-    }
-
-    if(!session?.user?.id||!session?.access_token){
+    const {data:{session},error:sessionError}=await sessionPromise;
+    if(sessionError||!session?.user){
       list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';
       return;
     }
 
-    const userResult=await supabaseClient.auth.getUser();
-    if(userResult?.error||!userResult?.data?.user?.id){
-      list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';
-      return;
-    }
-    const userId=userResult.data.user.id;
-    const fields="reference,type,amount,direction,description,status,created_at";
-    let txRes=await supabaseClient
-      .from("transactions")
-      .select(fields)
-      .eq("user_id",session.user.id)
-      .order("created_at",{ascending:false})
-      .limit(100);
-
-    // One clean retry after refreshing the JWT, only for an auth/session failure.
-    if(txRes.error && /jwt|token|auth|401|403/i.test(
-      [txRes.error.message,txRes.error.code,txRes.error.details].filter(Boolean).join(" ")
-    )){
-      const refreshed=await supabaseClient.auth.refreshSession().catch(()=>null);
-      if(refreshed?.data?.session){
-        session=refreshed.data.session;
-        txRes=await supabaseClient
-          .from("transactions")
-          .select(fields)
-          .eq("user_id",session.user.id)
-          .order("created_at",{ascending:false})
-          .limit(100);
-      }
-    }
+    const user=session.user;
+    const [txRes,walletRes]=await Promise.all([
+      supabaseClient
+        .from("transactions")
+        .select("reference,type,amount,direction,description,status,created_at")
+        .eq("user_id",user.id)
+        .order("created_at",{ascending:false})
+        .limit(100),
+      supabaseClient
+        .from("wallets")
+        .select("balance")
+        .eq("user_id",user.id)
+        .maybeSingle()
+    ]);
 
     if(txRes.error){
       console.error("Statement transactions query failed:",txRes.error);
@@ -131,15 +110,7 @@ async function load(){
     }
 
     const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
-
-    let running=0;
-    const walletRes=await supabaseClient
-      .from("wallets")
-      .select("balance")
-      .eq("user_id",session.user.id)
-      .maybeSingle()
-      .catch(()=>null);
-    if(walletRes&&!walletRes.error)running=Number(walletRes.data?.balance||0);
+    let running=Number(walletRes?.data?.balance||0);
 
     allRows=rows.map(x=>{
       const amount=Math.abs(Number(x.amount||0));
