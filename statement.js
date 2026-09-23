@@ -57,7 +57,7 @@ function makePdf(t){
   html=html.replace("__DATE__",esc(t.created_at?new Date(t.created_at).toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true}):"—")).replace("__REF__",esc(t.reference||"—")).replace("__TYPE__",esc(String(t.type||"Transaction").replace(/_/g," "))).replace("__DESC__",esc(t.description||t.type||"Transaction")).replace("__CLASS__",cls).replace("__AMOUNT__",esc(amount)).replace("__STATUS__",esc(String(t.status||"approved").replace(/_/g," "))).replace("__GENERATED__",esc(new Date().toLocaleString("en-NG")));
   return new Blob([html],{type:"text/html;charset=utf-8"});
 }
-function closeReceipt(){document.getElementById("statementReceipt")?.remove()}
+function closeReceipt(){const m=document.getElementById("statementReceipt");if(m){m.remove();document.body.classList.remove("receipt-modal-open")}}
 function showReceipt(t){
   closeReceipt();
   const amount=Math.abs(Number(t.amount||0)),credit="credit"===String(t.direction||"").toLowerCase();
@@ -70,7 +70,7 @@ function showReceipt(t){
   wrap.querySelector(".statement-receipt-backdrop").onclick=closeReceipt;
   wrap.querySelector(".statement-receipt-share").onclick=()=>printStatementReceipt(t);
 }
-function printStatementReceipt(t){
+document.addEventListener("click",e=>{const x=e.target.closest("#statementReceipt .statement-receipt-close,#statementReceipt .statement-receipt-backdrop");if(x){e.preventDefault();e.stopPropagation();closeReceipt()}});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.getElementById("statementReceipt")){e.preventDefault();closeReceipt()}});\nfunction printStatementReceipt(t){
   const blob=makePdf(t);
   const url=URL.createObjectURL(blob);
   const w=window.open(url,"_blank","noopener,noreferrer");
