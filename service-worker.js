@@ -31,11 +31,12 @@ self.addEventListener("fetch",event=>{
     return;
   }
 
+  if(url.pathname==="/statement.html"||url.pathname==="/statement"||url.pathname==="/statement.js"){
+    event.respondWith(fetch(new Request(request,{cache:"no-store"})));
+    return;
+  }
+
   if(request.destination==="document"){
-    if(url.pathname==="/statement.html"||url.pathname==="/statement"||url.pathname==="/statement.js"){
-      event.respondWith(fetch(new Request(request,{cache:"no-store"})));
-      return;
-    }
     event.respondWith(
       caches.match(request).then(cached=>{
         const update=(event.preloadResponse||fetch(request,{cache:"no-store"})).then(response=>{
