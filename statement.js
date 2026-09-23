@@ -24,7 +24,12 @@ async function restJson(path,token,options={}){
   if(!r.ok)throw new Error((data&&data.message)||data?.error_description||("Supabase request failed ("+r.status+")"));
   return data;
 }
-async function getAuthSession(){if(!supabaseClient)throw new Error("Supabase client failed to load");const{data,error}=await supabaseClient.auth.getSession();if(error)throw error;return data?.session||null}
+async function getAuthSession(){
+  if(!supabaseClient)throw new Error("Supabase client failed to load");
+  const {data,error}=await supabaseClient.auth.getUser();
+  if(error)throw error;
+  return data?.user?{user:data.user}:null;
+}
 async function getStatementRows(userId){
   const [txRes,walletRes]=await Promise.all([
     supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",userId).order("created_at",{ascending:false}).limit(1000),
@@ -47,19 +52,19 @@ async function load(){
   try{
     if(!supabaseClient)throw new Error("Supabase library did not load");
     if(body)body.innerHTML='<div class="history-empty">Loading transaction history…</div>';
-    let session=null;
-    for(let attempt=0;attempt<3&&!session;attempt++){
-      try{session=await getAuthSession()}catch(e){if(attempt===2)throw e}
-      if(!session?.user&&attempt<2)await new Promise(r=>setTimeout(r,700));
-    }
+    const session=await getAuthSession();
     const user=session?.user;
-    if(!user){location.href="auth.html";return}
+    if(!user){
+      if(body)body.innerHTML='<div class="history-empty">Please sign in to view your transaction history.</div>';
+      return;
+    }
     rowsAll=await getStatementRows(user.id);
     pageIndex=0;
+    expanded=false;
     render();
   }catch(e){
     console.error("Statement load failed:",e);
-    if(body)body.innerHTML='<div class="history-empty">Unable to load transaction history. Please refresh and try again.</div>';
+    if(body)body.innerHTML='<div class="history-empty">Unable to load transaction history.</div>';
   }finally{loading=false}
 }
 function initStatementPage(){if(window.habscoStatementInitialized)return;window.habscoStatementInitialized=true;const apply=$("apply"),more=$("loadMore"),from=$("fromDate"),to=$("toDate"),print=$("printBtn");if(apply)apply.onclick=()=>{pageIndex=0;expanded=false;render()};if(more)more.onclick=()=>{expanded=!expanded;render()};if(from)from.addEventListener("change",()=>{pageIndex=0;expanded=false;render()});if(to)to.addEventListener("change",()=>{pageIndex=0;expanded=false;render()});if(print)print.onclick=()=>window.print();load();setInterval(()=>{"visible"===document.visibilityState&&load()},6e4);document.addEventListener("visibilitychange",()=>{"visible"===document.visibilityState&&load()})}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",initStatementPage,{once:true});else initStatementPage();
