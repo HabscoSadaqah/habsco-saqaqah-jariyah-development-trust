@@ -112,6 +112,12 @@ async function load(){
     });
     expanded=false;
     render();
+    try{
+      if(window.habscoStatementChannel) await supabaseClient.removeChannel(window.habscoStatementChannel);
+      window.habscoStatementChannel=supabaseClient.channel("statement-transactions-"+user.id)
+        .on("postgres_changes",{event:"*",schema:"public",table:"transactions",filter:"user_id=eq."+user.id},()=>load())
+        .subscribe();
+    }catch(realtimeError){console.warn("Statement realtime sync unavailable:",realtimeError)}
   }catch(e){
     console.error("Statement load failed:",e);
     list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
