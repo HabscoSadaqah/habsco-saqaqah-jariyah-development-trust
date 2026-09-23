@@ -81,60 +81,65 @@ async function load(){
   if(!list)return;
   list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
   try{
-    let session=null;
-    try{
-      const res=await supabaseClient.auth.getSession();
-      if(res?.error)throw res.error;
-      session=res?.data?.session||null;
-    }catch(e){console.warn("Statement session:",e)}
+    const sessionResult=await supabaseClient.auth.getSession();
+    let session=sessionResult?.data?.session||null;
 
-    if(!session?.user){
+    if(!session?.access_token){
+      const refreshed=await supabaseClient.auth.refreshSession().catch(()=>null);
+      session=refreshed?.data?.session||null;
+    }
+
+    if(!session?.user?.id||!session?.access_token){
       list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';
       return;
     }
 
-    let rows=[];
-    const fields="reference,type,amount,direction,description,status,created_at";
+    // Explicitly attach the persisted member session to this client before querying RLS-protected tables.
+    await supabaseClient.auth.setSession({
+      access_token:session.access_token,
+      refresh_token:session.refresh_token||""
+    });
 
-    try{
-      const txRes=await supabaseClient
-        .from("transactions")
-        .select(fields)
-        .eq("user_id",session.user.id)
-        .order("created_at",{ascending:false})
-        .limit(100);
-      if(txRes.error)throw txRes.error;
-      rows=txRes.data||[];
-    }catch(clientError){
-      console.warn("Statement client query failed; using REST fallback:",clientError);
-      const url=SUPABASE_URL+"/rest/v1/transactions?select="+encodeURIComponent(fields)+"&user_id=eq."+encodeURIComponent(session.user.id)+"&order=created_at.desc&limit=100";
-      const restRes=await fetch(url,{
-        headers:{
-          apikey:SUPABASE_PUBLISHABLE_KEY,
-          Authorization:"Bearer "+session.access_token,
-          Accept:"application/json"
-        },
-        cache:"no-store"
-      });
-      if(!restRes.ok){
-        const detail=await restRes.text().catch(()=> "");
-        console.error("Statement REST query failed:",restRes.status,detail);
-        throw new Error("Transaction history request failed ("+restRes.status+")");
+    const fields="reference,type,amount,direction,description,status,created_at";
+    let txRes=await supabaseClient
+      .from("transactions")
+      .select(fields)
+      .eq("user_id",session.user.id)
+      .order("created_at",{ascending:false})
+      .limit(100);
+
+    // One clean retry after refreshing the JWT, only for an auth/session failure.
+    if(txRes.error && /jwt|token|auth|401|403/i.test(
+      [txRes.error.message,txRes.error.code,txRes.error.details].filter(Boolean).join(" ")
+    )){
+      const refreshed=await supabaseClient.auth.refreshSession().catch(()=>null);
+      if(refreshed?.data?.session){
+        session=refreshed.data.session;
+        txRes=await supabaseClient
+          .from("transactions")
+          .select(fields)
+          .eq("user_id",session.user.id)
+          .order("created_at",{ascending:false})
+          .limit(100);
       }
-      rows=await restRes.json();
     }
 
-    rows=rows.filter(x=>Number.isFinite(Number(x.amount)));
+    if(txRes.error){
+      console.error("Statement transactions query failed:",txRes.error);
+      list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
+      return;
+    }
+
+    const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
 
     let running=0;
-    try{
-      const walletRes=await supabaseClient
-        .from("wallets")
-        .select("balance")
-        .eq("user_id",session.user.id)
-        .maybeSingle();
-      if(!walletRes.error)running=Number(walletRes.data?.balance||0);
-    }catch(e){console.warn("Statement wallet query failed:",e)}
+    const walletRes=await supabaseClient
+      .from("wallets")
+      .select("balance")
+      .eq("user_id",session.user.id)
+      .maybeSingle()
+      .catch(()=>null);
+    if(walletRes&&!walletRes.error)running=Number(walletRes.data?.balance||0);
 
     allRows=rows.map(x=>{
       const amount=Math.abs(Number(x.amount||0));
@@ -149,7 +154,7 @@ async function load(){
     render();
   }catch(e){
     console.error("Statement load failed:",e);
-    list.innerHTML='<div class="funding-empty">Unable to load recent activity. Please sign in again and reload.</div>';
+    list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
   }
 }
 function init(){
