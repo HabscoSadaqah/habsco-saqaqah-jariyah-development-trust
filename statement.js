@@ -1,5 +1,5 @@
 window.habscoStatementBooted=true;
-const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",$=id=>document.getElementById(id),moneyFormat=new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}),money=n=>moneyFormat.format(Number(n||0)),esc=v=>String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]||c));let db=null,rowsAll=[],loading=!1,pageSize=5,pageIndex=0,expanded=!1;
+const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zuns",supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY),sessionPromise=window.habscoSessionPromise||(window.habscoSessionPromise=supabaseClient.auth.getSession()),$=id=>document.getElementById(id),moneyFormat=new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}),money=n=>moneyFormat.format(Number(n||0)),esc=v=>String(v??"").replace(/[&<>\"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]||c));let rowsAll=[],loading=!1,pageSize=5,pageIndex=0,expanded=!1;
 function statusOf(t){return String(t.status||"posted").toLowerCase().replace(/[- ]/g,"_")}
 function directionOf(t){const d=String(t.direction||"").toLowerCase();return d==="credit"||d==="inflow"||d==="in"?"credit":"debit"}
 function signedAmount(t){const s=statusOf(t);if(["rejected","declined","failed","cancelled","canceled"].includes(s))return 0;const n=Math.abs(Number(t.amount||0));return directionOf(t)==="credit"?n:-n}
@@ -24,76 +24,19 @@ async function restJson(path,token,options={}){
   if(!r.ok)throw new Error((data&&data.message)||data?.error_description||("Supabase request failed ("+r.status+")"));
   return data;
 }
-async function getAuthSession(){
-  await ensureDb();
-  const {data,error}=await withTimeout(db.auth.getSession(),8000,"Authentication");
-  if(error)throw error;
-  if(data?.session)return data.session;
-  const {data:userData,error:userError}=await withTimeout(db.auth.getUser(),8000,"Authentication");
-  if(userError)throw userError;
-  return userData?.user?{user:userData.user}:null;
-}
-async function getStatementRowsRest(userId,token){
-  const uid=encodeURIComponent(userId);
-  try{
-    const rpc=await restJson("/rest/v1/rpc/member_available_statement_data",token,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({p_limit:1000})});
-    const list=Array.isArray(rpc?.transactions)?rpc.transactions:(Array.isArray(rpc)?rpc:[]);
-    if(list.length||rpc?.balance!==undefined)return list;
-  }catch(e){console.warn("Statement RPC unavailable; using transactions directly:",e)}
-  const tx=await restJson("/rest/v1/transactions?select=reference,type,amount,status,description,metadata,created_at,direction&user_id=eq."+uid+"&order=created_at.desc&limit=1000",token);
-  return Array.isArray(tx)?tx:[];
-}
+async function getAuthSession(){const{data,error}=await sessionPromise;if(error)throw error;return data?.session||null}
 async function getStatementRows(userId){
-  const session=await getAuthSession();
-  if(!session?.user)throw new Error("No authenticated member session");
-  let rows=[];
-  try{
-    const txRes=await withTimeout(
-      db.from("transactions")
-        .select("reference,type,amount,direction,description,status,created_at")
-        .eq("user_id",userId)
-        .order("created_at",{ascending:false})
-        .limit(1000),
-      10000,
-      "Transaction history"
-    );
-    if(txRes.error)throw txRes.error;
-    rows=Array.isArray(txRes.data)?txRes.data:[];
-    if(!rows.length&&session.access_token)rows=await getStatementRowsRest(userId,session.access_token);
-  }catch(e){
-    const token=session.access_token;
-    if(!token)throw e;
-    rows=await getStatementRowsRest(userId,token);
-  }
-  rows=rows.filter(t=>Number.isFinite(Number(t.amount)));
-  let balance=0;
-  try{
-    const walletRes=await withTimeout(
-      db.from("wallets").select("balance").eq("user_id",userId).maybeSingle(),
-      10000,
-      "Available balance"
-    );
-    if(!walletRes.error)balance=Number(walletRes.data?.balance||0);
-  }catch(e){console.warn("Statement wallet balance unavailable:",e)}
-  const valid=rows.filter(t=>!["pending","processing","rejected","declined","failed","cancelled","canceled"].includes(statusOf(t)));
-  let running=balance;
+  const{data,error}=await supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",userId).order("created_at",{ascending:false}).limit(1000);
+  if(error)throw error;
+  const rows=Array.isArray(data)?data:[];
+  const{data:wallet}=await supabaseClient.from("wallets").select("balance").eq("user_id",userId).maybeSingle();
+  let running=Number(wallet?.balance||0);
+  const valid=rows.filter(t=>Number.isFinite(Number(t.amount))&&!["pending","processing","rejected","declined","failed","cancelled","canceled"].includes(statusOf(t)));
   return valid.map(t=>{
-    const amount=Math.abs(Number(t.amount||0));
-    const credit=String(t.direction||"").toLowerCase()==="credit";
-    const balance_after=running;
-    const balance_before=credit?balance_after-amount:balance_after+amount;
+    const amount=Math.abs(Number(t.amount||0)),credit=directionOf(t)==="credit",balance_after=running,balance_before=credit?balance_after-amount:balance_after+amount;
     running=balance_before;
     return {...t,account_type:"wallet",balance_before,balance_after};
   });
-}
-async function ensureDb(){
-  if(db)return db;
-  if(window.supabase?.createClient){db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);return db}
-  for(let i=0;i<30;i++){
-    await new Promise(r=>setTimeout(r,200));
-    if(window.supabase?.createClient){db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);return db}
-  }
-  throw new Error("Supabase library did not load");
 }
 async function load(){
   if(loading)return;
