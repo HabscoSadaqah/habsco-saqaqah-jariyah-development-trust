@@ -2,7 +2,14 @@ window.habscoStatementBooted=true;
 const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zuns";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
-const sessionPromise=supabaseClient.auth.getSession();
+async function getStatementSession(){
+  for(let attempt=0;attempt<8;attempt++){
+    const result=await supabaseClient.auth.getSession();
+    if(result?.data?.session||result?.error) return result;
+    await new Promise(resolve=>setTimeout(resolve,250));
+  }
+  return supabaseClient.auth.getSession();
+}
 const $=id=>document.getElementById(id);
 const money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0));
 const escapeHtml=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]||c));
@@ -70,7 +77,7 @@ async function load(){
   if(!list)return;
   list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
   try{
-    const {data:{session},error}=await sessionPromise;
+    const {data:{session},error}=await getStatementSession();
     if(error)throw error;
     if(!session?.user){list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';return;}
     const txRes=await supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",session.user.id).order("created_at",{ascending:false}).limit(100);
