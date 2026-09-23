@@ -82,33 +82,49 @@ async function load(){
   list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
   try{
     let session=null;
-    for(let attempt=0;attempt<3&&!session;attempt++){
-      try{
-        const res=await supabaseClient.auth.getSession();
-        if(res?.error)throw res.error;
-        session=res?.data?.session||null;
-      }catch(e){console.warn("Statement session attempt",attempt+1,e)}
-      if(!session&&attempt<2)await new Promise(r=>setTimeout(r,700));
-    }
+    try{
+      const res=await supabaseClient.auth.getSession();
+      if(res?.error)throw res.error;
+      session=res?.data?.session||null;
+    }catch(e){console.warn("Statement session:",e)}
+
     if(!session?.user){
       list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';
       return;
     }
 
-    const txRes=await supabaseClient
-      .from("transactions")
-      .select("reference,type,amount,direction,description,status,created_at")
-      .eq("user_id",session.user.id)
-      .order("created_at",{ascending:false})
-      .limit(100);
+    let rows=[];
+    const fields="reference,type,amount,direction,description,status,created_at";
 
-    if(txRes.error){
-      console.error("Statement transactions query failed:",txRes.error);
-      list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
-      return;
+    try{
+      const txRes=await supabaseClient
+        .from("transactions")
+        .select(fields)
+        .eq("user_id",session.user.id)
+        .order("created_at",{ascending:false})
+        .limit(100);
+      if(txRes.error)throw txRes.error;
+      rows=txRes.data||[];
+    }catch(clientError){
+      console.warn("Statement client query failed; using REST fallback:",clientError);
+      const url=SUPABASE_URL+"/rest/v1/transactions?select="+encodeURIComponent(fields)+"&user_id=eq."+encodeURIComponent(session.user.id)+"&order=created_at.desc&limit=100";
+      const restRes=await fetch(url,{
+        headers:{
+          apikey:SUPABASE_PUBLISHABLE_KEY,
+          Authorization:"Bearer "+session.access_token,
+          Accept:"application/json"
+        },
+        cache:"no-store"
+      });
+      if(!restRes.ok){
+        const detail=await restRes.text().catch(()=> "");
+        console.error("Statement REST query failed:",restRes.status,detail);
+        throw new Error("Transaction history request failed ("+restRes.status+")");
+      }
+      rows=await restRes.json();
     }
 
-    const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
+    rows=rows.filter(x=>Number.isFinite(Number(x.amount)));
 
     let running=0;
     try{
@@ -133,7 +149,7 @@ async function load(){
     render();
   }catch(e){
     console.error("Statement load failed:",e);
-    list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
+    list.innerHTML='<div class="funding-empty">Unable to load recent activity. Please sign in again and reload.</div>';
   }
 }
 function init(){
