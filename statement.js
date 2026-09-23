@@ -73,13 +73,14 @@ async function load(){
     const {data:{session},error}=await sessionPromise;
     if(error)throw error;
     if(!session?.user){list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';return;}
-    const [txRes,walletRes]=await Promise.all([
-      supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",session.user.id).order("created_at",{ascending:false}).limit(100),
-      supabaseClient.from("wallets").select("balance").eq("user_id",session.user.id).maybeSingle()
-    ]);
-    if(txRes.error||walletRes.error)throw txRes.error||walletRes.error;
+    const txRes=await supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",session.user.id).order("created_at",{ascending:false}).limit(100);
+    if(txRes.error)throw txRes.error;
     const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
-    let running=Number(walletRes.data?.balance||0);
+    let running=0;
+    try{
+      const walletRes=await supabaseClient.from("wallets").select("balance").eq("user_id",session.user.id).maybeSingle();
+      if(!walletRes.error)running=Number(walletRes.data?.balance||0);
+    }catch(_){}
     allRows=rows.map(x=>{
       const amount=Math.abs(Number(x.amount||0)),credit="credit"===String(x.direction||"").toLowerCase(),after=running,before=credit?after-amount:after+amount;
       running=before;
