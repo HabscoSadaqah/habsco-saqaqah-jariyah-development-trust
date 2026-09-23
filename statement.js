@@ -26,13 +26,15 @@ async function restJson(path,token,options={}){
 }
 async function getAuthSession(){if(!supabaseClient)throw new Error("Supabase client failed to load");const{data,error}=await supabaseClient.auth.getSession();if(error)throw error;return data?.session||null}
 async function getStatementRows(userId){
-  const{data,error}=await supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",userId).order("created_at",{ascending:false}).limit(1000);
-  if(error)throw error;
-  const rows=Array.isArray(data)?data:[];
-  const{data:wallet}=await supabaseClient.from("wallets").select("balance").eq("user_id",userId).maybeSingle();
-  let running=Number(wallet?.balance||0);
-  const valid=rows.filter(t=>Number.isFinite(Number(t.amount)));
-  return valid.map(t=>{
+  const [txRes,walletRes]=await Promise.all([
+    supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",userId).order("created_at",{ascending:false}).limit(1000),
+    supabaseClient.from("wallets").select("balance").eq("user_id",userId).maybeSingle()
+  ]);
+  if(txRes.error)throw txRes.error;
+  if(walletRes.error)throw walletRes.error;
+  const rows=Array.isArray(txRes.data)?txRes.data:[];
+  let running=Number(walletRes.data?.balance||0);
+  return rows.filter(t=>Number.isFinite(Number(t.amount))).map(t=>{
     const amount=Math.abs(Number(t.amount||0)),credit=directionOf(t)==="credit",balance_after=running,balance_before=credit?balance_after-amount:balance_after+amount;
     running=balance_before;
     return {...t,account_type:"wallet",balance_before,balance_after};
