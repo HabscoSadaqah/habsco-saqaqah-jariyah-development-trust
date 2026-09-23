@@ -81,38 +81,27 @@ async function load(){
   const list=$("statementRows");
   if(!list)return;
   list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
-
   try{
-    const {data:{session},error:sessionError}=await sessionPromise;
+    const {data:{session},error:sessionError}=await supabaseClient.auth.getSession();
     if(sessionError||!session?.user){
       list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';
       return;
     }
-
     const user=session.user;
-    const [txRes,walletRes]=await Promise.all([
-      supabaseClient
-        .from("transactions")
-        .select("reference,type,amount,direction,description,status,created_at")
-        .eq("user_id",user.id)
-        .order("created_at",{ascending:false})
-        .limit(100),
-      supabaseClient
-        .from("wallets")
-        .select("balance")
-        .eq("user_id",user.id)
-        .maybeSingle()
-    ]);
-
+    const txRes=await supabaseClient
+      .from("transactions")
+      .select("reference,type,amount,direction,description,status,created_at")
+      .eq("user_id",user.id)
+      .order("created_at",{ascending:false})
+      .limit(100);
     if(txRes.error){
       console.error("Statement transactions query failed:",txRes.error);
       list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
       return;
     }
-
-    const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
+    const walletRes=await supabaseClient.from("wallets").select("balance").eq("user_id",user.id).maybeSingle();
     let running=Number(walletRes?.data?.balance||0);
-
+    const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
     allRows=rows.map(x=>{
       const amount=Math.abs(Number(x.amount||0));
       const credit="credit"===String(x.direction||"").toLowerCase();
@@ -121,7 +110,6 @@ async function load(){
       running=before;
       return {...x,_before:before,_after:after};
     });
-
     expanded=false;
     render();
   }catch(e){
