@@ -37,7 +37,7 @@ jobs:
           test -f member.js
           test -f favicon.svg
           test -f CNAME
-          echo "Main branch website source verified"
+          echo "Main branch website source verified - dashboard deployment refresh"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
