@@ -70,6 +70,13 @@ function showReceipt(t){
   wrap.querySelector(".statement-receipt-backdrop").onclick=closeReceipt;
   wrap.querySelector(".statement-receipt-share").onclick=()=>printStatementReceipt(t);
 }
+function printStatementReceipt(t){
+  const blob=makePdf(t);
+  const url=URL.createObjectURL(blob);
+  const w=window.open(url,"_blank","noopener,noreferrer");
+  if(!w)alert("Please allow pop-ups to print/save the PDF receipt.");
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
 function shareReceipt(t){printStatementReceipt(t)}
 async function load(){
   const list=$("statementRows");
