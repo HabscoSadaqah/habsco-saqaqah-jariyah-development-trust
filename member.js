@@ -37,7 +37,7 @@ function renderRecentTransactions(){
       const ref=String(x.reference||"—");
       const date=x.created_at?new Date(x.created_at).toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true}):"—";
       const receipt=encodeURIComponent(JSON.stringify({type:title,description:desc,reference:ref,date,amount,credit,status}));
-      return '<div class="funding-item"><div class="activity-icon" aria-hidden="true">'+(credit?"↓":"↑")+'</div><div class="activity-main"><div class="activity-line-one"><span class="funding-title">'+escapeHtml(title.charAt(0).toUpperCase()+title.slice(1))+'</span><span class="activity-date">'+escapeHtml(date)+'</span></div><div class="funding-meta">'+escapeHtml(desc||"No description")+" · "+escapeHtml(ref)+" · "+escapeHtml(status)+'</div><div class="activity-balance"><span>Balance before: <strong>'+money(Number.isFinite(Number(x._before))?x._before:0)+'</strong></span><span>Balance after: <strong>'+money(Number.isFinite(Number(x._after))?x._after:0)+'</strong></span></div></div><div class="activity-side"><div class="funding-amount '+(credit?"credit":"debit")+'">'+(credit?"+":"−")+" "+money(amount)+'</div><div class="activity-receipt-row"><button type="button" class="activity-view-receipt" data-receipt="'+receipt+'">View</button></div></div></div>';
+      return '<div class="funding-item"><div class="activity-icon" aria-hidden="true">'+(credit?"↓":"↑")+'</div><div class="activity-main"><div class="activity-line-one"><span class="funding-title">'+escapeHtml(title.charAt(0).toUpperCase()+title.slice(1))+'</span><span class="activity-date">'+escapeHtml(date)+'</span></div><div class="funding-meta">'+escapeHtml(desc||"No description")+" · "+escapeHtml(ref)+" · "+escapeHtml(status)+'</div><div class="activity-balance" aria-label="Balance before and after"><span>Before <strong>'+money(Number.isFinite(Number(x._before))?x._before:0)+'</strong></span><span>After <strong>'+money(Number.isFinite(Number(x._after))?x._after:0)+'</strong></span></div></div><div class="activity-side"><div class="funding-amount '+(credit?"credit":"debit")+'">'+(credit?"+":"−")+" "+money(amount)+'</div><div class="activity-receipt-row"><button type="button" class="activity-view-receipt" data-receipt="'+receipt+'">View</button></div></div></div>';
     }).join("");
   }
   const hasPages=filtered.length>RECENT_ACTIVITY_PAGE_SIZE;
@@ -60,15 +60,20 @@ async function loadRecentTransactions(){
       supabaseClient.from("wallets").select("balance").eq("user_id",user.id).maybeSingle()
     ]);
     if(txRes.error)throw txRes.error;
-    const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
+    const rows=(txRes.data||[])
+      .filter(x=>Number.isFinite(Number(x.amount)))
+      .sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
     let running=Number(walletRes.data?.balance||0);
+    if(!Number.isFinite(running)) running=0;
     recentActivityRows=rows.map(x=>{
       const amount=Math.abs(Number(x.amount||0));
       const credit="credit"===String(x.direction||"").toLowerCase();
+      const status=String(x.status||"").toLowerCase();
+      const affectsBalance=["approved","completed","recorded"].includes(status);
       const after=running;
-      const before=credit?after-amount:after+amount;
-      running=before;
-      return {...x,_before:before,_after:after};
+      const before=affectsBalance?(credit?after-amount:after):after;
+      if(affectsBalance) running=before;
+      return {...x,_before:before,_after:after,_affectsBalance:affectsBalance};
     });
     recentActivityPage=0;
     renderRecentTransactions();
