@@ -55,7 +55,7 @@ async function load(){
     const user=auth?.data?.user;
     if(!user){list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';return;}
     const tx=await Promise.race([
-      supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100),
+      supabaseClient.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(1000),
       new Promise((_,reject)=>setTimeout(()=>reject(new Error("Transaction request timed out")),12000))
     ]);
     if(tx.error)throw tx.error;
@@ -78,7 +78,7 @@ async function load(){
 function startStatementSync(){supabaseClient.auth.getUser().then(({data})=>{const user=data?.user;if(!user)return;if(window.habscoStatementChannel)supabaseClient.removeChannel(window.habscoStatementChannel);window.habscoStatementChannel=supabaseClient.channel("statement-sync-"+user.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"transactions"},p=>{if(p.new?.user_id===user.id)load()}).on("postgres_changes",{event:"UPDATE",schema:"public",table:"transactions"},p=>{if(p.new?.user_id===user.id)load()}).on("postgres_changes",{event:"DELETE",schema:"public",table:"transactions"},p=>{if(p.old?.user_id===user.id)load()}).subscribe()}).catch(()=>{})}
 function init(){
   const apply=$("apply"),more=$("loadMore"),from=$("fromDate"),to=$("toDate"),print=$("printBtn");
-  apply&&(apply.onclick=()=>{expanded=false;render()});more&&(more.onclick=()=>{expanded=!expanded;render()});from&&from.addEventListener("change",()=>{expanded=false;render()});to&&to.addEventListener("change",()=>{expanded=false;render()});print&&(print.onclick=()=>window.print());
+  apply&&(apply.onclick=()=>{expanded=false;render()});more&&(more.onclick=()=>{expanded=!expanded;render()});from&&from.addEventListener("change",()=>{expanded=false;render()});to&&to.addEventListener("change",()=>{expanded=false;render()});print&&(print.onclick=()=>{expanded=true;render();setTimeout(()=>{window.print();setTimeout(()=>{expanded=false;render()},250)},50)});
   load();startStatementSync();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
