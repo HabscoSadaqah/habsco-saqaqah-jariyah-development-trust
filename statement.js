@@ -81,25 +81,42 @@ function shareReceipt(t){printStatementReceipt(t)}
 async function load(){
   const list=$("statementRows");
   if(!list)return;
-  list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
+  list.innerHTML='<div class="funding-empty">Loading transaction history…</div>';
   try{
-    const {data:{session},error:sessionError}=await supabaseClient.auth.getSession();
-    if(sessionError||!session?.user){
+    if(!window.supabase||typeof window.supabase.createClient!=="function"){
+      throw new Error("Supabase library unavailable");
+    }
+    const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
+      auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true},
+      global:{fetch:(url,options={})=>fetch(url,{...options,signal:AbortSignal.timeout(12000)})}
+    });
+    const sessionResult=await Promise.race([
+      client.auth.getSession(),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error("Session request timed out")),12000))
+    ]);
+    const session=sessionResult?.data?.session;
+    if(!session?.user){
       list.innerHTML='<div class="funding-empty">Please sign in to view your transaction history.</div>';
       return;
     }
     const user=session.user;
-    const txRes=await supabaseClient.from("transactions")
-      .select("reference,type,amount,direction,description,status,created_at")
-      .eq("user_id",user.id).order("created_at",{ascending:false}).limit(100);
+    const txRes=await Promise.race([
+      client.from("transactions").select("reference,type,amount,direction,description,status,created_at").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error("Transaction request timed out")),12000))
+    ]);
     if(txRes.error)throw txRes.error;
-
     const rows=(txRes.data||[]).filter(x=>Number.isFinite(Number(x.amount)));
-    const walletRes=await supabaseClient.from("wallets").select("balance").eq("user_id",user.id).maybeSingle();
-    let running=Number(walletRes?.data?.balance||0);
+    let running=0;
+    try{
+      const walletRes=await Promise.race([
+        client.from("wallets").select("balance").eq("user_id",user.id).maybeSingle(),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error("Wallet request timed out")),8000))
+      ]);
+      if(!walletRes?.error)running=Number(walletRes?.data?.balance||0);
+    }catch(_e){}
     allRows=rows.map(x=>{
       const amount=Math.abs(Number(x.amount||0));
-      const credit="credit"===String(x.direction||"").toLowerCase();
+      const credit=String(x.direction||"").toLowerCase()==="credit";
       const after=running;
       const before=credit?after-amount:after+amount;
       running=before;
@@ -107,9 +124,10 @@ async function load(){
     });
     expanded=false;
     render();
+    if(!allRows.length)list.innerHTML='<div class="funding-empty">No transactions yet.</div>';
   }catch(e){
     console.error("Statement load failed:",e);
-    list.innerHTML='<div class="funding-empty">Unable to load recent activity.</div>';
+    list.innerHTML='<div class="funding-empty">Unable to load transaction history. Please refresh.</div>';
   }
 }
 function startStatementSync(){
