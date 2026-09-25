@@ -70,7 +70,7 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
       });
     }
     const loadTransactionAccess=async()=>{
-      memberTransactionAccess=Object.fromEntries(activeMembers.map(m=>[m.id,false]));
+      memberTransactionAccess=Object.fromEntries(activeMembers.map(m=>[m.id,true]));
       try{
         const result=await Promise.race([
           supabaseClient.rpc("admin_list_member_feature_controls"),
@@ -80,7 +80,7 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
         const rows=Array.isArray(result.data)?result.data:[];
         const byId=Object.fromEntries(rows.map(row=>[
           row.user_id,
-          row.payments_enabled===true && row.transfers_enabled===true
+          row.payments_enabled !== false && row.transfers_enabled !== false
         ]));
         memberTransactionAccess=Object.fromEntries(activeMembers.map(m=>[
           m.id,
