@@ -87,6 +87,7 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
     };
 
     renderMemberRows();
+    await loadTransactionAccess();
 
     const names=Object.fromEntries(members.map(m=>[m.id,m.full_name||m.member_id]));
     const funding=fRes.data||[],qard=qRes.data||[],approved=approvedRes.data||[],repayments=repaymentRes.data||[];
