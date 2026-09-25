@@ -70,23 +70,24 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
       });
     }
     const loadTransactionAccess=async()=>{
-      // Read the exact server-side transaction-access value used by the toggle.
-      // Never leave the UI in CHECKING or silently assume access is allowed.
+      // Load the persisted server value for every member in one admin RPC.
+      // Transaction access is ON only when both payments and transfers are enabled.
       memberTransactionAccess=Object.fromEntries(activeMembers.map(m=>[m.id,false]));
       refreshTransactionAccessControls();
       try{
-        const results=await Promise.all(activeMembers.map(async m=>{
-          const result=await Promise.race([
-            supabaseClient.rpc("admin_get_member_transaction_access",{p_user_id:m.id}),
-            new Promise((_,reject)=>setTimeout(()=>reject(new Error("Transaction access check timed out.")),5000))
-          ]);
-          if(result.error)throw result.error;
-          return [m.id,result.data===true];
-        }));
-        memberTransactionAccess=Object.fromEntries(results);
+        const result=await Promise.race([
+          supabaseClient.rpc("admin_list_member_feature_controls"),
+          new Promise((_,reject)=>setTimeout(()=>reject(new Error("Transaction access check timed out.")),7000))
+        ]);
+        if(result.error)throw result.error;
+        const rows=Array.isArray(result.data)?result.data:[];
+        memberTransactionAccess=Object.fromEntries(rows.map(row=>[
+          row.user_id,
+          row.payments_enabled===true && row.transfers_enabled===true
+        ]));
       }catch(e){
         console.warn("Member transaction access load failed:",e);
-        show("globalMsg","Transaction access could not be verified. Controls remain RESTRICTED until verified.");
+        show("globalMsg","Transaction access could not be verified. Controls remain OFF until verified.");
       }
       refreshTransactionAccessControls();
     };
