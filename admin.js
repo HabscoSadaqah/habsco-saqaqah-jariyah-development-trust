@@ -70,19 +70,21 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
       });
     }
     const loadTransactionAccess=async()=>{
-      // Read the persisted transaction-access state directly from the server.
       memberTransactionAccess=Object.fromEntries(activeMembers.map(m=>[m.id,false]));
-      refreshTransactionAccessControls();
       try{
         const result=await Promise.race([
-          supabaseClient.rpc("admin_get_all_member_transaction_access"),
+          supabaseClient.rpc("admin_list_member_feature_controls"),
           new Promise((_,reject)=>setTimeout(()=>reject(new Error("Transaction access check timed out.")),7000))
         ]);
         if(result.error)throw result.error;
-        const map=result.data&&typeof result.data==="object"&&!Array.isArray(result.data)?result.data:{};
+        const rows=Array.isArray(result.data)?result.data:[];
+        const byId=Object.fromEntries(rows.map(row=>[
+          row.user_id,
+          row.payments_enabled===true && row.transfers_enabled===true
+        ]));
         memberTransactionAccess=Object.fromEntries(activeMembers.map(m=>[
           m.id,
-          map[m.id]===true
+          byId[m.id]===true
         ]));
       }catch(e){
         console.warn("Member transaction access load failed:",e);
