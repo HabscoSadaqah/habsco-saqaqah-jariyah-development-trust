@@ -70,11 +70,21 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
         if(item)item.querySelector("strong").textContent=memberTransactionAccess[id]?"ALLOWED":"RESTRICTED";
       });
     };
-    const loadTransactionAccess=()=>supabaseClient.rpc("admin_list_member_feature_controls").then(({data,error})=>{
-      if(error){console.warn("Member transaction access load failed:",error);return;}
-      memberTransactionAccess=Object.fromEntries((data||[]).map(x=>[x.user_id,Boolean(x.payments_enabled&&x.transfers_enabled)]));
-      refreshTransactionAccessControls();
-    }).catch(e=>console.warn("Member transaction access load failed:",e));
+    const loadTransactionAccess=async()=>{
+      try{
+        const {data,error}=await supabaseClient.rpc("admin_list_member_feature_controls");
+        if(error)throw error;
+        memberTransactionAccess=Object.fromEntries((data||[]).map(x=>[x.user_id,Boolean(x.payments_enabled&&x.transfers_enabled)]));
+        refreshTransactionAccessControls();
+        return true;
+      }catch(e){
+        console.warn("Member transaction access load failed:",e);
+        memberTransactionAccess=Object.fromEntries(activeMembers.map(m=>[m.id,false]));
+        refreshTransactionAccessControls();
+        show("globalMsg","Member transaction access could not be verified. Controls remain restricted until verified.");
+        return false;
+      }
+    };
 
     renderMemberRows();
 
@@ -86,7 +96,7 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
     $("repaymentTable").innerHTML=repayments.map(r=>`<tr><td>${esc(names[r.user_id]||r.user_id)}</td><td>${money(r.amount)}</td><td>${esc(r.payment_reference)}</td><td>${esc(r.paid_date)}</td><td class="actions"><button class="btn" data-repay="${r.id}" data-decision="approved">APPROVE</button><button class="btn red" data-repay="${r.id}" data-decision="rejected">REJECT</button></td></tr>`).join("")||'<tr><td colspan="5">No pending repayment proofs.</td></tr>';
     $("auditTable").innerHTML=(auditRes.data||[]).map(a=>`<tr><td>${new Date(a.created_at).toLocaleString("en-NG")}</td><td>${esc(a.action)}</td><td>${esc(a.reference_id||"")}</td><td>${esc(JSON.stringify(a.details||{}))}</td></tr>`).join("")||'<tr><td colspan="4">No audit entries.</td></tr>';
     renderAnalytics(funding,qard);
-    loadTransactionAccess();
+    await loadTransactionAccess();
   }catch(e){
     console.error("Administrator dashboard load failed:",e);
     show("globalMsg",e?.message||"Unable to load administrator data.");
