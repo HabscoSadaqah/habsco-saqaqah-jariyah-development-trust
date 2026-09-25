@@ -21,7 +21,7 @@ a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;
 .primary{background:var(--green);color:#fff}.secondary{border:1px solid var(--line);color:var(--green);background:#fff}
 .footer{margin-top:25px;color:#8a928d;font-size:9px}
 </style>
-</head>
+<style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style></head>
 <body>
 <main class="card">
 <img class="logo" src="logo.svg" alt="HABSCO">
@@ -62,5 +62,5 @@ function showError(message){
  }catch(e){console.error("HABSCO email confirmation:",e);showError(e?.message||"Unable to confirm this email address.")}
 })();
 </script>
-</body>
+<footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body>
 </html>
