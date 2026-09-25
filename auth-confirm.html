@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#063b29">
+<title>Confirm Email | HABSCO</title>
+<link rel="icon" href="favicon.svg">
+<style>
+:root{--green:#087a43;--deep:#063b29;--ink:#13231b;--muted:#718079;--line:#dce7e1;--soft:#f4f8f6}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--soft)}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{width:min(100%,460px);background:#fff;border:1px solid var(--line);border-radius:22px;padding:38px 28px;text-align:center;box-shadow:0 16px 45px #143c2b12}
+.logo{width:82px;height:82px;object-fit:contain;margin:0 auto 18px;display:block}
+h1{margin:0;color:var(--deep);font-size:27px;letter-spacing:-.7px}
+p{margin:10px auto 0;color:var(--muted);font-size:13px;line-height:1.6;max-width:360px}
+.status{margin:22px 0 0;padding:12px 14px;border-radius:10px;background:#f1f7f3;color:#315844;font-size:12px;line-height:1.5}
+.status.error{background:#fff0f0;color:#9b1c1c}
+.actions{margin-top:20px;display:flex;gap:9px;justify-content:center;flex-wrap:wrap}
+a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:10px;text-decoration:none;font-size:11px;font-weight:850}
+.primary{background:var(--green);color:#fff}.secondary{border:1px solid var(--line);color:var(--green);background:#fff}
+.footer{margin-top:25px;color:#8a928d;font-size:9px}
+</style>
+</head>
+<body>
+<main class="card">
+<img class="logo" src="logo.svg" alt="HABSCO">
+<h1 id="title">Confirming your email…</h1>
+<p id="description">Please wait while we securely complete your HABSCO membership verification.</p>
+<div id="status" class="status" aria-live="polite">Verifying your account…</div>
+<div class="actions" id="actions" hidden>
+<a class="primary" href="member.html">Open Member Portal</a>
+<a class="secondary" href="auth.html">Sign in</a>
+</div>
+<div class="footer">© 2026 Habsco. All Rights Reserved.</div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script>
+<script>
+const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN";
+const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const title=document.getElementById("title"),description=document.getElementById("description"),status=document.getElementById("status"),actions=document.getElementById("actions");
+function showError(message){
+ title.textContent="Email confirmation needs attention";
+ description.textContent="We could not complete the confirmation automatically.";
+ status.textContent=message;status.classList.add("error");actions.hidden=false;
+}
+(async()=>{
+ try{
+  const params=new URLSearchParams(location.search);
+  const error=params.get("error_description")||params.get("error");
+  if(error){showError(decodeURIComponent(error.replace(/\+/g," ")));return}
+  const {data,error:sessionError}=await client.auth.getSession();
+  if(sessionError) throw sessionError;
+  if(!data?.session?.user) throw new Error("This confirmation link is invalid, expired, or has already been used.");
+  title.textContent="Email confirmed";
+  description.textContent="Your HABSCO membership email has been successfully verified.";
+  status.textContent="Your account is ready. You can now continue to your member portal.";
+  status.classList.remove("error");actions.hidden=false;
+  try{sessionStorage.setItem("hf_member_full_name",String(data.session.user.user_metadata?.full_name||"").trim())}catch{}
+  setTimeout(()=>location.replace("member.html"),900);
+ }catch(e){console.error("HABSCO email confirmation:",e);showError(e?.message||"Unable to confirm this email address.")}
+})();
+</script>
+</body>
+</html>
