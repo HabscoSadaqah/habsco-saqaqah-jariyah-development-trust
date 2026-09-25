@@ -50,7 +50,7 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
     $("walletUser").innerHTML=opts;
     $("memberIdUser").innerHTML=opts;
 
-    const refreshTransactionAccessControls=()=>{
+    function refreshTransactionAccessControls(){
       document.querySelectorAll("[data-transaction-access]").forEach(el=>{
         const id=el.dataset.transactionAccess;
         const allowed=memberTransactionAccess[id]===true;
@@ -68,7 +68,7 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
         const item=Array.from(row.querySelectorAll(".member-detail-item")).find(x=>x.querySelector("small")?.textContent==="Transactions");
         if(item)item.querySelector("strong").textContent=memberTransactionAccess[id]===true?"ALLOWED":"RESTRICTED";
       });
-    };
+    }
     const loadTransactionAccess=async()=>{
       // Never leave the UI in CHECKING. Default to restricted until the server confirms access.
       memberTransactionAccess=Object.fromEntries(activeMembers.map(m=>[m.id,false]));
