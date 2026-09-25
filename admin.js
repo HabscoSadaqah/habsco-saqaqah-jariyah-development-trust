@@ -5,7 +5,7 @@ async function loadMembers(){
   el.innerHTML='<tr><td colspan="16">Loading members…</td></tr>';
   try{
     const result=await Promise.race([
-      supabaseClient.from("profiles").select("id,full_name,member_id,status,role,savings_withdrawal_enabled").eq("role","member").order("created_at",{ascending:false}),
+      supabaseClient.from("profiles").select("id,full_name,member_id,status,role,savings_withdrawal_enabled").or("role.eq.member,member_id.not.is.null").order("created_at",{ascending:false}),
       new Promise((_,reject)=>setTimeout(()=>reject(new Error("Member list timed out.")),10000))
     ]);
     if(result.error)throw result.error;
