@@ -5,6 +5,7 @@ const configs={
  fund:["Add Money","Submit a wallet funding payment for verification."],save:["Save in Cooperative","Move money into a cooperative account."],
  qard:["Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"request-qard":["Request Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"repay-qard":["Repay Interest-Free Loan","Submit repayment details for a disbursed loan."],
  receive:["Receive Fund","Approved funding and member transfers are credited server-side."],
+ "virtual-account":["Fund Wallet via Virtual Account","Use your dedicated Squad virtual account to fund your HABSCO wallet automatically."],
  airtime:["Airtime","Select the provider, enter the receiver and amount, then complete the provider-validated purchase."],
  data:["Mobile Data","Select the provider and live package, enter the receiver, then complete the provider-validated purchase."],
  tv:["TV Subscription","Select the provider and live package, verify the subscriber, then complete the provider-validated purchase."],
@@ -51,6 +52,21 @@ async function init(){
  const session=await auth();if(!session)return;
  if($("title"))$("title").textContent=title;if($("subtitle"))$("subtitle").textContent=subtitle;
  if(["airtime","data","tv","education","electricity"].includes(effectiveAction)){await setupUtility();return}
+ if(effectiveAction==="virtual-account"){
+  const {data:va,error:vae}=await supabaseClient.functions.invoke("squad-virtual-account",{body:{action:"get"}});
+  if(vae)throw vae;
+  if(va?.data){
+    const x=va.data;
+    $("formArea").innerHTML='<div class="api-note"><strong>HABSCO Wallet Funding Account</strong><br><br><strong>Bank:</strong> '+esc(x.bank_code||"Squad partner bank")+'<br><strong>Account Number:</strong> '+esc(x.virtual_account_number)+'<br><strong>Customer ID:</strong> '+esc(x.customer_identifier)+'<br><br>Transfer money to this account from any Nigerian bank. Once Squad confirms the payment, the settled amount is credited automatically to your HABSCO Available Wallet.</div>';
+    return;
+  }
+  let profile={};
+  const {data:pr}=await supabaseClient.from("profiles").select("first_name,middle_name,surname,full_name,phone").eq("id",session.user.id).maybeSingle();
+  if(pr)profile=pr;
+  const parts=String(profile.full_name||"").trim().split(/\\s+/).filter(Boolean);
+  const first=profile.first_name||parts[0]||"", last=profile.surname||parts.slice(1).join(" ")||"";
+  form('<div class="api-note">Squad requires BVN-verified customer details before a virtual account can be created. Your BVN and date of birth are used for account creation and are not displayed as your wallet account number.</div><label>First name<input id="vaFirst" value="'+esc(first)+'" required></label><label>Last name<input id="vaLast" value="'+esc(last)+'" required></label><label>Mobile number<input id="vaMobile" inputmode="tel" maxlength="11" value="'+esc(profile.phone||"")+'" required></label><label>Date of birth<input id="vaDob" type="date" required></label><label>BVN<input id="vaBvn" inputmode="numeric" maxlength="11" required></label><label>Gender<select id="vaGender" required><option value="">Select gender</option><option value="1">Male</option><option value="2">Female</option></select></label><label>Address<textarea id="vaAddress" required></textarea></label>');
+ }
  if(effectiveAction==="receive"){$("formArea").innerHTML='<div class="api-note">Receive Fund does not create a fake balance. Funds are credited only by approved server-side/admin transactions or completed member transfers.</div>';return}
  if(effectiveAction==="send"){const {data:fc,error:fe}=await supabaseClient.rpc("member_get_feature_controls");const f=Array.isArray(fc)?fc[0]:fc;if(fe)throw fe;if(f?.transfers_enabled===false){$("formArea").innerHTML='<div class="api-note" style="color:#a52a2a;background:#fff1f1;border:1px solid #f0caca;padding:14px;border-radius:12px"><strong>Inter-Wallet Transfer Restricted</strong><br>Inter-Wallet Transfer has been restricted by the administrator. You cannot send money while this restriction is active.</div>';return}form('<label>Member ID<input id="recipient" placeholder="HF-001" required></label><label>Amount (NGN)<input id="amount" type="number" min="1" step="0.01" required></label><label>Note<input id="note" placeholder="Optional note"></label>'+pinField());}
  else if(effectiveAction==="fund")form('<label>Amount (NGN)<input id="amount" type="number" min="1" required></label><label>Payment date<input id="date" type="date" required></label><label>Payment reference<input id="ref" required></label><label>Note<textarea id="note"></textarea></label>');
@@ -60,6 +76,16 @@ async function init(){
  else if(effectiveAction==="repay-qard"){form('<label>Loan request<select id="qard" required><option value="">Loading disbursed loan...</option></select></label><label>Amount (NGN)<input id="amount" type="number" min="1" required></label><label>Payment date<input id="date" type="date" required></label><label>Payment reference<input id="ref" required></label><label>Note<textarea id="note"></textarea></label>');const {data,error}=await supabaseClient.from("qard_requests").select("id,amount,created_at,status").eq("user_id",session.user.id).eq("status","disbursed").order("created_at",{ascending:false});if(!error)$("qard").innerHTML='<option value="">Select disbursed loan</option>'+(data||[]).map(r=>'<option value="'+esc(r.id)+'">₦'+Number(r.amount).toLocaleString()+" · "+new Date(r.created_at).toLocaleDateString("en-NG")+"</option>").join("")}
 }
 $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")return;e.preventDefault();const b=$("actionSubmit");b.disabled=true;try{const bio=window.__hfBioAuthorizationToken||null;let r;
+ if(effectiveAction==="virtual-account"){
+   const dob=$("vaDob").value;
+   const profileData={first_name:$("vaFirst").value.trim(),last_name:$("vaLast").value.trim(),mobile_num:$("vaMobile").value.trim(),dob:dob?dob.split("-").slice(1).concat(dob.split("-")[0]).join("/"):"",bvn:$("vaBvn").value.trim(),gender:$("vaGender").value,address:$("vaAddress").value.trim(),email:session.user.email||""};
+   const {data,error}=await supabaseClient.functions.invoke("squad-virtual-account",{body:{action:"create",profile:profileData}});
+   if(error)throw error;
+   if(data?.error)throw Error(data.error);
+   const x=data?.data;
+   $("formArea").innerHTML='<div class="api-note"><strong>Virtual Account Created</strong><br><br><strong>Bank:</strong> '+esc(x?.bank_code||"Squad partner bank")+'<br><strong>Account Number:</strong> '+esc(x?.virtual_account_number||"")+'<br><strong>Customer ID:</strong> '+esc(x?.customer_identifier||"")+'<br><br>You can now transfer money to this account. Confirmed payments will credit your HABSCO Available Wallet automatically.</div>';
+   msg("Virtual account created successfully.",true);return;
+ }
  if(effectiveAction==="send")r=await supabaseClient.rpc("member_transfer",{p_recipient_member_id:$("recipient").value.trim().toUpperCase(),p_amount:Number($("amount").value),p_description:$("note").value.trim()||null,p_transaction_pin:$("transactionPin").value.trim()});
  else if(effectiveAction==="fund")r=await supabaseClient.rpc("member_submit_funding_request",{p_amount:Number($("amount").value),p_paid_at:$("date").value,p_payment_reference:$("ref").value.trim(),p_purpose:"wallet",p_note:$("note").value.trim()||null});
  else if(effectiveAction==="dividend")r=await supabaseClient.rpc("member_withdraw_dividend",{p_amount:Number($("amount").value),p_transaction_pin:$("transactionPin").value.trim()});
