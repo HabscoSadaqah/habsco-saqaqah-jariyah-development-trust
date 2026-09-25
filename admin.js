@@ -72,7 +72,7 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
     };
     const loadTransactionAccess=async()=>{
       try{
-        const {data,error}=await supabaseClient.rpc("admin_list_member_feature_controls");
+        const result=await Promise.race([supabaseClient.rpc("admin_list_member_feature_controls"),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Transaction access check timed out.")),5000))]); const {data,error}=result;
         if(error)throw error;
         memberTransactionAccess=Object.fromEntries((data||[]).map(x=>[x.user_id,Boolean(x.payments_enabled&&x.transfers_enabled)]));
         refreshTransactionAccessControls();
@@ -97,7 +97,6 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
     $("repaymentTable").innerHTML=repayments.map(r=>`<tr><td>${esc(names[r.user_id]||r.user_id)}</td><td>${money(r.amount)}</td><td>${esc(r.payment_reference)}</td><td>${esc(r.paid_date)}</td><td class="actions"><button class="btn" data-repay="${r.id}" data-decision="approved">APPROVE</button><button class="btn red" data-repay="${r.id}" data-decision="rejected">REJECT</button></td></tr>`).join("")||'<tr><td colspan="5">No pending repayment proofs.</td></tr>';
     $("auditTable").innerHTML=(auditRes.data||[]).map(a=>`<tr><td>${new Date(a.created_at).toLocaleString("en-NG")}</td><td>${esc(a.action)}</td><td>${esc(a.reference_id||"")}</td><td>${esc(JSON.stringify(a.details||{}))}</td></tr>`).join("")||'<tr><td colspan="4">No audit entries.</td></tr>';
     renderAnalytics(funding,qard);
-    await loadTransactionAccess();
   }catch(e){
     console.error("Administrator dashboard load failed:",e);
     show("globalMsg",e?.message||"Unable to load administrator data.");
