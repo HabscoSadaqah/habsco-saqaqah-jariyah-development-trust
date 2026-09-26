@@ -1,5 +1,5 @@
 // HABSCO FAST WORKER v28: member/admin documents are always network-fresh.
-const CACHE_NAME = "habsco-static-v30";
+const CACHE_NAME = "habsco-static-v31";
 
 const STATIC_DESTINATIONS = new Set(["style","script","image","font","manifest"]);
 
@@ -25,8 +25,8 @@ self.addEventListener("fetch",event=>{
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
 
-  // Admin pages must never be served from an old CacheStorage entry.
-  if(url.pathname==="/admin"||url.pathname==="/admin.html"){
+  // Admin pages and every admin asset must bypass CacheStorage. This prevents stale member loaders/scripts from surviving deployments.\n  const adminReferrer = /\/admin(?:\.html)?(?:[?#]|$)/.test(new URL(request.referrer||"",self.location.origin).pathname);\n  if(adminReferrer){\n    event.respondWith(fetch(new Request(request,{cache:"no-store"})));\n    return;\n  }\n\n  // Admin pages must never be served from an old CacheStorage entry.
+  if(url.pathname==="/admin"||url.pathname==="/admin.html"||url.pathname.startsWith("/admin-")||url.pathname==="/admin.js"){
     event.respondWith(fetch(new Request(request,{cache:"no-store"})));
     return;
   }
