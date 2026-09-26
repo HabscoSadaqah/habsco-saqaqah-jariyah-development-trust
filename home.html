@@ -1,11 +1,27 @@
 <!doctype html><html lang="en-NG"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>HABSCO</title><meta name="description" content="HABSCO business, cooperative financial and charity services."><link rel="icon" href="favicon.svg"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="app.css?v=fast-home-1"><style>
+:root{--habsco-green:#0b5d31;--habsco-green-2:#0f7040;--habsco-gold:#f2c94c;--ink:#17321f;--muted:#6f8176;--surface:#fff}
+*{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body.finance-page{margin:0;background:#f5f8f5;color:#17321f;font-family:Inter,Arial,Helvetica,sans-serif;overflow-x:hidden}
-.finance-shell{width:100%;min-height:100svh}
-.finance-hero{min-height:100svh;background:linear-gradient(180deg,#0c5b2d 0%,#0f6332 38%,#f5f8f5 38%,#f5f8f5 100%);color:#17321f}
-.finance-hero-content{width:100%;min-height:100svh;margin:auto;padding:18px 14px 24px;box-sizing:border-box;display:flex;flex-direction:column;align-items:center}
-.finance-hero-brand{margin:4px 0 14px;display:flex;justify-content:center}.finance-hero-brand img{display:block;width:min(300px,72vw);height:auto;max-height:62px;object-fit:contain;filter:brightness(0) invert(1)}
-.join-habsco{display:inline-flex;align-items:center;justify-content:center;margin:0 0 9px;padding:12px 27px;border-radius:999px;background:#f3c94d;color:#17321f;font-size:14px;font-weight:900;text-decoration:none;box-shadow:0 5px 14px rgba(0,0,0,.14)}
-.swipe-hint{margin:0 0 12px;color:rgba(255,255,255,.78);font-size:10px;font-weight:700;letter-spacing:.2px}
-.finance-service-grid{scroll-behavior:auto}}
+body.finance-page{margin:0;min-height:100svh;background:#f5f8f6;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;overflow-x:hidden}
+.finance-shell{min-height:100svh}
+.finance-hero{min-height:100svh;display:flex;align-items:center;justify-content:center;padding:clamp(18px,4vw,48px);background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.1),transparent 38%),linear-gradient(155deg,var(--habsco-green) 0%,var(--habsco-green-2) 48%,#f5f8f6 48%,#f5f8f6 100%)}
+.finance-hero-content{width:min(100%,760px);min-height:min(720px,calc(100svh - 36px));padding:clamp(28px,6vw,64px) clamp(20px,6vw,72px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.finance-hero-brand{width:100%;display:flex;justify-content:center;align-items:center;margin:0 0 clamp(22px,4vh,38px)}
+.finance-hero-brand img{display:block;width:min(360px,78vw);height:auto;max-height:86px;object-fit:contain;filter:brightness(0) invert(1)}
+.join-habsco{display:inline-flex;align-items:center;justify-content:center;min-width:min(230px,78vw);min-height:52px;padding:14px 30px;border-radius:999px;background:var(--habsco-gold);color:#17321f;font-size:15px;font-weight:850;letter-spacing:.15px;text-decoration:none;box-shadow:0 10px 24px rgba(0,0,0,.16);transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+.join-habsco:hover{transform:translateY(-2px);box-shadow:0 13px 28px rgba(0,0,0,.2);background:#f6d35f}
+.join-habsco:focus-visible{outline:3px solid rgba(255,255,255,.9);outline-offset:4px}
+.finance-hero-copyright{margin-top:clamp(42px,8vh,80px);font-size:11px;line-height:1.5;color:rgba(255,255,255,.78);text-align:center}
+.habsco-standard-footer{background:#f5f8f6}
+footer .copyright,footer .habsco-copyright{background:transparent!important;color:#7c8981!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:12px!important;text-align:center!important}
+@media(max-width:600px){
+ .finance-hero{min-height:100svh;padding:12px;background:linear-gradient(160deg,var(--habsco-green) 0%,var(--habsco-green-2) 54%,#f5f8f6 54%,#f5f8f6 100%)}
+ .finance-hero-content{min-height:calc(100svh - 24px);padding:28px 18px 34px}
+ .finance-hero-brand{margin-bottom:28px}
+ .finance-hero-brand img{width:min(290px,82vw);max-height:66px}
+ .join-habsco{width:min(100%,280px);min-height:50px;font-size:14px}
+ .finance-hero-copyright{margin-top:56px}
+}
+@media(min-width:601px) and (max-width:900px){.finance-hero-content{width:min(92vw,700px)}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.join-habsco{transition:none}}
 </style><style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style></head><body class="finance-page"><main class="finance-shell"><section class="finance-hero"><div class="finance-hero-grid" aria-hidden="true"></div><div class="finance-hero-ring ring-one" aria-hidden="true"></div><div class="finance-hero-ring ring-two" aria-hidden="true"></div><div class="finance-hero-content"><div class="finance-hero-brand"><img src="/assets/habsco-wordmark.svg?v=20260917" alt="HABSCO" width="760" height="150"></div><a class="join-habsco" href="auth.html">Join Us</a></section><div class="finance-hero-copyright">© 2026 Habsco. All Rights Reserved.</div></div></section></main><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body></html>
