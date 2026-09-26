@@ -57,7 +57,7 @@ async function init(){
   if(vae)throw vae;
   if(va?.data){
     const x=va.data;
-    $("formArea").innerHTML='<div class="api-note"><strong>HABSCO Wallet Funding Account</strong><br><br><strong>Bank:</strong> '+esc(x.bank_code||"Squad partner bank")+'<br><strong>Account Number:</strong> '+esc(x.virtual_account_number)+'<br><strong>Customer ID:</strong> '+esc(x.customer_identifier)+'<br><br>Transfer money to this account from any Nigerian bank. Once Squad confirms the payment, the settled amount is credited automatically to your HABSCO Available Wallet.</div>';
+    $("formArea").innerHTML='<div class="api-note"><strong>HABSCO Wallet Funding Account</strong><br><br><strong>Bank:</strong> '+esc(x.bank_code||"Squad partner bank")+'<br><strong>Account Number:</strong> '+esc(x.virtual_account_number)+'<br><strong>Customer ID:</strong> '+esc(x.customer_identifier)+'<br><br>Transfer money to this account from any Nigerian bank. Once Squad confirms the payment, the settled amount is credited automatically to your HABSCO Wallet Balance.</div>';
     return;
   }
   let profile={};
@@ -83,7 +83,7 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
    if(error)throw error;
    if(data?.error)throw Error(data.error);
    const x=data?.data;
-   $("formArea").innerHTML='<div class="api-note"><strong>Virtual Account Created</strong><br><br><strong>Bank:</strong> '+esc(x?.bank_code||"Squad partner bank")+'<br><strong>Account Number:</strong> '+esc(x?.virtual_account_number||"")+'<br><strong>Customer ID:</strong> '+esc(x?.customer_identifier||"")+'<br><br>You can now transfer money to this account. Confirmed payments will credit your HABSCO Available Wallet automatically.</div>';
+   $("formArea").innerHTML='<div class="api-note"><strong>Virtual Account Created</strong><br><br><strong>Bank:</strong> '+esc(x?.bank_code||"Squad partner bank")+'<br><strong>Account Number:</strong> '+esc(x?.virtual_account_number||"")+'<br><strong>Customer ID:</strong> '+esc(x?.customer_identifier||"")+'<br><br>You can now transfer money to this account. Confirmed payments will credit your HABSCO Wallet Balance automatically.</div>';
    msg("Virtual account created successfully.",true);return;
  }
  if(effectiveAction==="send")r=await supabaseClient.rpc("member_transfer",{p_recipient_member_id:$("recipient").value.trim().toUpperCase(),p_amount:Number($("amount").value),p_description:$("note").value.trim()||null,p_transaction_pin:$("transactionPin").value.trim()});
