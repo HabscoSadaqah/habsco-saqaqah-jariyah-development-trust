@@ -4,6 +4,8 @@ set -euo pipefail
 DOMAIN="admin.habscosadaqah.org"
 ROOT="/var/www/habsco-admin"
 REPO="https://github.com/HabscoSadaqah/habsco-saqaqah-jariyah-development-trust.git"
+NGINX_AVAILABLE="/etc/nginx/sites-available/admin.habscosadaqah.org.conf"
+NGINX_ENABLED="/etc/nginx/sites-enabled/admin.habscosadaqah.org.conf"
 
 export DEBIAN_FRONTEND=noninteractive
 
@@ -28,15 +30,27 @@ if [ ! -f "$CONFIG" ]; then
 fi
 
 install -d /etc/nginx/sites-available /etc/nginx/sites-enabled
-install -m 0644 "$CONFIG" /etc/nginx/sites-available/admin.habscosadaq.org.conf
-ln -sf /etc/nginx/sites-available/admin.habscosadaq.org.conf /etc/nginx/sites-enabled/admin.habscosadaq.org.conf
+
+# Keep one authoritative server block for the admin/utility hostnames.
+# Disable older duplicate enabled configs without deleting their source files.
+for candidate in /etc/nginx/sites-enabled/*; do
+  [ -e "$candidate" ] || continue
+  [ "$candidate" = "$NGINX_ENABLED" ] && continue
+  if grep -Eq 'server_name[[:space:]].*(admin\.habscosadaqah\.org|utility-origin\.habscosadaqah\.org)' "$candidate" 2>/dev/null; then
+    echo "Disabling duplicate Nginx config: $candidate"
+    rm -f "$candidate"
+  fi
+done
+
+install -m 0644 "$CONFIG" "$NGINX_AVAILABLE"
+ln -sfn "$NGINX_AVAILABLE" "$NGINX_ENABLED"
 
 nginx -t
 systemctl enable --now nginx
 systemctl reload nginx
 
 # The utility gateway uses a separate DNS-only origin hostname.
-UTILITY_ORIGIN="utility-origin.habscosadaq.org"
+UTILITY_ORIGIN="utility-origin.habscosadaqah.org"
 if getent hosts "$UTILITY_ORIGIN" >/dev/null 2>&1; then
   certbot --nginx --non-interactive --agree-tos --register-unsafely-without-email \
     -d "$DOMAIN" -d "$UTILITY_ORIGIN" --keep-until-expiring || true
