@@ -33,6 +33,17 @@
         const balances=Object.fromEntries((balRes.data||[]).map(x=>[x.user_id,{wallet:Number(x.wallet_balance||0),savings:Number(x.savings_balance||0),shares:Number(x.shares_balance||0),special:Number(x.special_savings_balance||0),total:Number(x.total_balance||0)}]));
         const loans=Object.fromEntries((loanRes.data||[]).map(x=>[x.user_id,Number(x.amount||0)]));
         rows.forEach(m=>{const b=balances[m.id]||{wallet:0,savings:0,shares:0,special:0,total:0};m.wallet=b.wallet;m.savings=b.savings;m.shares=b.shares;m.special=b.special;m.total=b.total;m.loan=loans[m.id]||0});
+
+    const activeMembers=rows.filter(x=>String(x.status||"").toLowerCase()==="active");
+    const optionHtml='<option value="">Select member</option>'+activeMembers.map(m=>'<option value="'+esc(m.id)+'">'+esc(m.full_name||"Unnamed member")+' · '+esc(m.member_id||"No ID")+'</option>').join("");
+    ["walletUser","memberIdUser"].forEach(id=>{
+      const select=document.getElementById(id);
+      if(select){
+        const current=select.value;
+        select.innerHTML=optionHtml;
+        if(current && activeMembers.some(m=>m.id===current))select.value=current;
+      }
+    });
         draw(rows);return true;
       }catch(e){lastError=e;await sleep(400+attempt*250);}
     }
