@@ -7,11 +7,12 @@
   const getTable=()=>document.getElementById("membersTable")||document.querySelector("#members tbody");
   const draw=rows=>{
     const table=getTable(); if(!table)return;
-    table.innerHTML=rows.length?rows.map(m=>`<tr><td>${esc(m.full_name||"Unnamed member")}</td><td><strong>${esc(m.member_id||"NOT ISSUED")}</strong></td><td>${esc(m.status||"pending")}</td><td>${esc(m.role||"member")}</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td><button class="member-detail-btn" type="button" data-member-detail="${esc(m.id)}" aria-expanded="false">VIEW DETAILS</button></td><td><button class="member-delete-btn" type="button" data-delete-member="${esc(m.id)}">DELETE ACCOUNT</button></td></tr>`).join(""):'<tr><td colspan="12">No members found.</td></tr>';
+    table.innerHTML=rows.length?rows.map(m=>`<tr><td>${esc(m.full_name||"Unnamed member")}</td><td><strong>${esc(m.member_id||"NOT ISSUED")}</strong></td><td>${esc(m.status||"pending")}</td><td>${esc(m.role||"member")}</td><td>${money(m.wallet)}</td><td>${money(m.savings)}</td><td>${money(m.shares)}</td><td>${money(m.special)}</td><td><strong>${money(m.total)}</strong></td><td>${money(m.loan)}</td><td><button class="member-detail-btn" type="button" data-member-detail="${esc(m.id)}" aria-expanded="false">VIEW DETAILS</button></td><td><button class="member-delete-btn" type="button" data-delete-member="${esc(m.id)}">DELETE ACCOUNT</button></td></tr>`).join(""):'<tr><td colspan="12">No members found.</td></tr>';
     const count=document.getElementById("membersCount");if(count)count.textContent=rows.filter(x=>x.status==="active").length;
     window.habscoMembers=rows;window.__habscoMembers=rows;
     document.dispatchEvent(new CustomEvent("habsco:members-loaded",{detail:rows}));
   };
+  const money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0));
   const run=async()=>{
     const table=getTable();if(!table||!sb)return false;
     let lastError=null;
@@ -27,7 +28,12 @@
           data=fallback.data;error=fallback.error;
         }
         if(error)throw error;
-        draw((data||[]).filter(x=>x?.id));return true;
+        const rows=(data||[]).filter(x=>x?.id);
+        const [balRes,loanRes]=await Promise.all([sb.rpc("admin_list_member_balances"),sb.from("qard_requests").select("user_id,amount,status").in("status",["approved","disbursed"]) ]);
+        const balances=Object.fromEntries((balRes.data||[]).map(x=>[x.user_id,{wallet:Number(x.wallet_balance||0),savings:Number(x.savings_balance||0),shares:Number(x.shares_balance||0),special:Number(x.special_savings_balance||0),total:Number(x.total_balance||0)}]));
+        const loans=Object.fromEntries((loanRes.data||[]).map(x=>[x.user_id,Number(x.amount||0)]));
+        rows.forEach(m=>{const b=balances[m.id]||{wallet:0,savings:0,shares:0,special:0,total:0};m.wallet=b.wallet;m.savings=b.savings;m.shares=b.shares;m.special=b.special;m.total=b.total;m.loan=loans[m.id]||0});
+        draw(rows);return true;
       }catch(e){lastError=e;await sleep(400+attempt*250);}
     }
     console.error("Live members loader:",lastError);
