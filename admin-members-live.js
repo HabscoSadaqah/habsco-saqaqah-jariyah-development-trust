@@ -98,7 +98,7 @@
   }
 
   function bind(){
-    document.addEventListener("click",e=>{const b=e.target.closest?.(".member-detail-btn[data-member-detail]");if(b&&!e.defaultPrevented){e.preventDefault();window.habscoToggleMemberDetails(b);}},false);
+    document.addEventListener("click",e=>{const b=e.target.closest?.(".member-detail-btn[data-member-detail]");if(b&&!b.hasAttribute("onclick")&&!e.defaultPrevented){e.preventDefault();window.habscoToggleMemberDetails(b);}},false);
     const form=$("walletForm");if(form&&!form.dataset.habscoFixed){form.dataset.habscoFixed="1";form.addEventListener("submit",e=>{e.preventDefault();postWallet();},true);}
   }
 
