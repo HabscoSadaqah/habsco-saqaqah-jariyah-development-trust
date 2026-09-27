@@ -19,7 +19,11 @@ async function loadMembers(){
       savings_withdrawal_enabled:x.savings_withdrawal_enabled
     })).filter(x=>x.id&&!seen.has(x.id)&&seen.add(x.id));
     renderMembersTable();
-    if($("membersCount"))$("membersCount").textContent=members.filter(m=>m.status==="active").length;
+    const activeMembers=members.filter(m=>"active"===m.status);
+    const memberOptions='<option value="">Select member</option>'+activeMembers.map(m=>`<option value="${m.id}">${esc(m.full_name||"Unnamed member")} · ${esc(m.member_id||"No ID")}</option>`).join("");
+    if($("walletUser"))$("walletUser").innerHTML=memberOptions;
+    if($("memberIdUser"))$("memberIdUser").innerHTML=memberOptions;
+    if($("membersCount"))$("membersCount").textContent=activeMembers.length;
   }catch(e){
     console.error("Member list load failed:",e);
     members=[];
