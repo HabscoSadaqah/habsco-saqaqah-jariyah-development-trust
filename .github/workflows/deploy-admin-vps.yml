@@ -45,15 +45,12 @@ jobs:
             exit 1
           fi
 
-          if [[ "$KEY" == *"BEGIN OPENSSH PRIVATE KEY"* || "$KEY" == *"BEGIN PRIVATE KEY"* || "$KEY" == *"BEGIN RSA PRIVATE KEY"* ]]; then
-            printf '%s\n' "$KEY" > ~/.ssh/habsco_vps
-          else
-            if ! printf '%s' "$KEY" | base64 -d > ~/.ssh/habsco_vps 2>/dev/null; then
-              echo "VPS_SSH_KEY is neither a raw private key nor valid Base64." >&2
-              exit 1
-            fi
+          if [[ "$KEY" != *"BEGIN OPENSSH PRIVATE KEY"* && "$KEY" != *"BEGIN PRIVATE KEY"* && "$KEY" != *"BEGIN RSA PRIVATE KEY"* ]]; then
+            echo "VPS_SSH_KEY must contain the raw private SSH key, including its BEGIN/END lines." >&2
+            exit 1
           fi
 
+          printf '%s\n' "$KEY" > ~/.ssh/habsco_vps
           chmod 600 ~/.ssh/habsco_vps
 
           if ! ssh-keygen -y -f ~/.ssh/habsco_vps >/dev/null; then
