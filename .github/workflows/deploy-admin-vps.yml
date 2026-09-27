@@ -36,8 +36,32 @@ jobs:
           set -euo pipefail
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/habsco_vps
+          # Normalize common GitHub-secret formatting issues before OpenSSH reads the key.
+          KEY="$VPS_SSH_KEY"
+          KEY="${KEY//\r/}"
+          KEY="${KEY//\n/
+            set -e
+            cd /var/www/habsco-admin
+            git fetch origin main
+            git reset --hard origin/main
+            bash vps/setup-admin-vps.sh
+            bash vps/setup-utility-gateway.sh
+            nginx -t
+            systemctl reload nginx
+          '
+          rm -f ~/.ssh/habsco_vps
+\n'}"
+          if [[ "$KEY" == id_ed25519 || "$KEY" == id_rsa || "$KEY" == *.pub ]]; then
+            echo "VPS_SSH_KEY contains a filename, not the private-key contents." >&2
+            exit 1
+          fi
+          if [[ "$KEY" != *"BEGIN OPENSSH PRIVATE KEY"* && "$KEY" != *"BEGIN PRIVATE KEY"* && "$KEY" != *"BEGIN RSA PRIVATE KEY"* ]]; then
+            echo "VPS_SSH_KEY does not contain a recognized private-key header." >&2
+            exit 1
+          fi
+          printf '%s\n' "$KEY" > ~/.ssh/habsco_vps
           chmod 600 ~/.ssh/habsco_vps
+          ssh-keygen -y -f ~/.ssh/habsco_vps >/dev/null
           ssh-keyscan -p "${VPS_PORT:-22}" "$VPS_HOST" >> ~/.ssh/known_hosts
           ssh -i ~/.ssh/habsco_vps -p "${VPS_PORT:-22}" "$VPS_USER@$VPS_HOST" '
             set -e
