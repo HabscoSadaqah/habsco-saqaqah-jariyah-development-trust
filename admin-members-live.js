@@ -45,7 +45,7 @@
 
   function renderTable(){
     const table=$("membersTable");if(!table)return;
-    table.innerHTML=members.length?members.map(m=>`<tr><td>${esc(m.full_name)}</td><td><strong>${esc(m.member_id||"NOT ISSUED")}</strong></td><td>${esc(m.status)}</td><td>${esc(m.role)}</td><td>${money(m.wallet)}</td><td>${money(m.savings)}</td><td>${money(m.shares)}</td><td>${money(m.special)}</td><td><strong>${money(m.total)}</strong></td><td>${money(m.loan)}</td><td><button class="member-detail-btn" type="button" data-member-detail="${esc(m.id)}">VIEW DETAILS</button></td><td><button class="member-delete-btn" type="button" data-delete-member="${esc(m.id)}">DELETE ACCOUNT</button></td></tr>`).join(""):'<tr><td colspan="12">No members found.</td></tr>';
+    table.innerHTML=members.length?members.map(m=>`<tr><td>${esc(m.full_name)}</td><td><strong>${esc(m.member_id||"NOT ISSUED")}</strong></td><td>${esc(m.status)}</td><td>${esc(m.role)}</td><td>${money(m.wallet)}</td><td>${money(m.savings)}</td><td>${money(m.shares)}</td><td>${money(m.special)}</td><td><strong>${money(m.total)}</strong></td><td>${money(m.loan)}</td><td><button class="member-detail-btn" type="button" data-member-detail="${esc(m.id)}" aria-expanded="false" onclick="window.habscoToggleMemberDetails(this);event.stopPropagation()">VIEW DETAILS</button></td><td><button class="member-delete-btn" type="button" data-delete-member="${esc(m.id)}">DELETE ACCOUNT</button></td></tr>`).join(""):'<tr><td colspan="12">No members found.</td></tr>';
     const c=$("membersCount");if(c)c.textContent=members.filter(m=>m.status==="active").length;
   }
 
@@ -98,7 +98,7 @@
   }
 
   function bind(){
-    document.addEventListener("click",e=>{const b=e.target.closest?.(".member-detail-btn[data-member-detail]");if(b){e.preventDefault();e.stopPropagation();window.habscoToggleMemberDetails(b);}},true);
+    document.addEventListener("click",e=>{const b=e.target.closest?.(".member-detail-btn[data-member-detail]");if(b&&!e.defaultPrevented){e.preventDefault();window.habscoToggleMemberDetails(b);}},false);
     const form=$("walletForm");if(form&&!form.dataset.habscoFixed){form.dataset.habscoFixed="1";form.addEventListener("submit",e=>{e.preventDefault();postWallet();},true);}
   }
 
