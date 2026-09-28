@@ -128,4 +128,4 @@
     return false;
   };
 })();
-</script><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body></html>
+</script><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer><script>/* HABSCO MEMBER NAME HARD FIX */(async()=>{try{const s=window.habscoSessionPromise?await window.habscoSessionPromise:await window.supabaseClient.auth.getSession();const u=s?.data?.session?.user;if(!u)return;const q=await window.supabaseClient.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",u.id).maybeSingle();const p=q?.data||{};const n=String(p.full_name||[p.first_name,p.middle_name,p.surname].filter(Boolean).join(" ")||"Member").trim();const e=document.getElementById("welcome");if(e)e.textContent=n}catch(e){console.warn("HABSCO name fix",e)}})();</script></body></html>
