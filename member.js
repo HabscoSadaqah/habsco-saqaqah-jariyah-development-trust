@@ -81,6 +81,25 @@ async function loadRecentTransactions(){
   list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
   try{
     let payload=null;
+    /* Prefer the authenticated transactions table for the activity feed. It is the same source
+       already verified by RLS and avoids making the whole dashboard depend on the statement RPC. */
+    const direct=await Promise.race([
+      supabaseClient.from("transactions").select("id,reference,type,amount,status,description,metadata,created_at,direction").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error("Recent activity direct query timed out")),10000))
+    ]);
+    if(!direct.error&&Array.isArray(direct.data)&&direct.data.length){
+      let running=0;
+      recentActivityRows=direct.data.slice().reverse().map(x=>{
+        const amount=Math.abs(Number(x.amount||0));
+        const credit=["credit","inflow","in"].includes(String(x.direction||"").toLowerCase());
+        const before=running;
+        running=credit?running+amount:running-amount;
+        return {...x,amount,direction:credit?"credit":"debit",_before:before,_after:running,_affectsBalance:!["rejected","declined","failed","cancelled","canceled"].includes(String(x.status||"").toLowerCase())};
+      }).filter(x=>x._affectsBalance||String(x.status||"").toLowerCase()==="pending").reverse();
+      recentActivityPage=0;
+      renderRecentTransactions();
+      return;
+    }
     const rpc=await Promise.race([
       supabaseClient.rpc("member_statement_data",{p_limit:100}),
       new Promise((_,reject)=>setTimeout(()=>reject(new Error("Recent activity timed out")),10000))
@@ -326,8 +345,10 @@ const s=document.createElement("style");s.dataset.habscoSavingsModal="security-c
 
 /* Root dashboard bootstrap: explicitly load the member hero identity, admin service balance, and recent activity. */
 async function bootMemberDashboard(){
-  try{await loadDashboard()}catch(e){console.warn("Member dashboard bootstrap failed:",e)}
-  try{await loadRecentTransactions()}catch(e){console.warn("Recent activity bootstrap failed:",e)}
+  /* Load dashboard and activity independently so a slow/failing hero/RPC cannot block Recent Activity. */
+  const dashboardTask=loadDashboard().catch(e=>console.warn("Member dashboard bootstrap failed:",e));
+  const activityTask=loadRecentTransactions().catch(e=>console.warn("Recent activity bootstrap failed:",e));
+  await Promise.allSettled([dashboardTask,activityTask]);
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bootMemberDashboard,{once:true});else bootMemberDashboard();
 
