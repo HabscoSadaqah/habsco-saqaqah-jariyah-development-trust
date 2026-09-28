@@ -360,14 +360,15 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   if(btn&&btn.dataset.habscoBusy==="1")return false;
   if(btn){btn.dataset.habscoBusy="1";btn.disabled=true;btn.textContent="LOGGING OUT…";}
   try{await supabaseClient.auth.signOut({scope:"local"});}catch(err){console.warn("Logout signOut failed:",err)}
-  try{sessionStorage.clear()}catch(_){ }
-  window.location.replace("auth.html?logged_out=1");
+  try{sessionStorage.clear();localStorage.removeItem("hf_savings_open_intent");localStorage.removeItem("hf_savings_route");}catch(_){}
+  try{await new Promise(r=>setTimeout(r,100));}catch(_){}
+  window.location.replace("./auth.html?logged_out=1&t="+Date.now());
   return false;
 };
 const wireRootActions=()=>{
  const security=$("hfTopSecurity"),logout=$("logout");
  if(security){security.textContent="PROFILE";security.setAttribute("aria-label","PROFILE");security.onclick=null;security.addEventListener("click",e=>{e.preventDefault();if(typeof window.hfShowProfile==="function"){window.hfShowProfile();return}alert("Profile is loading. Please try again.");});}
- if(logout){logout.onclick=window.habscoLogout;logout.addEventListener("click",window.habscoLogout,{capture:true});}
+ if(logout){logout.onclick=window.habscoLogout;}
  window.hfOpenPinManager=openPinManager;
  window.hfOpenPasswordManager=()=>{const card=$("hfPasswordCard");if(card){card.click();return}showSecurityMessage("Password security controls are unavailable. Please reload the page.","error")};
 };
