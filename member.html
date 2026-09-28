@@ -36,17 +36,35 @@ async function loadRecentActivityDirect(){
  const list=document.getElementById("recentFundingList"); if(!list)return;
  try{
   const client=window.supabaseClient;if(!client)return;
-  const {data:{session}}=await client.auth.getSession();
+  let session=null;
+  for(let i=0;i<8&&!session;i++){const r=await client.auth.getSession();session=r?.data?.session||null;if(!session)await new Promise(res=>setTimeout(res,250));}
   if(!session?.user){list.innerHTML='<div class="funding-empty">Please sign in to view recent activity.</div>';return;}
   list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
-  const {data,error}=await client.rpc("member_statement_data",{p_limit:100});
-  if(error)throw error;
-  const rows=Array.isArray(data?.transactions)?data.transactions.filter(x=>x&&x.created_at):[];
+  let rows=[];
+  try{
+    const {data,error}=await Promise.race([client.rpc("member_statement_data",{p_limit:100}),new Promise((_,reject)=>setTimeout(()=>reject(new Error("RPC timeout")),8000))]);
+    if(error)throw error;
+    rows=Array.isArray(data?.transactions)?data.transactions.filter(x=>x&&x.created_at):[];
+  }catch(rpcErr){
+    console.warn("Recent activity RPC failed; using direct transactions:",rpcErr);
+    const {data,error}=await Promise.race([client.from("transactions").select("id,reference,type,amount,status,description,metadata,created_at,direction").eq("user_id",session.user.id).order("created_at",{ascending:false}).limit(100),new Promise((_,reject)=>setTimeout(()=>reject(new Error("Transaction query timeout")),8000))]);
+    if(error)throw error;
+    const source=Array.isArray(data)?data:[], chronological=[...source].reverse();
+    let running=0;
+    rows=chronological.map(x=>{
+      const amount=Math.abs(Number(x.amount)||0),credit=["credit","inflow","in","deposit"].includes(String(x.direction||"credit").toLowerCase());
+      const before=running; running=credit?running+amount:running-amount;
+      return {...x,amount,direction:credit?"credit":"debit",balance_before:before,balance_after:running};
+    }).reverse();
+  }
   render(rows);
  }catch(e){console.warn("HABSCO recent activity:",e);list.innerHTML='<div class="funding-empty">Unable to load recent activity. Please refresh.</div>';}
 }
-async function refreshMemberDashboard(){try{if(typeof window.loadDashboard==="function")await window.loadDashboard();}catch(e){console.warn("HABSCO dashboard refresh:",e)}await loadRecentActivityDirect();}
-function start(){let tries=0;const timer=setInterval(()=>{tries++;if(window.supabaseClient||typeof window.loadDashboard==="function"){clearInterval(timer);refreshMemberDashboard();}else if(tries>=40)clearInterval(timer);},250);}
+async function refreshMemberDashboard(){
+ try{if(typeof window.loadDashboard==="function")await window.loadDashboard();}catch(e){console.warn("HABSCO dashboard refresh:",e)}
+ await loadRecentActivityDirect();
+}
+function start(){let tries=0;const timer=setInterval(()=>{tries++;if(window.supabaseClient){clearInterval(timer);refreshMemberDashboard();}else if(tries>=40)clearInterval(timer);},250);}
 window.loadRecentTransactions=loadRecentActivityDirect;
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start,{once:true});else start();
 })();
