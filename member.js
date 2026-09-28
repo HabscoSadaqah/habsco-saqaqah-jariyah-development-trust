@@ -1,22 +1,17 @@
 window.supabaseClient=window.supabaseClient||null;const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",supabaseClient=window.supabaseClient||window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);window.supabaseClient=supabaseClient,money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0)),$=id=>document.getElementById(id);async function setMemberDashboardName(user){
   const welcome=$("welcome");
-  if(!welcome)return;
+  if(!welcome||!user?.id)return;
   let fullName="";
   try{
-    const {data,error}=await supabaseClient.rpc("member_statement_data",{p_limit:1});
+    const {data:profile,error}=await supabaseClient.from("profiles")
+      .select("full_name,first_name,middle_name,surname,member_id")
+      .eq("id",user.id).maybeSingle();
     if(error)throw error;
-    const p=data?.profile||{};
-    fullName=String(p.full_name||"").trim();
-  }catch(e){
-    try{
-      const {data:profile,error}=await supabaseClient.from("profiles").select("full_name,first_name,middle_name,surname,member_id").eq("id",user.id).maybeSingle();
-      if(error)throw error;
-      fullName=String(profile?.full_name||[profile?.first_name,profile?.middle_name,profile?.surname].filter(Boolean).join(" ")||"").trim();
-    }catch(e2){console.warn("Profile name load failed:",e2)}
-  }
+    fullName=String(profile?.full_name||[profile?.first_name,profile?.middle_name,profile?.surname].filter(Boolean).join(" ")||"").trim();
+  }catch(e){console.warn("Profile name load failed:",e)}
   if(!fullName){
-    const metadata=user?.user_metadata||{};
-    fullName=String(metadata.full_name||metadata.name||metadata.display_name||user?.email?.split("@")[0]||"Member").trim();
+    const metadata=user.user_metadata||{};
+    fullName=String(metadata.full_name||metadata.name||metadata.display_name||user.email?.split("@")[0]||"Member").trim();
   }
   welcome.textContent=fullName||"Member";
 }
