@@ -62,7 +62,8 @@ async function load(){
       safe(supabaseClient.from("cooperative_wallets").select("balance,currency,service_balance").eq("id",1).single(),"Cooperative balance timed out.")
     ]);
 
-    const results=[wRes,caRes,fRes,qRes,approvedRes,repaymentRes,auditRes,coopRes];\n    loadSquadAdmin();
+    const results=[wRes,caRes,fRes,qRes,approvedRes,repaymentRes,auditRes,coopRes];
+    loadSquadAdmin();
     const firstError=results.find(x=>x?.error);
     if(firstError)show("globalMsg",`Some dashboard data could not load: ${firstError.error.message||firstError.error}`);
 
