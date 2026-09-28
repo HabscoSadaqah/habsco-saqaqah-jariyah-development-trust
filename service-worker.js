@@ -31,7 +31,7 @@ self.addEventListener("fetch",event=>{
     return;
   }
 
-  if(url.pathname==="/statement.html"||url.pathname==="/statement"||url.pathname==="/statement.js"){
+  if(url.pathname==="/bill-payments.html"||url.pathname==="/bill-payments"||url.pathname==="/bill-payments-root-fix.js"||url.pathname==="/education-root-fix.js"||url.pathname==="/power-root-fix.js"){\n    event.respondWith(fetch(new Request(request,{cache:"no-store"})));\n    return;\n  }\n\n  if(url.pathname==="/statement.html"||url.pathname==="/statement"||url.pathname==="/statement.js"){
     event.respondWith(fetch(new Request(request,{cache:"no-store"})));
     return;
   }
