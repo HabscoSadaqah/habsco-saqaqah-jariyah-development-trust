@@ -43,7 +43,7 @@ async function callProvider(body){
   return data||{};
 }
 function esc(v){return String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
-function rowsOf(r){const x=r?.data?.data??r?.data??r?.providers??r;return Array.isArray(x)?x:[]}
+function rowsOf(r){const seen=new Set();const walk=x=>{if(Array.isArray(x))return x;if(!x||typeof x!=="object"||seen.has(x))return[];seen.add(x);for(const k of ["data","providers","discos","items","results","result"]){if(k in x){const a=walk(x[k]);if(a.length)return a}}return[]};return walk(r)}
 function packageCode(x){return String(x?.code??x?.variation_code??x?.variationCode??x?.package_code??x?.id??"").trim()}
 function packageName(x){return String(x?.package??x?.name??x?.package_name??x?.variation??x?.description??packageCode(x)).trim()}
 function packageAmount(x){const n=Number(x?.amount??x?.price??x?.selling_price??x?.sellingPrice);return Number.isFinite(n)?n:null}
