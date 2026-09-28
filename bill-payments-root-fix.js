@@ -4,7 +4,7 @@ const status=t=>{const e=q("#status");if(e){e.textContent=t;e.className="status 
 const ok=t=>{const e=q("#status");if(e){e.textContent=t;e.className="status show ok"}};
 const pin=id=>q(id)?.value?.trim()||"";
 const busy=(b,v)=>{if(!b)return;b.disabled=v;b.dataset.oldText=b.dataset.oldText||b.textContent;b.textContent=v?"Processing…":b.dataset.oldText};
-async function call(body){if(!window.supabase||typeof supabase?.functions?.invoke!=="function")throw Error("Payment service is not ready. Refresh the page.");const {data,error}=await supabase.functions.invoke("accelerate-billvending",{body});if(error){let detail="";try{detail=error.context?JSON.stringify(await error.context.json()):""}catch{}throw Error(detail||error.message||"Utility service request failed.")}return data||{}}
+async function call(body){if(!window.supabase||typeof supabase?.functions?.invoke!=="function")throw Error("Payment service is not ready. Refresh the page.");const {data,error}=await supabase.functions.invoke("utility-vps-proxy-v2",{body});if(error){let detail="";try{detail=error.context?JSON.stringify(await error.context.json()):""}catch{}throw Error(detail||error.message||"Utility service request failed.")}return data||{}}
 function providerFor(kind){
  const map={airtime:"[data-provider]",data:"[data-data-provider]",tv:"[data-tv-provider]",education:"[data-education-provider]"};
  const sel=map[kind];const a=sel?document.querySelector(sel+".active"):null;
