@@ -39,6 +39,7 @@ jobs:
           test -f CNAME
           echo "Main branch website source verified - dashboard deployment refresh"
           echo "Deploying latest member dashboard and logout fix"
+          echo "HABSCO deployment trigger active"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
