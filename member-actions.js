@@ -20,7 +20,7 @@ async function callProvider(body){
   const session=await auth();
   if(!session)throw new Error("Authentication required.");
 
-  const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy",{
+  const {data,error}=await supabaseClient.functions.invoke("accelerate-billvending",{
     body
   });
 
