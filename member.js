@@ -1,4 +1,26 @@
-window.supabaseClient=window.supabaseClient||null;const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",supabaseClient=window.supabaseClient||window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);window.supabaseClient=supabaseClient,money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0)),$=id=>document.getElementById(id);async function setMemberDashboardName(user){const welcome=$("welcome");if(!welcome)return;let fullName="";try{const{data:profile,error}=await supabaseClient.from("profiles").select("full_name,first_name,middle_name,surname,member_id").eq("id",user.id).maybeSingle();if(error)throw error;fullName=String(profile?.full_name||[profile?.first_name,profile?.middle_name,profile?.surname].filter(Boolean).join(" ")||"").trim();}catch(e){console.warn("Profile name load failed:",e)}if(!fullName){const metadata=user?.user_metadata||{};fullName=String(metadata.full_name||metadata.name||metadata.display_name||user?.email?.split("@")[0]||"Member").trim()}welcome.textContent=fullName||"Member"}const sessionPromise=window.habscoSessionPromise||(window.habscoSessionPromise=supabaseClient.auth.getSession());async function loadDashboard(){const{data:{session},error}=await sessionPromise;if(error||!session)return void(window.location.href="auth.html");await setMemberDashboardName(session.user);loadVirtualAccountStatus();try{const{data:isAdmin}=await supabaseClient.rpc("is_admin");const topAdmin=document.getElementById("hfTopAdmin");if(topAdmin){topAdmin.hidden=!isAdmin;topAdmin.style.display=isAdmin?"inline-flex":"none";}if(isAdmin){const{data:service,error:serviceError}=await supabaseClient.rpc("admin_service_balance_history",{p_limit:1});const hero=document.getElementById("adminServiceBalanceHero"),amount=document.getElementById("adminServiceBalance"),account=document.getElementById("adminServiceBalanceAccount"),accountAmount=document.getElementById("adminServiceBalanceAccountAmount");if(hero&&amount){hero.hidden=false;hero.style.display="block";if(serviceError){console.warn("Admin service balance RPC failed:",serviceError);amount.textContent="₦0.00"}else{const serviceRow=Array.isArray(service)?service[0]:service;const serviceBalance=money(serviceRow?.service_balance??serviceRow?.balance??serviceRow?.latest_service_balance??0);amount.textContent=serviceBalance;if(account&&accountAmount){accountAmount.textContent=serviceBalance;account.hidden=false;account.style.display="block"}}}}}catch(e){console.warn("Admin service balance unavailable:",e)}}async function loadVirtualAccountStatus(){const card=$("virtualAccountCard"),status=$("virtualAccountStatus");if(!card||!status)return;try{const {data,error}=await supabaseClient.functions.invoke("squad-virtual-account",{body:{action:"get"}});if(error)throw error;const va=data?.data;if(va?.virtual_account_number){status.textContent=va.status==="active"?"Ready to receive funds":"Account "+String(va.status||"unavailable");status.style.color=va.status==="active"?"var(--g)":"#a52a2a";card.setAttribute("aria-label","Virtual Account "+status.textContent)}else{status.textContent="Set up funding account";status.style.color="var(--g)";card.setAttribute("aria-label","Set up HABSCO Virtual Account")}}catch(e){status.textContent="Open to set up";status.style.color="var(--muted)"}}function escapeHtml(value){return String(value??"").replace(/[&<>\\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\\"':"&quot;","'":"&#39;"}[c]))}let recentActivityPage=0;
+window.supabaseClient=window.supabaseClient||null;const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",supabaseClient=window.supabaseClient||window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);window.supabaseClient=supabaseClient,money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0)),$=id=>document.getElementById(id);async function setMemberDashboardName(user){
+  const welcome=$("welcome");
+  if(!welcome)return;
+  let fullName="";
+  try{
+    const {data,error}=await supabaseClient.rpc("member_statement_data",{p_limit:1});
+    if(error)throw error;
+    const p=data?.profile||{};
+    fullName=String(p.full_name||"").trim();
+  }catch(e){
+    try{
+      const {data:profile,error}=await supabaseClient.from("profiles").select("full_name,first_name,middle_name,surname,member_id").eq("id",user.id).maybeSingle();
+      if(error)throw error;
+      fullName=String(profile?.full_name||[profile?.first_name,profile?.middle_name,profile?.surname].filter(Boolean).join(" ")||"").trim();
+    }catch(e2){console.warn("Profile name load failed:",e2)}
+  }
+  if(!fullName){
+    const metadata=user?.user_metadata||{};
+    fullName=String(metadata.full_name||metadata.name||metadata.display_name||user?.email?.split("@")[0]||"Member").trim();
+  }
+  welcome.textContent=fullName||"Member";
+}
+const sessionPromise=window.habscoSessionPromise||(window.habscoSessionPromise=supabaseClient.auth.getSession());async function loadDashboard(){const{data:{session},error}=await sessionPromise;if(error||!session)return void(window.location.href="auth.html");await setMemberDashboardName(session.user);loadVirtualAccountStatus();try{const{data:isAdmin}=await supabaseClient.rpc("is_admin");const topAdmin=document.getElementById("hfTopAdmin");if(topAdmin){topAdmin.hidden=!isAdmin;topAdmin.style.display=isAdmin?"inline-flex":"none";}if(isAdmin){const{data:service,error:serviceError}=await supabaseClient.rpc("admin_service_balance_history",{p_limit:1});const hero=document.getElementById("adminServiceBalanceHero"),amount=document.getElementById("adminServiceBalance"),account=document.getElementById("adminServiceBalanceAccount"),accountAmount=document.getElementById("adminServiceBalanceAccountAmount");if(hero&&amount){hero.hidden=false;hero.style.display="block";if(serviceError){console.warn("Admin service balance RPC failed:",serviceError);amount.textContent="₦0.00"}else{const serviceRow=Array.isArray(service)?service[0]:service;const serviceBalance=money(serviceRow?.service_balance??serviceRow?.balance??serviceRow?.latest_service_balance??0);amount.textContent=serviceBalance;if(account&&accountAmount){accountAmount.textContent=serviceBalance;account.hidden=false;account.style.display="block"}}}}}catch(e){console.warn("Admin service balance unavailable:",e)}}async function loadVirtualAccountStatus(){const card=$("virtualAccountCard"),status=$("virtualAccountStatus");if(!card||!status)return;try{const {data,error}=await supabaseClient.functions.invoke("squad-virtual-account",{body:{action:"get"}});if(error)throw error;const va=data?.data;if(va?.virtual_account_number){status.textContent=va.status==="active"?"Ready to receive funds":"Account "+String(va.status||"unavailable");status.style.color=va.status==="active"?"var(--g)":"#a52a2a";card.setAttribute("aria-label","Virtual Account "+status.textContent)}else{status.textContent="Set up funding account";status.style.color="var(--g)";card.setAttribute("aria-label","Set up HABSCO Virtual Account")}}catch(e){status.textContent="Open to set up";status.style.color="var(--muted)"}}function escapeHtml(value){return String(value??"").replace(/[&<>\\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\\"':"&quot;","'":"&#39;"}[c]))}let recentActivityPage=0;
 const RECENT_ACTIVITY_PAGE_SIZE=5;
 let recentActivityRows=[];
 let recentActivityUser=null;
@@ -47,31 +69,70 @@ function renderRecentTransactions(){
   if(count){count.hidden=!hasPages;count.textContent=filtered.length?((recentActivityPage+1)+" / "+pages):"0 / 0";}
 }
 async function loadRecentTransactions(){
-  const list=$("recentFundingList"); if(!list)return;
-  const{data:{session}}=await sessionPromise; const user=session?.user;
-  if(!user){list.innerHTML='<div class="funding-empty">Please sign in to view recent activity.</div>';return;}
-  recentActivityUser=user; list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
+  const list=$("recentFundingList");
+  if(!list)return;
+  const{data:{session}}=await sessionPromise;
+  const user=session?.user;
+  if(!user){
+    list.innerHTML='<div class="funding-empty">Please sign in to view recent activity.</div>';
+    return;
+  }
+  recentActivityUser=user;
+  list.innerHTML='<div class="funding-empty">Loading recent activity…</div>';
   try{
-    const{data,error}=await Promise.race([
-      supabaseClient.from("transactions").select("id,reference,type,amount,status,description,metadata,created_at,direction").eq("user_id",user.id).order("created_at",{ascending:true}).limit(100),
+    let payload=null;
+    const rpc=await Promise.race([
+      supabaseClient.rpc("member_statement_data",{p_limit:100}),
       new Promise((_,reject)=>setTimeout(()=>reject(new Error("Recent activity timed out")),10000))
     ]);
-    if(error)throw error;
-    let running=0;
-    const rows=Array.isArray(data)?data:[];
-    recentActivityRows=rows.map(x=>{
+    if(rpc.error)throw rpc.error;
+    payload=rpc.data||{};
+    const tx=Array.isArray(payload.transactions)?payload.transactions:[];
+    recentActivityRows=tx.map(x=>{
       const amount=Math.abs(Number(x.amount||0));
-      const credit=String(x.direction||"credit").toLowerCase()==="credit";
-      const before=running;
-      running=credit?running+amount:running-amount;
-      return {...x,_before:before,_after:running,_affectsBalance:!["rejected","declined","failed","cancelled","canceled"].includes(String(x.status||"").toLowerCase())};
-    }).filter(x=>x._affectsBalance||x.status==="pending").reverse();
-    recentActivityPage=0; renderRecentTransactions();
+      const direction=String(x.direction||"credit").toLowerCase();
+      const credit=direction==="credit"||direction==="inflow"||direction==="in";
+      const before=Number(x.balance_before);
+      const after=Number(x.balance_after);
+      return {
+        ...x,
+        amount,
+        direction:credit?"credit":"debit",
+        _before:Number.isFinite(before)?before:0,
+        _after:Number.isFinite(after)?after:0,
+        _affectsBalance:!["rejected","declined","failed","cancelled","canceled"].includes(String(x.status||"").toLowerCase())
+      };
+    }).filter(x=>x._affectsBalance||String(x.status||"").toLowerCase()==="pending");
+    recentActivityPage=0;
+    renderRecentTransactions();
   }catch(err){
-    console.warn("Recent activity load failed:",err); recentActivityRows=[];
-    list.innerHTML='<div class="funding-empty">Unable to load recent transactions.</div>';
-    const prev=$("recentPrev5"),next=$("recentNext5"),count=$("recentPageInfo");
-    if(prev)prev.hidden=true;if(next)next.hidden=true;if(count)count.hidden=true;
+    console.warn("Recent activity RPC load failed, trying direct transaction query:",err);
+    try{
+      const{data,error}=await Promise.race([
+        supabaseClient.from("transactions").select("id,reference,type,amount,status,description,metadata,created_at,direction").eq("user_id",user.id).order("created_at",{ascending:false}).limit(100),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error("Recent activity fallback timed out")),10000))
+      ]);
+      if(error)throw error;
+      let running=0;
+      const rows=Array.isArray(data)?data:[];
+      recentActivityRows=rows.reverse().map(x=>{
+        const amount=Math.abs(Number(x.amount||0));
+        const credit=String(x.direction||"credit").toLowerCase()==="credit";
+        const before=running;
+        running=credit?running+amount:running-amount;
+        return {...x,amount,direction:credit?"credit":"debit",_before:before,_after:running,_affectsBalance:!["rejected","declined","failed","cancelled","canceled"].includes(String(x.status||"").toLowerCase())};
+      }).filter(x=>x._affectsBalance||String(x.status||"").toLowerCase()==="pending").reverse();
+      recentActivityPage=0;
+      renderRecentTransactions();
+    }catch(fallbackErr){
+      console.warn("Recent activity load failed:",fallbackErr);
+      recentActivityRows=[];
+      list.innerHTML='<div class="funding-empty">Unable to load recent transactions. Please refresh.</div>';
+      const prev=$("recentPrev5"),next=$("recentNext5"),count=$("recentPageInfo");
+      if(prev)prev.hidden=true;
+      if(next)next.hidden=true;
+      if(count)count.hidden=true;
+    }
   }
 }
 function applyRecentActivityFilter(){
