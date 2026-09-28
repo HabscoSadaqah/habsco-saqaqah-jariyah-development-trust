@@ -60,9 +60,9 @@ async function loadRecentActivityDirect(){
   render(rows);
  }catch(e){console.warn("HABSCO recent activity:",e);list.innerHTML='<div class="funding-empty">Unable to load recent activity. Please refresh.</div>';}
 }
-async function refreshMemberDashboard(){
- try{if(typeof window.loadDashboard==="function")await window.loadDashboard();}catch(e){console.warn("HABSCO dashboard refresh:",e)}
- await loadRecentActivityDirect();
+function refreshMemberDashboard(){
+ try{if(typeof window.loadDashboard==="function")Promise.resolve(window.loadDashboard()).catch(e=>console.warn("HABSCO dashboard refresh:",e));}catch(e){console.warn("HABSCO dashboard refresh:",e)}
+ loadRecentActivityDirect();
 }
 function start(){let tries=0;const timer=setInterval(()=>{tries++;if(window.supabaseClient){clearInterval(timer);refreshMemberDashboard();}else if(tries>=40)clearInterval(timer);},250);}
 window.loadRecentTransactions=loadRecentActivityDirect;
