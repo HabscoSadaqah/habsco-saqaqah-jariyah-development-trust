@@ -326,7 +326,6 @@ const s=document.createElement("style");s.dataset.habscoSavingsModal="security-c
 /* Root dashboard bootstrap: explicitly load the member hero identity, admin service balance, and recent activity. */
 async function bootMemberDashboard(){
   try{await loadDashboard()}catch(e){console.warn("Member dashboard bootstrap failed:",e)}
-  try{await loadRecentTransactions()}catch(e){console.warn("Recent activity bootstrap failed:",e)}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bootMemberDashboard,{once:true});else bootMemberDashboard();
 
