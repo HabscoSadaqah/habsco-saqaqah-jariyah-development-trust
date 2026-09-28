@@ -451,3 +451,39 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     }catch(e){document.getElementById("hfProfileBody").innerHTML='<div class="hf-profile-content"><div style="padding:14px;color:#a52a2a">Unable to load profile. Please refresh and try again.</div></div>';}
   };
 })();
+/* HABSCO PROFILE SECURITY FINAL — replace legacy profile/security presentation */
+(()=>{
+  const removeLegacy=()=>{document.getElementById("hfSecurityCenter")?.remove();document.getElementById("hfSecurityDropdown")?.remove();};
+  const openPin=()=>{removeLegacy();if(typeof window.hfOpenPinManager==="function")window.hfOpenPinManager();else if(typeof window.openPinManager==="function")window.openPinManager();};
+  const openPassword=()=>{removeLegacy();if(typeof window.hfOpenPasswordManager==="function")window.hfOpenPasswordManager();else document.getElementById("hfPasswordCard")?.click();};
+  const esc=v=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+  window.hfShowProfile=async()=>{
+    removeLegacy();
+    document.getElementById("hfProfileView")?.remove();
+    const root=document.createElement("div");root.id="hfProfileView";
+    root.innerHTML='<div class="hf-profile-final"><header><div><b>HABSCO</b><small>MEMBER PROFILE</small></div><button id="hfProfileFinalClose" type="button">×</button></header><main id="hfProfileFinalBody"><div class="hf-profile-loading">Loading profile…</div></main></div>';
+    document.body.appendChild(root);
+    const css=document.createElement("style");css.dataset.habscoProfileFinal="1";css.textContent=`
+      #hfProfileView{position:fixed;inset:0;z-index:2147482000;background:rgba(5,25,16,.52);backdrop-filter:blur(3px);overflow:auto;padding:10px;box-sizing:border-box;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+      .hf-profile-final{width:min(620px,100%);min-height:100%;margin:auto;background:#f7faf8;border:1px solid #dfe9e3;border-radius:18px;overflow:hidden;box-shadow:0 20px 70px rgba(0,0,0,.2)}
+      .hf-profile-final header{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:16px 18px;background:#064f2e;color:#fff}
+      .hf-profile-final header b{display:block;font-size:18px;letter-spacing:1px}.hf-profile-final header small{display:block;margin-top:3px;font-size:8px;letter-spacing:1px;opacity:.75;font-weight:800}
+      .hf-profile-final header button{width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:23px;cursor:pointer}
+      .hf-profile-final main{padding:14px}.hfpf-card{background:#fff;border:1px solid #dfe9e3;border-radius:14px;padding:14px;margin-bottom:10px}.hfpf-card h3{margin:0 0 10px;color:#087443;font-size:11px;text-transform:uppercase;letter-spacing:.7px}.hfpf-id{display:flex;align-items:center;gap:12px}.hfpf-avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#e5f4eb;color:#087443;font-size:18px;font-weight:900}.hfpf-name{font-size:16px;font-weight:900;color:#173f2e}.hfpf-meta{font-size:9px;color:#728079;margin-top:3px}.hfpf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hfpf-field{padding:9px;background:#f7faf8;border-radius:9px}.hfpf-field small{display:block;font-size:8px;color:#7a8780;margin-bottom:3px}.hfpf-field strong{display:block;font-size:10px;color:#173f2e;overflow-wrap:anywhere}.hfpf-security{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hfpf-security button{min-height:58px;border:1px solid #d5e5dc;border-radius:11px;background:#fff;color:#173f2e;text-align:left;padding:10px;font-weight:850;cursor:pointer}.hfpf-security button span{display:block;font-size:11px}.hfpf-security button small{display:block;margin-top:3px;color:#728079;font-size:8px;font-weight:500}.hfpf-security button:active{transform:scale(.99)}.hfpf-note{font-size:8px;color:#7a8780;line-height:1.45;margin:8px 2px 0}@media(max-width:480px){#hfProfileView{padding:0}.hf-profile-final{width:100%;min-height:100%;border-radius:0}.hf-profile-final main{padding:10px}.hfpf-grid{grid-template-columns:1fr}.hfpf-security{grid-template-columns:1fr 1fr}}
+    `;document.head.appendChild(css);
+    const close=()=>{root.remove();css.remove();};document.getElementById("hfProfileFinalClose").onclick=close;
+    try{
+      const sb=window.supabaseClient; if(!sb)throw new Error("Security service is still loading.");
+      const {data:{user},error:ue}=await sb.auth.getUser();if(ue||!user)throw new Error("Please sign in again.");
+      const {data:p,error:pe}=await sb.from("profiles").select("*").eq("id",user.id).maybeSingle();if(pe)throw pe;
+      const d=p||{};const name=String(d.full_name||[d.first_name,d.middle_name,d.surname].filter(Boolean).join(" ")||user.email?.split("@")[0]||"Member").trim();
+      const body=document.getElementById("hfProfileFinalBody");const val=v=>String(v??"").trim()||"—";const row=(a,b)=>'<div class="hfpf-field"><small>'+esc(a)+'</small><strong>'+esc(val(b))+'</strong></div>';
+      body.innerHTML='<section class="hfpf-card"><div class="hfpf-id"><div class="hfpf-avatar">'+esc(name.charAt(0).toUpperCase())+'</div><div><div class="hfpf-name">'+esc(name)+'</div><div class="hfpf-meta">'+esc(d.member_id||"Member")+' · '+esc(d.status||"Active")+'</div></div></div></section>'+
+      '<section class="hfpf-card"><h3>Personal information</h3><div class="hfpf-grid">'+row("Full name",name)+row("Phone",d.phone)+row("Email",user.email)+row("Date of birth",d.date_of_birth)+row("Gender",d.gender)+row("Occupation",d.occupation)+row("Address",d.address)+row("State",d.state)+row("LGA",d.lga)+row("Next of kin",d.next_of_kin)+row("Next of kin phone",d.next_of_kin_phone)+'</div></section>'+
+      '<section class="hfpf-card"><h3>Membership</h3><div class="hfpf-grid">'+row("Member ID",d.member_id)+row("Role",d.role||"member")+row("Status",d.status||"active")+row("Membership type",d.membership_type||"Member")+'</div></section>'+
+      '<section class="hfpf-card"><h3>Security</h3><div class="hfpf-security"><button id="hfpfPin" type="button"><span>🔐 Transaction PIN</span><small>Set or change your 6-digit PIN</small></button><button id="hfpfPassword" type="button"><span>🔑 Password</span><small>Change your sign-in password</small></button></div><p class="hfpf-note">Your PIN and password are never displayed in your profile.</p></section>'+
+      '<button id="hfpfBack" type="button" style="width:100%;height:44px;border:1px solid #d7e4dc;border-radius:11px;background:#fff;color:#087443;font-weight:900;cursor:pointer">← Back to Dashboard</button>';
+      document.getElementById("hfpfPin").onclick=openPin;document.getElementById("hfpfPassword").onclick=openPassword;document.getElementById("hfpfBack").onclick=close;
+    }catch(e){document.getElementById("hfProfileFinalBody").innerHTML='<section class="hfpf-card"><p style="color:#a52a2a;font-size:10px">Unable to load profile. Please refresh and sign in again.</p></section>'}
+  };
+})();
