@@ -38,6 +38,7 @@ jobs:
           test -f favicon.svg
           test -f CNAME
           echo "Main branch website source verified - dashboard deployment refresh"
+          echo "Deploying latest member dashboard and logout fix"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
