@@ -16,7 +16,32 @@ const [title,subtitle]=configs[action]||configs[effectiveAction]||configs.send;
 function msg(t,ok=true){const e=$("msg");e.textContent=t;e.style.background=ok?"#eef8f2":"#fff1f1";e.style.color=ok?"#087443":"#a52a2a";e.classList.add("show")}
 function form(html,submitText="CONTINUE"){$("formArea").innerHTML='<form id="actionForm" class="form">'+html+'<button id="actionSubmit" class="btn" type="submit">'+submitText+'</button></form>'}
 async function auth(){let {data:{session},error}=await supabaseClient.auth.getSession();if(error||!session){const r=await supabaseClient.auth.refreshSession();if(r.error||!r.data.session){location.href="auth.html";return null}session=r.data.session}return session}
-async function callProvider(body){await auth();const {data,error}=await supabaseClient.functions.invoke("accelerate-billvending",{body});if(error){let d="";try{d=error.context?JSON.stringify(await error.context.json()):""}catch{}throw new Error(d||error.message||"Utility service request failed.")}if(data?.error)throw new Error(data.error.message||data.error);return data||{}}
+async function callProvider(body){
+  const session=await auth();
+  if(!session)throw new Error("Authentication required.");
+
+  const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy",{
+    body
+  });
+
+  if(error){
+    let d="";
+    try{
+      d=error.context?JSON.stringify(await error.context.json()):"";
+    }catch{}
+    throw new Error(d||error.message||"Utility service request failed.");
+  }
+
+  if(data?.error){
+    throw new Error(
+      typeof data.error==="string"
+        ? data.error
+        : data.error.message||"Utility service request failed."
+    );
+  }
+
+  return data||{};
+}
 function esc(v){return String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function rowsOf(r){const x=r?.data?.data??r?.data??r?.providers??r;return Array.isArray(x)?x:[]}
 function packageCode(x){return String(x?.code??x?.variation_code??x?.variationCode??x?.package_code??x?.id??"").trim()}
