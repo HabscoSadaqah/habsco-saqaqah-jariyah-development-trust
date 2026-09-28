@@ -88,6 +88,7 @@ async function loadRecentTransactions(){
     if(rpc.error)throw rpc.error;
     payload=rpc.data||{};
     const tx=Array.isArray(payload.transactions)?payload.transactions:[];
+    if(!tx.length) throw new Error("Recent activity RPC returned no transactions; using direct transaction query.");
     recentActivityRows=tx.map(x=>{
       const amount=Math.abs(Number(x.amount||0));
       const direction=String(x.direction||"credit").toLowerCase();
