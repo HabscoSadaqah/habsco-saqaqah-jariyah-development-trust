@@ -369,3 +369,85 @@ const wireRootActions=()=>{
 };
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",wireRootActions,{once:true});else wireRootActions();
 })();
+
+/* HABSCO PROFILE PANEL v2 — full profile + inline Edit Profile */
+(()=>{
+  const esc=v=>String(v??"").replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));
+  const money=v=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(v||0));
+  const textVal=v=>String(v??"").trim();
+  window.hfShowProfile=async()=>{
+    const old=document.getElementById("hfProfileView"); if(old)old.remove();
+    const root=document.createElement("div"); root.id="hfProfileView";
+    root.innerHTML=`
+      <div class="hf-profile-card">
+        <div class="hf-profile-head">
+          <div><div class="hf-profile-brand">HABSCO</div><div class="hf-profile-kicker">MEMBER PROFILE</div></div>
+          <button type="button" id="hfProfileClose" class="hf-profile-close">×</button>
+        </div>
+        <div id="hfProfileBody"><div class="hf-profile-loading">Loading profile…</div></div>
+      </div>`;
+    document.body.appendChild(root);
+    const style=document.createElement("style"); style.id="hf-profile-v2-style";
+    style.textContent=`
+      #hfProfileView{position:fixed;inset:0;z-index:999999;overflow:auto;background:rgba(7,27,18,.48);padding:16px;box-sizing:border-box;font-family:Arial,sans-serif}
+      .hf-profile-card{width:min(760px,100%);margin:0 auto;background:#fff;border:1px solid #dfe9e3;border-radius:22px;box-shadow:0 20px 60px rgba(0,0,0,.18);overflow:hidden}
+      .hf-profile-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:#087443;color:#fff}
+      .hf-profile-brand{font-size:20px;font-weight:950;letter-spacing:1px}.hf-profile-kicker{font-size:8px;letter-spacing:1.3px;opacity:.78;font-weight:800;margin-top:3px}
+      .hf-profile-close{width:38px;height:38px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:25px;cursor:pointer}
+      .hf-profile-content{padding:18px}.hf-profile-identity{display:flex;align-items:center;gap:13px;padding:14px;border:1px solid #e2ebe6;border-radius:15px;background:#f8fbf9;margin-bottom:16px}
+      .hf-profile-avatar{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:#e2f2e9;color:#087443;font-size:19px;font-weight:950}
+      .hf-profile-name{font-size:17px;font-weight:900;color:#173f2e}.hf-profile-meta{font-size:9px;color:#728079;margin-top:4px}
+      .hf-profile-section{border:1px solid #e5ece8;border-radius:15px;padding:14px;margin-top:12px}.hf-profile-section h3{margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#087443}
+      .hf-profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.hf-profile-field{padding:9px 10px;background:#f8faf9;border-radius:10px;min-width:0}
+      .hf-profile-field small{display:block;color:#7b8881;font-size:8px;font-weight:700;margin-bottom:4px}.hf-profile-field strong{display:block;color:#173f2e;font-size:10px;line-height:1.35;overflow-wrap:anywhere}
+      .hf-profile-actions{display:flex;gap:8px;margin-top:16px}.hf-profile-actions button{flex:1;height:44px;border-radius:11px;font-size:10px;font-weight:900;cursor:pointer}
+      .hf-profile-edit{border:0;background:#087443;color:#fff}.hf-profile-back{border:1px solid #dce7e1;background:#fff;color:#087443}
+      .hf-profile-form{display:grid;gap:11px}.hf-profile-form label{font-size:8px;font-weight:800;color:#728079}.hf-profile-form input,.hf-profile-form textarea,.hf-profile-form select{width:100%;box-sizing:border-box;margin-top:5px;padding:10px 11px;border:1px solid #d7e4dc;border-radius:10px;background:#fff;color:#173f2e;font:inherit;font-size:10px}.hf-profile-form textarea{min-height:70px;resize:vertical}
+      .hf-profile-save{height:46px;border:0;border-radius:11px;background:#087443;color:#fff;font-weight:900;cursor:pointer}.hf-profile-message{font-size:9px;padding:9px 10px;border-radius:9px;background:#f1f8f4;color:#087443}
+      @media(max-width:520px){#hfProfileView{padding:8px}.hf-profile-card{border-radius:17px}.hf-profile-content{padding:12px}.hf-profile-grid{grid-template-columns:1fr}.hf-profile-actions{position:sticky;bottom:0;background:#fff;padding-top:8px}}
+    `; document.head.appendChild(style);
+    const close=()=>{root.remove();style.remove()}; document.getElementById("hfProfileClose").onclick=close;
+    try{
+      const sb=window.supabaseClient||window.supabase.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN");
+      const {data:{user},error:ue}=await sb.auth.getUser(); if(ue||!user)throw new Error("Please sign in again.");
+      const {data:p,error:pe}=await sb.from("profiles").select("*").eq("id",user.id).maybeSingle(); if(pe)throw pe;
+      const d=p||{}, name=textVal(d.full_name)||[d.first_name,d.middle_name,d.surname].filter(Boolean).join(" ")||"Member";
+      const body=document.getElementById("hfProfileBody");
+      const row=(label,val)=>'<div class="hf-profile-field"><small>'+esc(label)+'</small><strong>'+esc(textVal(val)||"—")+'</strong></div>';
+      const wallet=Number(document.getElementById("heroBalance")?.textContent?.replace(/[^0-9.-]/g,"")||0), savings=Number(document.getElementById("savingsBalance")?.textContent?.replace(/[^0-9.-]/g,"")||0), shares=Number(document.getElementById("sharesBalance")?.textContent?.replace(/[^0-9.-]/g,"")||0), special=Number(document.getElementById("specialSavingsBalance")?.textContent?.replace(/[^0-9.-]/g,"")||0);
+      const renderView=()=>{
+        body.innerHTML='<div class="hf-profile-content"><div class="hf-profile-identity"><div class="hf-profile-avatar">'+esc(name.charAt(0).toUpperCase())+'</div><div><div class="hf-profile-name">'+esc(name)+'</div><div class="hf-profile-meta">'+esc(d.member_id||"Member")+' · '+esc(d.status||"Active")+'</div></div></div>'+
+          '<div class="hf-profile-section"><h3>Personal information</h3><div class="hf-profile-grid">'+row("Full name",name)+row("Phone",d.phone)+row("Email",user.email)+row("Date of birth",d.date_of_birth)+row("Gender",d.gender)+row("Occupation",d.occupation)+row("Address",d.address)+row("State",d.state)+row("LGA",d.lga)+row("Next of kin",d.next_of_kin)+row("Next of kin phone",d.next_of_kin_phone)+'</div></div>'+
+          '<div class="hf-profile-section"><h3>Membership</h3><div class="hf-profile-grid">'+row("Member ID",d.member_id)+row("Role",d.role||"member")+row("Status",d.status||"active")+row("Membership type",d.membership_type||"Member")+row("Registration date",d.created_at?new Date(d.created_at).toLocaleDateString("en-NG"):"—")+'</div></div>'+
+          '<div class="hf-profile-section"><h3>Financial summary</h3><div class="hf-profile-grid">'+row("Wallet",money(wallet))+row("Savings",money(savings))+row("Shares",money(shares))+row("Special savings",money(special))+row("Total balance",money(wallet+savings+shares+special))+'</div></div>'+
+          '<div class="hf-profile-actions"><button type="button" class="hf-profile-back" id="hfProfileDone">← Dashboard</button><button type="button" class="hf-profile-edit" id="hfEditProfile">EDIT PROFILE</button></div></div>';
+        document.getElementById("hfProfileDone").onclick=close; document.getElementById("hfEditProfile").onclick=renderEdit;
+      };
+      const renderEdit=()=>{
+        body.innerHTML='<div class="hf-profile-content"><div class="hf-profile-section"><h3>Edit profile</h3><form id="hfEditProfileForm" class="hf-profile-form">'+
+          '<label>First name<input name="first_name" value="'+esc(d.first_name)+'" required></label>'+
+          '<label>Middle name<input name="middle_name" value="'+esc(d.middle_name)+'"></label>'+
+          '<label>Surname<input name="surname" value="'+esc(d.surname)+'" required></label>'+
+          '<label>Phone<input name="phone" value="'+esc(d.phone)+'"></label>'+
+          '<label>Date of birth<input name="date_of_birth" type="date" value="'+esc(d.date_of_birth)+'"></label>'+
+          '<label>Gender<select name="gender"><option value="">Select</option><option '+(d.gender==="Male"?"selected":"")+' value="Male">Male</option><option '+(d.gender==="Female"?"selected":"")+' value="Female">Female</option></select></label>'+
+          '<label>Occupation<input name="occupation" value="'+esc(d.occupation)+'"></label>'+
+          '<label>Address<textarea name="address">'+esc(d.address)+'</textarea></label>'+
+          '<div class="hf-profile-grid"><label>State<input name="state" value="'+esc(d.state)+'"></label><label>LGA<input name="lga" value="'+esc(d.lga)+'"></label></div>'+
+          '<label>Next of kin<input name="next_of_kin" value="'+esc(d.next_of_kin)+'"></label>'+
+          '<label>Next of kin phone<input name="next_of_kin_phone" value="'+esc(d.next_of_kin_phone)+'"></label>'+
+          '<div id="hfProfileMsg"></div><button class="hf-profile-save" type="submit">SAVE PROFILE</button></form><div class="hf-profile-actions"><button type="button" class="hf-profile-back" id="hfCancelEdit">Cancel</button></div></div></div>';
+        document.getElementById("hfCancelEdit").onclick=renderView;
+        document.getElementById("hfEditProfileForm").onsubmit=async e=>{
+          e.preventDefault(); const f=new FormData(e.target), first=textVal(f.get("first_name")), middle=textVal(f.get("middle_name")), surname=textVal(f.get("surname")), full=[first,middle,surname].filter(Boolean).join(" ");
+          const patch={first_name:first,middle_name:middle,surname:surname,full_name:full,phone:textVal(f.get("phone")),date_of_birth:f.get("date_of_birth")||null,gender:textVal(f.get("gender")),occupation:textVal(f.get("occupation")),address:textVal(f.get("address")),state:textVal(f.get("state")),lga:textVal(f.get("lga")),next_of_kin:textVal(f.get("next_of_kin")),next_of_kin_phone:textVal(f.get("next_of_kin_phone")),updated_at:new Date().toISOString()};
+          const msg=document.getElementById("hfProfileMsg"), btn=e.target.querySelector("button[type=submit]"); btn.disabled=true;btn.textContent="SAVING…";
+          const {error}=await sb.from("profiles").update(patch).eq("id",user.id);
+          if(error){msg.innerHTML='<div style="color:#a52a2a">Could not save profile. '+esc(error.message)+'</div>';btn.disabled=false;btn.textContent="SAVE PROFILE";return;}
+          Object.assign(d,patch); name=full||"Member"; const w=document.getElementById("welcome");if(w)w.textContent=name; msg.innerHTML='<div class="hf-profile-message">Profile updated successfully.</div>'; setTimeout(renderView,450);
+        };
+      };
+      renderView();
+    }catch(e){document.getElementById("hfProfileBody").innerHTML='<div class="hf-profile-content"><div style="padding:14px;color:#a52a2a">Unable to load profile. Please refresh and try again.</div></div>';}
+  };
+})();
