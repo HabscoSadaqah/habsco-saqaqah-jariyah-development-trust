@@ -43,7 +43,7 @@ async function purchase(kind){
  if(kind==="education"){body.receiver=q("#educationReceiver")?.value.trim()||"";body.code=q("#educationPackage")?.value||"";body.phone_number=q("#educationPhone")?.value.trim()||"";body.email=q("#educationEmail")?.value.trim()||"";body.transaction_pin=pin("educationPin");if(!body.code)return status("Select an education package.")}
  if(!/^\d{6}$/.test(body.transaction_pin))return status("Enter your 6-digit transaction PIN.");
  if(!body.receiver)return status("Enter the required receiver/account number.");
- return call(body,kind==="airtime"?"airtime-vending-v2":"utility-vps-proxy-v2");
+ return call(body,"utility-vps-proxy-v2");
 }
 async function power(){
  const provider=q("#powerProvider")?.value||"",meter=q("#powerMeter")?.value.trim()||"",amount=Number(q("#powerAmount")?.value),phone=q("#powerPhone")?.value.trim()||"",email=q("#powerEmail")?.value.trim()||"",transaction_pin=pin("powerPin"),meter_type=q("#powerMeterType")?.value||"PREPAID";
