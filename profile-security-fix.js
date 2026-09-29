@@ -1,4 +1,4 @@
-(()=>{"use strict";
+(()=>{"use strict";if(window.__habscoProfileSecurityDelegated)return;window.__habscoProfileSecurityDelegated=true;
 const U="https://ythnoeyxovapydbmymdo.supabase.co",K="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN";
 function client(){if(window.supabaseClient?.auth)return window.supabaseClient;if(window.supabase?.createClient){window.supabaseClient=window.supabase.createClient(U,K);return window.supabaseClient}return null}
 function panel(type){return document.getElementById("hfSecurity"+String(type||"").charAt(0).toUpperCase()+String(type||"").slice(1)+"Drop")}
