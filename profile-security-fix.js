@@ -55,6 +55,15 @@ function bindSecurityActions(){
     }
   },true);
 }
+function getSecurityClient(){
+  if(window.supabaseClient?.auth)return window.supabaseClient;
+  if(window.supabase?.createClient){
+    const c=window.supabase.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN");
+    window.supabaseClient=c;
+    return c;
+  }
+  return null;
+}
 function bindForms(){
   document.addEventListener("submit",async e=>{
     const form=e.target;
@@ -67,7 +76,7 @@ function bindForms(){
         if(n.length<8){msg.textContent="Password must be at least 8 characters.";return}
         if(n!==c){msg.textContent="Passwords do not match.";return}
         b.disabled=true;b.textContent="Changing…";
-        const sb=window.supabaseClient;if(!sb)throw new Error("Security service unavailable.");
+        const sb=getSecurityClient();if(!sb)throw new Error("Security service unavailable.");
         const r=await sb.auth.updateUser({password:n});if(r.error)throw r.error;
         msg.textContent="Password changed successfully.";form.reset();
       }else{
