@@ -24,5 +24,4 @@ document.addEventListener("submit",async e=>{
 },true);
 function init(){document.querySelectorAll("[data-security-drop]").forEach(b=>{b.setAttribute("aria-expanded","false")});document.querySelectorAll(".hf-security-drop-panel").forEach(p=>{p.hidden=true;p.style.display="none"})}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
-new MutationObserver(init).observe(document.documentElement,{childList:true,subtree:true});
 })();
