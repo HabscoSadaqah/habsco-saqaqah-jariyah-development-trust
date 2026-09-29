@@ -1,0 +1,29 @@
+name: Load Profile Security Fix
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject security fix into member page
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('member.html')
+          s=p.read_text()
+          tag='<script src="profile-security-fix.js?v=20260929-1"></script>'
+          if tag not in s:
+              s=s.replace('</body>', tag+'</body>')
+              p.write_text(s)
+          PY
+      - name: Commit injection
+        run: |
+          git config user.name 'HABSCO Security Fix'
+          git config user.email 'actions@github.com'
+          git add member.html
+          git diff --cached --quiet || git commit -m 'Load Profile security fix on member page'
+          git push
