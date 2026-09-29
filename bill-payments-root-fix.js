@@ -32,7 +32,7 @@ function confirmCharge(kind){
  w.classList.add("show");
  return new Promise(resolve=>{const btn=q("#scConfirm");const done=v=>{w.classList.remove("show");btn.onclick=null;resolve(v)};btn.onclick=()=>done(true);q("#scCancel").onclick=()=>done(false)});
 }
-async function call(body){if(!window.supabase||typeof supabase?.functions?.invoke!=="function")throw Error("Payment service is not ready. Refresh the page.");const {data,error}=await supabase.functions.invoke("utility-vps-proxy-v2",{body});if(error){let detail="";try{detail=error.context?JSON.stringify(await error.context.json()):""}catch{}throw Error(detail||error.message||"Utility service request failed.")}return data||{}}
+async function call(body,functionName="utility-vps-proxy-v2"){if(!window.supabase||typeof supabase?.functions?.invoke!=="function")throw Error("Payment service is not ready. Refresh the page.");const {data,error}=await supabase.functions.invoke(functionName,{body});if(error){let detail="";try{detail=error.context?JSON.stringify(await error.context.json()):""}catch{}throw Error(detail||error.message||"Utility service request failed.")}return data||{}}
 function providerFor(kind){const map={airtime:"[data-provider]",data:"[data-data-provider]",tv:"[data-tv-provider]",education:"[data-education-provider]"};const sel=map[kind];const a=sel?document.querySelector(sel+".active"):null;return a?.dataset?.provider||a?.dataset?.dataProvider||a?.dataset?.tvProvider||a?.dataset?.educationProvider||""}
 async function purchase(kind){
  const p=providerFor(kind);if(!p){status("Select a provider first.");return null}
@@ -43,7 +43,7 @@ async function purchase(kind){
  if(kind==="education"){body.receiver=q("#educationReceiver")?.value.trim()||"";body.code=q("#educationPackage")?.value||"";body.phone_number=q("#educationPhone")?.value.trim()||"";body.email=q("#educationEmail")?.value.trim()||"";body.transaction_pin=pin("educationPin");if(!body.code)return status("Select an education package.")}
  if(!/^\d{6}$/.test(body.transaction_pin))return status("Enter your 6-digit transaction PIN.");
  if(!body.receiver)return status("Enter the required receiver/account number.");
- return call(body);
+ return call(body,kind==="airtime"?"airtime-vending-v2":"utility-vps-proxy-v2");
 }
 async function power(){
  const provider=q("#powerProvider")?.value||"",meter=q("#powerMeter")?.value.trim()||"",amount=Number(q("#powerAmount")?.value),phone=q("#powerPhone")?.value.trim()||"",email=q("#powerEmail")?.value.trim()||"",transaction_pin=pin("powerPin"),meter_type=q("#powerMeterType")?.value||"PREPAID";
