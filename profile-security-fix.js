@@ -36,6 +36,25 @@ function bindButtons(root){
     p.style.display="none";
   });
 }
+function bindSecurityActions(){
+  document.addEventListener("click",async e=>{
+    const pin=e.target.closest("[data-security-action='pin']");
+    if(pin){
+      e.preventDefault();e.stopPropagation();
+      const target=document.getElementById("hfSecurityPinDrop");
+      window.hfSecurityDropdownTarget=target||null;
+      if(typeof window.hfOpenPinManager==="function"){await window.hfOpenPinManager();}
+      else if(typeof window.openPinManager==="function"){await window.openPinManager();}
+      return;
+    }
+    const signout=e.target.closest("[data-security-action='signout']");
+    if(signout){
+      e.preventDefault();e.stopPropagation();
+      if(typeof window.habscoHardLogout==="function"){await window.habscoHardLogout();}
+      else if(window.supabaseClient){await window.supabaseClient.auth.signOut({scope:"local"});location.href="./auth.html?logged_out=1";}
+    }
+  },true);
+}
 function bindForms(){
   document.addEventListener("submit",async e=>{
     const form=e.target;
@@ -68,6 +87,7 @@ function bindForms(){
 function bind(){
   bindButtons(document);
   if(!window.__habscoSecurityFormsBound){window.__habscoSecurityFormsBound=true;bindForms();}
+  if(!window.__habscoSecurityActionsBound){window.__habscoSecurityActionsBound=true;bindSecurityActions();}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",bind,{once:true});else bind();
 new MutationObserver(()=>bindButtons(document)).observe(document.documentElement,{childList:true,subtree:true});
