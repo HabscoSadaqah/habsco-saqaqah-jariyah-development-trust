@@ -1,5 +1,5 @@
 // HABSCO FAST WORKER v28: member/admin documents are always network-fresh.
-const CACHE_NAME = "habsco-static-v32";
+const CACHE_NAME = "habsco-static-v33";
 
 const STATIC_DESTINATIONS = new Set(["style","script","image","font","manifest"]);
 
