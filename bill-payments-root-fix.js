@@ -50,7 +50,7 @@ async function power(){
  if(!provider||!meter)return status("Select the distribution company and enter the meter number.");
  if(!Number.isFinite(amount)||amount<=0)return status("Enter a valid electricity amount.");
  if(!/^\d{6}$/.test(transaction_pin))return status("Enter your 6-digit transaction PIN.");
- return call({action:"power",provider,receiver:meter,amount,meter_type,phone_number:phone,email,transaction_pin});
+ return call({action:"electricity",provider,receiver:meter,amount,meter_type,phone_number:phone,email,transaction_pin});
 }
 async function finish(btn,fn,kind){
  busy(btn,true);
