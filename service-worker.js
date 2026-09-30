@@ -1,5 +1,5 @@
 // HABSCO FAST WORKER v28: member/admin documents are always network-fresh.
-const CACHE_NAME = "habsco-static-v31";
+const CACHE_NAME = "habsco-static-v32";
 
 const STATIC_DESTINATIONS = new Set(["style","script","image","font","manifest"]);
 
@@ -25,13 +25,25 @@ self.addEventListener("fetch",event=>{
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
 
-  // Admin pages and every admin asset must bypass CacheStorage. This prevents stale member loaders/scripts from surviving deployments.\n  const adminReferrer = /\/admin(?:\.html)?(?:[?#]|$)/.test(new URL(request.referrer||"",self.location.origin).pathname);\n  if(adminReferrer){\n    event.respondWith(fetch(new Request(request,{cache:"no-store"})));\n    return;\n  }\n\n  // Admin pages must never be served from an old CacheStorage entry.
+  // Admin pages and every admin asset must bypass CacheStorage. This prevents stale member loaders/scripts from surviving deployments.
+  const adminReferrer = /\/admin(?:\.html)?(?:[?#]|$)/.test(new URL(request.referrer||"",self.location.origin).pathname);
+  if(adminReferrer){
+    event.respondWith(fetch(new Request(request,{cache:"no-store"})));
+    return;
+  }
+
+  // Admin pages must never be served from an old CacheStorage entry.
   if(url.pathname==="/admin"||url.pathname==="/admin.html"||url.pathname.startsWith("/admin-")||url.pathname==="/admin.js"){
     event.respondWith(fetch(new Request(request,{cache:"no-store"})));
     return;
   }
 
-  if(url.pathname==="/bill-payments.html"||url.pathname==="/bill-payments"||url.pathname==="/bill-payments-root-fix.js"||url.pathname==="/education-root-fix.js"||url.pathname==="/power-root-fix.js"){\n    event.respondWith(fetch(new Request(request,{cache:"no-store"})));\n    return;\n  }\n\n  if(url.pathname==="/statement.html"||url.pathname==="/statement"||url.pathname==="/statement.js"){
+  if(url.pathname==="/bill-payments.html"||url.pathname==="/bill-payments"||url.pathname==="/bill-payments-root-fix.js"||url.pathname==="/education-root-fix.js"||url.pathname==="/power-root-fix.js"){
+    event.respondWith(fetch(new Request(request,{cache:"no-store"})));
+    return;
+  }
+
+  if(url.pathname==="/statement.html"||url.pathname==="/statement"||url.pathname==="/statement.js"){
     event.respondWith(fetch(new Request(request,{cache:"no-store"})));
     return;
   }
