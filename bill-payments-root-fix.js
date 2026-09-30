@@ -36,7 +36,7 @@ async function call(body,functionName="utility-vps-proxy-v2"){if(!window.supabas
 function providerFor(kind){const map={airtime:"[data-provider]",data:"[data-data-provider]",tv:"[data-tv-provider]",education:"[data-education-provider]"};const sel=map[kind];const a=sel?document.querySelector(sel+".active"):null;return a?.dataset?.provider||a?.dataset?.dataProvider||a?.dataset?.tvProvider||a?.dataset?.educationProvider||""}
 async function purchase(kind){
  const p=providerFor(kind);if(!p){status("Select a provider first.");return null}
- let body={action:kind,provider:p};
+ let body={action:kind==="power"?"electricity":kind,provider:p};
  if(kind==="airtime"){body.receiver=q("#airtimePhone")?.value.trim()||"";body.amount=Number(q("#airtimeAmount")?.value);body.transaction_pin=pin("airtimePin");if(!/^\+?234\d{10}$|^0\d{10}$/.test(body.receiver))return status("Enter a valid Nigerian phone number.");if(!Number.isFinite(body.amount)||body.amount<=0)return status("Enter a valid airtime amount.")}
  if(kind==="data"){body.receiver=q("#dataPhone")?.value.trim()||"";body.code=q("#dataPackage")?.value||"";body.transaction_pin=pin("dataPin");if(!body.code)return status("Select a data package.")}
  if(kind==="tv"){body.receiver=q("#tvReceiver")?.value.trim()||"";body.package=q("#tvPackage")?.value||"";body.phone_number=q("#tvPhone")?.value.trim()||"";body.email=q("#tvEmail")?.value.trim()||"";body.transaction_pin=pin("tvPin");if(!body.package)return status("Select a TV package.")}
