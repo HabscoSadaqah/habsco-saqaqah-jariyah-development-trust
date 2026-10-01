@@ -16,7 +16,7 @@ const providerHistory=(stage:any,provider:string,action:string,reference:string)
 function arr(x:any):any[]{if(Array.isArray(x))return x;if(Array.isArray(x?.data))return x.data;if(Array.isArray(x?.providers))return x.providers;if(Array.isArray(x?.discos))return x.discos;if(x&&typeof x==="object"&&(x.code||x.short_name||x.provider||x.disco||x.name))return [x];return []}
 const providers=(x:any)=>arr(x).map((v:any)=>({...v,short_name:v.short_name||v.code||v.provider||v.disco||v.name||"",code:v.code||v.short_name||v.provider||v.disco||v.name||"",disco:v.disco||v.name||v.short_name||v.code||v.provider||""})).filter((v:any)=>v.short_name);
 const cname=(root:any)=>{const walk=(x:any,d=0):string=>{if(!x||d>10)return"";if(Array.isArray(x)){for(const q of x){const n=walk(q,d+1);if(n)return n}return""}if(typeof x!=="object")return"";for(const k of ["customer_name","customerName","full_name","fullName","customer_name_text","name"]){const v=x[k];if(typeof v==="string"&&v.trim())return v.trim()}for(const k of ["customer_info","customerInfo","customer_details","customerDetails","customer","customer_data","customerData","account_info","accountInfo","meter_info","meterInfo"]){if(x[k]){const n=walk(x[k],d+1);if(n)return n}}return""};return walk(root)};
-const utilityToken=(root:any)=>{const keys=["token","electricity_token","vend_token","token_number","meter_token","vendToken","electricityToken"];const walk=(x:any,d=0):string=>{if(!x||d>12)return"";if(Array.isArray(x)){for(const v of x){const n=walk(v,d+1);if(n)return n}return""}if(typeof x!=="object")return"";for(const k of keys){const v=x[k];if(typeof v==="string"&&v.trim())return v.trim();if(typeof v==="number"&&Number.isFinite(v))return String(v)}for(const k of Object.keys(x)){const n=walk(x[k],d+1);if(n)return n}return""};return walk(root)};
+const utilityToken=(root:any)=>{const keys=["token","electricity_token","electricitytoken","electricityToken","vend_token","vendToken","token_number","tokenNumber","meter_token","vend_code","vendCode","token_code","tokenCode","pin","recharge_token","rechargeToken"];const walk=(x:any,d=0):string=>{if(!x||d>12)return"";if(Array.isArray(x)){for(const v of x){const n=walk(v,d+1);if(n)return n}return""}if(typeof x!=="object")return"";for(const k of keys){const v=x[k];if(typeof v==="string"&&v.trim())return v.trim();if(typeof v==="number"&&Number.isFinite(v))return String(v)}for(const k of Object.keys(x)){const n=walk(x[k],d+1);if(n)return n}return""};return walk(root)};
 const normVal=(p:any)=>{const v=p?.data||p||{},ci=v.customer_info||v.customerInfo||v.customer_details||v.customerDetails||v.customer||v.customer_data||{},mi=v.meter_info||v.meterInfo||v.meter||{};return{...v,customer_info:{...ci,customer_name:cname(v)||cname(ci),customer_address:ci.customer_address||ci.customerAddress||ci.address||v.customer_address||v.customerAddress||""},meter_info:{...mi,receiver:mi.receiver||mi.meter_number||mi.meterNumber||v.receiver||v.meter_number||v.meterNumber||""}}};
 Deno.serve(async req=>{
  if(req.method==="OPTIONS")return new Response("ok",{headers:C});
@@ -80,8 +80,17 @@ Deno.serve(async req=>{
    return J({success:true,pending:true,reference:tr,provider:pd,requery:rp,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount)},202);
  }
   const ok=vend.ok&&(good.has(s)||(!s&&vend.status===200))&&!bad.has(s);
-  const {error:fe}=await db.rpc("utility_finalize_transaction",{p_transaction_id:tx,p_success:ok,p_provider_reference:ref(pd)||null,p_provider_status:s||(ok?"fulfilled":"failed"),p_provider_response:{provider_history:{validation:providerHistory(vd,provider,action,tr),vend:providerHistory(pd,provider,action,tr)},validation:val.data,vend:vend.data}});
+  let finalProvider=pd,finalToken=action==="power"?utilityToken(pd):"",finalRequery:any=null;
+  if(ok&&action==="power"&&!finalToken){
+    const rq2=await call(t,P()+"/merchant/requery?transaction_reference="+encodeURIComponent(tr),"GET",undefined,15000);
+    finalRequery=rq2.data;
+    const rp2=rq2.data?.data||rq2.data;
+    const rs2=st(rp2),tok2=utilityToken(rp2);
+    if(tok2)finalToken=tok2;
+    if(rq2.ok&&(!bad.has(rs2)||tok2))finalProvider=rp2;
+  }
+  const {error:fe}=await db.rpc("utility_finalize_transaction",{p_transaction_id:tx,p_success:ok,p_provider_reference:ref(finalProvider)||null,p_provider_status:s||(ok?"fulfilled":"failed"),p_provider_response:{provider_history:{validation:providerHistory(vd,provider,action,tr),vend:providerHistory(pd,provider,action,tr),...(finalRequery?{requery:providerHistory(finalProvider,provider,action,tr)}:{})},validation:val.data,vend:vend.data,...(finalRequery?{requery:finalRequery}:{})}});
   if(fe)return J({error:"Provider response received but wallet reconciliation failed.",reference:tr},500);
-  return J({success:ok,reference:tr,provider:pd,token:action==="power"?utilityToken(pd):null,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount)},ok?200:502)
+  return J({success:ok,reference:tr,provider:finalProvider,token:finalToken||null,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount)},ok?200:502)
  }catch(e){await db.rpc("utility_finalize_transaction",{p_transaction_id:tx,p_success:false,p_provider_reference:null,p_provider_status:"error",p_provider_response:{error:e instanceof Error?e.message:"Provider request failed"}});return J({error:e instanceof Error?e.message:"Utility purchase failed.",reference:tr},502)}
 });
