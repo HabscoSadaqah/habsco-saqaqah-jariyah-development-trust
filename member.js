@@ -228,6 +228,27 @@ function closeRecentReceipt(){
 function normalizeReceiptBrand(value){
   return String(value??"").replace(/HARSCO/gi,"HABSCO");
 }
+async function requeryPendingUtilityReceipt(t,button,wrap){
+  if(!t?.reference)return;
+  const original=button.textContent;button.disabled=true;button.textContent="CHECKING PAYMENT…";
+  const setMsg=m=>{let e=wrap.querySelector(".recent-receipt-requery-msg");if(!e){e=document.createElement("div");e.className="recent-receipt-requery-msg";button.parentNode.appendChild(e)}e.textContent=m};
+  try{
+    const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy-v2",{body:{action:"requery",reference:String(t.reference)}});
+    if(error)throw error;
+    if(data?.error)throw new Error(typeof data.error==="string"?data.error:data.error?.message||"Payment status check failed.");
+    const {data:tx,error:te}=await supabaseClient.from("transactions").select("id,reference,type,amount,status,description,metadata,created_at,direction").eq("id",t.id).maybeSingle();
+    if(te)throw te;
+    if(tx){
+      const next={...t,...tx};
+      const amount=Math.abs(Number(tx.amount||0));
+      next.amount=amount;next.credit=String(tx.direction||"").toLowerCase()==="credit";
+      next.status=tx.status||data.status||t.status;
+      closeRecentReceipt();showRecentReceipt(next);return;
+    }
+    setMsg(data?.pending?"Payment is still being processed. Check again shortly.":"Payment status updated.");
+  }catch(e){console.warn("Utility requery failed:",e);setMsg(e?.message||"Unable to check payment status. Please try again.");}
+  button.disabled=false;button.textContent=original;
+}
 function showRecentReceipt(t){
   closeRecentReceipt();
   const wrap=document.createElement("div");wrap.id="hfRecentReceipt";
@@ -239,7 +260,7 @@ function showRecentReceipt(t){
   const detail=electricity?line("Provider / DISCO",provider)+line("Customer name",customer)+line("Meter number",meter)+line("Meter type",meterType)+(units?line("Units purchased",String(units).toLowerCase().includes("kwh")?units:String(units)+" kWh"):"")+(tariff?line("Tariff",tariff):"")+(vat?line("VAT",vat):"")+(fee?line("Service / other charges",fee):"")+line("Date",t.date)+line("HABSCO reference",t.reference)+(providerRef?line("Provider reference",providerRef):""):(line("Date",t.date)+line("Reference",t.reference)+line("Type",t.type||"Transaction")+line("Description",t.description||"Transaction"));
   wrap.innerHTML='<div class="recent-receipt-backdrop"></div><section class="recent-receipt-sheet" role="dialog" aria-modal="true"><button type="button" class="recent-receipt-close" aria-label="Close">×</button><div class="recent-receipt-head"><div class="recent-receipt-brand">HABSCO<small>'+((electricity?"ELECTRICITY PAYMENT":"TRANSACTION DOCUMENT"))+'</small></div><span>'+((electricity?"OFFICIAL ELECTRICITY RECEIPT":"OFFICIAL TRANSACTION RECEIPT"))+'</span></div><div class="recent-receipt-body">'+detail+(token?'<div class="receipt-token"><small>ELECTRICITY TOKEN</small><strong>'+esc(token)+'</strong><em>Keep this token for your meter.</em></div>':"")+'<div class="receipt-total"><span>'+((electricity?"Total amount paid":"Transaction amount"))+'</span><b>'+(t.credit?"+":"−")+" "+money(t.amount)+'</b></div><div class="receipt-line"><span>Wallet Balance Before</span><b>'+money(Number(t.before||0))+'</b></div><div class="receipt-line"><span>Wallet Balance After</span><b>'+money(Number(t.after||0))+'</b></div><div class="receipt-status">'+esc(String(t.status||"approved").replace(/_/g," "))+'</div>'+(electricity&&providerRows.length?'<div class="provider-details"><h4>Provider response details</h4>'+providerRows.map(([k,v])=>line(k,v)).join("")+'</div>':"")+'</div><div class="recent-receipt-actions"><button type="button" class="recent-receipt-share">Print / Save PDF</button></div></section>';
   const css=document.createElement("style");css.dataset.habscoElectricityReceipt="1";css.textContent="#hfRecentReceipt .recent-receipt-sheet{max-height:92vh;overflow:auto}#hfRecentReceipt .recent-receipt-brand{font-size:18px;font-weight:900;letter-spacing:1px;color:#087443}#hfRecentReceipt .recent-receipt-brand small{display:block;font-size:7px;letter-spacing:1px;color:#718079;margin-top:2px}#hfRecentReceipt .receipt-token{margin:13px 0;padding:14px;border:2px solid #087443;border-radius:10px;background:#f2faf5;text-align:center}#hfRecentReceipt .receipt-token small{display:block;color:#087443;font-size:8px;font-weight:900;letter-spacing:1px}#hfRecentReceipt .receipt-token strong{display:block;margin-top:7px;font:900 19px/1.3 "Courier New",monospace;letter-spacing:1.5px;overflow-wrap:anywhere;color:#173d2e}#hfRecentReceipt .receipt-token em{display:block;margin-top:5px;font-size:8px;color:#718079;font-style:normal}#hfRecentReceipt .receipt-line{display:flex;justify-content:space-between;gap:14px;padding:9px 0;border-bottom:1px solid #edf1ee;font-size:10px}#hfRecentReceipt .receipt-line span{color:#68756e}#hfRecentReceipt .receipt-line b{overflow-wrap:anywhere;text-align:right;color:#173d2e}#hfRecentReceipt .receipt-total{display:flex;justify-content:space-between;align-items:center;margin:14px 0;padding:12px;border:1px solid #087443;border-radius:10px;background:#f7fbf8;font-size:11px}#hfRecentReceipt .receipt-total b{font-size:17px;color:#9a2f2f}#hfRecentReceipt .provider-details{margin-top:14px;padding-top:10px;border-top:1px solid #dfe9e3}#hfRecentReceipt .provider-details h4{margin:0 0 6px;font-size:9px;text-transform:uppercase;letter-spacing:.8px;color:#087443}#hfRecentReceipt .receipt-status{display:inline-block;margin-top:12px;padding:7px 11px;border-radius:20px;background:#eaf6ef;color:#087443;font-size:8px;font-weight:900;text-transform:uppercase}";
-  document.head.appendChild(css);document.body.appendChild(wrap);
+  document.head.appendChild(css);document.body.appendChild(wrap);\n  if(electricity&&String(t.status||"").toLowerCase()==="pending"){const q=document.createElement("button");q.type="button";q.className="recent-receipt-requery";q.textContent="CHECK PAYMENT STATUS";wrap.querySelector(".recent-receipt-actions").prepend(q);q.onclick=()=>requeryPendingUtilityReceipt(t,q,wrap);}
   wrap.querySelector(".recent-receipt-close").onclick=closeRecentReceipt;wrap.querySelector(".recent-receipt-backdrop").onclick=closeRecentReceipt;
   wrap.querySelector(".recent-receipt-share").onclick=()=>{
     try{
