@@ -274,14 +274,14 @@ async function requeryPendingUtilityReceipt(t,button,wrap){
     if(approved){
       const fresh={...t,status:'approved',metadata:{...(t.metadata||{}),provider_response:data?.provider_response||data?.providerResponse||data?.provider||data?.data||data,provider_status:data?.provider_status||status}};
       closeRecentReceipt();
-      showRecentReceipt(fresh);
+      window.showRecentReceipt(fresh);
       window.habscoRecentActivity?.refresh?.();
       return;
     }
     if(rejected){
       const fresh={...t,status:'rejected',metadata:{...(t.metadata||{}),provider_response:data?.provider_response||data?.providerResponse||data?.provider||data?.data||data,provider_status:data?.provider_status||status}};
       closeRecentReceipt();
-      showRecentReceipt(fresh);
+      window.showRecentReceipt(fresh);
       window.habscoRecentActivity?.refresh?.();
       return;
     }
@@ -309,7 +309,7 @@ function showRecentReceipt(t){
   wrap.querySelector('.recent-receipt-close').onclick=closeRecentReceipt;wrap.querySelector('.recent-receipt-backdrop').onclick=closeRecentReceipt;
   wrap.querySelector('.recent-receipt-share').onclick=()=>{const html=receiptPrintHtml(t);const w=window.open('','_blank');if(w){w.document.open();w.document.write(html);w.document.close();setTimeout(()=>{try{w.focus();w.print()}catch(e){}},350);return;}const url=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='HABSCO-'+String(t?.reference||'transaction')+'.html';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);alert('The receipt was prepared as a print-ready file. Open it and choose Print → Save as PDF.');};
 }
-document.addEventListener('click',e=>{const close=e.target.closest('#hfRecentReceipt .recent-receipt-close,#hfRecentReceipt .recent-receipt-backdrop');if(close){e.preventDefault();e.stopPropagation();closeRecentReceipt();return}const b=e.target.closest('.activity-view-receipt');if(!b)return;try{showRecentReceipt(JSON.parse(decodeURIComponent(b.dataset.receipt)))}catch(err){console.warn('Receipt unavailable:',err)}});
+document.addEventListener('click',e=>{const close=e.target.closest('#hfRecentReceipt .recent-receipt-close,#hfRecentReceipt .recent-receipt-backdrop');if(close){e.preventDefault();e.stopPropagation();closeRecentReceipt();return}const b=e.target.closest('.activity-view-receipt');if(!b)return;try{window.showRecentReceipt(JSON.parse(decodeURIComponent(b.dataset.receipt)))}catch(err){console.warn('Receipt unavailable:',err)}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('hfRecentReceipt')){e.preventDefault();closeRecentReceipt()}});
 window.habscoRecentActivity={refresh:loadRecentTransactions,filter:renderRecentTransactions,apply:applyRecentActivityFilter,clear:clearRecentActivityFilter,download:downloadRecentTransactions,previous:previousRecentActivity,next:nextRecentActivity};
 /* HABSCO member dashboard hardening: expose loaders explicitly and run them once after auth is ready. */
