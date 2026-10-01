@@ -13,6 +13,31 @@ function inRange(date,from,to){
   const d=new Date(date);
   return (!from||d>=new Date(from+"T00:00:00"))&&(!to||d<=new Date(to+"T23:59:59.999"));
 }
+async function requeryUtility(t,button){
+  if(!t?.reference||String(t.type||"").toLowerCase()!=="utility")return;
+  if(button?.disabled)return;
+  const original=button?.textContent||"Requery";
+  if(button){button.disabled=true;button.textContent="Requerying…";button.classList.add("is-loading")}
+  try{
+    const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy-v2",{body:{action:"requery",transaction_reference:String(t.reference)}});
+    if(error)throw error;
+    if(data?.error)throw new Error(typeof data.error==="string"?data.error:(data.error.message||"Unable to requery transaction."));
+    if(data?.pending){
+      if(button)button.textContent="Still Pending";
+      alert("This utility transaction is still pending with the provider. Please try Requery again later.");
+    }else if(data?.status){
+      if(button)button.textContent=String(data.status).replace(/_/g," ").replace(/\b\w/g,m=>m.toUpperCase());
+      await load();
+    }else{
+      await load();
+    }
+  }catch(e){
+    console.error("Utility requery failed:",e);
+    alert(e?.message||"Unable to requery this utility transaction. Please try again.");
+  }finally{
+    if(button&&!button.isConnected===false){button.disabled=false;if(button.textContent==="Requerying…")button.textContent=original;button.classList.remove("is-loading")}
+  }
+}
 function render(){
   const list=$("statementRows"),more=$("loadMore");
   if(!list)return;
@@ -30,13 +55,22 @@ function render(){
     const credit="credit"===String(x.direction||"").toLowerCase();
     const status=String(x.status||"approved").replace(/_/g," ");
     const title=x.type?String(x.type).replace(/_/g," "):"Transaction";
-    const desc=String(x.description||"").trim(); const um=utilityDetails(x); const token=um.isUtility&&um.token?um.token:"";
+    const desc=String(x.description||"").trim();
+    const um=utilityDetails(x);
+    const pending=String(x.status||"").toLowerCase()==="pending";
+    const token=um.isUtility&&um.token?um.token:"";
     const ref=String(x.reference||"—");
     const date=x.created_at?new Date(x.created_at).toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true}):"—";
     const before=Number(x._before||0),after=Number(x._after||0);
-    return '<div class="funding-item"><div class="activity-icon" aria-hidden="true">'+(credit?"↓":"↑")+'</div><div class="activity-main"><div class="activity-line-one"><span class="funding-title">'+escapeHtml(title.charAt(0).toUpperCase()+title.slice(1))+'</span><span class="activity-date">'+escapeHtml(date)+'</span></div><div class="funding-meta">'+escapeHtml(desc||"No description")+" · "+escapeHtml(ref)+" · "+escapeHtml(status)+'</div>'+(token?'<div class="utility-token">Token: <strong>'+escapeHtml(token)+'</strong></div>':"")+'<div class="activity-balance"><span>Wallet Balance Before <strong>'+money(before)+'</strong></span><span>Wallet Balance After <strong>'+money(after)+'</strong></span></div></div><div class="activity-side"><div class="funding-amount '+(credit?"credit":"debit")+'">'+(credit?"+":"−")+" "+money(amount)+'</div><div class="activity-receipt-row"><button type="button" class="activity-view-receipt" data-i="'+visible.indexOf(x)+'">View</button></div></div></div>';
+    const requery=um.isUtility&&pending?'<button type="button" class="activity-requery" data-ref="'+escapeHtml(ref)+'">Requery</button>':"";
+    const view='<button type="button" class="activity-view-receipt" data-i="'+visible.indexOf(x)+'">View</button>';
+    return '<div class="funding-item'+(um.isUtility?" utility-history-item":"")+'"><div class="activity-icon" aria-hidden="true">'+(credit?"↓":"↑")+'</div><div class="activity-main"><div class="activity-line-one"><span class="funding-title">'+escapeHtml(um.isUtility?(um.service==="power"||um.service==="electricity"?"Electricity":um.service==="tv"?"TV Subscription":um.service?um.service.charAt(0).toUpperCase()+um.service.slice(1):"Utility"):title.charAt(0).toUpperCase()+title.slice(1))+'</span><span class="activity-date">'+escapeHtml(date)+'</span></div><div class="funding-meta">'+escapeHtml(desc||"No description")+" · "+escapeHtml(ref)+" · "+escapeHtml(status)+'</div>'+(um.isUtility?'<div class="utility-history-meta"><span>Provider: <strong>'+escapeHtml(um.provider||"—")+'</strong></span><span>Receiver: <strong>'+escapeHtml(um.receiver||"—")+'</strong></span></div>':"")+(token?'<div class="utility-token">Token: <strong>'+escapeHtml(token)+'</strong></div>':(um.isUtility&&String(um.service||"")==="power"&&pending?'<div class="utility-token utility-token-pending">Token: <strong>Pending — requery to update</strong></div>':""))+'<div class="activity-balance"><span>Wallet Balance Before <strong>'+money(before)+'</strong></span><span>Wallet Balance After <strong>'+money(after)+'</strong></span></div></div><div class="activity-side"><div class="funding-amount '+(credit?"credit":"debit")+'">'+(credit?"+":"−")+" "+money(amount)+'</div><div class="activity-receipt-row">'+requery+view+'</div></div></div>';
   }).join("");
-  list.querySelectorAll(".activity-view-receipt").forEach((b,i)=>b.onclick=()=>showReceipt(visible[i]));
+  list.querySelectorAll(".activity-view-receipt").forEach((b)=>b.onclick=()=>showReceipt(visible[Number(b.dataset.i)]));
+  list.querySelectorAll(".activity-requery").forEach((b)=>b.onclick=()=>{
+    const row=visible.find(x=>String(x.reference||"")===String(b.dataset.ref||""));
+    if(row)requeryUtility(row,b);
+  });
 }
 function utilityDetails(t){const m=t?.metadata&&typeof t.metadata==="object"?t.metadata:{};const pr=m.provider_response?.vend?.data||{};const ti=pr.token_info||{};const ci=pr.customer_info||{};const mi=pr.meter_info||{};const token=String(m.token||ti.token||m.provider_history?.vend?.token||"").trim();const receipt=String(m.util_receipt||ti.util_receipt||"").trim();const providerRef=String(m.provider_reference||pr.payment_reference||"").trim();return{isUtility:String(t?.type||"")==="utility",service:String(m.service||m.action||"").toLowerCase(),provider:String(m.provider||pr.provider||"").trim(),receiver:String(m.receiver||mi.receiver||"").trim(),meterType:String(m.meter_type||mi.meter_type||"").trim(),customerName:String(m.customer_name||ci.customer_name||"").trim(),customerAddress:String(m.customer_address||ci.customer_address||"").trim(),purchaseAmount:m.purchase_amount??pr.amount??"",serviceCharge:m.service_charge??m.service_fee_collected??"",token,receipt,providerRef,units:ti.units??""}}
 function closeReceipt(){const m=document.getElementById("statementReceipt");if(m){m.remove();document.body.classList.remove("receipt-modal-open")}}
@@ -83,4 +117,4 @@ function init(){
   load();startStatementSync();
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
-(function addReceiptStyle(){if(document.getElementById("statement-receipt-style"))return;const s=document.createElement("style");s.id="statement-receipt-style";s.textContent=".utility-token{margin-top:3px;font-size:7px;color:#087443;overflow-wrap:anywhere}.utility-token strong{font-weight:900;letter-spacing:.5px}.statement-receipt-section{margin-top:10px;padding:10px;border:1px solid #dce9e1;border-radius:10px;background:#f8fbf9}.statement-receipt-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}.statement-receipt-grid>div{display:flex;flex-direction:column;gap:2px;font-size:8px}.statement-receipt-grid span{color:#718079}.statement-receipt-grid b{font-weight:850;overflow-wrap:anywhere}.statement-receipt-grid .token-row{grid-column:1/-1;padding:8px;border-radius:7px;background:#edf7f1}.statement-receipt-grid .token-row b{font-size:13px;letter-spacing:1px;color:#087443}..statement-receipt-backdrop{position:fixed;inset:0;background:rgba(20,45,34,.38);z-index:200}.statement-receipt-sheet{position:fixed;z-index:201;left:50%;top:50%;transform:translate(-50%,-50%);width:min(390px,calc(100vw - 24px));background:#fff;border:1px solid #dce9e1;border-radius:18px;padding:18px;box-shadow:0 14px 40px rgba(0,0,0,.16);color:#17221c}.statement-receipt-close{position:absolute;right:10px;top:9px;width:30px;height:30px;border:0;border-radius:50%;background:#f1f6f3;color:#52635b;font-size:20px;line-height:1}.statement-receipt-head{display:flex;flex-direction:column;gap:2px;padding-right:35px;border-bottom:1px solid #edf1ee;padding-bottom:12px}.statement-receipt-head strong{font-size:16px;color:#087443}.statement-receipt-head span{font-size:8px;letter-spacing:1px;color:#718079;font-weight:850}.statement-receipt-body{padding:12px 0}.statement-receipt-line{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:9px;border-bottom:1px solid #f0f3f1}.statement-receipt-line span{color:#718079}.statement-receipt-line b{text-align:right;max-width:68%;overflow-wrap:anywhere}.statement-receipt-amount{font-size:20px;font-weight:900;text-align:center;padding:15px 0 7px}.statement-receipt-status{text-align:center;font-size:8px;color:#718079;text-transform:capitalize}.statement-receipt-actions{padding-top:6px}.statement-receipt-share{width:100%;height:40px;border:0;border-radius:10px;background:#087443;color:#fff;font-size:10px;font-weight:900}.statement-receipt-amount.credit{color:#087443}.statement-receipt-amount.debit{color:#a33535}@media(max-width:600px){.statement-receipt-sheet{border-radius:16px;padding:16px}}";document.head.appendChild(s)})();
+(function addReceiptStyle(){if(document.getElementById("statement-receipt-style"))return;const s=document.createElement("style");s.id="statement-receipt-style";s.textContent=".utility-token{margin-top:3px;font-size:7px;color:#087443;overflow-wrap:anywhere}.utility-token strong{font-weight:900;letter-spacing:.5px}.statement-receipt-section{margin-top:10px;padding:10px;border:1px solid #dce9e1;border-radius:10px;background:#f8fbf9}.statement-receipt-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}.statement-receipt-grid>div{display:flex;flex-direction:column;gap:2px;font-size:8px}.statement-receipt-grid span{color:#718079}.statement-receipt-grid b{font-weight:850;overflow-wrap:anywhere}.statement-receipt-grid .token-row{grid-column:1/-1;padding:8px;border-radius:7px;background:#edf7f1}.statement-receipt-grid .token-row b{font-size:13px;letter-spacing:1px;color:#087443}..statement-receipt-backdrop{position:fixed;inset:0;background:rgba(20,45,34,.38);z-index:200}.statement-receipt-sheet{position:fixed;z-index:201;left:50%;top:50%;transform:translate(-50%,-50%);width:min(390px,calc(100vw - 24px));background:#fff;border:1px solid #dce9e1;border-radius:18px;padding:18px;box-shadow:0 14px 40px rgba(0,0,0,.16);color:#17221c}.statement-receipt-close{position:absolute;right:10px;top:9px;width:30px;height:30px;border:0;border-radius:50%;background:#f1f6f3;color:#52635b;font-size:20px;line-height:1}.statement-receipt-head{display:flex;flex-direction:column;gap:2px;padding-right:35px;border-bottom:1px solid #edf1ee;padding-bottom:12px}.statement-receipt-head strong{font-size:16px;color:#087443}.statement-receipt-head span{font-size:8px;letter-spacing:1px;color:#718079;font-weight:850}.statement-receipt-body{padding:12px 0}.statement-receipt-line{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:9px;border-bottom:1px solid #f0f3f1}.statement-receipt-line span{color:#718079}.statement-receipt-line b{text-align:right;max-width:68%;overflow-wrap:anywhere}.statement-receipt-amount{font-size:20px;font-weight:900;text-align:center;padding:15px 0 7px}.statement-receipt-status{text-align:center;font-size:8px;color:#718079;text-transform:capitalize}.statement-receipt-actions{padding-top:6px}.statement-receipt-share{width:100%;height:40px;border:0;border-radius:10px;background:#087443;color:#fff;font-size:10px;font-weight:900}.statement-receipt-amount.credit{color:#087443}.statement-receipt-amount.debit{color:#a33535}.activity-requery{border:1px solid #087443;background:#fff;color:#087443;border-radius:8px;padding:5px 9px;font-size:8px;font-weight:900;cursor:pointer}.activity-requery:disabled{opacity:.65;cursor:wait}.activity-requery.is-loading{min-width:58px}.utility-history-item .utility-history-meta{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:3px;font-size:7px;color:#718079}.utility-history-item .utility-history-meta strong{color:#17221c}.utility-token-pending{color:#a56b00}.activity-receipt-row{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}@media(max-width:600px){.statement-receipt-sheet{border-radius:16px;padding:16px}}";document.head.appendChild(s)})();
