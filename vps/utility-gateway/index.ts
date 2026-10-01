@@ -56,8 +56,20 @@ Deno.serve(async req=>{
  try{
   const vb=action==="power"?{validation_reference:vd.validation_reference,transaction_reference:tr,phone_number:String(b?.phone_number||"").trim()||undefined}:{validation_reference:vd.validation_reference,transaction_reference:tr};
   const vend=await call(t,(action==="power"?P():B())+"/merchant/"+action+"/vend","POST",vb);
-  const pd=vend.data?.data||vend.data,s=st(pd),isPend=vend.status===202||pend.has(s);
-  if(isPend)return J({success:true,pending:true,reference:tr,provider:pd,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount)},202);
+  const pd=vend.data?.data||vend.data,s=st(pd),isPend=pend.has(s)||(!good.has(s)&&vend.status===202);
+  if(isPend){
+   const rq=action==="power"
+     ?await call(t,P()+"/merchant/requery?transaction_reference="+encodeURIComponent(tr))
+     :await call(t,B()+"/merchants/requery?t_ref="+encodeURIComponent(tr));
+   const rp=rq.data?.data||rq.data,rs=st(rp);
+   const rOk=rq.ok&&(good.has(rs)||(!rs&&rq.status===200))&&!bad.has(rs);
+   if(rOk){
+     const {error:rfe}=await db.rpc("utility_finalize_transaction",{p_transaction_id:tx,p_success:true,p_provider_reference:ref(rp)||null,p_provider_status:rs||"fulfilled",p_provider_response:{validation:val.data,vend:vend.data,requery:rq.data}});
+     if(rfe)return J({error:"Provider completed the payment but wallet reconciliation failed.",reference:tr},500);
+     return J({success:true,pending:false,reference:tr,provider:rp,token:action==="power"?utilityToken(rp):null,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount)},200);
+   }
+   return J({success:true,pending:true,reference:tr,provider:pd,requery:rp,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount)},202);
+ }
   const ok=vend.ok&&(good.has(s)||(!s&&vend.status===200))&&!bad.has(s);
   const {error:fe}=await db.rpc("utility_finalize_transaction",{p_transaction_id:tx,p_success:ok,p_provider_reference:ref(pd)||null,p_provider_status:s||(ok?"fulfilled":"failed"),p_provider_response:{validation:val.data,vend:vend.data}});
   if(fe)return J({error:"Provider response received but wallet reconciliation failed.",reference:tr},500);
