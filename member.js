@@ -626,3 +626,4 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     );
   };
 })();
+\n/* HABSCO: Recent Activity removed from member dashboard */\n(function(){function removeRecentActivitySection(){var ids=["recentFundingList","recentFromDate","recentToDate","recentApplyFilter","recentClearFilter","recentDownload","recentPrev5","recentNext5","recentPageInfo"];ids.forEach(function(id){var el=document.getElementById(id);if(el){var p=el.closest(".activity,.recent-activity-tools");if(p)p.remove();}});document.querySelectorAll(".section-title h2").forEach(function(h){if(String(h.textContent||"").trim().toLowerCase()==="recent activity"){var sec=h.closest(".section-title"),next=sec&&sec.nextElementSibling;if(sec)sec.remove();if(next&&next.classList.contains("activity"))next.remove();}});}if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",removeRecentActivitySection,{once:true});else removeRecentActivitySection();})();\n
