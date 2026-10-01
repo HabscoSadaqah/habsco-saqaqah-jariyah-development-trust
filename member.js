@@ -243,12 +243,17 @@ function showRecentReceipt(t){
   wrap.querySelector(".recent-receipt-close").onclick=closeRecentReceipt;wrap.querySelector(".recent-receipt-backdrop").onclick=closeRecentReceipt;
   wrap.querySelector(".recent-receipt-share").onclick=()=>{
     try{
-      const blob=receiptPdfBlob(t),url=URL.createObjectURL(blob),w=window.open("about:blank","_blank");
-      if(!w){alert("Please allow pop-ups for HABSCO receipts, then tap Print / Save PDF again.");return}
-      w.document.open();w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>HABSCO Receipt</title></head><body style="font-family:Arial;padding:30px">Preparing receipt…</body></html>');w.document.close();
-      fetch(url).then(r=>r.text()).then(html=>{w.document.open();w.document.write(html);w.document.close();setTimeout(()=>{try{w.focus();w.print()}catch{}},400)}).catch(()=>{try{w.location.href=url;setTimeout(()=>w.print(),700)}catch{}});
+      const blob=receiptPdfBlob(t),url=URL.createObjectURL(blob);
+      const w=window.open(url,"_blank");
+      if(!w){
+        const a=document.createElement("a");a.href=url;a.download="HABSCO-Receipt-"+String(t.reference||"transaction")+".html";document.body.appendChild(a);a.click();a.remove();
+        alert("The receipt page was blocked. The receipt file has been downloaded; open it and choose Print → Save as PDF.");
+        setTimeout(()=>URL.revokeObjectURL(url),60000);return;
+      }
+      const print=()=>{try{w.focus();w.print()}catch(e){console.warn("Receipt print failed:",e)}};
+      setTimeout(print,900);
       setTimeout(()=>URL.revokeObjectURL(url),60000);
-    }catch(err){console.warn("Receipt print failed:",err);alert("Unable to prepare the receipt. Please try again.");}
+    }catch(err){console.warn("Receipt print failed:",err);alert("Unable to prepare the receipt. Please allow pop-ups and try again.");}
   };
 }
 document.addEventListener("click",e=>{const close=e.target.closest("#hfRecentReceipt .recent-receipt-close,#hfRecentReceipt .recent-receipt-backdrop");if(close){e.preventDefault();e.stopPropagation();closeRecentReceipt();return}const b=e.target.closest(".activity-view-receipt");if(!b)return;try{showRecentReceipt(JSON.parse(decodeURIComponent(b.dataset.receipt)))}catch(err){console.warn("Receipt unavailable:",err)}});document.addEventListener("keydown",e=>{if(e.key==="Escape"&&document.getElementById("hfRecentReceipt")){e.preventDefault();closeRecentReceipt()}});
