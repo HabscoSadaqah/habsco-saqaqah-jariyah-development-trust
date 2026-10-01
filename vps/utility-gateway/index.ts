@@ -7,10 +7,10 @@ const B=()=>live()?"https://prod.airtime-data.irechargetech.com/api/v2":"https:/
 const P=()=>live()?"https://prod.power.irechargetech.com/api/v2":"https://test.power.irechargetech.com/api/v2";
 const A=()=>live()?"https://prod.user-mgt.irechargetech.com/api/v1/auth/api-client/token":"https://test.user-mgt.irechargetech.com/api/v1/auth/api-client/token";
 let cache:any=null;
-const good=new Set(["success","successful","completed","complete","approved","delivered","fulfilled"]),pend=new Set(["pending","processing","queued","in_progress","in-progress","accepted"]),bad=new Set(["failed","failure","failed_transaction","rejected","declined","cancelled","canceled"]);
+const good=new Set(["success","successful","completed","complete","approved","delivered","fulfilled","ok"]),pend=new Set(["pending","processing","queued","in_progress","in-progress","accepted"]),bad=new Set(["failed","failure","failed_transaction","rejected","declined","cancelled","canceled"]);
 async function tok(pk:string,sk:string){if(cache&&cache.e>Date.now()+30000)return cache.v;const r=await fetch(A(),{method:"GET",headers:{Authorization:"Basic "+btoa(pk+":"+sk),Accept:"*/*"}});const d=await r.json();if(!r.ok)throw new Error(d?.message||d?.error||"Accelerate authentication failed.");const v=d?.data?.token||d?.token||d?.access_token||d?.data?.access_token;if(!v)throw new Error("Accelerate authentication returned no access token.");cache={v:String(v),e:Date.now()+Math.max(60,Number(d?.data?.ttl||3600)-30)*1000};return cache.v}
 async function call(t:string,u:string,m="GET",b?:any){const r=await fetch(u,{method:m,headers:{Authorization:"Bearer "+t,Accept:"*/*",...(m==="POST"?{"Content-Type":"application/json"}:{})},...(m==="POST"?{body:JSON.stringify(b||{})}:{})});const tx=await r.text();let d:any;try{d=JSON.parse(tx)}catch{d={raw:tx}}return{ok:r.ok,status:r.status,data:d}}
-const st=(x:any)=>String(x?.status||x?.data?.status||"").toLowerCase().replace(/\s+/g,"_");
+const st=(x:any)=>{const walk=(v:any,d=0):string=>{if(!v||d>8)return"";if(Array.isArray(v)){for(const q of v){const s=walk(q,d+1);if(s)return s}return""}if(typeof v!=="object")return"";for(const k of ["status","transaction_status","payment_status"]){const z=v[k];if(typeof z==="string"&&z.trim())return z.toLowerCase().replace(/\s+/g,"_")}for(const k of ["data","result","response","transaction","payment","details"]){if(v[k]){const s=walk(v[k],d+1);if(s)return s}}return""};return walk(x)};
 const ref=(x:any)=>String(x?.payment_reference||x?.transaction_id||x?.reference||x?.data?.payment_reference||x?.data?.transaction_id||x?.data?.reference||"");
 function arr(x:any):any[]{if(Array.isArray(x))return x;if(Array.isArray(x?.data))return x.data;if(Array.isArray(x?.providers))return x.providers;if(Array.isArray(x?.discos))return x.discos;if(x&&typeof x==="object"&&(x.code||x.short_name||x.provider||x.disco||x.name))return [x];return []}
 const providers=(x:any)=>arr(x).map((v:any)=>({...v,short_name:v.short_name||v.code||v.provider||v.disco||v.name||"",code:v.code||v.short_name||v.provider||v.disco||v.name||"",disco:v.disco||v.name||v.short_name||v.code||v.provider||""})).filter((v:any)=>v.short_name);
@@ -62,7 +62,7 @@ Deno.serve(async req=>{
      ?await call(t,P()+"/merchant/requery?transaction_reference="+encodeURIComponent(tr))
      :await call(t,B()+"/merchants/requery?t_ref="+encodeURIComponent(tr));
    const rp=rq.data?.data||rq.data,rs=st(rp);
-   const rOk=rq.ok&&(good.has(rs)||(!rs&&rq.status===200))&&!bad.has(rs);
+   const rOk=rq.ok&&(good.has(rs)||(!rs&&rq.status===200)||(action==="power"&&!!utilityToken(rp)))&&!bad.has(rs);
    if(rOk){
      const {error:rfe}=await db.rpc("utility_finalize_transaction",{p_transaction_id:tx,p_success:true,p_provider_reference:ref(rp)||null,p_provider_status:rs||"fulfilled",p_provider_response:{validation:val.data,vend:vend.data,requery:rq.data}});
      if(rfe)return J({error:"Provider completed the payment but wallet reconciliation failed.",reference:tr},500);
