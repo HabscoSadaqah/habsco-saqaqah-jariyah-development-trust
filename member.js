@@ -211,7 +211,7 @@ function providerHistoryData(t){
 }
 function providerScalarRows(t){
   const root=providerHistoryData(t),out=[],seen=new Set();
-  const skip=new Set(['raw','request','request_body','requestBody','validation','vend','requery','provider_history','providerHistory','data','result','response','customer_info','customerInfo']);
+  const skip=new Set(['raw','request','request_body','requestBody','provider_history','providerHistory','data','result','response','customer_info','customerInfo']);
   const label=k=>String(k).replace(/_/g,' ').replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\b\w/g,m=>m.toUpperCase());
   const preferred=/provider|disco|meter|customer|account|address|phone|email|unit|tariff|vat|charge|amount|reference|transaction|status|category|package|plan|token|energy|receipt|commission/i;
   const walk=(x,path='',depth=0)=>{
@@ -232,7 +232,7 @@ function providerScalarRows(t){
   walk(root);
   return out.slice(0,60);
 }
-function receiptProviderRows(t){return providerScalarRows(t).filter(([k,v])=>!/^Provider History|^Validation|^Vend|^Requery/i.test(k+' '));}
+function receiptProviderRows(t){return providerScalarRows(t);}
 function utilityReceiptAmounts(t){
   const meta=t?.metadata&&typeof t.metadata==='object'?t.metadata:{};
   const total=Number(t?.amount||0);
@@ -258,6 +258,32 @@ function receiptPrintHtml(t){
 function receiptPdfBlob(t){return new Blob([receiptPrintHtml(t)],{type:'text/html;charset=utf-8'});}
 function closeRecentReceipt(){const el=document.getElementById('hfRecentReceipt');if(el)el.remove();document.body.style.overflow='';}
 function normalizeReceiptBrand(value){return String(value||'HABSCO').replace(/HARSCO/gi,'HABSCO').trim()||'HABSCO';}
+async function requeryPendingUtilityReceipt(t,button,wrap){
+  if(!t?.reference)return;
+  const msg=document.createElement('div');msg.className='recent-receipt-requery-msg';msg.textContent='Checking payment status…';
+  const body=wrap?.querySelector('.recent-receipt-body');if(body)body.prepend(msg);
+  if(button){button.disabled=true;button.textContent='CHECKING PAYMENT STATUS…';}
+  try{
+    const {data,error}=await supabaseClient.functions.invoke('utility-vps-proxy-v2',{body:{action:'requery',transaction_reference:String(t.reference)}});
+    if(error)throw error;
+    const {data:tx,error:te}=await supabaseClient.from('transactions').select('id,reference,type,amount,status,description,metadata,created_at,direction').eq('id',t.id).maybeSingle();
+    if(te)throw te;
+    if(tx){
+      const fresh={...t,...tx,date:t.date||new Date(tx.created_at).toLocaleString('en-NG',{day:'2-digit',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true}),credit:String(tx.direction||'').toLowerCase()==='credit'};
+      if(String(tx.status||'').toLowerCase()==='approved'){
+        closeRecentReceipt();showRecentReceipt(fresh);return;
+      }
+      t= fresh;
+    }
+    const pending=String(data?.pending||'').toLowerCase()==='true'||String(t?.status||'').toLowerCase()==='pending';
+    msg.textContent=pending?'Payment is still pending. Please check again later.':('Payment status: '+String(t?.status||data?.status||'unknown').replace(/_/g,' '));
+    if(button){button.disabled=false;button.textContent='CHECK PAYMENT STATUS';}
+  }catch(e){
+    console.warn('Pending utility requery failed:',e);
+    msg.textContent=e?.message||'Unable to check payment status. Please try again.';
+    if(button){button.disabled=false;button.textContent='CHECK PAYMENT STATUS';}
+  }
+}
 function showRecentReceipt(t){
   closeRecentReceipt();
   const electricity=/electricity|power/i.test([t?.type,t?.description,t?.metadata?.service,t?.metadata?.action].filter(Boolean).join(' '));
