@@ -44,4 +44,54 @@ body{background:#eef3ef!important;color:#17221c!important}
 .habsco-standard-footer{display:block!important;margin-top:8px!important}
 .habsco-standard-footer .copyright{background:#fff!important;border:1px solid #dce7e1!important;border-radius:10px!important;color:#718079!important;padding:7px!important;font-size:7px!important}
 }
-</style></head><body><main class="statement-page"><section class="statement-print-brand"><div class="habsco-logo-text">HABSCO</div><div class="statement-print-title">STATEMENT OF ACCOUNT</div></section><section class="statement-header"><a href="member.html" class="back">← Dashboard</a><div class="kicker">HABSCO</div><h1>STATEMENT OF ACCOUNT</h1><p>Transaction history</p></section><section class="statement-tools"><div class="date-range"><label>From <input id="fromDate" type="date"></label><label>To <input id="toDate" type="date"></label><button class="btn" id="apply" type="button">APPLY</button><button class="btn" id="printBtn" type="button">EXPORT PDF</button></div></section><section class="statement-list"><div id="statementRows" class="mobile-history" aria-live="polite"><div class="history-empty">Loading transaction history…</div></div><button class="btn more" id="loadMore" type="button" hidden>View More</button></section></main><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script><script src="statement.js?v=20261002-bank-statement-05"></script></body></html>
+</style><style id="statement-top-tier">
+.statement-header{
+ position:relative!important;overflow:hidden!important;
+ min-height:174px!important;padding:0!important;margin-bottom:12px!important;
+ border:0!important;border-radius:24px!important;
+ background:linear-gradient(135deg,#063d26 0%,#087443 52%,#0b8a50 100%)!important;
+ box-shadow:0 18px 45px rgba(6,61,38,.16)!important;color:#fff!important;
+}
+.statement-header:before{
+ content:"";position:absolute;width:330px;height:330px;border:1px solid rgba(255,255,255,.10);
+ border-radius:50%;right:-145px;top:-190px;pointer-events:none;
+}
+.statement-header:after{
+ content:"";position:absolute;width:210px;height:210px;border:1px solid rgba(255,255,255,.07);
+ border-radius:50%;right:35px;bottom:-165px;pointer-events:none;
+}
+.statement-header .back{
+ position:absolute;z-index:3;left:20px;top:18px;
+ height:34px;padding:0 12px;border:1px solid rgba(255,255,255,.18)!important;
+ border-radius:10px;background:rgba(255,255,255,.10)!important;color:#fff!important;
+ backdrop-filter:blur(10px);font-size:9px;font-weight:850;
+ transition:.2s ease;
+}
+.statement-header .back:hover{background:rgba(255,255,255,.18)!important;transform:translateY(-1px)}
+.statement-header .kicker{
+ position:absolute;z-index:2;left:24px;bottom:67px;
+ margin:0!important;color:#ccebdd!important;font-size:8px!important;
+ font-weight:900!important;letter-spacing:2.2px!important;text-transform:uppercase;
+}
+.statement-header h1{
+ position:absolute;z-index:2;left:22px;bottom:31px;
+ margin:0!important;color:#fff!important;font-size:25px!important;
+ line-height:1.05!important;letter-spacing:-.7px!important;font-weight:950!important;
+}
+.statement-header p{
+ position:absolute;z-index:2;right:23px;bottom:32px;
+ margin:0!important;color:#d9f0e3!important;font-size:9px!important;
+ font-weight:650!important;letter-spacing:.15px!important;
+}
+.statement-header .kicker:before{
+ content:"";display:inline-block;width:7px;height:7px;border-radius:50%;
+ margin-right:7px;background:#b8f0cf;vertical-align:1px;box-shadow:0 0 0 4px rgba(184,240,207,.12);
+}
+@media(max-width:600px){
+ .statement-header{min-height:160px!important;border-radius:19px!important}
+ .statement-header .back{left:14px;top:14px;height:32px}
+ .statement-header .kicker{left:17px;bottom:61px}
+ .statement-header h1{left:16px;bottom:31px;font-size:20px!important;letter-spacing:-.45px!important}
+ .statement-header p{left:17px;right:auto;bottom:14px;font-size:8px!important}
+}
+</style></head><body><main class="statement-page"><section class="statement-print-brand"><div class="habsco-logo-text">HABSCO</div><div class="statement-print-title">STATEMENT OF ACCOUNT</div></section><section class="statement-header"><a href="member.html" class="back">← Dashboard</a><div class="kicker">HABSCO ACCOUNT</div><h1>STATEMENT OF ACCOUNT</h1><p>Complete transaction history</p></section><section class="statement-tools"><div class="date-range"><label>From <input id="fromDate" type="date"></label><label>To <input id="toDate" type="date"></label><button class="btn" id="apply" type="button">APPLY</button><button class="btn" id="printBtn" type="button">EXPORT PDF</button></div></section><section class="statement-list"><div id="statementRows" class="mobile-history" aria-live="polite"><div class="history-empty">Loading transaction history…</div></div><button class="btn more" id="loadMore" type="button" hidden>View More</button></section></main><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.56.0"></script><script src="statement.js?v=20261002-bank-statement-06"></script></body></html>
