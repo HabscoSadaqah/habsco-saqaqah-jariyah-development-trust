@@ -221,46 +221,115 @@ async function exportStatementPdf(){
   const from=$("fromDate")?.value||"";
   const to=$("toDate")?.value||"";
   const rows=allRows.filter(x=>inRange(x.created_at,from,to));
+  const auth=await getUserWithTimeout(supabaseClient);
+  const user=auth?.data?.user;
+  if(!user)throw new Error("Please sign in to export your statement.");
+  const profileResult=await Promise.race([
+    supabaseClient.from("profiles").select("*").eq("id",user.id).maybeSingle(),
+    new Promise((_,reject)=>setTimeout(()=>reject(new Error("Member information request timed out")),8000))
+  ]);
+  if(profileResult.error)throw profileResult.error;
+  const p=profileResult.data||{};
+  const memberName=String(p.full_name||p.name||[p.first_name,p.middle_name,p.last_name].filter(Boolean).join(" ")||user.user_metadata?.full_name||user.email||"HABSCO Member");
+  const memberId=String(p.member_id||p.memberId||"—");
+  const phone=String(p.phone||p.phone_number||p.mobile||user.phone||"—");
+  const email=String(p.email||user.email||"—");
+  const address=String(p.address||p.residential_address||"");
+  let currentBalance=0;
+  try{
+    const w=await supabaseClient.from("wallets").select("balance").eq("user_id",user.id).maybeSingle();
+    if(!w.error)currentBalance=Number(w.data?.balance||0);
+  }catch(_){}
   const doc=new JsPDF({unit:"mm",format:"a4"});
   const pageW=210,pageH=297,margin=14;
   let y=margin;
-  const green=[8,116,67],muted=[113,128,121],ink=[23,34,28];
-  const moneyPdf=n=>money(n);
+  const green=[8,116,67],muted=[113,128,121],ink=[23,34,28],line=[224,234,228];
   const datePdf=v=>v?new Date(v).toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:true}):"—";
+  const shortDate=v=>v?new Date(v).toLocaleDateString("en-NG",{day:"2-digit",month:"short",year:"numeric"}):"—";
   const addHeader=()=>{
     doc.setTextColor(...green);doc.setFont("helvetica","bold");doc.setFontSize(20);doc.text("HABSCO",margin,y);
-    y+=8;doc.setFontSize(13);doc.text("STATEMENT OF ACCOUNT",margin,y);
-    y+=5;doc.setTextColor(...muted);doc.setFont("helvetica","normal");doc.setFontSize(8);
-    doc.text("Transaction history",margin,y);
-    const range=(from||to)?("Period: "+(from||"All")+" to "+(to||"All")):"Period: All transactions";
-    doc.text(range,pageW-margin,y,{align:"right"});
-    y+=5;doc.setDrawColor(220,233,225);doc.line(margin,y,pageW-margin,y);y+=7;
+    doc.setFontSize(8);doc.setTextColor(...muted);doc.setFont("helvetica","normal");doc.text("habscosadaqah.org",pageW-margin,y,{align:"right"});
+    y+=8;doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(...ink);doc.text("STATEMENT OF ACCOUNT",margin,y);
+    y+=5;doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(...muted);
+    const range=(from||to)?("Statement period: "+(shortDate(from)||"All")+" — "+(shortDate(to)||"All")):"Statement period: All transactions";
+    doc.text(range,margin,y);y+=5;doc.setDrawColor(...green);doc.line(margin,y,pageW-margin,y);y+=7;
   };
-  const ensure=(needed=12)=>{if(y+needed>pageH-margin){doc.addPage();y=margin;addHeader();}};
+  const addFooter=()=>{
+    doc.setFont("helvetica","normal");doc.setFontSize(6.5);doc.setTextColor(...muted);
+    doc.text("HABSCO Sadaqah Jariyah Development Trust • habscosadaqah.org",margin,pageH-7);
+    doc.text("Page "+doc.getNumberOfPages(),pageW-margin,pageH-7,{align:"right"});
+  };
+  const ensure=(needed=12)=>{if(y+needed>pageH-margin-10){addFooter();doc.addPage();y=margin;addHeader();}};
   addHeader();
-  if(!rows.length){doc.setTextColor(...muted);doc.setFontSize(10);doc.text("No transactions found for the selected period.",margin,y);}
-  rows.forEach((x,i)=>{
-    const um=utilityDetails(x);const credit=String(x.direction||"").toLowerCase()==="credit";const amount=Math.abs(Number(x.amount||0));
-    const title=um.isUtility?(um.service==="power"||um.service==="electricity"?"Electricity":um.service==="tv"?"TV Subscription":um.service?um.service.charAt(0).toUpperCase()+um.service.slice(1):"Utility"):String(x.type||"Transaction").replace(/_/g," ");
-    const desc=String(x.description||"No description");
-    const ref=String(x.reference||"—");
-    ensure(34);
-    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(...ink);doc.text(title,margin,y);
-    doc.setFont("helvetica","bold");doc.setTextColor(...(credit?green:[163,53,53]));doc.text((credit?"+ ":"− ")+moneyPdf(amount),pageW-margin,y,{align:"right"});
-    y+=4;doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(...muted);
-    doc.text(datePdf(x.created_at),margin,y);doc.text(String(x.status||"approved").replace(/_/g," "),pageW-margin,y,{align:"right"});y+=4;
-    const meta=doc.splitTextToSize(desc+" • "+ref,pageW-margin*2);doc.text(meta,margin,y);y+=meta.length*3.5;
-    if(um.isUtility){
-      const util=[["Provider",um.provider],["Receiver",um.receiver],["Meter type",um.meterType],["Customer",um.customerName]];
-      util.filter(a=>a[1]).forEach(a=>{ensure(8);doc.setFontSize(7);doc.setTextColor(...muted);doc.text(a[0]+":",margin,y);doc.setTextColor(...ink);doc.text(doc.splitTextToSize(String(a[1]),pageW-margin*2-25),margin+25,y);y+=3.5;});
-      if(um.token){ensure(14);doc.setFont("helvetica","bold");doc.setFontSize(7);doc.setTextColor(...green);doc.text("Electricity Token",margin,y);y+=4;doc.setFontSize(9);doc.text(doc.splitTextToSize(um.token,pageW-margin*2),margin,y);y+=Math.max(5,doc.splitTextToSize(um.token,pageW-margin*2).length*3.8);}
-    }
-    doc.setDrawColor(237,241,238);doc.line(margin,y,pageW-margin,y);y+=6;
+  doc.setFillColor(248,251,249);doc.setDrawColor(...line);doc.roundedRect(margin,y,pageW-margin*2,35,3,3,"FD");
+  doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...green);doc.text("MEMBER INFORMATION",margin+5,y+7);
+  const info=[
+    ["Member Name",memberName],["Member ID",memberId],["Phone",phone],["Email",email]
+  ];
+  if(address)info.push(["Address",address]);
+  let iy=y+13;
+  info.forEach((a,i)=>{
+    const col=i%2,row=Math.floor(i/2),x=margin+5+col*86;
+    doc.setFont("helvetica","normal");doc.setFontSize(6.5);doc.setTextColor(...muted);doc.text(a[0],x,iy+row*8);
+    doc.setFont("helvetica","bold");doc.setFontSize(7.5);doc.setTextColor(...ink);
+    doc.text(doc.splitTextToSize(String(a[1]),78),x,iy+3+row*8,{maxWidth:78});
   });
-  doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(...muted);doc.text("HABSCO • habscosadaqah.org",margin,pageH-8);
+  y+=42;
+  ensure(28);
+  doc.setFillColor(248,251,249);doc.setDrawColor(...line);doc.roundedRect(margin,y,pageW-margin*2,22,3,3,"FD");
+  doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(...muted);doc.text("OPENING BALANCE",margin+5,y+7);doc.text("CLOSING BALANCE",pageW/2+5,y+7);
+  const opening=rows.length?Number(rows[rows.length-1]._before||0):currentBalance;
+  const closing=rows.length?Number(rows[0]._after||0):currentBalance;
+  doc.setFont("helvetica","bold");doc.setFontSize(11);doc.setTextColor(...ink);doc.text(money(opening),margin+5,y+15);doc.text(money(closing),pageW/2+5,y+15);
+  y+=29;
+  ensure(18);
+  doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...green);doc.text("TRANSACTION SUMMARY",margin,y);y+=5;
+  let credits=0,debits=0,creditCount=0,debitCount=0;
+  rows.forEach(x=>{const a=Math.abs(Number(x.amount||0));if(String(x.direction||"").toLowerCase()==="credit"){credits+=a;creditCount++;}else{debits+=a;debitCount++;}});
+  doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(...muted);
+  doc.text("Credits: "+money(credits)+" ("+creditCount+")",margin,y);
+  doc.text("Debits: "+money(debits)+" ("+debitCount+")",pageW/2,y);
+  y+=9;
+  ensure(18);
+  doc.setFillColor(8,116,67);doc.setTextColor(255,255,255);doc.setFont("helvetica","bold");doc.setFontSize(7);
+  doc.rect(margin,y,pageW-margin*2,8,"F");
+  doc.text("DATE / TIME",margin+3,y+5.2);doc.text("DESCRIPTION / REFERENCE",margin+39,y+5.2);doc.text("TYPE",pageW-67,y+5.2);doc.text("AMOUNT",pageW-39,y+5.2);doc.text("BALANCE",pageW-3,y+5.2,{align:"right"});
+  y+=12;
+  if(!rows.length){
+    doc.setTextColor(...muted);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.text("No transactions found for the selected period.",margin,y);
+  }
+  rows.forEach((x,i)=>{
+    ensure(22);
+    const credit=String(x.direction||"").toLowerCase()==="credit";
+    const a=Math.abs(Number(x.amount||0));
+    const um=utilityDetails(x);
+    const title=um.isUtility?(um.service==="power"||um.service==="electricity"?"Electricity":um.service==="tv"?"TV Subscription":um.service?um.service.charAt(0).toUpperCase()+um.service.slice(1):"Utility"):String(x.type||"Transaction").replace(/_/g," ");
+    const ref=String(x.reference||"—");
+    const desc=String(x.description||"").trim();
+    const detail=(desc?desc+" • ":"")+ref;
+    const lines=doc.splitTextToSize(detail,78);
+    const h=Math.max(12,lines.length*3.5+4);
+    ensure(h+2);
+    doc.setFont("helvetica","normal");doc.setFontSize(6.2);doc.setTextColor(...muted);doc.text(datePdf(x.created_at),margin+3,y);
+    doc.setFont("helvetica","bold");doc.setFontSize(7);doc.setTextColor(...ink);doc.text(doc.splitTextToSize(lines,78),margin+39,y);
+    doc.setFont("helvetica","normal");doc.setFontSize(6.5);doc.setTextColor(...muted);doc.text(credit?"CR":"DR",pageW-67,y);
+    doc.setFont("helvetica","bold");doc.setFontSize(7);doc.setTextColor(...(credit?green:[163,53,53]));doc.text((credit?"+ ":"− ")+money(a),pageW-39,y);
+    doc.setTextColor(...ink);doc.text(money(Number(x._after||0)),pageW-3,y,{align:"right"});
+    y+=h;
+    if(um.isUtility){
+      const util=[["Provider",um.provider],["Receiver",um.receiver],["Meter",um.meterType],["Customer",um.customerName]];
+      util.filter(a=>a[1]).forEach(a=>{ensure(7);doc.setFont("helvetica","normal");doc.setFontSize(5.8);doc.setTextColor(...muted);doc.text(a[0]+": "+String(a[1]),margin+39,y);y+=3;});
+      if(um.token){ensure(9);doc.setFont("helvetica","bold");doc.setFontSize(5.8);doc.setTextColor(...green);doc.text("Token: "+String(um.token),margin+39,y);y+=4;}
+    }
+    doc.setDrawColor(...line);doc.line(margin,y,pageW-margin,y);y+=3;
+  });
+  ensure(18);y+=3;doc.setFont("helvetica","normal");doc.setFontSize(6.5);doc.setTextColor(...muted);
+  doc.text("This statement is generated electronically for the member's records. Please retain it for your records.",margin,y);
+  addFooter();
   const stamp=new Date().toISOString().slice(0,10);
-  doc.save("HABSCO-Statement-"+stamp+".pdf");
+  doc.save("HABSCO-Statement-"+memberId+"-"+(from||"all")+"-"+(to||"all")+".pdf");
 }
+
 print&&(print.onclick=async()=>{
   expanded=true;render();
   const old=document.getElementById("statementPrintProgress");if(old)old.remove();
