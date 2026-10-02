@@ -60,56 +60,93 @@
     return false;
   };
 })();
-</script><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer><script>/* HABSCO MEMBER NAME HARD FIX */(async()=>{try{const s=window.habscoSessionPromise?await window.habscoSessionPromise:await window.supabaseClient.auth.getSession();const u=s?.data?.session?.user;if(!u)return;const q=await window.supabaseClient.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",u.id).maybeSingle();const p=q?.data||{};const n=String(p.full_name||[p.first_name,p.middle_name,p.surname].filter(Boolean).join(" ")||"Member").trim();const e=document.getElementById("welcome");if(e)e.textContent=n}catch(e){console.warn("HABSCO name fix",e)}})();</script><script>/* HABSCO MEMBER NAME FINAL ENFORCER */(async()=>{const URL="https://ythnoeyxovapydbmymdo.supabase.co",KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN";const setName=async()=>{try{const w=document.getElementById("welcome");if(!w)return;const sb=window.supabaseClient||window.supabase?.createClient(URL,KEY);if(!sb)return;const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data:p}=await sb.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",user.id).maybeSingle();const name=String(p?.full_name||[p?.first_name,p?.middle_name,p?.surname].filter(Boolean).join(" ")||"Member").trim();if(name)w.textContent=name;}catch(e){}};await setName();setTimeout(setName,500);setTimeout(setName,1500);setTimeout(setName,3000);setTimeout(setName,6000);})();</script><script>/* HABSCO MEMBER NAME ONLY */(async()=>{try{const sb=window.supabaseClient||window.supabase?.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN");const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data:p}=await sb.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",user.id).maybeSingle();const name=String(p?.full_name||[p?.first_name,p?.middle_name,p?.surname].filter(Boolean).join(" ")||"").trim();const e=document.getElementById("welcome");if(e&&name){e.textContent=name;e.style.visibility="visible"}}catch(_){}})();</script><style id="habsco-balance-privacy-style">#heroBalance.habsco-balance-hidden{display:inline-block!important;font-size:0!important}#heroBalance.habsco-balance-hidden:after{content:"••••••";font-size:30px;line-height:1.15;letter-spacing:3px}@media(max-width:520px){#heroBalance.habsco-balance-hidden:after{font-size:25px}}</style><script id="habsco-balance-eye-fix">
+</script><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer><script>/* HABSCO MEMBER NAME HARD FIX */(async()=>{try{const s=window.habscoSessionPromise?await window.habscoSessionPromise:await window.supabaseClient.auth.getSession();const u=s?.data?.session?.user;if(!u)return;const q=await window.supabaseClient.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",u.id).maybeSingle();const p=q?.data||{};const n=String(p.full_name||[p.first_name,p.middle_name,p.surname].filter(Boolean).join(" ")||"Member").trim();const e=document.getElementById("welcome");if(e)e.textContent=n}catch(e){console.warn("HABSCO name fix",e)}})();</script><script>/* HABSCO MEMBER NAME FINAL ENFORCER */(async()=>{const URL="https://ythnoeyxovapydbmymdo.supabase.co",KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN";const setName=async()=>{try{const w=document.getElementById("welcome");if(!w)return;const sb=window.supabaseClient||window.supabase?.createClient(URL,KEY);if(!sb)return;const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data:p}=await sb.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",user.id).maybeSingle();const name=String(p?.full_name||[p?.first_name,p?.middle_name,p?.surname].filter(Boolean).join(" ")||"Member").trim();if(name)w.textContent=name;}catch(e){}};await setName();setTimeout(setName,500);setTimeout(setName,1500);setTimeout(setName,3000);setTimeout(setName,6000);})();</script><script>/* HABSCO MEMBER NAME ONLY */(async()=>{try{const sb=window.supabaseClient||window.supabase?.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN");const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data:p}=await sb.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",user.id).maybeSingle();const name=String(p?.full_name||[p?.first_name,p?.middle_name,p?.surname].filter(Boolean).join(" ")||"").trim();const e=document.getElementById("welcome");if(e&&name){e.textContent=name;e.style.visibility="visible"}}catch(_){}})();</script><style id="habsco-balance-eye-final">
+#heroBalance.habsco-balance-hidden{
+  color:transparent!important;
+  position:relative!important;
+  min-width:7.2ch!important;
+}
+#heroBalance.habsco-balance-hidden::after{
+  content:"••••••"!important;
+  color:#fff!important;
+  position:absolute!important;
+  left:0!important;
+  top:0!important;
+  font-size:30px!important;
+  line-height:1.15!important;
+  letter-spacing:3px!important;
+}
+#heroBalanceToggle.is-hidden span{
+  transform:rotate(180deg)!important;
+}
+@media(max-width:520px){
+  #heroBalance.habsco-balance-hidden::after{font-size:25px!important}
+}
+</style>
+<script id="habsco-balance-eye-final">
 (function(){
-  function initEye(){
-    const balance=document.getElementById("heroBalance");
-    const toggle=document.getElementById("heroBalanceToggle");
-    if(!balance||!toggle)return false;
-    if(toggle.dataset.eyeReady==="1")return true;
-    toggle.dataset.eyeReady="1";
-    let hidden=false;
-    let realValue=(balance.textContent||"").trim()||"₦0.00";
-    let syncing=false;
-    const MASK="••••••";
-    function capture(){
-      if(!hidden&&!syncing){
-        const v=(balance.textContent||"").trim();
-        if(v&&v!==MASK)realValue=v;
-      }
-    }
-    function paint(){
-      syncing=true;
-      balance.textContent=hidden?MASK:realValue;
-      toggle.setAttribute("aria-pressed",hidden?"true":"false");
-      toggle.setAttribute("aria-label",hidden?"Show wallet balance":"Hide wallet balance");
-      toggle.title=hidden?"Show wallet balance":"Hide wallet balance";
-      syncing=false;
-    }
-    toggle.addEventListener("click",function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      capture();
-      hidden=!hidden;
-      paint();
-    },true);
-    new MutationObserver(function(){
-      if(syncing)return;
-      const v=(balance.textContent||"").trim();
-      if(!hidden&&v&&v!==MASK)realValue=v;
-      if(hidden&&v!==MASK)paint();
-    }).observe(balance,{childList:true,characterData:true,subtree:true});
-    capture();
-    paint();
+  var realValue="₦0.00";
+  var hidden=false;
+  var syncing=false;
+
+  function getBalance(){return document.getElementById("heroBalance")}
+  function getToggle(){return document.getElementById("heroBalanceToggle")}
+
+  function capture(){
+    var b=getBalance();
+    if(!b||hidden||syncing)return;
+    var v=(b.textContent||"").trim();
+    if(v&&v!=="••••••") realValue=v;
+  }
+
+  function paint(){
+    var b=getBalance(), t=getToggle();
+    if(!b||!t)return false;
+    syncing=true;
+    b.classList.toggle("habsco-balance-hidden",hidden);
+    t.classList.toggle("is-hidden",hidden);
+    t.setAttribute("aria-pressed",hidden?"true":"false");
+    t.setAttribute("aria-label",hidden?"Show wallet balance":"Hide wallet balance");
+    t.title=hidden?"Show wallet balance":"Hide wallet balance";
+    syncing=false;
     return true;
   }
+
   function boot(){
-    if(initEye())return;
-    setTimeout(initEye,100);
-    setTimeout(initEye,500);
-    setTimeout(initEye,1200);
+    var b=getBalance();
+    if(b){
+      var v=(b.textContent||"").trim();
+      if(v&&v!=="••••••")realValue=v;
+      paint();
+    }
   }
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot,{once:true});
-  else boot();
+
+  document.addEventListener("click",function(e){
+    var t=e.target&&e.target.closest?e.target.closest("#heroBalanceToggle"):null;
+    if(!t)return;
+    e.preventDefault();
+    e.stopPropagation();
+    if(e.stopImmediatePropagation)e.stopImmediatePropagation();
+    capture();
+    hidden=!hidden;
+    paint();
+  },true);
+
+  var observer=new MutationObserver(function(){
+    var b=getBalance();
+    if(!b||syncing)return;
+    if(!hidden){
+      var v=(b.textContent||"").trim();
+      if(v&&v!=="••••••")realValue=v;
+    }
+    if(hidden&&!b.classList.contains("habsco-balance-hidden"))paint();
+  });
+  observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",boot,{once:true});
+  }else boot();
+
+  [100,500,1200,2500].forEach(function(ms){setTimeout(boot,ms)});
 })();
 </script><script src="profile-security-fix.js?v=20260929-5"></script><script src="profile-security-fix.js?v=20260929-1"></script><script id="habsco-admin-visibility-fix">(async function(){try{var el=document.getElementById("hfTopAdmin");if(!el)return;el.hidden=true;el.style.setProperty("display","none","important");var sb=window.supabaseClient||window.supabase?.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN");if(!sb)return;var a=await sb.rpc("is_admin");if(a&&a.data===true){el.hidden=false;el.style.removeProperty("display")}else{el.hidden=true;el.style.setProperty("display","none","important")}}catch(e){var el=document.getElementById("hfTopAdmin");if(el){el.hidden=true;el.style.setProperty("display","none","important")}}})();</script></body></html>
