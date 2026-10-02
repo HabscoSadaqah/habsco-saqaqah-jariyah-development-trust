@@ -60,49 +60,64 @@
     return false;
   };
 })();
-</script><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer><script>/* HABSCO MEMBER NAME HARD FIX */(async()=>{try{const s=window.habscoSessionPromise?await window.habscoSessionPromise:await window.supabaseClient.auth.getSession();const u=s?.data?.session?.user;if(!u)return;const q=await window.supabaseClient.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",u.id).maybeSingle();const p=q?.data||{};const n=String(p.full_name||[p.first_name,p.middle_name,p.surname].filter(Boolean).join(" ")||"Member").trim();const e=document.getElementById("welcome");if(e)e.textContent=n}catch(e){console.warn("HABSCO name fix",e)}})();</script><script>/* HABSCO MEMBER NAME FINAL ENFORCER */(async()=>{const URL="https://ythnoeyxovapydbmymdo.supabase.co",KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN";const setName=async()=>{try{const w=document.getElementById("welcome");if(!w)return;const sb=window.supabaseClient||window.supabase?.createClient(URL,KEY);if(!sb)return;const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data:p}=await sb.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",user.id).maybeSingle();const name=String(p?.full_name||[p?.first_name,p?.middle_name,p?.surname].filter(Boolean).join(" ")||"Member").trim();if(name)w.textContent=name;}catch(e){}};await setName();setTimeout(setName,500);setTimeout(setName,1500);setTimeout(setName,3000);setTimeout(setName,6000);})();</script><script>/* HABSCO MEMBER NAME ONLY */(async()=>{try{const sb=window.supabaseClient||window.supabase?.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN");const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data:p}=await sb.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",user.id).maybeSingle();const name=String(p?.full_name||[p?.first_name,p?.middle_name,p?.surname].filter(Boolean).join(" ")||"").trim();const e=document.getElementById("welcome");if(e&&name){e.textContent=name;e.style.visibility="visible"}}catch(_){}})();</script><style id="habsco-balance-privacy-style">#heroBalance.habsco-balance-hidden{font-size:0!important}#heroBalance.habsco-balance-hidden:after{content:"••••••";font-size:30px;line-height:1.15;letter-spacing:3px}@media(max-width:520px){#heroBalance.habsco-balance-hidden:after{font-size:25px}}</style><script>
+</script><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer><script>/* HABSCO MEMBER NAME HARD FIX */(async()=>{try{const s=window.habscoSessionPromise?await window.habscoSessionPromise:await window.supabaseClient.auth.getSession();const u=s?.data?.session?.user;if(!u)return;const q=await window.supabaseClient.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",u.id).maybeSingle();const p=q?.data||{};const n=String(p.full_name||[p.first_name,p.middle_name,p.surname].filter(Boolean).join(" ")||"Member").trim();const e=document.getElementById("welcome");if(e)e.textContent=n}catch(e){console.warn("HABSCO name fix",e)}})();</script><script>/* HABSCO MEMBER NAME FINAL ENFORCER */(async()=>{const URL="https://ythnoeyxovapydbmymdo.supabase.co",KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN";const setName=async()=>{try{const w=document.getElementById("welcome");if(!w)return;const sb=window.supabaseClient||window.supabase?.createClient(URL,KEY);if(!sb)return;const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data:p}=await sb.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",user.id).maybeSingle();const name=String(p?.full_name||[p?.first_name,p?.middle_name,p?.surname].filter(Boolean).join(" ")||"Member").trim();if(name)w.textContent=name;}catch(e){}};await setName();setTimeout(setName,500);setTimeout(setName,1500);setTimeout(setName,3000);setTimeout(setName,6000);})();</script><script>/* HABSCO MEMBER NAME ONLY */(async()=>{try{const sb=window.supabaseClient||window.supabase?.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN");const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data:p}=await sb.from("profiles").select("full_name,first_name,middle_name,surname").eq("id",user.id).maybeSingle();const name=String(p?.full_name||[p?.first_name,p?.middle_name,p?.surname].filter(Boolean).join(" ")||"").trim();const e=document.getElementById("welcome");if(e&&name){e.textContent=name;e.style.visibility="visible"}}catch(_){}})();</script><style id="habsco-balance-privacy-style">#heroBalance.habsco-balance-hidden{font-size:0!important}#heroBalance.habsco-balance-hidden:after{content:"••••••";font-size:30px;line-height:1.15;letter-spacing:3px}@media(max-width:520px){#heroBalance.habsco-balance-hidden:after{font-size:25px}}</style><script id="habsco-balance-eye-fix">
 (function(){
-  var balanceEl=document.getElementById("heroBalance");
-  var toggleEl=document.getElementById("heroBalanceToggle");
-  if(!balanceEl||!toggleEl)return;
-  var KEY="habscoHeroBalanceHidden";
-  var savedValue="";
-  function realValue(){
-    var t=balanceEl.textContent||"";
-    if(t!=="••••••") savedValue=t;
-    return savedValue||"₦0.00";
-  }
-  window.habscoToggleHeroBalance=function(btn){
-    var hidden=btn.getAttribute("aria-pressed")==="true";
-    if(!hidden) savedValue=realValue();
-    hidden=!hidden;
-    btn.setAttribute("aria-pressed",hidden?"true":"false");
-    btn.setAttribute("aria-label",hidden?"Show wallet balance":"Hide wallet balance");
-    btn.title=hidden?"Show wallet balance":"Hide wallet balance";
-    btn.innerHTML=hidden?'<span class="habsco-eye habsco-eye-closed" aria-hidden="true"></span>':'<span class="habsco-eye habsco-eye-open" aria-hidden="true"></span>';
-    balanceEl.classList.toggle("habsco-balance-hidden",hidden);
-    balanceEl.style.fontSize=hidden?"0":"";
-    balanceEl.style.visibility="visible";
-    if(hidden) balanceEl.textContent="••••••";
-    else balanceEl.textContent=savedValue||"₦0.00";
-    try{localStorage.setItem(KEY,hidden?"1":"0")}catch(e){}
-    return false;
-  };
-  var obs=new MutationObserver(function(){
-    if(toggleEl.getAttribute("aria-pressed")==="true"){
-      if((balanceEl.textContent||"")!=="••••••"){
-        var t=balanceEl.textContent||"";
-        if(t) savedValue=t;
-        balanceEl.textContent="••••••";
-      }
-    }else{
-      var t=balanceEl.textContent||"";
-      if(t==="••••••" && savedValue) balanceEl.textContent=savedValue;
+  function init(){
+    var balance=document.getElementById("heroBalance");
+    var button=document.getElementById("heroBalanceToggle");
+    if(!balance||!button)return;
+    var KEY="habscoHeroBalanceHidden";
+    var valueKey="habscoHeroBalanceValue";
+    var value="";
+    function capture(){
+      var t=(balance.textContent||"").trim();
+      if(t && t!=="••••••") value=t;
+      if(value) try{sessionStorage.setItem(valueKey,value)}catch(e){}
+      return value||"₦0.00";
     }
-  });
-  obs.observe(balanceEl,{childList:true,characterData:true,subtree:true});
-  try{
-    if(localStorage.getItem(KEY)==="1") window.habscoToggleHeroBalance(toggleEl);
-  }catch(e){}
+    function setHidden(hidden){
+      if(!hidden) value=capture();
+      if(hidden && !value) try{value=sessionStorage.getItem(valueKey)||""}catch(e){}
+      button.setAttribute("aria-pressed",hidden?"true":"false");
+      button.setAttribute("aria-label",hidden?"Show wallet balance":"Hide wallet balance");
+      button.title=hidden?"Show wallet balance":"Hide wallet balance";
+      button.innerHTML=hidden?'<span class="habsco-eye habsco-eye-closed" aria-hidden="true"></span>':'<span class="habsco-eye habsco-eye-open" aria-hidden="true"></span>';
+      balance.classList.toggle("habsco-balance-hidden",hidden);
+      if(hidden){
+        balance.textContent="••••••";
+        balance.style.fontSize="0";
+      }else{
+        balance.style.fontSize="";
+        balance.textContent=value||"₦0.00";
+      }
+      try{localStorage.setItem(KEY,hidden?"1":"0")}catch(e){}
+    }
+    window.habscoToggleHeroBalance=function(btn){
+      var hidden=button.getAttribute("aria-pressed")==="true";
+      setHidden(!hidden);
+      return false;
+    };
+    if(!button.__habscoEyeBound){
+      button.__habscoEyeBound=true;
+      button.addEventListener("click",function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        window.habscoToggleHeroBalance(button);
+      },true);
+    }
+    var saved="";
+    try{saved=localStorage.getItem(KEY)||""}catch(e){}
+    if(saved==="1"){
+      try{value=sessionStorage.getItem(valueKey)||""}catch(e){}
+      setHidden(true);
+    }else{
+      capture();
+      setHidden(false);
+    }
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});
+  else init();
+  setTimeout(init,1000);
+  setTimeout(init,3000);
 })();
 </script><script src="profile-security-fix.js?v=20260929-5"></script><script src="profile-security-fix.js?v=20260929-1"></script><script id="habsco-admin-visibility-fix">(async function(){try{var el=document.getElementById("hfTopAdmin");if(!el)return;el.hidden=true;el.style.setProperty("display","none","important");var sb=window.supabaseClient||window.supabase?.createClient("https://ythnoeyxovapydbmymdo.supabase.co","sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN");if(!sb)return;var a=await sb.rpc("is_admin");if(a&&a.data===true){el.hidden=false;el.style.removeProperty("display")}else{el.hidden=true;el.style.setProperty("display","none","important")}}catch(e){var el=document.getElementById("hfTopAdmin");if(el){el.hidden=true;el.style.setProperty("display","none","important")}}})();</script></body></html>
