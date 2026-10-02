@@ -125,20 +125,76 @@ async function load(){
 function startStatementSync(){supabaseClient.auth.getUser().then(({data})=>{const user=data?.user;if(!user)return;if(window.habscoStatementChannel)supabaseClient.removeChannel(window.habscoStatementChannel);window.habscoStatementChannel=supabaseClient.channel("statement-sync-"+user.id).on("postgres_changes",{event:"INSERT",schema:"public",table:"transactions"},p=>{if(p.new?.user_id===user.id)load()}).on("postgres_changes",{event:"UPDATE",schema:"public",table:"transactions"},p=>{if(p.new?.user_id===user.id)load()}).on("postgres_changes",{event:"DELETE",schema:"public",table:"transactions"},p=>{if(p.old?.user_id===user.id)load()}).subscribe()}).catch(()=>{})}
 function init(){
   const apply=$("apply"),more=$("loadMore"),from=$("fromDate"),to=$("toDate"),print=$("printBtn");
-  apply&&(apply.onclick=()=>{expanded=false;render()});more&&(more.onclick=()=>{expanded=!expanded;render()});from&&from.addEventListener("change",()=>{expanded=false;render()});to&&to.addEventListener("change",()=>{expanded=false;render()});print&&(print.onclick=()=>{
-  expanded=true;
-  render();
-  const old=document.getElementById("statementPrintProgress");
-  if(old)old.remove();
-  const overlay=document.createElement("div");
-  overlay.id="statementPrintProgress";
-  overlay.innerHTML='<div class="statement-print-progress-card"><div class="statement-print-progress-icon">🖨️</div><strong>Preparing Statement</strong><span>Your statement is ready for Print or Save as PDF.</span><button type="button" id="statementPrintNow">EXPORT PDF</button><button type="button" id="statementPrintCancel">CANCEL</button></div>';
+  apply&&(apply.onclick=()=>{expanded=false;render()});more&&(more.onclick=()=>{expanded=!expanded;render()});from&&from.addEventListener("change",()=>{expanded=false;render()});to&&to.addEventListener("change",()=>{expanded=false;render()});async function loadJsPdf(){
+  if(window.jspdf?.jsPDF)return window.jspdf.jsPDF;
+  return await new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-habsco-jspdf="1"]');
+    if(existing){existing.addEventListener("load",()=>resolve(window.jspdf?.jsPDF));existing.addEventListener("error",reject);return;}
+    const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    s.async=true;s.dataset.habscoJspdf="1";
+    s.onload=()=>window.jspdf?.jsPDF?resolve(window.jspdf.jsPDF):reject(new Error("PDF library failed to load"));
+    s.onerror=()=>reject(new Error("Unable to load PDF exporter. Check your internet connection and try again."));
+    document.head.appendChild(s);
+  });
+}
+async function exportStatementPdf(){
+  const JsPDF=await loadJsPdf();
+  const from=$("fromDate")?.value||"";
+  const to=$("toDate")?.value||"";
+  const rows=allRows.filter(x=>inRange(x.created_at,from,to));
+  const doc=new JsPDF({unit:"mm",format:"a4"});
+  const pageW=210,pageH=297,margin=14;
+  let y=margin;
+  const green=[8,116,67],muted=[113,128,121],ink=[23,34,28];
+  const moneyPdf=n=>money(n);
+  const datePdf=v=>v?new Date(v).toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:true}):"—";
+  const addHeader=()=>{
+    doc.setTextColor(...green);doc.setFont("helvetica","bold");doc.setFontSize(20);doc.text("HABSCO",margin,y);
+    y+=8;doc.setFontSize(13);doc.text("STATEMENT OF ACCOUNT",margin,y);
+    y+=5;doc.setTextColor(...muted);doc.setFont("helvetica","normal");doc.setFontSize(8);
+    doc.text("Transaction history",margin,y);
+    const range=(from||to)?("Period: "+(from||"All")+" to "+(to||"All")):"Period: All transactions";
+    doc.text(range,pageW-margin,y,{align:"right"});
+    y+=5;doc.setDrawColor(220,233,225);doc.line(margin,y,pageW-margin,y);y+=7;
+  };
+  const ensure=(needed=12)=>{if(y+needed>pageH-margin){doc.addPage();y=margin;addHeader();}};
+  addHeader();
+  if(!rows.length){doc.setTextColor(...muted);doc.setFontSize(10);doc.text("No transactions found for the selected period.",margin,y);}
+  rows.forEach((x,i)=>{
+    const um=utilityDetails(x);const credit=String(x.direction||"").toLowerCase()==="credit";const amount=Math.abs(Number(x.amount||0));
+    const title=um.isUtility?(um.service==="power"||um.service==="electricity"?"Electricity":um.service==="tv"?"TV Subscription":um.service?um.service.charAt(0).toUpperCase()+um.service.slice(1):"Utility"):String(x.type||"Transaction").replace(/_/g," ");
+    const desc=String(x.description||"No description");
+    const ref=String(x.reference||"—");
+    ensure(34);
+    doc.setFont("helvetica","bold");doc.setFontSize(10);doc.setTextColor(...ink);doc.text(title,margin,y);
+    doc.setFont("helvetica","bold");doc.setTextColor(...(credit?green:[163,53,53]));doc.text((credit?"+ ":"− ")+moneyPdf(amount),pageW-margin,y,{align:"right"});
+    y+=4;doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(...muted);
+    doc.text(datePdf(x.created_at),margin,y);doc.text(String(x.status||"approved").replace(/_/g," "),pageW-margin,y,{align:"right"});y+=4;
+    const meta=doc.splitTextToSize(desc+" • "+ref,pageW-margin*2);doc.text(meta,margin,y);y+=meta.length*3.5;
+    if(um.isUtility){
+      const util=[["Provider",um.provider],["Receiver",um.receiver],["Meter type",um.meterType],["Customer",um.customerName]];
+      util.filter(a=>a[1]).forEach(a=>{ensure(8);doc.setFontSize(7);doc.setTextColor(...muted);doc.text(a[0]+":",margin,y);doc.setTextColor(...ink);doc.text(doc.splitTextToSize(String(a[1]),pageW-margin*2-25),margin+25,y);y+=3.5;});
+      if(um.token){ensure(14);doc.setFont("helvetica","bold");doc.setFontSize(7);doc.setTextColor(...green);doc.text("Electricity Token",margin,y);y+=4;doc.setFontSize(9);doc.text(doc.splitTextToSize(um.token,pageW-margin*2),margin,y);y+=Math.max(5,doc.splitTextToSize(um.token,pageW-margin*2).length*3.8);}
+    }
+    doc.setDrawColor(237,241,238);doc.line(margin,y,pageW-margin,y);y+=6;
+  });
+  doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(...muted);doc.text("HABSCO • habscosadaqah.org",margin,pageH-8);
+  const stamp=new Date().toISOString().slice(0,10);
+  doc.save("HABSCO-Statement-"+stamp+".pdf");
+}
+print&&(print.onclick=async()=>{
+  expanded=true;render();
+  const old=document.getElementById("statementPrintProgress");if(old)old.remove();
+  const overlay=document.createElement("div");overlay.id="statementPrintProgress";
+  overlay.innerHTML='<div class="statement-print-progress-card"><div class="statement-print-progress-icon">📄</div><strong>Exporting Statement</strong><span>Your statement PDF will download directly to your device.</span><button type="button" id="statementPrintNow">EXPORT PDF</button><button type="button" id="statementPrintCancel">CANCEL</button></div>';
   document.body.appendChild(overlay);
   const cleanup=()=>{overlay.remove();expanded=false;render()};
   overlay.querySelector("#statementPrintCancel").onclick=cleanup;
-  overlay.querySelector("#statementPrintNow").onclick=()=>{
-    overlay.remove();
-    setTimeout(()=>{window.print();setTimeout(()=>{expanded=false;render()},400)},80);
+  overlay.querySelector("#statementPrintNow").onclick=async()=>{
+    const btn=overlay.querySelector("#statementPrintNow");btn.disabled=true;btn.textContent="EXPORTING…";
+    try{await exportStatementPdf();cleanup();}
+    catch(e){console.error("PDF export failed:",e);btn.disabled=false;btn.textContent="EXPORT PDF";alert(e?.message||"Unable to export PDF.");}
   };
 });
   load();startStatementSync();
