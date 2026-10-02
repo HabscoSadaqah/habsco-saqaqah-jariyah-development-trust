@@ -15,7 +15,8 @@ async function auth(){let {data:{session},error}=await supabaseClient.auth.getSe
 async function callProvider(body){
   const session=await auth();
   if(!session)throw new Error("Authentication required.");
-  const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy-v2",{body});
+  const functionName=effectiveAction==="electricity"?"electricity-vps-proxy":"utility-vps-proxy-v2";
+  const {data,error}=await supabaseClient.functions.invoke(functionName,{body});
   if(error){
     let message=error.message||"Utility service request failed.";
     try{
