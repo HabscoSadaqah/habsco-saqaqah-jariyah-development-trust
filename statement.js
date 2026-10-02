@@ -66,11 +66,23 @@ function render(){
     const view='<button type="button" class="activity-view-receipt" data-i="'+visible.indexOf(x)+'">View</button>';
     return '<div class="funding-item'+(um.isUtility?" utility-history-item":"")+'"><div class="activity-icon" aria-hidden="true">'+(credit?"↓":"↑")+'</div><div class="activity-main"><div class="activity-line-one"><span class="funding-title">'+escapeHtml(um.isUtility?(um.service==="power"||um.service==="electricity"?"Electricity":um.service==="tv"?"TV Subscription":um.service?um.service.charAt(0).toUpperCase()+um.service.slice(1):"Utility"):title.charAt(0).toUpperCase()+title.slice(1))+'</span><span class="activity-date">'+escapeHtml(date)+'</span></div><div class="funding-meta">'+escapeHtml(desc||"No description")+" · "+escapeHtml(ref)+" · "+escapeHtml(status)+'</div>'+(um.isUtility?'<div class="utility-history-meta"><span>Provider: <strong>'+escapeHtml(um.provider||"—")+'</strong></span><span>Receiver: <strong>'+escapeHtml(um.receiver||"—")+'</strong></span></div>':"")+(token?'<div class="utility-token">Token: <strong>'+escapeHtml(token)+'</strong></div>':(um.isUtility&&String(um.service||"")==="power"&&pending?'<div class="utility-token utility-token-pending">Token: <strong>Pending — requery to update</strong></div>':""))+'<div class="activity-balance"><span>Wallet Balance Before <strong>'+money(before)+'</strong></span><span>Wallet Balance After <strong>'+money(after)+'</strong></span></div></div><div class="activity-side"><div class="funding-amount '+(credit?"credit":"debit")+'">'+(credit?"+":"−")+" "+money(amount)+'</div><div class="activity-receipt-row">'+requery+view+'</div></div></div>';
   }).join("");
-  list.querySelectorAll(".activity-view-receipt").forEach((b)=>b.onclick=()=>showReceipt(visible[Number(b.dataset.i)]));
-  list.querySelectorAll(".activity-requery").forEach((b)=>b.onclick=()=>{
-    const row=visible.find(x=>String(x.reference||"")===String(b.dataset.ref||""));
-    if(row)requeryUtility(row,b);
-  });
+  list.onclick=(event)=>{
+    const viewButton=event.target.closest(".activity-view-receipt");
+    if(viewButton){
+      event.preventDefault();
+      event.stopPropagation();
+      const index=Number(viewButton.dataset.i);
+      if(Number.isInteger(index)&&visible[index]) showReceipt(visible[index]);
+      return;
+    }
+    const requeryButton=event.target.closest(".activity-requery");
+    if(requeryButton){
+      event.preventDefault();
+      event.stopPropagation();
+      const row=visible.find(x=>String(x.reference||"")===String(requeryButton.dataset.ref||""));
+      if(row)requeryUtility(row,requeryButton);
+    }
+  };
 }
 function utilityDetails(t){const m=t?.metadata&&typeof t.metadata==="object"?t.metadata:{};const pr=m.provider_response?.vend?.data||{};const ti=pr.token_info||{};const ci=pr.customer_info||{};const mi=pr.meter_info||{};const token=String(m.token||ti.token||m.provider_history?.vend?.token||"").trim();const receipt=String(m.util_receipt||ti.util_receipt||"").trim();const providerRef=String(m.provider_reference||pr.payment_reference||"").trim();return{isUtility:String(t?.type||"")==="utility",service:String(m.service||m.action||"").toLowerCase(),provider:String(m.provider||pr.provider||"").trim(),receiver:String(m.receiver||mi.receiver||"").trim(),meterType:String(m.meter_type||mi.meter_type||"").trim(),customerName:String(m.customer_name||ci.customer_name||"").trim(),customerAddress:String(m.customer_address||ci.customer_address||"").trim(),purchaseAmount:m.purchase_amount??pr.amount??"",serviceCharge:m.service_charge??m.service_fee_collected??"",token,receipt,providerRef,units:ti.units??""}}
 function closeReceipt(){const m=document.getElementById("statementReceipt");if(m){m.remove();document.body.classList.remove("receipt-modal-open")}}
