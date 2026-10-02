@@ -2,7 +2,7 @@ const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHAB
 
 const configs={
  send:["Inter-Wallet Transfer","Transfer funds securely to another active Habsco Cooperative member."],
- fund:["Add Money","Submit a wallet funding payment for verification."],save:["Save in Cooperative","Move money into a cooperative account."],
+ fund:["Fund Wallet","Submit a wallet funding payment for verification."],save:["Save in Cooperative","Move money into a cooperative account."],
  qard:["Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"request-qard":["Request Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"repay-qard":["Repay Interest-Free Loan","Submit repayment details for a disbursed loan."],
  receive:["Receive Fund","Approved funding and member transfers are credited server-side."],
  "virtual-account":["Fund Wallet via Virtual Account","Use your dedicated Squad virtual account to fund your HABSCO wallet automatically."],
