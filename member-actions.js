@@ -15,30 +15,21 @@ async function auth(){let {data:{session},error}=await supabaseClient.auth.getSe
 async function callProvider(body){
   const session=await auth();
   if(!session)throw new Error("Authentication required.");
-
-  const response=await fetch("https://utility-origin.habscosadaqah.org/api/utility",{
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "Accept":"application/json",
-      "Authorization":"Bearer "+session.access_token
-    },
-    body:JSON.stringify(body)
-  });
-
-  const text=await response.text();
-  let data={};
-  try{data=text?JSON.parse(text):{}}
-  catch{data={error:text||"Utility gateway returned an invalid response."}}
-
-  if(!response.ok||data?.error){
-    throw new Error(
-      typeof data.error==="string"
-        ? data.error
-        : data.error?.message||"Utility service request failed."
-    );
+  const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy-v2",{body});
+  if(error){
+    let message=error.message||"Utility service request failed.";
+    try{
+      const ctx=error.context;
+      if(ctx&&typeof ctx.json==="function"){
+        const x=await ctx.json();
+        message=typeof x?.error==="string"?x.error:(x?.error?.message||message);
+      }
+    }catch{}
+    throw new Error(message);
   }
-
+  if(data?.error){
+    throw new Error(typeof data.error==="string"?data.error:(data.error?.message||"Utility service request failed."));
+  }
   return data||{};
 }
 function esc(v){return String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
