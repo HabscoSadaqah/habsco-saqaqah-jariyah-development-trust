@@ -20,23 +20,26 @@ async function callProvider(body){
   const session=await auth();
   if(!session)throw new Error("Authentication required.");
 
-  const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy-v2",{
-    body
+  const response=await fetch("https://utility-origin.habscosadaqah.org/api/utility",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Accept":"application/json",
+      "Authorization":"Bearer "+session.access_token
+    },
+    body:JSON.stringify(body)
   });
 
-  if(error){
-    let d="";
-    try{
-      d=error.context?JSON.stringify(await error.context.json()):"";
-    }catch{}
-    throw new Error(d||error.message||"Utility service request failed.");
-  }
+  const text=await response.text();
+  let data={};
+  try{data=text?JSON.parse(text):{}}
+  catch{data={error:text||"Utility gateway returned an invalid response."}}
 
-  if(data?.error){
+  if(!response.ok||data?.error){
     throw new Error(
       typeof data.error==="string"
         ? data.error
-        : data.error.message||"Utility service request failed."
+        : data.error?.message||"Utility service request failed."
     );
   }
 
