@@ -87,7 +87,85 @@ function render(){
 function utilityDetails(t){const m=t?.metadata&&typeof t.metadata==="object"?t.metadata:{};const pr=m.provider_response?.vend?.data||{};const ti=pr.token_info||{};const ci=pr.customer_info||{};const mi=pr.meter_info||{};const token=String(m.token||ti.token||m.provider_history?.vend?.token||"").trim();const receipt=String(m.util_receipt||ti.util_receipt||"").trim();const providerRef=String(m.provider_reference||pr.payment_reference||"").trim();return{isUtility:String(t?.type||"")==="utility",service:String(m.service||m.action||"").toLowerCase(),provider:String(m.provider||pr.provider||"").trim(),receiver:String(m.receiver||mi.receiver||"").trim(),meterType:String(m.meter_type||mi.meter_type||"").trim(),customerName:String(m.customer_name||ci.customer_name||"").trim(),customerAddress:String(m.customer_address||ci.customer_address||"").trim(),purchaseAmount:m.purchase_amount??pr.amount??"",serviceCharge:m.service_charge??m.service_fee_collected??"",token,receipt,providerRef,units:ti.units??""}}
 function closeReceipt(){const m=document.getElementById("statementReceipt");if(m){m.remove();document.body.classList.remove("receipt-modal-open")}}
 function showReceipt(t){closeReceipt();const amount=Math.abs(Number(t.amount||0)),credit="credit"===String(t.direction||"").toLowerCase();const date=t.created_at?new Date(t.created_at).toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true}):"—";const type=String(t.type||"Transaction").replace(/_/g," ");const u=utilityDetails(t);const details=u.isUtility?'<div class="statement-receipt-section"><strong>Utility details</strong><div class="statement-receipt-grid">'+[['Service',u.service.toUpperCase()],['Provider',u.provider],['Meter / Receiver',u.receiver],['Meter type',u.meterType.toUpperCase()],['Customer',u.customerName],['Customer address',u.customerAddress],['Purchase amount',u.purchaseAmount!==""?money(u.purchaseAmount):""],['Service charge',u.serviceCharge!==""?money(u.serviceCharge):""],['Utility receipt',u.receipt],['Provider reference',u.providerRef],['Units',u.units!==""?String(u.units):""]].filter(x=>x[1]).map(x=>'<div><span>'+escapeHtml(x[0])+'</span><b>'+escapeHtml(x[1])+'</b></div>').join("")+(u.token?'<div class="token-row"><span>Electricity token</span><b>'+escapeHtml(u.token)+'</b></div>':"")+'</div></div>':"";const wrap=document.createElement("div");wrap.id="statementReceipt";wrap.innerHTML='<div class="statement-receipt-backdrop"></div><section class="statement-receipt-sheet" role="dialog" aria-modal="true"><button type="button" class="statement-receipt-close" aria-label="Close">×</button><div class="statement-receipt-head"><div class="statement-receipt-brand">HABSCO</div><span>OFFICIAL TRANSACTION DOCUMENT</span><strong>'+escapeHtml(u.isUtility?"Utility Transaction Receipt":"Transaction Receipt")+'</strong></div><div class="statement-receipt-body"><div class="statement-receipt-line"><span>Date</span><b>'+escapeHtml(date)+'</b></div><div class="statement-receipt-line"><span>Reference</span><b>'+escapeHtml(t.reference||"—")+'</b></div><div class="statement-receipt-line"><span>Transaction type</span><b>'+escapeHtml(type)+'</b></div><div class="statement-receipt-line"><span>Description</span><b>'+escapeHtml(t.description||type)+'</b></div>'+details+'<div class="statement-receipt-amount '+(credit?"credit":"debit")+'">'+(credit?"+":"−")+" "+money(amount)+'</div><div class="statement-receipt-status">Status: '+escapeHtml(String(t.status||"approved").replace(/_/g," "))+'</div></div><div class="statement-receipt-actions"><button type="button" class="statement-receipt-share">EXPORT PDF</button></div></section>';document.body.appendChild(wrap);wrap.querySelector(".statement-receipt-close").onclick=closeReceipt;wrap.querySelector(".statement-receipt-backdrop").onclick=closeReceipt;wrap.querySelector(".statement-receipt-share").onclick=()=>printStatementReceipt(t)}
-function printStatementReceipt(t){const u=utilityDetails(t);const esc=v=>String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]||c));const date=t.created_at?new Date(t.created_at).toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true}):"—";const credit="credit"===String(t.direction||"").toLowerCase();const amount=(credit?"+ ":"− ")+money(Math.abs(Number(t.amount||0)));const rows=u.isUtility?[["Service",u.service.toUpperCase()],["Provider",u.provider],["Meter / Receiver",u.receiver],["Meter Type",u.meterType.toUpperCase()],["Customer",u.customerName],["Customer Address",u.customerAddress],["Purchase Amount",u.purchaseAmount!==""?money(u.purchaseAmount):""],["Service Charge",u.serviceCharge!==""?money(u.serviceCharge):""],["Utility Receipt",u.receipt],["Provider Reference",u.providerRef],["Units",u.units!==""?String(u.units):""]].filter(x=>x[1]).map(x=>"<div class='row'><span>"+esc(x[0])+"</span><b>"+esc(x[1])+"</b></div>").join("")+(u.token?"<div class='token'>Electricity Token<br><strong>"+esc(u.token)+"</strong></div>":""):"";const html="<!doctype html><html><head><meta charset='utf-8'><title>HABSCO Transaction Receipt</title><style>@page{size:A4;margin:12mm}body{font-family:Arial,sans-serif;color:#17221c;font-size:12px}.head{border-bottom:2px solid #087443;padding-bottom:12px}.title{font-size:22px;font-weight:900;color:#087443;margin-top:8px}.sub{font-size:10px;color:#718079;margin-top:3px}.row{display:flex;justify-content:space-between;gap:20px;padding:10px 0;border-bottom:1px solid #e4ebe6}.section{margin-top:16px;border:1px solid #dce7e1;border-radius:8px;padding:10px}.section h3{margin:0 0 8px;color:#087443;font-size:12px}.amount{font-size:24px;font-weight:900;margin:22px 0}.credit{color:#087443}.debit{color:#a33535}.status{font-weight:800;text-transform:capitalize;margin-top:8px}.token{font-size:18px;font-weight:900;letter-spacing:1px;background:#edf7f1;padding:12px;border-radius:7px;margin-top:8px;word-break:break-all;color:#087443}.foot{margin-top:18px;font-size:8px;color:#718079}</style></head><body><div class='head'><strong>HABSCO</strong><div class='title'>"+(u.isUtility?"Utility Transaction Receipt":"Transaction Receipt")+"</div><div class='sub'>STATEMENT OF ACCOUNT • OFFICIAL TRANSACTION DOCUMENT</div></div><div class='row'><span>Date</span><b>"+esc(date)+"</b></div><div class='row'><span>Reference</span><b>"+esc(t.reference||"—")+"</b></div><div class='row'><span>Transaction type</span><b>"+esc(String(t.type||"Transaction").replace(/_/g," "))+"</b></div><div class='row'><span>Description</span><b>"+esc(t.description||t.type||"Transaction")+"</b></div>"+(u.isUtility?"<div class='section'><h3>Utility Details</h3>"+rows+"</div>":"")+"<div class='amount "+(credit?"credit":"debit")+"'>"+esc(amount)+"</div><div class='status'>Status: "+esc(String(t.status||"approved").replace(/_/g," "))+"</div><div class='foot'>HABSCO • Generated from Statement of Account</div></body></html>";const w=window.open("","_blank","noopener,noreferrer");if(!w){alert("Please allow pop-ups to print/save the PDF receipt.");return}w.document.write(html);w.document.close();setTimeout(()=>w.print(),250)}
+async function loadReceiptJsPdf(){
+  if(window.jspdf?.jsPDF)return window.jspdf.jsPDF;
+  return await new Promise((resolve,reject)=>{
+    const existing=document.querySelector('script[data-habsco-jspdf="1"]');
+    if(existing){
+      existing.addEventListener("load",()=>window.jspdf?.jsPDF?resolve(window.jspdf.jsPDF):reject(new Error("PDF library failed to load")));
+      existing.addEventListener("error",()=>reject(new Error("Unable to load PDF exporter. Check your internet connection and try again.")));
+      if(window.jspdf?.jsPDF)resolve(window.jspdf.jsPDF);
+      return;
+    }
+    const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    s.async=true;s.dataset.habscoJspdf="1";
+    s.onload=()=>window.jspdf?.jsPDF?resolve(window.jspdf.jsPDF):reject(new Error("PDF library failed to load"));
+    s.onerror=()=>reject(new Error("Unable to load PDF exporter. Check your internet connection and try again."));
+    document.head.appendChild(s);
+  });
+}
+async function printStatementReceipt(t){
+  try{
+    const JsPDF=await loadReceiptJsPdf();
+    const u=utilityDetails(t);
+    const doc=new JsPDF({unit:"mm",format:"a4"});
+    const pageW=210,pageH=297,margin=16;
+    let y=margin;
+    const green=[8,116,67],muted=[113,128,121],ink=[23,34,28];
+    const escPdf=v=>String(v??"").replace(/\\/g,"/");
+    const date=t.created_at?new Date(t.created_at).toLocaleString("en-NG",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:true}):"—";
+    const credit=String(t.direction||"").toLowerCase()==="credit";
+    const amount=(credit?"+ ":"− ")+money(Math.abs(Number(t.amount||0)));
+    const addText=(label,value)=>{
+      if(value===undefined||value===null||String(value)==="")return;
+      if(y>pageH-margin-12){doc.addPage();y=margin;}
+      doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(...muted);doc.text(String(label),margin,y);
+      doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(...ink);
+      const lines=doc.splitTextToSize(escPdf(value),pageW-margin*2-42);
+      doc.text(lines,pageW-margin,y,{align:"right",maxWidth:pageW-margin*2-42});
+      y+=Math.max(6,lines.length*4)+1;
+      doc.setDrawColor(237,241,238);doc.line(margin,y-2,pageW-margin,y-2);
+    };
+    doc.setTextColor(...green);doc.setFont("helvetica","bold");doc.setFontSize(20);doc.text("HABSCO",margin,y);
+    y+=8;doc.setFontSize(13);doc.text(u.isUtility?"UTILITY TRANSACTION RECEIPT":"TRANSACTION RECEIPT",margin,y);
+    y+=5;doc.setFont("helvetica","normal");doc.setFontSize(7.5);doc.setTextColor(...muted);doc.text("OFFICIAL TRANSACTION DOCUMENT",margin,y);
+    y+=7;doc.setDrawColor(8,116,67);doc.line(margin,y,pageW-margin,y);y+=8;
+    addText("Date",date);
+    addText("Reference",t.reference||"—");
+    addText("Transaction type",String(t.type||"Transaction").replace(/_/g," "));
+    addText("Description",t.description||t.type||"Transaction");
+    if(u.isUtility){
+      y+=3;doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...green);doc.text("UTILITY DETAILS",margin,y);y+=6;
+      addText("Service",u.service.toUpperCase());
+      addText("Provider",u.provider);
+      addText("Meter / Receiver",u.receiver);
+      addText("Meter Type",u.meterType.toUpperCase());
+      addText("Customer",u.customerName);
+      addText("Customer Address",u.customerAddress);
+      if(u.purchaseAmount!=="")addText("Purchase Amount",money(u.purchaseAmount));
+      if(u.serviceCharge!=="")addText("Service Charge",money(u.serviceCharge));
+      addText("Utility Receipt",u.receipt);
+      addText("Provider Reference",u.providerRef);
+      if(u.units!=="")addText("Units",String(u.units));
+      if(u.token){
+        if(y>pageH-margin-30){doc.addPage();y=margin;}
+        y+=5;doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(...green);doc.text("ELECTRICITY TOKEN",margin,y);y+=5;
+        doc.setFontSize(12);const lines=doc.splitTextToSize(escPdf(u.token),pageW-margin*2);doc.text(lines,margin,y);y+=Math.max(8,lines.length*5);
+      }
+    }
+    if(y>pageH-margin-28){doc.addPage();y=margin;}
+    y+=8;doc.setFont("helvetica","bold");doc.setFontSize(18);doc.setTextColor(...(credit?green:[163,53,53]));doc.text(amount,pageW/2,y,{align:"center"});
+    y+=7;doc.setFontSize(8);doc.setTextColor(...muted);doc.text("Status: "+String(t.status||"approved").replace(/_/g," "),pageW/2,y,{align:"center"});
+    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(...muted);doc.text("HABSCO • habscosadaqah.org",margin,pageH-8);
+    const stamp=new Date().toISOString().replace(/[:.]/g,"-").slice(0,19);
+    doc.save("HABSCO-Receipt-"+stamp+".pdf");
+  }catch(e){
+    console.error("Receipt PDF export failed:",e);
+    alert(e?.message||"Unable to export receipt PDF.");
+  }
+}
+
 async function getUserWithTimeout(client){
   return await Promise.race([
     client.auth.getUser(),
