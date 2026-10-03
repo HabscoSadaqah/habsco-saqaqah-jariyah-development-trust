@@ -1,19 +1,25 @@
-window.supabaseClient=window.supabaseClient||null;const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",supabaseClient=window.supabaseClient||window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);window.supabaseClient=supabaseClient,money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0)),$=id=>document.getElementById(id);async function setMemberDashboardName(user){
+window.supabaseClient=window.supabaseClient||null;const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",supabaseClient=window.supabaseClient||window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);window.supabaseClient=supabaseClient,money=n=>new Intl.NumberFormat("en-NG",{style:"currency",currency:"NGN",minimumFractionDigits:2}).format(Number(n||0)),$=id=>document.getElementById(id);function getHabscoGreeting(){
+  const hour=new Date().getHours();
+  return hour>=5&&hour<12?"Good morning":hour>=12&&hour<17?"Good afternoon":hour>=17&&hour<21?"Good evening":"Good night";
+}
+async function setMemberDashboardName(user){
   const welcome=$("welcome");
   if(!welcome||!user?.id)return;
-  let fullName="";
+  let firstName="";
   try{
     const {data:profile,error}=await supabaseClient.from("profiles")
       .select("full_name,first_name,middle_name,surname,member_id")
       .eq("id",user.id).maybeSingle();
     if(error)throw error;
-    fullName=String(profile?.full_name||[profile?.first_name,profile?.middle_name,profile?.surname].filter(Boolean).join(" ")||"").trim();
+    firstName=String(profile?.first_name||"").trim()||String(profile?.full_name||[profile?.first_name,profile?.middle_name,profile?.surname].filter(Boolean).join(" ")||"").trim().split(/\s+/)[0];
   }catch(e){console.warn("Profile name load failed:",e)}
-  if(!fullName){
+  if(!firstName){
     const metadata=user.user_metadata||{};
-    fullName=String(metadata.full_name||metadata.name||metadata.display_name||user.email?.split("@")[0]||"Member").trim();
+    firstName=String(metadata.first_name||metadata.full_name||metadata.name||metadata.display_name||user.email?.split("@")[0]||"Member").trim().split(/\s+/)[0];
   }
-  welcome.textContent=fullName||"Member";
+  const apply=()=>{welcome.textContent=getHabscoGreeting()+", "+(firstName||"Member")+"!";welcome.style.visibility="visible";welcome.dataset.habscoGreeting="1";};
+  apply();
+  [250,750,1500,3000,5000,8000].forEach(ms=>setTimeout(apply,ms));
 }
 const sessionPromise=window.habscoSessionPromise||(window.habscoSessionPromise=supabaseClient.auth.getSession());async function loadDashboard(){const{data:{session},error}=await sessionPromise;if(error||!session)return void(window.location.href="auth.html");await setMemberDashboardName(session.user);loadVirtualAccountStatus();try{const{data:isAdmin}=await supabaseClient.rpc("is_admin");const topAdmin=document.getElementById("hfTopAdmin");if(topAdmin){topAdmin.hidden=!isAdmin;topAdmin.style.display=isAdmin?"inline-flex":"none";}if(isAdmin){const{data:service,error:serviceError}=await supabaseClient.rpc("admin_service_balance_history",{p_limit:1});const hero=document.getElementById("adminServiceBalanceHero"),amount=document.getElementById("adminServiceBalance"),account=document.getElementById("adminServiceBalanceAccount"),accountAmount=document.getElementById("adminServiceBalanceAccountAmount");if(hero&&amount){hero.hidden=false;hero.style.display="block";if(serviceError){console.warn("Admin service balance RPC failed:",serviceError);amount.textContent="₦0.00"}else{const serviceRow=Array.isArray(service)?service[0]:service;const serviceBalance=money(serviceRow?.service_balance??serviceRow?.balance??serviceRow?.latest_service_balance??0);amount.textContent=serviceBalance;if(account&&accountAmount){accountAmount.textContent=serviceBalance;account.hidden=false;account.style.display="block"}}}}}catch(e){console.warn("Admin service balance unavailable:",e)}}async function loadVirtualAccountStatus(){const card=$("virtualAccountCard"),status=$("virtualAccountStatus");if(!card||!status)return;try{const {data,error}=await supabaseClient.functions.invoke("squad-virtual-account",{body:{action:"get"}});if(error)throw error;const va=data?.data;if(va?.virtual_account_number){status.textContent=va.status==="active"?"Ready to receive funds":"Account "+String(va.status||"unavailable");status.style.color=va.status==="active"?"var(--g)":"#a52a2a";card.setAttribute("aria-label","Virtual Account "+status.textContent)}else{status.textContent="Set up funding account";status.style.color="var(--g)";card.setAttribute("aria-label","Set up HABSCO Virtual Account")}}catch(e){status.textContent="Open to set up";status.style.color="var(--muted)"}}function escapeHtml(value){return String(value??"").replace(/[&<>\\"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'\\"':"&quot;","'":"&#39;"}[c]))}let recentActivityPage=0;
 const RECENT_ACTIVITY_PAGE_SIZE=5;
@@ -530,7 +536,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
           const msg=document.getElementById("hfProfileMsg"), btn=e.target.querySelector("button[type=submit]"); btn.disabled=true;btn.textContent="SAVING…";
           const {error}=await sb.from("profiles").update(patch).eq("id",user.id);
           if(error){msg.innerHTML='<div style="color:#a52a2a">Could not save profile. '+esc(error.message)+'</div>';btn.disabled=false;btn.textContent="SAVE PROFILE";return;}
-          Object.assign(d,patch); name=full||"Member"; const w=document.getElementById("welcome");if(w)w.textContent=name; msg.innerHTML='<div class="hf-profile-message">Profile updated successfully.</div>'; setTimeout(renderView,450);
+          Object.assign(d,patch); name=full||"Member"; const w=document.getElementById("welcome");if(w){const fn=String(name||"Member").trim().split(/\s+/)[0];w.textContent=getHabscoGreeting()+", "+fn+"!";w.style.visibility="visible";w.dataset.habscoGreeting="1";} msg.innerHTML='<div class="hf-profile-message">Profile updated successfully.</div>'; setTimeout(renderView,450);
         };
       };
       renderView();
