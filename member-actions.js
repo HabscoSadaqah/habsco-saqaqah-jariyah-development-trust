@@ -6,7 +6,8 @@ const configs={
  qard:["Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"request-qard":["Request Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"repay-qard":["Repay Interest-Free Loan","Submit repayment details for a disbursed loan."],
  receive:["Receive Fund","Approved funding and member transfers are credited server-side."],
  "virtual-account":["Fund Wallet via Virtual Account","Use your dedicated Squad virtual account to fund your HABSCO wallet automatically."],
- electricity:["Electricity","Select the distribution company, verify the meter customer name, then pay."]
+ electricity:["Electricity","Select the distribution company, verify the meter customer name, then pay."],
+ airtime:["Airtime","Select the mobile network, verify the phone number, then pay."]
 };
 const [title,subtitle]=configs[action]||configs[effectiveAction]||configs.send;
 function msg(t,ok=true){const e=$("msg");e.textContent=t;e.style.background=ok?"#eef8f2":"#fff1f1";e.style.color=ok?"#087443":"#a52a2a";e.classList.add("show")}
@@ -33,6 +34,24 @@ async function callProvider(body){
   }
   return data||{};
 }
+async function callAirtimeProvider(body){
+  const session=await auth();
+  if(!session)throw new Error("Authentication required.");
+  const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy-v2",{body});
+  if(error){
+    let message=error.message||"Airtime service request failed.";
+    try{
+      const ctx=error.context;
+      if(ctx&&typeof ctx.json==="function"){
+        const x=await ctx.json();
+        message=typeof x?.error==="string"?x.error:(x?.error?.message||message);
+      }
+    }catch{}
+    throw new Error(message);
+  }
+  if(data?.error)throw new Error(typeof data.error==="string"?data.error:(data.error?.message||"Airtime service request failed."));
+  return data||{};
+}
 function esc(v){return String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
 function rowsOf(r){const seen=new Set();const walk=x=>{if(Array.isArray(x))return x;if(!x||typeof x!=="object"||seen.has(x))return[];seen.add(x);for(const k of ["data","providers","discos","networks","operators","items","results","result","list","records"]){if(k in x){const a=walk(x[k]);if(a.length)return a}}return[]};return walk(r)}
 function packageCode(x){return String(x?.code??x?.variation_code??x?.variationCode??x?.package_code??x?.id??"").trim()}
@@ -52,10 +71,38 @@ async function setupUtility(){
   submit.getVerifiedKey=()=>verifiedKey;
  }
 }
+async function setupAirtime(){
+  form('<div class="utility-section"><div class="utility-section-title">📱 Airtime service details</div><div class="utility-grid"><label>Network Provider<select id="airtimeProvider" required><option value="">Loading network providers...</option></select></label><label>Amount (NGN)<input id="airtimeAmount" type="number" min="50" step="1" placeholder="1000" required></label></div><div class="utility-grid"><label>Phone Number<input id="airtimePhone" inputmode="tel" maxlength="13" placeholder="08012345678" required></label><label>Email (optional)<input id="airtimeEmail" type="email" maxlength="120" placeholder="you@example.com"></label></div><div class="utility-help">Enter the Nigerian mobile number that will receive the airtime.</div></div><div class="utility-section"><div class="utility-section-title">✓ Number verification</div><button id="verifyAirtime" class="btn" type="button">VERIFY NUMBER</button><div id="airtimeResult" class="api-note">Select the network, enter the phone number and amount, then verify before payment.</div></div><div class="utility-section"><div class="utility-section-title">🔐 Secure payment</div>'+pinField()+'<div class="api-note">Payment remains locked until the phone number is successfully verified.</div></div>');
+  const provider=$("airtimeProvider"),verify=$("verifyAirtime"),result=$("airtimeResult"),submit=$("actionSubmit");
+  submit.textContent="PAY";submit.disabled=true;
+  let verifiedKey="";
+  try{await loadProviderSelect("airtimeProvider","airtime-providers","Select network provider")}catch(e){result.textContent=e.message;result.style.color="#a52a2a"}
+  const invalidate=()=>{verifiedKey="";submit.disabled=true;result.textContent="Number not verified. Verify again before payment.";result.style.color="#a52a2a"};
+  ["input","change"].forEach(ev=>{provider.addEventListener(ev,invalidate);$("airtimePhone").addEventListener(ev,invalidate);$("airtimeAmount").addEventListener(ev,invalidate)});
+  verify.onclick=async()=>{
+    const p=provider.value.trim(),phone=$("airtimePhone").value.trim(),amount=Number($("airtimeAmount").value);
+    if(!p||!Number.isFinite(amount)||amount<=0){result.textContent="Select a network and enter a valid airtime amount.";result.style.color="#a52a2a";return}
+    if(!/^\+?234\d{10}$|^0[7-9]\d{9}$/.test(phone)){result.textContent="Enter a valid Nigerian mobile number, e.g. 08012345678.";result.style.color="#a52a2a";return}
+    verify.disabled=true;verify.textContent="VERIFYING NUMBER…";
+    try{
+      const r=await callAirtimeProvider({action:"airtime-validate",provider:p,receiver:phone,amount});
+      const ref=String(r?.validation_reference||r?.data?.validation_reference||"").trim();
+      if(!ref)throw Error("Airtime verification did not return a validation reference. Payment has been blocked.");
+      const verifiedAmount=Number(r?.amount??r?.data?.amount??amount);
+      if(!Number.isFinite(verifiedAmount)||verifiedAmount<=0)throw Error("Provider returned an invalid airtime amount.");
+      verifiedKey=[p,phone,String(verifiedAmount)].join("|");
+      result.innerHTML="<strong>Verified:</strong> "+esc(phone)+" — "+esc(p)+" — ₦"+verifiedAmount.toLocaleString("en-NG");
+      result.style.color="#087443";submit.disabled=false;
+    }catch(e){invalidate();result.textContent=e.message||"Airtime verification failed."}
+    finally{verify.disabled=false;verify.textContent="VERIFY NUMBER"}
+  };
+  submit.getAirtimeVerifiedKey=()=>verifiedKey;
+}
 const powerToken=(r)=>{const keys=["token","electricity_token","vend_token","token_number","meter_token","vendToken","electricityToken"];const walk=(x,d=0)=>{if(!x||d>12)return"";if(Array.isArray(x)){for(const v of x){const n=walk(v,d+1);if(n)return n}return""}if(typeof x!=="object")return"";for(const k of keys){const v=x[k];if((typeof v==="string"||typeof v==="number")&&String(v).trim())return String(v).trim()}for(const k of Object.keys(x)){const n=walk(x[k],d+1);if(n)return n}return""};return walk(r)};const setProcessing=(button,label,percent)=>{button.disabled=true;button.innerHTML=`<span style="display:block;font-size:11px;margin-bottom:6px">${label}</span><span style="display:block;height:7px;background:#dfe9e3;border-radius:99px;overflow:hidden"><span style="display:block;width:${percent}%;height:100%;background:#087443;border-radius:99px;transition:width .35s ease"></span></span>`};const showElectricitySuccess=(token)=>{const old=$("habscoElectricitySuccess");if(old)old.remove();const modal=document.createElement("div");modal.id="habscoElectricitySuccess";modal.style.cssText="position:fixed;inset:0;background:rgba(3,35,22,.62);z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px";modal.innerHTML=`<div style="width:min(430px,100%);background:#fff;border-radius:22px;padding:22px;box-shadow:0 20px 60px #0005;text-align:center"><div style="font-size:42px">✓</div><h2 style="margin:5px 0;color:#064f2e">Payment Successful</h2><p style="font-size:12px;color:#65736b">Your electricity payment was completed successfully.</p><div style="margin:16px 0;padding:16px;border-radius:15px;background:#eef8f2;border:1px solid #b9ddc8"><div style="font-size:10px;color:#65736b">ELECTRICITY TOKEN</div><div style="font-size:27px;font-weight:950;letter-spacing:2px;color:#064f2e;margin-top:7px">${esc(token||"Provider completed")}</div></div><button type="button" id="closeElectricitySuccess" class="btn" style="width:100%">DONE</button></div>`;document.body.appendChild(modal);$("closeElectricitySuccess").onclick=()=>modal.remove()};const showPowerResult=(r)=>{const token=powerToken(r);const box=$("meterResult");if(token){box.innerHTML=`<div style="padding:14px;border:1px solid #b9ddc8;border-radius:14px;background:#eef8f2;color:#064f2e"><strong>PAYMENT SUCCESSFUL</strong><br><br><strong>Electricity Token:</strong><div style="font-size:24px;font-weight:900;letter-spacing:2px;margin-top:7px">${esc(token)}</div><div style="margin-top:8px;font-size:11px">Keep this token and enter it on your prepaid meter.</div></div>`;box.scrollIntoView({behavior:"smooth",block:"center"});return token}box.innerHTML=`<div style="padding:12px;border:1px solid #e2ebe5;border-radius:12px;background:#f7faf8"><strong>Payment successful.</strong><br>Your electricity vend was completed, but the provider did not return a token in the response.</div>`;return ""};async function init(){
  const session=await auth();if(!session)return;
  if($("title"))$("title").textContent=title;if($("subtitle"))$("subtitle").textContent=subtitle;
  if(effectiveAction==="electricity"){await setupUtility();return}
+ if(effectiveAction==="airtime"){await setupAirtime();return}
  if(effectiveAction==="virtual-account"){
   const {data:va,error:vae}=await supabaseClient.functions.invoke("squad-virtual-account",{body:{action:"get"}});
   if(vae)throw vae;
@@ -116,6 +163,21 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
  else if(effectiveAction==="save")r=await supabaseClient.rpc("member_contribute_to_account",{p_account_type:$("account").value,p_amount:Number($("amount").value),p_description:$("note").value.trim()||null,p_transaction_pin:$("transactionPin").value.trim()});
  else if(effectiveAction==="qard"||effectiveAction==="request-qard")r=await supabaseClient.rpc("member_submit_qard_request",{p_amount:Number($("amount").value),p_repayment_plan:$("plan").value,purpose:$("purpose").value.trim()});
  else if(effectiveAction==="repay-qard")r=await supabaseClient.rpc("member_submit_qard_repayment",{p_qard_request_id:$("qard").value,p_amount:Number($("amount").value),p_paid_date:$("date").value,p_payment_reference:$("ref").value.trim(),p_note:$("note").value.trim()});
+ else if(effectiveAction==="airtime"){
+   const purchaseAmount=Number($("airtimeAmount").value),provider=$("airtimeProvider").value.trim(),phone=$("airtimePhone").value.trim(),key=[provider,phone,String(purchaseAmount)].join("|");
+   if(!b?.getAirtimeVerifiedKey||b.getAirtimeVerifiedKey()!==key)throw Error("Please verify the phone number before payment.");
+   const utilityFeeStatus=await getUtilityFeeStatus();if(!await confirmUtilityFee(purchaseAmount,"Airtime",utilityFeeStatus))return;
+   setProcessing(b,"PROCESSING AIRTIME PAYMENT…",35);
+   const providerResult=await callAirtimeProvider({action:"airtime",provider,receiver:phone,amount:purchaseAmount,transaction_pin:$("transactionPin").value.trim()});
+   setProcessing(b,"COMPLETING AIRTIME PURCHASE…",75);
+   r={data:providerResult};
+   b.innerHTML="PAYMENT SUCCESSFUL";b.disabled=true;
+   const pr=providerResult?.provider||providerResult?.data?.provider||provider;
+   const receipt=providerResult?.provider?.reference||providerResult?.reference||providerResult?.data?.reference||"";
+   const box=$("airtimeResult");
+   box.innerHTML='<div style="padding:14px;border:1px solid #b9ddc8;border-radius:14px;background:#eef8f2;color:#064f2e"><strong>AIRTIME PAYMENT SUCCESSFUL</strong><br><br><strong>Network:</strong> '+esc(pr)+'<br><strong>Phone:</strong> '+esc(phone)+'<br><strong>Amount:</strong> ₦'+purchaseAmount.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})+(receipt?'<br><strong>Reference:</strong> '+esc(receipt):"")+'</div>';
+   box.scrollIntoView({behavior:"smooth",block:"center"});
+ }
  else if(effectiveAction==="electricity"){
    const actionSubmit=$("actionSubmit"),purchaseAmount=Number($("amount").value),key=[$("disco").value.trim(),$("meter_number").value.trim(),$("meter_type").value,String(purchaseAmount)].join("|");
    if(!actionSubmit?.getVerifiedKey||actionSubmit.getVerifiedKey()!==key)throw Error("Please verify the meter and customer name before payment.");
