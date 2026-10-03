@@ -10,7 +10,7 @@
 <div class="top"><div class="brand">HABSCO</div><a class="back" href="member.html">← Dashboard</a></div>
 <section class="hero"><div class="eyebrow">SAVINGS ACCOUNT</div><h1>Build your savings with confidence</h1><p>Maintain your savings for six consecutive months without a completed savings debit to unlock loan eligibility.</p><div class="balance"><span>Current savings balance</span><strong id="savingsBalance">₦0.00</strong></div></section>
 <section class="grid"><div class="card"><small>Qualification progress</small><b id="months">0 / 6 months</b></div><div class="card"><small>Potential loan limit</small><b id="loanLimit">₦0.00</b></div><div class="card"><small>Account status</small><b class="status" id="status">Loading…</b></div></section>
-<section class="section"><h2>Loan eligibility</h2><div class="progress"><div class="progress-head"><span>Six-month savings journey</span><span id="percent">0%</span></div><div class="track"><span id="bar"></span></div><p id="progressText">Maintain savings for six consecutive months without debits to qualify for an interest-free loan of up to twice your eligible savings balance.</p><div class="eligibility-cta" id="eligibilityCta"><strong>✓ You are eligible to apply</strong><span id="eligibleAmount">Available loan limit: ₦0.00</span><a class="action" href="member-actions.html?action=request-loan" id="eligibleLoan">Apply for Interest-Free Loan</a></div></div></section>
+<section class="section"><h2>Loan eligibility</h2><div class="progress"><div class="progress-head"><span>Actual matured savings months</span><span id="percent">0%</span></div><div class="track" role="progressbar" aria-label="Actual matured savings months" aria-valuemin="0" aria-valuemax="6" aria-valuenow="0"><span id="bar"></span></div><p id="progressText">Only completed/matured Savings months count toward the six-month qualification requirement.</p><div class="eligibility-cta" id="eligibilityCta"><strong>✓ You are eligible to apply</strong><span id="eligibleAmount">Available loan limit: ₦0.00</span><a class="action" href="member-actions.html?action=request-loan" id="eligibleLoan">Apply for Interest-Free Loan</a></div></div></section>
 <section class="section"><h2>Fixed savings plan</h2><div class="panel"><div class="plan-grid"><div class="field"><label>Payment frequency</label><select id="frequency"><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option></select></div><div class="field"><label>Fixed amount</label><select id="amount"><option value="5000">₦5,000</option><option value="10000">₦10,000</option><option value="20000">₦20,000</option><option value="50000">₦50,000</option><option value="100000">₦100,000</option><option value="250000">₦250,000</option></select></div></div><div class="notice" id="planStatus">No fixed plan set yet.</div><button class="action" id="setPlan" style="width:100%;margin-top:10px">Set Savings Plan</button></div></section>
 <section class="section"><h2>Manage savings</h2><div class="actions"><button class="action" id="pay">Pay Savings</button><button class="action danger" id="withdraw">Withdraw All Savings</button><a class="action secondary" href="#savingsStatement">Savings Statement</a><a class="action secondary" href="member-actions.html?action=request-loan" id="loan">Loan Application</a></div></section>
 <section class="section savings-statement" id="savingsStatement"><h2>Savings Statement</h2><div class="panel"><div class="notice" style="margin:0 0 10px">Only money entering or leaving your Savings Account is shown here.</div><div class="statement-controls"><button class="action secondary" id="viewMoreSavings" type="button">View More</button><div class="date-range"><label>From <input id="savingsFrom" type="date"></label><label>To <input id="savingsTo" type="date"></label><button class="action secondary" id="downloadSavingsPdf" type="button">Download PDF</button></div></div><div class="statement-table"><table><thead><tr><th>Date</th><th>Reference</th><th>Description</th><th>Amount</th><th>Balance</th><th>Status</th><th>Receipt</th></tr></thead><tbody id="savingsStatementRows"><tr><td colspan="7" class="statement-empty">Loading savings statement…</td></tr></tbody></table></div></div></section>
@@ -43,17 +43,18 @@ try{
   const r=await sb.from('member_savings_plans').select('*').eq('user_id',uid).maybeSingle();
   plan=r.data||null;
 }catch(_){}
-const since=elig.cycle_start_at||elig.qualifying_since;
-const journey=elig.loan_eligible?{months:6,percent:100}:calcJourney(since);
-const count=Math.min(6,Number(journey.months||0));
+const actualMaturedMonths=Math.max(0,Math.min(6,Number(elig.months_completed??0)));
+const count=elig.loan_eligible?6:actualMaturedMonths;
+const percent=Math.round((count/6)*100);
 const remaining=Math.max(0,6-count);
 $('savingsBalance').textContent=money(elig.savings_balance);
 $('months').textContent=count+' / 6 months';
 $('loanLimit').textContent=money(elig.loan_eligible?elig.savings_balance*2:Number(elig.savings_balance||0)*2);
 $('status').textContent=elig.loan_eligible?'Eligible':'In progress';
-$('percent').textContent=Number(journey.percent||0)+'%';
-$('bar').style.width=Number(journey.percent||0)+'%';
-$('progressText').textContent=elig.loan_eligible?'You have completed the six-month requirement. You may apply for an interest-free loan of up to twice your current Savings balance.':remaining+' month'+(remaining===1?'':'s')+' remaining to reach loan eligibility.';
+$('percent').textContent=percent+'%';
+$('bar').style.width=percent+'%';
+$('bar').parentElement.setAttribute('aria-valuenow',String(count));
+$('progressText').textContent=elig.loan_eligible?'You have completed 6 matured Savings months. You may apply for an interest-free loan of up to twice your current Savings balance.':count+' matured month'+(count===1?'':'s')+' completed · '+remaining+' month'+(remaining===1?'':'s')+' remaining.';
 const cta=$('eligibilityCta');
 cta.style.display=elig.loan_eligible?'block':'none';
 $('eligibleAmount').textContent='Available loan limit: '+money(elig.savings_balance*2);
