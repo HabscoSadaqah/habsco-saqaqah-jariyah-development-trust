@@ -90,7 +90,7 @@ async function setupAirtime(){
       if(!ref)throw Error("Airtime verification did not return a validation reference. Payment has been blocked.");
       const verifiedAmount=Number(r?.amount??r?.data?.amount??amount);
       if(!Number.isFinite(verifiedAmount)||verifiedAmount<=0)throw Error("Provider returned an invalid airtime amount.");
-      verifiedKey=[p,phone,String(verifiedAmount)].join("|");
+      verifiedKey=[p,phone,String(amount)].join("|");
       result.innerHTML="<strong>Verified:</strong> "+esc(phone)+" — "+esc(p)+" — ₦"+verifiedAmount.toLocaleString("en-NG");
       result.style.color="#087443";submit.disabled=false;
     }catch(e){invalidate();result.textContent=e.message||"Airtime verification failed."}
