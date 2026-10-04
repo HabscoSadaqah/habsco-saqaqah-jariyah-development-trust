@@ -82,33 +82,47 @@ function showPowerResult(response){
   }
 }
 function showHabscoSuccessModal(info={}){
-  const old=$("habscoSuccessModal");if(old)old.remove();
-  const modal=document.createElement("div");modal.id="habscoSuccessModal";
+  const old=$("habscoTransactionModal");if(old)old.remove();
+  const modal=document.createElement("div");modal.id="habscoTransactionModal";
   const style=document.createElement("style");
   style.textContent=`
-    #habscoSuccessModal{position:fixed;inset:0;background:rgba(2,24,15,.76);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:1000001;display:flex;align-items:center;justify-content:center;padding:18px;animation:hsmFade .24s ease-out}
-    #habscoSuccessModal .hsm-card{width:min(460px,100%);max-height:min(88vh,760px);overflow:auto;background:linear-gradient(180deg,#fff 0%,#fbfefc 100%);border:1px solid rgba(8,116,67,.14);border-radius:28px;padding:24px;box-shadow:0 30px 90px rgba(0,0,0,.28);transform:translateY(8px) scale(.97);animation:hsmCard .36s cubic-bezier(.2,.8,.2,1) forwards}
-    #habscoSuccessModal .hsm-hero{text-align:center;padding:2px 0 8px}
-    #habscoSuccessModal .hsm-icon{width:92px;height:92px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#eafff2 0%,#c9f2da 52%,#a8dfc0 100%);border:7px solid #f1fbf5;box-shadow:0 12px 34px rgba(8,116,67,.18);animation:hsmPop .62s cubic-bezier(.175,.885,.32,1.275) both}
-    #habscoSuccessModal .hsm-icon span{font-size:52px;line-height:1;display:block;animation:hsmBounce 1.8s ease-in-out .35s infinite}
-    #habscoSuccessModal .hsm-kicker{margin:0 0 5px;color:#087443;font-size:11px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase}
-    #habscoSuccessModal .hsm-title{margin:0;color:#063e26;font-size:24px;line-height:1.15;font-weight:950}
-    #habscoSuccessModal .hsm-message{margin:8px auto 0;max-width:340px;color:#61746b;font-size:12px;line-height:1.5}
-    #habscoSuccessModal .hsm-details{margin:18px 0 16px;border:1px solid #dcebe2;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 8px 24px rgba(4,55,32,.06)}
-    #habscoSuccessModal .hsm-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:12px 14px;border-bottom:1px solid #edf3ef}
-    #habscoSuccessModal .hsm-row:last-child{border-bottom:0}
-    #habscoSuccessModal .hsm-label{color:#718079;font-size:11px}
-    #habscoSuccessModal .hsm-value{color:#123d2d;font-size:12px;font-weight:800;text-align:right;word-break:break-word}
-    #habscoSuccessModal .hsm-amount{font-size:16px;color:#087443}
-    #habscoSuccessModal .hsm-done{width:100%;min-height:48px;border:0;border-radius:14px;background:linear-gradient(135deg,#087443,#075b36);color:#fff;font-weight:900;letter-spacing:.7px;box-shadow:0 10px 24px rgba(8,116,67,.22);cursor:pointer}
-    #habscoSuccessModal .hsm-done:active{transform:scale(.985)}
-    #habscoSuccessModal .hsm-footer{text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid #e7efe9;color:#718079;font-size:10px;font-weight:800;letter-spacing:.5px}
-    @keyframes hsmFade{from{opacity:0}to{opacity:1}}
-    @keyframes hsmCard{to{transform:translateY(0) scale(1)}}
-    @keyframes hsmPop{0%{transform:scale(.35) rotate(-12deg);opacity:0}65%{transform:scale(1.12) rotate(3deg)}100%{transform:scale(1) rotate(0);opacity:1}}
-    @keyframes hsmBounce{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-6px) rotate(-5deg)}50%{transform:translateY(0) rotate(0)}75%{transform:translateY(-3px) rotate(4deg)}}
-    @media(prefers-reduced-motion:reduce){#habscoSuccessModal,#habscoSuccessModal .hsm-card,#habscoSuccessModal .hsm-icon,#habscoSuccessModal .hsm-icon span{animation:none!important}}
-    @media(max-width:520px){#habscoSuccessModal{padding:12px}#habscoSuccessModal .hsm-card{border-radius:24px;padding:20px}#habscoSuccessModal .hsm-title{font-size:21px}#habscoSuccessModal .hsm-icon{width:82px;height:82px}#habscoSuccessModal .hsm-icon span{font-size:45px}}
+    #habscoTransactionModal{position:fixed;inset:0;background:rgba(2,24,15,.76);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:1000001;display:flex;align-items:center;justify-content:center;padding:18px;animation:htmFade .24s ease-out}
+    #habscoTransactionModal .htm-card{width:min(460px,100%);max-height:min(88vh,760px);overflow:auto;background:linear-gradient(180deg,#fff 0%,#fbfefc 100%);border:1px solid rgba(8,116,67,.14);border-radius:28px;padding:24px;box-shadow:0 30px 90px rgba(0,0,0,.28);transform:translateY(8px) scale(.97);animation:htmCard .36s cubic-bezier(.2,.8,.2,1) forwards}
+    #habscoTransactionModal .htm-hero{text-align:center;padding:2px 0 8px}
+    #habscoTransactionModal .htm-icon{width:92px;height:92px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;border:7px solid #f1fbf5;box-shadow:0 12px 34px rgba(8,116,67,.18);animation:htmPop .62s cubic-bezier(.175,.885,.32,1.275) both}
+    #habscoTransactionModal.success .htm-icon{background:radial-gradient(circle at 35% 30%,#eafff2 0%,#c9f2da 52%,#a8dfc0 100%)}
+    #habscoTransactionModal.failed .htm-icon{background:radial-gradient(circle at 35% 30%,#fff4f4 0%,#ffd7d7 52%,#f3baba 100%);border-color:#fff5f5;box-shadow:0 12px 34px rgba(165,42,42,.16)}
+    #habscoTransactionModal .htm-icon span{font-size:48px;line-height:1;display:block}
+    #habscoTransactionModal.success .htm-icon span{color:#087443;animation:htmBounce 1.8s ease-in-out .35s infinite}
+    #habscoTransactionModal.failed .htm-icon span{color:#a52a2a;font-size:44px;font-weight:950}
+    #habscoTransactionModal .htm-kicker{margin:0 0 5px;font-size:11px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase}
+    #habscoTransactionModal.success .htm-kicker{color:#087443}
+    #habscoTransactionModal.failed .htm-kicker{color:#a52a2a}
+    #habscoTransactionModal .htm-title{margin:0;font-size:24px;line-height:1.15;font-weight:950}
+    #habscoTransactionModal.success .htm-title{color:#063e26}
+    #habscoTransactionModal.failed .htm-title{color:#7e2020}
+    #habscoTransactionModal .htm-message{margin:8px auto 0;max-width:340px;color:#61746b;font-size:12px;line-height:1.5}
+    #habscoTransactionModal .htm-details{margin:18px 0 16px;border:1px solid #dcebe2;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 8px 24px rgba(4,55,32,.06)}
+    #habscoTransactionModal.failed .htm-details{border-color:#f0d2d2}
+    #habscoTransactionModal .htm-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;padding:12px 14px;border-bottom:1px solid #edf3ef}
+    #habscoTransactionModal .htm-row:last-child{border-bottom:0}
+    #habscoTransactionModal .htm-label{color:#718079;font-size:11px}
+    #habscoTransactionModal .htm-value{color:#123d2d;font-size:12px;font-weight:800;text-align:right;word-break:break-word}
+    #habscoTransactionModal.failed .htm-value{color:#6f3030}
+    #habscoTransactionModal .htm-amount{font-size:16px}
+    #habscoTransactionModal.success .htm-amount{color:#087443}
+    #habscoTransactionModal.failed .htm-amount{color:#a52a2a}
+    #habscoTransactionModal .htm-done{width:100%;min-height:48px;border:0;border-radius:14px;color:#fff;font-weight:900;letter-spacing:.7px;box-shadow:0 10px 24px rgba(8,116,67,.22);cursor:pointer}
+    #habscoTransactionModal.success .htm-done{background:linear-gradient(135deg,#087443,#075b36)}
+    #habscoTransactionModal.failed .htm-done{background:linear-gradient(135deg,#a52a2a,#821f1f);box-shadow:0 10px 24px rgba(165,42,42,.18)}
+    #habscoTransactionModal .htm-done:active{transform:scale(.985)}
+    #habscoTransactionModal .htm-footer{text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid #e7efe9;color:#718079;font-size:10px;font-weight:800;letter-spacing:.5px}
+    @keyframes htmFade{from{opacity:0}to{opacity:1}}
+    @keyframes htmCard{to{transform:translateY(0) scale(1)}}
+    @keyframes htmPop{0%{transform:scale(.35) rotate(-12deg);opacity:0}65%{transform:scale(1.12) rotate(3deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+    @keyframes htmBounce{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-5px) rotate(-4deg)}50%{transform:translateY(0) rotate(0)}75%{transform:translateY(-2px) rotate(3deg)}}
+    @media(prefers-reduced-motion:reduce){#habscoTransactionModal,#habscoTransactionModal .htm-card,#habscoTransactionModal .htm-icon,#habscoTransactionModal .htm-icon span{animation:none!important}}
+    @media(max-width:520px){#habscoTransactionModal{padding:12px}#habscoTransactionModal .htm-card{border-radius:24px;padding:20px}#habscoTransactionModal .htm-title{font-size:21px}#habscoTransactionModal .htm-icon{width:82px;height:82px}#habscoTransactionModal .htm-icon span{font-size:43px}}
   `;
   document.head.appendChild(style);
   const rows=[];
@@ -120,16 +134,44 @@ function showHabscoSuccessModal(info={}){
   if(info.token)rows.push(["Token",info.token]);
   if(info.reference)rows.push(["Reference",info.reference]);
   const now=new Date();
-  const dateText=now.toLocaleDateString("en-NG",{day:"2-digit",month:"long",year:"numeric"});
-  const timeText=now.toLocaleTimeString("en-NG",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true});
-  rows.push(["Date",dateText]);
-  rows.push(["Time",timeText]);
-  modal.innerHTML='<div class="hsm-card"><div class="hsm-hero"><div class="hsm-icon" aria-hidden="true"><span>🎉</span></div><div class="hsm-kicker">HABSCO</div><h3 class="hsm-title">Payment Successful</h3><p class="hsm-message">'+esc(info.message||"Your payment was completed successfully.")+'</p></div><div class="hsm-details">'+rows.map((r,i)=>'<div class="hsm-row"><span class="hsm-label">'+esc(r[0])+'</span><strong class="hsm-value'+(r[0]==="Amount"?" hsm-amount":"")+'">'+esc(r[1])+'</strong></div>').join("")+'</div><button type="button" id="habscoSuccessClose" class="hsm-done">DONE</button><div class="hsm-footer">www.habscosadaqah.org</div></div>';
+  rows.push(["Date",now.toLocaleDateString("en-NG",{day:"2-digit",month:"long",year:"numeric"})]);
+  rows.push(["Time",now.toLocaleTimeString("en-NG",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true})]);
+  modal.className="success";
+  modal.innerHTML='<div class="htm-card"><div class="htm-hero"><div class="htm-icon" aria-hidden="true"><span>✓</span></div><div class="htm-kicker">HABSCO</div><h3 class="htm-title">Congratulations!</h3><p class="htm-message">'+esc(info.message||"Your transaction was completed successfully.")+'</p></div><div class="htm-details">'+rows.map(r=>'<div class="htm-row"><span class="htm-label">'+esc(r[0])+'</span><strong class="htm-value'+(r[0]==="Amount"?" htm-amount":"")+'">'+esc(r[1])+'</strong></div>').join("")+'</div><button type="button" id="habscoTransactionClose" class="htm-done">DONE</button><div class="htm-footer">www.habscosadaqah.org</div></div>';
   document.body.appendChild(modal);
   const close=()=>{modal.style.opacity="0";modal.style.transition="opacity .18s ease";setTimeout(()=>{style.remove();modal.remove()},180)};
-  modal.querySelector("#habscoSuccessClose").onclick=close;
+  modal.querySelector("#habscoTransactionClose").onclick=close;
   modal.addEventListener("click",e=>{if(e.target===modal)close()});
 }
+function showHabscoFailedModal(info={}){
+  const old=$("habscoTransactionModal");if(old)old.remove();
+  const modal=document.createElement("div");modal.id="habscoTransactionModal";modal.className="failed";
+  const style=document.createElement("style");
+  style.textContent=`
+    #habscoTransactionModal.failed{position:fixed;inset:0;background:rgba(34,8,8,.76);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:1000001;display:flex;align-items:center;justify-content:center;padding:18px;animation:htmFade .24s ease-out}
+    #habscoTransactionModal.failed .htm-card{width:min(460px,100%);max-height:min(88vh,760px);overflow:auto;background:linear-gradient(180deg,#fff 0%,#fffafa 100%);border:1px solid rgba(165,42,42,.16);border-radius:28px;padding:24px;box-shadow:0 30px 90px rgba(0,0,0,.28);transform:translateY(8px) scale(.97);animation:htmCard .36s cubic-bezier(.2,.8,.2,1) forwards}
+    #habscoTransactionModal.failed .htm-hero{text-align:center;padding:2px 0 8px}
+    #habscoTransactionModal.failed .htm-message{color:#725d5d}
+    #habscoTransactionModal.failed .htm-footer{border-color:#f1dddd}
+  `;
+  document.head.appendChild(style);
+  const rows=[];
+  if(info.service)rows.push(["Service",info.service]);
+  if(info.network)rows.push(["Network",info.network]);
+  if(info.recipient)rows.push(["Recipient",info.recipient]);
+  if(info.meter)rows.push(["Meter",info.meter]);
+  if(Number.isFinite(Number(info.amount)))rows.push(["Amount","₦"+Number(info.amount).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})]);
+  if(info.reference)rows.push(["Reference",info.reference]);
+  const now=new Date();
+  rows.push(["Date",now.toLocaleDateString("en-NG",{day:"2-digit",month:"long",year:"numeric"})]);
+  rows.push(["Time",now.toLocaleTimeString("en-NG",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true})]);
+  modal.innerHTML='<div class="htm-card"><div class="htm-hero"><div class="htm-icon" aria-hidden="true"><span>×</span></div><div class="htm-kicker">HABSCO</div><h3 class="htm-title">Sorry…</h3><p class="htm-message">'+esc(info.message||"We could not complete your transaction.")+'</p></div><div class="htm-details">'+rows.map(r=>'<div class="htm-row"><span class="htm-label">'+esc(r[0])+'</span><strong class="htm-value'+(r[0]==="Amount"?" htm-amount":"")+'">'+esc(r[1])+'</strong></div>').join("")+'</div><button type="button" id="habscoTransactionClose" class="htm-done">CLOSE</button><div class="htm-footer">www.habscosadaqah.org</div></div>';
+  document.body.appendChild(modal);
+  const close=()=>{modal.style.opacity="0";modal.style.transition="opacity .18s ease";setTimeout(()=>{style.remove();modal.remove()},180)};
+  modal.querySelector("#habscoTransactionClose").onclick=close;
+  modal.addEventListener("click",e=>{if(e.target===modal)close()});
+}
+
 
 async function setupUtility(){
  if(effectiveAction==="electricity"){
@@ -363,5 +405,5 @@ const pr=typeof rawProvider==="object"
  if(effectiveAction==="electricity"){const token=powerToken(r);msg(token?"Electricity payment successful. Token is displayed above and attached to the receipt.":"Electricity payment successful. The provider response did not include a token.",true)}
  else msg(effectiveAction==="dividend"?"Dividend withdrawn to Available to Spend. Reference: "+String(r?.data||""):(r?.data?.pending?"Transaction submitted and is pending provider confirmation.":"Request submitted successfully."),true);
  if(effectiveAction!=="electricity")e.target.reset();
-}catch(err){msg(err.message||"Unable to complete this action.",false)}finally{b.disabled=false}});
+}catch(err){const failedMessage=err.message||"Unable to complete this action.";msg(failedMessage,false);showHabscoFailedModal({service:effectiveAction==="airtime"?"Airtime Purchase":effectiveAction==="electricity"?"Electricity Payment":title,message:failedMessage,amount:Number($("amount")?.value||$("airtimeAmount")?.value||0),recipient:$("airtimePhone")?.value||$("recipient")?.value||$("meter_number")?.value||"",network:$("airtimeProvider")?.value||$("disco")?.value||""});}finally{b.disabled=false}});
 init().catch(e=>msg(e.message||"Unable to load this form.",false));
