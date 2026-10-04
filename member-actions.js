@@ -60,6 +60,43 @@ function packageAmount(x){const raw=x?.amount??x?.price??x?.selling_price??x?.se
 async function loadProviderSelect(id,providerAction,empty){const s=$(id);s.disabled=true;s.innerHTML='<option value="">Loading providers...</option>';try{const r=await callProvider({action:providerAction});const rows=rowsOf(r);if(!rows.length)throw Error("No providers are currently available.");s.innerHTML='<option value="">'+empty+'</option>';const seen=new Set();rows.forEach(x=>{const code=String(x?.short_name||x?.code||x?.provider||x?.provider_code||x?.network_code||x?.operator_code||x?.disco||x?.name||"").trim();const name=String(x?.name||x?.provider_name||x?.network_name||x?.operator_name||x?.short_name||x?.disco||x?.provider||x?.code||code).trim();if(!code||seen.has(code.toUpperCase()))return;seen.add(code.toUpperCase());const o=document.createElement("option");o.value=code;o.textContent=name===code?name:name+" ("+code+")";s.appendChild(o)});s.disabled=false}catch(e){s.innerHTML='<option value="">Unable to load providers</option>';throw e}}
 async function loadPackages(providerAction,provider,selectId){const s=$(selectId);s.disabled=true;s.innerHTML='<option value="">Loading packages...</option>';try{const r=await callProvider({action:providerAction,provider,page:1,limit:100});const rows=rowsOf(r);if(!rows.length){s.innerHTML='<option value="">No packages available</option>';return}const seen=new Set();s.innerHTML='<option value="">Select package</option>';rows.forEach(x=>{const code=packageCode(x);if(!code||seen.has(code))return;seen.add(code);const o=document.createElement("option");o.value=code;const n=packageName(x),a=packageAmount(x);if(a!=null)o.dataset.amount=String(a);o.textContent=a!=null?n+" — ₦"+a.toLocaleString("en-NG"):n;s.appendChild(o)});s.disabled=false}catch(e){s.innerHTML='<option value="">Unable to load packages</option>';throw e}}
 const utilityStyle=document.createElement("style");utilityStyle.id="habsco-electricity-form-style";utilityStyle.textContent=".utility-section{padding:14px;margin:10px 0;border:1px solid #e2ebe5;border-radius:14px;background:#fbfdfc}.utility-section:first-child{margin-top:0}.utility-section-title{font-weight:900;color:#064f2e;font-size:12px;margin-bottom:10px}.utility-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.utility-help{font-size:10px;color:#708078;margin-top:7px;line-height:1.4}@media(max-width:600px){.utility-grid{grid-template-columns:1fr}.utility-section{padding:12px}}";document.head.appendChild(utilityStyle);function pinField(){return '<label>Transaction PIN<input id="transactionPin" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit PIN" autocomplete="off" required></label>'}
+function setProcessing(button,label,percent=35){
+  if(!button)return;
+  button.disabled=true;
+  button.dataset.processing="1";
+  button.innerHTML='<span style="display:block;font-size:11px;margin-bottom:6px">'+esc(label)+'</span><span style="display:block;height:7px;background:#dfe9e3;border-radius:99px;overflow:hidden"><span style="display:block;width:'+Math.max(5,Math.min(100,Number(percent)||5))+'%;height:100%;background:#087443;border-radius:99px;transition:width .45s ease"></span></span>';
+}
+function powerToken(response){
+  const x=response?.provider?.token||response?.provider?.vend_token||response?.provider?.electricity_token||response?.token||response?.vend_token||response?.electricity_token||response?.data?.token||response?.data?.vend_token||response?.data?.electricity_token;
+  return String(x??"").trim();
+}
+function showPowerResult(response){
+  const token=powerToken(response),el=$("meterResult");
+  if(!el)return;
+  if(token){
+    el.innerHTML='<strong>Electricity payment successful.</strong><br>Token: <strong>'+esc(token)+'</strong>';
+    el.style.color="#087443";
+  }else{
+    el.textContent="Electricity payment completed. The provider did not return a token.";
+    el.style.color="#087443";
+  }
+}
+function showHabscoSuccessModal(info={}){
+  const old=$("habscoSuccessModal");if(old)old.remove();
+  const modal=document.createElement("div");modal.id="habscoSuccessModal";
+  modal.style.cssText="position:fixed;inset:0;background:rgba(3,35,22,.72);z-index:1000001;display:flex;align-items:center;justify-content:center;padding:18px";
+  const rows=[];
+  if(info.network)rows.push(["Network",info.network]);
+  if(info.recipient)rows.push(["Recipient",info.recipient]);
+  if(info.meter)rows.push(["Meter",info.meter]);
+  if(Number.isFinite(Number(info.amount)))rows.push(["Amount","₦"+Number(info.amount).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})]);
+  if(info.token)rows.push(["Token",info.token]);
+  if(info.reference)rows.push(["Reference",info.reference]);
+  modal.innerHTML='<div style="width:min(440px,100%);background:#fff;border-radius:22px;padding:22px;box-shadow:0 20px 60px #0006"><div style="font-size:38px;text-align:center">✓</div><h3 style="margin:7px 0;text-align:center;color:#064f2e">Payment Successful</h3><p style="text-align:center;color:#50665b;font-size:12px">'+esc(info.message||"Your payment was completed successfully.")+'</p><div style="border:1px solid #dfe9e3;border-radius:13px;overflow:hidden;margin:14px 0">'+rows.map(r=>'<div style="display:flex;justify-content:space-between;gap:15px;padding:11px;border-bottom:1px solid #edf1ee"><span>'+esc(r[0])+'</span><strong style="text-align:right;word-break:break-word">'+esc(r[1])+'</strong></div>').join("")+'</div><button type="button" id="habscoSuccessClose" class="btn" style="width:100%">DONE</button></div>';
+  document.body.appendChild(modal);
+  modal.querySelector("#habscoSuccessClose").onclick=()=>modal.remove();
+}
+
 async function setupUtility(){
  if(effectiveAction==="electricity"){
   form('<div class="utility-section"><div class="utility-section-title">⚡ Electricity service details</div><div class="utility-grid"><label>Distribution Company (DisCo)<select id="disco" required><option value="">Loading distribution companies...</option></select></label><label>Meter Type<select id="meter_type" required><option value="PREPAID">Prepaid</option><option value="POSTPAID">Postpaid</option></select></label></div><div class="utility-grid"><label>Meter Number<input id="meter_number" inputmode="numeric" maxlength="30" placeholder="Enter meter number" required></label><label>Amount (NGN)<input id="amount" type="number" min="100" step="1" placeholder="5000" required></label></div></div><div class="utility-section"><div class="utility-section-title">☎ Contact details</div><div class="utility-grid"><label>Phone Number<input id="phone" inputmode="tel" maxlength="16" placeholder="08012345678" required></label><label>Email (optional)<input id="email" type="email" maxlength="120" placeholder="you@example.com"></label></div><div class="utility-help">Use an active Nigerian mobile number, e.g. 08012345678.</div></div><div class="utility-section"><div class="utility-section-title">✓ Meter verification</div><button id="verifyMeter" class="btn" type="button">VERIFY METER & CUSTOMER</button><div id="meterResult" class="api-note">Enter the meter details and contact number. Verify the customer name before payment.</div></div><div class="utility-section"><div class="utility-section-title">🔐 Secure payment</div>'+pinField()+'<div class="api-note">Payment remains locked until the meter and customer name are successfully verified.</div></div>');
