@@ -102,6 +102,7 @@ function showHabscoSuccessModal(info={}){
     #habscoSuccessModal .hsm-amount{font-size:16px;color:#087443}
     #habscoSuccessModal .hsm-done{width:100%;min-height:48px;border:0;border-radius:14px;background:linear-gradient(135deg,#087443,#075b36);color:#fff;font-weight:900;letter-spacing:.7px;box-shadow:0 10px 24px rgba(8,116,67,.22);cursor:pointer}
     #habscoSuccessModal .hsm-done:active{transform:scale(.985)}
+    #habscoSuccessModal .hsm-footer{text-align:center;margin-top:14px;padding-top:12px;border-top:1px solid #e7efe9;color:#718079;font-size:10px;font-weight:800;letter-spacing:.5px}
     @keyframes hsmFade{from{opacity:0}to{opacity:1}}
     @keyframes hsmCard{to{transform:translateY(0) scale(1)}}
     @keyframes hsmPop{0%{transform:scale(.35) rotate(-12deg);opacity:0}65%{transform:scale(1.12) rotate(3deg)}100%{transform:scale(1) rotate(0);opacity:1}}
@@ -118,7 +119,12 @@ function showHabscoSuccessModal(info={}){
   if(Number.isFinite(Number(info.amount)))rows.push(["Amount","₦"+Number(info.amount).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})]);
   if(info.token)rows.push(["Token",info.token]);
   if(info.reference)rows.push(["Reference",info.reference]);
-  modal.innerHTML='<div class="hsm-card"><div class="hsm-hero"><div class="hsm-icon" aria-hidden="true"><span>🎉</span></div><div class="hsm-kicker">HABSCO</div><h3 class="hsm-title">Payment Successful</h3><p class="hsm-message">'+esc(info.message||"Your payment was completed successfully.")+'</p></div><div class="hsm-details">'+rows.map((r,i)=>'<div class="hsm-row"><span class="hsm-label">'+esc(r[0])+'</span><strong class="hsm-value'+(r[0]==="Amount"?" hsm-amount":"")+'">'+esc(r[1])+'</strong></div>').join("")+'</div><button type="button" id="habscoSuccessClose" class="hsm-done">DONE</button></div>';
+  const now=new Date();
+  const dateText=now.toLocaleDateString("en-NG",{day:"2-digit",month:"long",year:"numeric"});
+  const timeText=now.toLocaleTimeString("en-NG",{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true});
+  rows.push(["Date",dateText]);
+  rows.push(["Time",timeText]);
+  modal.innerHTML='<div class="hsm-card"><div class="hsm-hero"><div class="hsm-icon" aria-hidden="true"><span>🎉</span></div><div class="hsm-kicker">HABSCO</div><h3 class="hsm-title">Payment Successful</h3><p class="hsm-message">'+esc(info.message||"Your payment was completed successfully.")+'</p></div><div class="hsm-details">'+rows.map((r,i)=>'<div class="hsm-row"><span class="hsm-label">'+esc(r[0])+'</span><strong class="hsm-value'+(r[0]==="Amount"?" hsm-amount":"")+'">'+esc(r[1])+'</strong></div>').join("")+'</div><button type="button" id="habscoSuccessClose" class="hsm-done">DONE</button><div class="hsm-footer">www.habscosadaqah.org</div></div>';
   document.body.appendChild(modal);
   const close=()=>{modal.style.opacity="0";modal.style.transition="opacity .18s ease";setTimeout(()=>{style.remove();modal.remove()},180)};
   modal.querySelector("#habscoSuccessClose").onclick=close;
