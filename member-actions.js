@@ -244,7 +244,7 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
    if(!validation_reference)throw Error("Phone verification has expired. Please verify the number again.");
    const utilityFeeStatus=await getUtilityFeeStatus();if(!await confirmUtilityFee(purchaseAmount,"Airtime",utilityFeeStatus))return;
    setProcessing(b,"PROCESSING AIRTIME PAYMENT…",35);
-   const providerResult=await callAirtimeProvider({action:"airtime",provider,receiver:phone,amount:purchaseAmount,transaction_pin:$("transactionPin").value.trim()});
+   const providerResult=await callAirtimeProvider({action:"airtime",provider,receiver:phone,amount:purchaseAmount,transaction_pin:$("transactionPin").value.trim(),validation_reference});
    setProcessing(b,"COMPLETING AIRTIME PURCHASE…",75);
    r={data:providerResult};
    b.innerHTML="PAYMENT SUCCESSFUL";b.disabled=true;
