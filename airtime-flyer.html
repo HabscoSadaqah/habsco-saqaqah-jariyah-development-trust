@@ -1,64 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en-NG">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HABSCO | Airtime Made Easy</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#020b07">
+<title>HABSCO | Airtime</title>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
+:root{--green:#0b5d31;--deep:#020907;--gold:#f2c94c;--white:#fff}
 *{box-sizing:border-box}
-body{margin:0;background:#eef3f0;font-family:Inter,Arial,sans-serif;color:#10251b}
-.page{min-height:100vh;padding:22px 14px 40px}
-.flyer{
- width:min(680px,100%);margin:auto;position:relative;overflow:hidden;
- border-radius:30px;background:linear-gradient(145deg,#063b27,#087443 52%,#0da66a);
- color:white;box-shadow:0 25px 70px #062d1d33;
-}
-.flyer:before,.flyer:after{content:"";position:absolute;border-radius:50%;pointer-events:none}
-.flyer:before{width:330px;height:330px;right:-150px;top:-130px;background:#ffffff14}
-.flyer:after{width:250px;height:250px;left:-130px;bottom:-120px;background:#ffffff10}
-.top{padding:30px 30px 10px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
-.brand{font-weight:900;letter-spacing:2px;font-size:25px}
-.badge{font-size:11px;font-weight:800;letter-spacing:1.2px;border:1px solid #ffffff55;padding:8px 12px;border-radius:99px;background:#ffffff12}
-.content{padding:38px 30px 30px;position:relative;z-index:2}
-.icon{width:88px;height:88px;border-radius:26px;background:#ffffff16;border:1px solid #ffffff30;display:grid;place-items:center;font-size:48px;box-shadow:inset 0 1px #ffffff22}
-h1{font-size:clamp(42px,9vw,76px);line-height:.92;margin:25px 0 18px;letter-spacing:-3px}
-.lead{font-size:18px;line-height:1.6;max-width:540px;color:#e8fff5}
-.features{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:28px 0}
-.feature{padding:16px 12px;border-radius:18px;background:#ffffff12;border:1px solid #ffffff1c}
-.feature b{display:block;font-size:13px;margin-bottom:5px}.feature span{font-size:12px;color:#d7f8e8}
-.cta{display:inline-block;background:white;color:#075f3b;padding:16px 21px;border-radius:15px;font-weight:900;letter-spacing:.5px}
-.web{margin-top:26px;font-size:15px;font-weight:800;letter-spacing:.5px}
-.bottom{padding:18px 30px 27px;border-top:1px solid #ffffff22;display:flex;justify-content:space-between;gap:15px;align-items:center;position:relative;z-index:2}
-.trust{font-size:11px;color:#d8f7e8;line-height:1.5}.url{font-weight:900;font-size:14px}
-.controls{width:min(680px,100%);margin:18px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
-button{border:0;border-radius:13px;padding:14px 8px;background:#087443;color:white;font-weight:800;cursor:pointer}
-button:hover{transform:translateY(-1px)}
+html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#020907;color:#fff}
+body{display:flex;justify-content:center}
+.stage{width:100%;min-height:100vh;padding:22px 14px 38px;background:radial-gradient(circle at 50% 30%,#123f29 0,#06180f 48%,#020907 100%)}
+.flyer{position:relative;width:min(1080px,100%);aspect-ratio:4/5;margin:auto;overflow:hidden;border-radius:34px;background:radial-gradient(circle at 50% 42%,#155c38 0,#0a2d1e 34%,#04150e 68%,#020907 100%);box-shadow:0 28px 90px rgba(0,0,0,.5);isolation:isolate}
+.stars,.stars:before,.stars:after{position:absolute;inset:-12%;content:"";pointer-events:none}
+.stars{opacity:.9;background-image:radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px),radial-gradient(circle,rgba(255,255,255,.65) 0 .7px,transparent 1.3px),radial-gradient(circle,rgba(242,201,76,.85) 0 .9px,transparent 1.5px);background-size:137px 149px,73px 81px,191px 203px;background-position:17px 23px,31px 11px,67px 91px;animation:drift 32s linear infinite}
+.stars:before{background:radial-gradient(ellipse at 50% 45%,rgba(242,201,76,.16),transparent 27%),radial-gradient(ellipse at 20% 35%,rgba(70,180,120,.12),transparent 35%);animation:glow 10s ease-in-out infinite alternate}
+.stars:after{background-image:radial-gradient(circle,rgba(255,255,255,.9) 0 1.4px,transparent 2.5px),radial-gradient(circle,rgba(242,201,76,.9) 0 1.2px,transparent 2.4px);background-size:257px 271px,317px 293px;background-position:73px 41px,121px 87px;animation:bright 20s linear infinite}
+@keyframes drift{to{background-position:117px 143px,91px 101px,167px 191px}}
+@keyframes bright{to{background-position:173px 151px,221px 197px}}
+@keyframes glow{to{transform:scale(1.08);opacity:1.3}}
+.orb{position:absolute;left:50%;top:47%;width:52%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);background:radial-gradient(circle at 34% 28%,#fff6c9 0,#f2c94c 13%,#15804b 37%,#07331f 64%,transparent 68%);box-shadow:0 0 55px rgba(242,201,76,.42),0 0 150px rgba(242,201,76,.13);animation:pulse 4s ease-in-out infinite;z-index:2}
+.orb:before{content:"";position:absolute;inset:-9%;border:1px solid rgba(242,201,76,.42);border-radius:50%;box-shadow:0 0 35px rgba(242,201,76,.18) inset;animation:spin 12s linear infinite}
+.orb:after{content:"";position:absolute;inset:-17%;border:1px solid rgba(255,255,255,.12);border-radius:50%;transform:rotate(24deg) scaleY(.42);animation:spin 18s linear infinite reverse}
+@keyframes pulse{50%{transform:translate(-50%,-50%) scale(1.035);filter:brightness(1.08)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.brand{position:absolute;top:6%;left:50%;transform:translateX(-50%);z-index:8;text-align:center}
+.brand img{width:min(310px,54vw);height:auto;filter:brightness(0) invert(1);display:block}
+.badge{margin-top:10px;font-size:clamp(9px,1.3vw,14px);font-weight:800;letter-spacing:2px;color:#dff8ea}
+.hero-copy{position:absolute;left:7%;right:7%;top:20%;z-index:7;text-align:center}
+.kicker{font-size:clamp(10px,1.5vw,16px);font-weight:850;letter-spacing:3px;color:var(--gold);text-transform:uppercase}
+h1{margin:10px 0 8px;font-size:clamp(42px,7vw,82px);line-height:.92;letter-spacing:-3px;text-shadow:0 8px 30px rgba(0,0,0,.28)}
+.lead{margin:auto;max-width:720px;font-size:clamp(13px,1.7vw,20px);line-height:1.5;color:#e6f8ed}
+.phone{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);z-index:5;font-size:clamp(45px,7vw,78px);filter:drop-shadow(0 8px 18px rgba(0,0,0,.35));animation:float 3s ease-in-out infinite}
+@keyframes float{50%{transform:translate(-50%,-56%) rotate(-4deg)}}
+.features{position:absolute;left:7%;right:7%;bottom:19%;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;z-index:8}
+.feature{padding:18px 14px;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:rgba(255,255,255,.08);backdrop-filter:blur(10px);box-shadow:inset 0 1px rgba(255,255,255,.1)}
+.feature b{display:block;color:#fff;font-size:clamp(11px,1.4vw,15px);letter-spacing:1px}
+.feature span{display:block;margin-top:5px;color:#ccebdd;font-size:clamp(9px,1.2vw,13px);line-height:1.35}
+.cta{position:absolute;left:7%;right:7%;bottom:10%;z-index:8;text-align:center}
+.cta span{display:inline-flex;align-items:center;justify-content:center;padding:14px 24px;border-radius:999px;background:#fff;color:#075b38;font-size:clamp(10px,1.4vw,15px);font-weight:950;letter-spacing:.8px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.footer{position:absolute;left:7%;right:7%;bottom:3.5%;display:flex;justify-content:space-between;align-items:end;gap:12px;z-index:8;color:rgba(255,255,255,.68);font-size:clamp(8px,1vw,11px);font-weight:650}
+.footer strong{display:block;color:#fff;font-size:clamp(9px,1.2vw,13px);letter-spacing:.5px}
+.controls{width:min(1080px,100%);margin:14px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+button{border:0;border-radius:13px;padding:14px 10px;background:#087443;color:#fff;font-weight:850;cursor:pointer}
+button:active{transform:scale(.98)}
 .back{background:#fff;color:#087443}
-@media(max-width:520px){.top,.content,.bottom{padding-left:21px;padding-right:21px}.features{grid-template-columns:1fr}.bottom{display:block}.url{margin-top:8px}.controls{grid-template-columns:1fr 1fr}.controls button:last-child{grid-column:1/-1}}
-@media print{body{background:white}.page{padding:0}.flyer{box-shadow:none;border-radius:0;max-width:none}.controls{display:none}}
+@media(max-width:600px){.stage{padding:8px}.flyer{border-radius:22px}.features{gap:6px}.feature{padding:10px 8px}.cta span{padding:11px 15px}.footer{bottom:2.8%}.controls{grid-template-columns:1fr 1fr}.controls button:last-child{grid-column:1/-1}}
+@media(prefers-reduced-motion:reduce){.stars,.orb,.orb:before,.orb:after,.phone{animation:none!important}}
+@media print{body{background:#fff}.stage{padding:0}.flyer{width:1080px;height:1350px;aspect-ratio:auto;border-radius:0;box-shadow:none}.controls{display:none}}
 </style>
-<style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style></head>
+</head>
 <body>
-<div class="page">
-<div class="flyer" id="flyer">
-<div class="top"><div class="brand">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
-<div class="content">
-<div class="icon">📱</div>
-<h1>Airtime<br>Made Easy.</h1>
-<div class="lead">Stay connected with convenient airtime purchases through HABSCO — simple, secure and designed for your everyday needs.</div>
+<div class="stage">
+<section class="flyer" id="flyer">
+<div class="stars"></div><div class="orb"></div>
+<div class="brand"><img src="/assets/habsco-wordmark.svg?v=20260917" alt="HABSCO"><div class="badge">FAST • SIMPLE • SECURE</div></div>
+<div class="hero-copy"><div class="kicker">Stay connected</div><h1>Airtime<br>Made Easy.</h1><div class="lead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
+<div class="phone" aria-hidden="true">📱</div>
 <div class="features">
 <div class="feature"><b>INSTANT</b><span>Fast airtime purchase</span></div>
 <div class="feature"><b>SECURE</b><span>Protected transactions</span></div>
 <div class="feature"><b>EASY</b><span>Simple member experience</span></div>
 </div>
-<div class="cta">POWER YOUR CONNECTION WITH HABSCO</div>
-<div class="web">www.habscosadaqah.org</div>
-</div>
-<div class="bottom"><div class="trust">HABSCO SADAQAH JARIYAH<br>DEVELOPMENT TRUST</div><div class="url">HABSCO • CONNECTED</div></div>
-</div>
+<div class="cta"><span>POWER YOUR CONNECTION WITH HABSCO</span></div>
+<div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong>Reliable digital services for our members</div><div>habscosadaqah.org</div></div>
+</section>
 <div class="controls">
-<button onclick="downloadFlyer()">⬇ DOWNLOAD FLYER</button>
+<button onclick="downloadFlyer()">⬇ DOWNLOAD PNG</button>
 <button onclick="shareFlyer()">↗ SHARE FLYER</button>
 <button class="back" onclick="window.print()">🖨 PRINT / PDF</button>
 </div>
@@ -66,16 +75,13 @@ button:hover{transform:translateY(-1px)}
 <script>
 async function downloadFlyer(){
  const el=document.getElementById('flyer');
- const canvas=await html2canvas(el,{scale:3,useCORS:true,backgroundColor:null});
- const a=document.createElement('a');
- a.download='HABSCO-Airtime-Flyer.png';
- a.href=canvas.toDataURL('image/png');
- a.click();
+ const canvas=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:'#020907'});
+ const a=document.createElement('a');a.download='HABSCO-Airtime-Flyer-1080x1350.png';a.href=canvas.toDataURL('image/png');a.click();
 }
 async function shareFlyer(){
- if(navigator.share){await navigator.share({title:'HABSCO Airtime',text:'Airtime Made Easy with HABSCO',url:'https://www.habscosadaqah.org/airtime-flyer.html'});}
- else alert('Copy and share: https://www.habscosadaqah.org/airtime-flyer.html');
+ if(navigator.share){try{await navigator.share({title:'HABSCO Airtime',text:'Stay connected with HABSCO — Airtime Made Easy.',url:location.href})}catch(e){}}
+ else alert('Share this flyer: '+location.href);
 }
 </script>
-<footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body>
+</body>
 </html>
