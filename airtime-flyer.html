@@ -57,7 +57,7 @@ button{border:0;border-radius:12px;padding:13px 9px;background:#087443;color:#ff
 @media(prefers-reduced-motion:reduce){.stars,.stars:before,.stars:after,.orbit,.core,.phone,.ring-dot{animation:none!important}}
 @media print{body{background:#fff}.stage{padding:0}.flyer{width:1080px;height:1350px;aspect-ratio:auto;border-radius:0;box-shadow:none}.controls{display:none}}
 </style>
-</head>
+<style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style></head>
 <body>
 <div class="stage">
 <section class="flyer" id="flyer">
@@ -89,5 +89,5 @@ flyer.addEventListener('pointermove',e=>{const r=flyer.getBoundingClientRect();f
 async function downloadFlyer(){const canvas=await html2canvas(flyer,{scale:2,useCORS:true,backgroundColor:'#020907'});const a=document.createElement('a');a.download='HABSCO-Airtime-Flyer-1080x1350.png';a.href=canvas.toDataURL('image/png');a.click()}
 async function shareFlyer(){if(navigator.share){try{await navigator.share({title:'HABSCO Airtime',text:'Stay connected with HABSCO — Airtime Made Easy.',url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)}
 </script>
-</body>
+<footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body>
 </html>
