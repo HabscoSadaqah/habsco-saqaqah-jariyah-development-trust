@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HABSCO Electricity Flyer</title>
+<meta name="theme-color" content="#064f2e">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Arial,sans-serif;background:#eef5f0;color:#123d2a;padding:18px}
+.page{max-width:520px;margin:auto}
+.flyer{position:relative;overflow:hidden;background:linear-gradient(145deg,#064f2e,#087443 58%,#0b9658);color:#fff;border-radius:28px;padding:32px 24px;min-height:650px;box-shadow:0 20px 55px rgba(0,0,0,.2)}
+.flyer:before,.flyer:after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.13)}
+.flyer:before{width:280px;height:280px;right:-120px;top:-80px}
+.flyer:after{width:220px;height:220px;left:-130px;bottom:-80px}
+.brand{font-size:14px;font-weight:900;letter-spacing:3px}
+.badge{display:inline-block;margin-top:55px;padding:7px 12px;border:1px solid rgba(255,255,255,.3);border-radius:30px;font-size:10px;font-weight:800;letter-spacing:1px}
+h1{font-size:42px;line-height:1;margin:15px 0 12px}
+.subtitle{font-size:15px;line-height:1.6;opacity:.9}
+.icon{width:100px;height:100px;margin:30px auto 22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;color:#087443;font-size:55px;box-shadow:0 15px 35px rgba(0,0,0,.18)}
+.features{display:grid;gap:10px;margin-top:24px}
+.feature{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);padding:13px 14px;border-radius:14px;font-size:12px;font-weight:700}
+.cta{margin-top:28px;text-align:center;font-size:11px;font-weight:800;letter-spacing:1px}
+.actions{display:flex;gap:10px;margin-top:18px}
+button,a{flex:1;border:0;border-radius:13px;padding:13px;text-align:center;font-weight:900;text-decoration:none;font-size:11px;cursor:pointer}
+.primary{background:#fff;color:#064f2e}
+.secondary{background:#d9f2e4;color:#064f2e}
+.note{text-align:center;font-size:9px;color:#60756a;margin-top:13px}
+@media print{body{padding:0;background:#fff}.actions,.note{display:none}.flyer{border-radius:0;box-shadow:none;min-height:100vh}}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="flyer">
+<div class="brand">HABSCO</div>
+<div class="badge">CONVENIENT • SECURE • RELIABLE</div>
+<h1>Electricity<br>Made Easy.</h1>
+<div class="subtitle">Pay your electricity bills and manage your meter conveniently through your HABSCO member wallet.</div>
+<div class="icon">💡</div>
+<div class="features">
+<div class="feature">✓ Convenient electricity payment</div>
+<div class="feature">✓ Secure member wallet payment</div>
+<div class="feature">✓ Meter management made simple</div>
+</div>
+<div class="cta">KEEP YOUR POWER ON WITH HABSCO</div>
+</div>
+<div class="actions">
+<button class="primary" onclick="navigator.share?navigator.share({title:'HABSCO Electricity',text:'Pay electricity securely with HABSCO.',url:location.href}):alert('Share is not supported on this device')">SHARE</button>
+<button class="secondary" onclick="window.print()">DOWNLOAD / PRINT</button>
+</div>
+<a class="note" href="member.html">← Back to Member Dashboard</a>
+</div>
+</body>
+</html>
