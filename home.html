@@ -6,7 +6,75 @@
 <link rel="icon" href="favicon.svg"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="app.css?v=fast-home-2">
 <style>
 :root{--green:#0b5d31;--gold:#f2c94c}*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden}body.finance-page{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#020b07;color:#fff}
-.finance-hero{position:relative;width:100%;height:100svh;min-height:600px;overflow:hidden;background:radial-gradient(circle at 50% 48%,#145738 0,#092c1e 34%,#04150e 72%,#020907 100%);--tx:50%;--ty:46%}.finance-hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--tx) var(--ty),rgba(242,201,76,.2),transparent 24%),radial-gradient(circle at 50% 48%,rgba(255,255,255,.06),transparent 42%);pointer-events:none;transition:background .2s}.stars{position:absolute;inset:0;opacity:.7;background-image:radial-gradient(circle,rgba(255,255,255,.75) 1px,transparent 1.5px),radial-gradient(circle,rgba(242,201,76,.55) 1px,transparent 1.5px);background-size:83px 83px,137px 137px;background-position:11px 19px,43px 71px;animation:stars 24s linear infinite;pointer-events:none}@keyframes stars{to{background-position:94px 102px,180px 154px}}
+.finance-hero{position:relative;width:100%;height:100svh;min-height:600px;overflow:hidden;background:radial-gradient(circle at 50% 48%,#145738 0,#092c1e 34%,#04150e 72%,#020907 100%);--tx:50%;--ty:46%}.finance-hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--tx) var(--ty),rgba(242,201,76,.2),transparent 24%),radial-gradient(circle at 50% 48%,rgba(255,255,255,.06),transparent 42%);pointer-events:none;transition:background .2s}.stars{
+position:absolute;
+inset:-12%;
+opacity:.9;
+pointer-events:none;
+background-image:
+radial-gradient(circle,rgba(255,255,255,.95) 0 1px,transparent 1.6px),
+radial-gradient(circle,rgba(255,255,255,.72) 0 .7px,transparent 1.3px),
+radial-gradient(circle,rgba(242,201,76,.82) 0 .9px,transparent 1.5px),
+radial-gradient(circle,rgba(255,255,255,.48) 0 .6px,transparent 1.2px),
+radial-gradient(circle,rgba(255,255,255,.32) 0 .45px,transparent 1px);
+background-size:
+137px 149px,
+73px 81px,
+191px 203px,
+43px 47px,
+29px 31px;
+background-position:
+17px 23px,
+31px 11px,
+67px 91px,
+9px 37px,
+21px 7px;
+animation:galaxyStars 55s linear infinite;
+filter:drop-shadow(0 0 2px rgba(255,255,255,.22))
+}
+.stars:before{
+content:"";
+position:absolute;
+inset:0;
+background:
+radial-gradient(ellipse at 50% 52%,
+rgba(255,255,255,.11) 0%,
+rgba(242,201,76,.055) 12%,
+rgba(255,255,255,.025) 28%,
+transparent 58%),
+radial-gradient(ellipse at 18% 30%,
+rgba(100,180,255,.045),
+transparent 38%),
+radial-gradient(ellipse at 82% 68%,
+rgba(242,201,76,.04),
+transparent 40%);
+mix-blend-mode:screen;
+animation:galaxyGlow 18s ease-in-out infinite alternate;
+}
+.stars:after{
+content:"";
+position:absolute;
+inset:0;
+background-image:
+radial-gradient(circle,rgba(255,255,255,.95) 0 1.4px,transparent 2.5px),
+radial-gradient(circle,rgba(242,201,76,.9) 0 1.2px,transparent 2.4px);
+background-size:257px 271px,317px 293px;
+background-position:73px 41px,121px 87px;
+opacity:.7;
+animation:brightStars 34s linear infinite;
+}
+@keyframes galaxyStars{
+from{background-position:17px 23px,31px 11px,67px 91px,9px 37px,21px 7px}
+to{background-position:117px 143px,91px 101px,167px 191px,59px 87px,71px 67px}
+}
+@keyframes brightStars{
+from{background-position:73px 41px,121px 87px}
+to{background-position:173px 151px,221px 197px}
+}
+@keyframes galaxyGlow{
+from{transform:scale(1);opacity:.7}
+to{transform:scale(1.08);opacity:1}
+}
 .finance-hero-content{position:relative;width:100%;height:100%;display:grid;place-items:center}.finance-hero-brand{position:absolute;top:6.8%;left:50%;transform:translateX(-50%);z-index:50}.finance-hero-brand img{width:min(300px,60vw);max-height:64px;object-fit:contain;filter:brightness(0) invert(1);display:block}
 .universe{position:absolute;left:50%;top:51.5%;width:min(700px,98vw);height:min(700px,98vw);transform:translate(-50%,-50%);perspective:900px;z-index:8;pointer-events:none}.space{position:absolute;inset:0;transform-style:preserve-3d;pointer-events:none}.orbit{position:absolute;left:50%;top:50%;width:86%;height:86%;border:1px solid rgba(255,255,255,.14);border-radius:50%;transform-style:preserve-3d;box-shadow:0 0 35px rgba(255,255,255,.025) inset;pointer-events:none}.orbit.a{width:86%;height:48%;transform:translate(-50%,-50%);border:1px solid rgba(255,255,255,.42);box-shadow:0 0 28px rgba(255,255,255,.08),0 0 45px rgba(242,201,76,.08) inset}.orbit.b,.orbit.c,.orbit.d{display:none}.axis{position:absolute;left:50%;top:50%;height:96%;width:2px;background:linear-gradient(transparent,rgba(242,201,76,.6),transparent);transform:translate(-50%,-50%) rotateZ(24deg);box-shadow:0 0 14px rgba(242,201,76,.25)}
 .connections{position:absolute;inset:0;width:100%;height:100%;z-index:15}.core{position:absolute;left:50%;top:50%;width:30%;height:30%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe99a 0,#f2c94c 18%,#126d3d 48%,#082a1c 74%,transparent 76%);box-shadow:0 0 40px rgba(242,201,76,.35),0 0 100px rgba(242,201,76,.13);opacity:.96;pointer-events:auto;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:250;transition:box-shadow .2s ease,filter .2s ease}.core:after{content:"";position:absolute;inset:-12%;border-radius:50%;border:1px solid rgba(242,201,76,.3);box-shadow:0 0 25px rgba(242,201,76,.15) inset}.core-label{position:relative;z-index:2;color:#17321f;font-size:clamp(13px,2.5vw,18px);font-weight:950;letter-spacing:.02em;text-align:center;text-shadow:0 1px 0 rgba(255,255,255,.25);pointer-events:none;white-space:nowrap}.core:hover{box-shadow:0 0 55px rgba(242,201,76,.55),0 0 120px rgba(242,201,76,.2)}.core.core-rotating{animation:coreSpin .9s cubic-bezier(.2,.75,.25,1) both;filter:brightness(1.18)}@keyframes coreSpin{0%{transform:translate(-50%,-50%) rotate(0deg) scale(1)}35%{transform:translate(-50%,-50%) rotate(180deg) scale(1.08)}70%{transform:translate(-50%,-50%) rotate(540deg) scale(1.13)}100%{transform:translate(-50%,-50%) rotate(720deg) scale(1)}}
@@ -17,7 +85,7 @@
 <body class="finance-page"><main class="finance-shell"><section class="finance-hero"><div class="stars"></div><div class="finance-hero-content">
 <div class="finance-hero-brand"><img src="/assets/habsco-wordmark.svg?v=20260917" alt="HABSCO" width="760" height="150"></div>
 <div class="universe" aria-label="HABSCO services universe"><div class="space" id="space"><div class="orbit a"></div><div class="orbit b"></div><div class="orbit c"></div><div class="orbit d"></div><div class="axis"></div><svg class="connections" id="connections" aria-hidden="true"></svg><div class="core" id="joinCore" role="button" tabindex="0" aria-label="Join HABSCO"><span class="core-label">Join Us</span></div>
-<span class="service-item" data-i="0"><span class="ico">💡</span>Electricity</span><span class="service-item" data-i="1"><span class="ico">🐷</span>Savings</span><span class="service-item" data-i="2"><span class="ico">🤝</span>Shares</span><span class="service-item" data-i="3"><span class="ico">💰</span>Loan Account</span><span class="service-item" data-i="4"><span class="ico">💎</span>Dividend Account</span><span class="service-item" data-i="5"><span class="ico">🤲</span>Charity</span><span class="service-item" data-i="6"><span class="ico">💬</span>Contact</span>
+<span class="service-item" data-i="0"><span class="ico">💡</span>Electricity</span><span class="service-item" data-i="1"><span class="ico">📱</span>Airtime</span><span class="service-item" data-i="2"><span class="ico">🐷</span>Savings</span><span class="service-item" data-i="3"><span class="ico">🤝</span>Shares</span><span class="service-item" data-i="4"><span class="ico">💰</span>Loan Account</span><span class="service-item" data-i="5"><span class="ico">💎</span>Dividend Account</span><span class="service-item" data-i="6"><span class="ico">🤲</span>Charity</span><span class="service-item" data-i="7"><span class="ico">💬</span>Contact</span>
 </div></div>
 <div class="finance-hero-copyright">© 2026 Habsco. All Rights Reserved.</div>
 </div></section></main>

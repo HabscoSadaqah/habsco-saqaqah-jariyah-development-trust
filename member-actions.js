@@ -1,6 +1,7 @@
-const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY),$=id=>document.getElementById(id),p=new URLSearchParams(location.search),action=p.get("action")||"",effectiveAction=action==="request-loan"?"request-qard":action;
+const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY),$=id=>document.getElementById(id),p=new URLSearchParams(location.search),action=p.get("action")||"send",effectiveAction=action==="request-loan"?"request-qard":action==="transfer"?"send":action;
 
 const configs={
+ send:["Inter-Wallet Transfer","Transfer funds securely to another active Habsco Cooperative member."],
  fund:["Fund Wallet","Submit a wallet funding payment for verification."],save:["Save in Cooperative","Move money into a cooperative account."],
  qard:["Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"request-qard":["Request Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"repay-qard":["Repay Interest-Free Loan","Submit repayment details for a disbursed loan."],
  receive:["Receive Fund","Approved funding and member transfers are credited server-side."],
@@ -8,7 +9,7 @@ const configs={
  electricity:["Electricity","Select the distribution company, verify the meter customer name, then pay."],
  airtime:["Airtime","Select the mobile network, verify the phone number, then pay."]
 };
-const [title,subtitle]=configs[action]||configs[effectiveAction]||configs.fund;
+const [title,subtitle]=configs[action]||configs[effectiveAction]||configs.send;
 function msg(t,ok=true){const e=$("msg");e.textContent=t;e.style.background=ok?"#eef8f2":"#fff1f1";e.style.color=ok?"#087443":"#a52a2a";e.classList.add("show")}
 function form(html,submitText="CONTINUE"){$("formArea").innerHTML='<form id="actionForm" class="form">'+html+'<button id="actionSubmit" class="btn" type="submit">'+submitText+'</button></form>'}
 async function auth(){let {data:{session},error}=await supabaseClient.auth.getSession();if(error||!session){const r=await supabaseClient.auth.refreshSession();if(r.error||!r.data.session){location.href="auth.html";return null}session=r.data.session}return session}
@@ -52,11 +53,11 @@ async function callAirtimeProvider(body){
   return data||{};
 }
 function esc(v){return String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
-function rowsOf(r){const seen=new Set();const walk=x=>{if(Array.isArray(x))return x;if(!x||typeof x!=="object"||seen.has(x))return[];seen.add(x);for(const k of ["data","providers","airtime_providers","airtimeProviders","discos","networks","network_providers","networkProviders","operators","items","results","result","list","records","options"]){if(k in x){const a=walk(x[k]);if(a.length)return a}}const vals=Object.values(x);if(vals.length&&vals.every(v=>v&&typeof v==="object"&&!Array.isArray(v)))return vals;return[]};return walk(r)}
+function rowsOf(r){const seen=new Set();const walk=x=>{if(Array.isArray(x))return x;if(!x||typeof x!=="object"||seen.has(x))return[];seen.add(x);for(const k of ["data","providers","discos","networks","operators","items","results","result","list","records"]){if(k in x){const a=walk(x[k]);if(a.length)return a}}return[]};return walk(r)}
 function packageCode(x){return String(x?.code??x?.variation_code??x?.variationCode??x?.package_code??x?.id??"").trim()}
 function packageName(x){return String(x?.package??x?.name??x?.package_name??x?.variation??x?.description??packageCode(x)).trim()}
 function packageAmount(x){const raw=x?.amount??x?.price??x?.selling_price??x?.sellingPrice??x?.cost??x?.sellingPriceAmount??x?.selling_amount??x?.value;const n=Number(String(raw??"").replace(/[^0-9.\-]/g,""));return Number.isFinite(n)&&n>0?n:null}
-async function loadProviderSelect(id,providerAction,empty){const s=$(id);s.disabled=true;s.innerHTML='<option value="">Loading providers...</option>';try{const r=await callProvider({action:providerAction});const rows=rowsOf(r);if(!rows.length)throw Error("No providers are currently available.");s.innerHTML='<option value="">'+empty+'</option>';const seen=new Set();rows.forEach(x=>{const code=String(x?.short_name??x?.code??x?.provider??x?.provider_code??x?.providerCode??x?.network_code??x?.networkCode??x?.operator_code??x?.operatorCode??x?.disco??x?.id??x?.name??"").trim();const name=String(x?.display_name??x?.displayName??x?.name??x?.provider_name??x?.providerName??x?.network_name??x?.networkName??x?.operator_name??x?.operatorName??x?.short_name??x?.disco??x?.provider??x?.code??code).trim();if(!code||seen.has(code.toUpperCase()))return;seen.add(code.toUpperCase());const o=document.createElement("option");o.value=code;o.textContent=name===code?name:name+" ("+code+")";s.appendChild(o)});if(s.options.length<=1)throw Error("No usable network providers were returned.");s.disabled=false;return rows}catch(e){s.innerHTML='<option value="">Unable to load providers — tap Retry</option>';s.disabled=false;throw e}}
+async function loadProviderSelect(id,providerAction,empty){const s=$(id);s.disabled=true;s.innerHTML='<option value="">Loading providers...</option>';try{const r=await callProvider({action:providerAction});const rows=rowsOf(r);if(!rows.length)throw Error("No providers are currently available.");s.innerHTML='<option value="">'+empty+'</option>';const seen=new Set();rows.forEach(x=>{const code=String(x?.short_name??x?.code??x?.provider??x?.provider_code??x?.network_code??x?.operator_code??x?.disco??x?.name??"").trim();const name=String(x?.name??x?.provider_name??x?.network_name??x?.operator_name??x?.short_name??x?.disco??x?.provider??x?.code??code).trim();if(!code||seen.has(code.toUpperCase()))return;seen.add(code.toUpperCase());const o=document.createElement("option");o.value=code;o.textContent=name===code?name:name+" ("+code+")";s.appendChild(o)});s.disabled=false}catch(e){s.innerHTML='<option value="">Unable to load providers</option>';throw e}}
 async function loadPackages(providerAction,provider,selectId){const s=$(selectId);s.disabled=true;s.innerHTML='<option value="">Loading packages...</option>';try{const r=await callProvider({action:providerAction,provider,page:1,limit:100});const rows=rowsOf(r);if(!rows.length){s.innerHTML='<option value="">No packages available</option>';return}const seen=new Set();s.innerHTML='<option value="">Select package</option>';rows.forEach(x=>{const code=packageCode(x);if(!code||seen.has(code))return;seen.add(code);const o=document.createElement("option");o.value=code;const n=packageName(x),a=packageAmount(x);if(a!=null)o.dataset.amount=String(a);o.textContent=a!=null?n+" — ₦"+a.toLocaleString("en-NG"):n;s.appendChild(o)});s.disabled=false}catch(e){s.innerHTML='<option value="">Unable to load packages</option>';throw e}}
 const utilityStyle=document.createElement("style");utilityStyle.id="habsco-electricity-form-style";utilityStyle.textContent=".utility-section{padding:14px;margin:10px 0;border:1px solid #e2ebe5;border-radius:14px;background:#fbfdfc}.utility-section:first-child{margin-top:0}.utility-section-title{font-weight:900;color:#064f2e;font-size:12px;margin-bottom:10px}.utility-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.utility-help{font-size:10px;color:#708078;margin-top:7px;line-height:1.4}@media(max-width:600px){.utility-grid{grid-template-columns:1fr}.utility-section{padding:12px}}";document.head.appendChild(utilityStyle);function pinField(){return '<label>Transaction PIN<input id="transactionPin" type="password" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit PIN" autocomplete="off" required></label>'}
 async function setupUtility(){
@@ -71,14 +72,11 @@ async function setupUtility(){
  }
 }
 async function setupAirtime(){
-  form('<div class="utility-section"><div class="utility-section-title">📱 Airtime service details</div><div class="utility-grid"><label>Network Provider<select id="airtimeProvider" required><option value="">Loading network providers...</option></select><button id="retryAirtimeProviders" class="btn" type="button" style="margin-top:8px;display:none">↻ RETRY PROVIDERS</button></label><label>Amount (NGN)<input id="airtimeAmount" type="number" min="50" step="1" placeholder="1000" required></label></div><div class="utility-grid"><label>Phone Number<input id="airtimePhone" inputmode="tel" maxlength="13" placeholder="08012345678" required></label><label>Email (optional)<input id="airtimeEmail" type="email" maxlength="120" placeholder="you@example.com"></label></div><div class="utility-help">Enter the Nigerian mobile number that will receive the airtime.</div></div><div class="utility-section"><div class="utility-section-title">✓ Number verification</div><button id="verifyAirtime" class="btn" type="button">VERIFY NUMBER</button><div id="airtimeResult" class="api-note">Select the network, enter the phone number and amount, then verify before payment.</div></div><div class="utility-section"><div class="utility-section-title">🔐 Secure payment</div>'+pinField()+'<div class="api-note">Payment remains locked until the phone number is successfully verified.</div></div>');
+  form('<div class="utility-section"><div class="utility-section-title">📱 Airtime service details</div><div class="utility-grid"><label>Network Provider<select id="airtimeProvider" required><option value="">Loading network providers...</option></select></label><label>Amount (NGN)<input id="airtimeAmount" type="number" min="50" step="1" placeholder="1000" required></label></div><div class="utility-grid"><label>Phone Number<input id="airtimePhone" inputmode="tel" maxlength="13" placeholder="08012345678" required></label></div><div class="utility-help">Enter the Nigerian mobile number that will receive the airtime.</div></div><div class="utility-section"><div class="utility-section-title">✓ Number verification</div><button id="verifyAirtime" class="btn" type="button">VERIFY NUMBER</button><div id="airtimeResult" class="api-note">Select the network, enter the phone number and amount, then verify before payment.</div></div><div class="utility-section"><div class="utility-section-title">🔐 Secure payment</div>'+pinField()+'<div class="api-note">Payment remains locked until the phone number is successfully verified.</div></div>');
   const provider=$("airtimeProvider"),verify=$("verifyAirtime"),result=$("airtimeResult"),submit=$("actionSubmit");
   submit.textContent="PAY";submit.disabled=true;
   let verifiedKey="";
-  const retry=$("retryAirtimeProviders");
-  const loadAirtimeProviders=async()=>{if(retry)retry.style.display="none";try{await loadProviderSelect("airtimeProvider","airtime-providers","Select network provider");result.textContent="Select the network, enter the phone number and amount, then verify before payment.";result.style.color="#708078"}catch(e){if(retry)retry.style.display="block";result.textContent=e.message||"Unable to load network providers.";result.style.color="#a52a2a"}};
-  if(retry)retry.onclick=loadAirtimeProviders;
-  await loadAirtimeProviders();
+  try{await loadProviderSelect("airtimeProvider","airtime-providers","Select network provider")}catch(e){result.textContent=e.message;result.style.color="#a52a2a"}
   const invalidate=()=>{verifiedKey="";submit.disabled=true;result.textContent="Number not verified. Verify again before payment.";result.style.color="#a52a2a"};
   ["input","change"].forEach(ev=>{provider.addEventListener(ev,invalidate);$("airtimePhone").addEventListener(ev,invalidate);$("airtimeAmount").addEventListener(ev,invalidate)});
   verify.onclick=async()=>{
@@ -100,8 +98,78 @@ async function setupAirtime(){
   };
   submit.getAirtimeVerifiedKey=()=>verifiedKey;
 }
-const powerToken=(r)=>{const keys=["token","electricity_token","vend_token","token_number","meter_token","vendToken","electricityToken"];const walk=(x,d=0)=>{if(!x||d>12)return"";if(Array.isArray(x)){for(const v of x){const n=walk(v,d+1);if(n)return n}return""}if(typeof x!=="object")return"";for(const k of keys){const v=x[k];if((typeof v==="string"||typeof v==="number")&&String(v).trim())return String(v).trim()}for(const k of Object.keys(x)){const n=walk(x[k],d+1);if(n)return n}return""};return walk(r)};const setProcessing=(button,label,percent)=>{button.disabled=true;button.innerHTML=`<span style="display:block;font-size:11px;margin-bottom:6px">${label}</span><span style="display:block;height:7px;background:#dfe9e3;border-radius:99px;overflow:hidden"><span style="display:block;width:${percent}%;height:100%;background:#087443;border-radius:99px;transition:width .35s ease"></span></span>`};const showElectricitySuccess=(token)=>{const old=$("habscoElectricitySuccess");if(old)old.remove();const modal=document.createElement("div");modal.id="habscoElectricitySuccess";modal.style.cssText="position:fixed;inset:0;background:rgba(3,35,22,.62);z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px";modal.innerHTML=`<div style="width:min(430px,100%);background:#fff;border-radius:22px;padding:22px;box-shadow:0 20px 60px #0005;text-align:center"><div style="font-size:42px">✓</div><h2 style="margin:5px 0;color:#064f2e">Payment Successful</h2><p style="font-size:12px;color:#65736b">Your electricity payment was completed successfully.</p><div style="margin:16px 0;padding:16px;border-radius:15px;background:#eef8f2;border:1px solid #b9ddc8"><div style="font-size:10px;color:#65736b">ELECTRICITY TOKEN</div><div style="font-size:27px;font-weight:950;letter-spacing:2px;color:#064f2e;margin-top:7px">${esc(token||"Provider completed")}</div></div><button type="button" id="closeElectricitySuccess" class="btn" style="width:100%">DONE</button></div>`;document.body.appendChild(modal);$("closeElectricitySuccess").onclick=()=>modal.remove()};const showPowerResult=(r)=>{const token=powerToken(r);const box=$("meterResult");if(token){box.innerHTML=`<div style="padding:14px;border:1px solid #b9ddc8;border-radius:14px;background:#eef8f2;color:#064f2e"><strong>PAYMENT SUCCESSFUL</strong><br><br><strong>Electricity Token:</strong><div style="font-size:24px;font-weight:900;letter-spacing:2px;margin-top:7px">${esc(token)}</div><div style="margin-top:8px;font-size:11px">Keep this token and enter it on your prepaid meter.</div></div>`;box.scrollIntoView({behavior:"smooth",block:"center"});return token}box.innerHTML=`<div style="padding:12px;border:1px solid #e2ebe5;border-radius:12px;background:#f7faf8"><strong>Payment successful.</strong><br>Your electricity vend was completed, but the provider did not return a token in the response.</div>`;return ""};async function init(){
- const session=await auth();if(!session)return;if(action==="send"||action==="transfer"){location.replace("member.html");return}
+const powerToken=(r)=>{const keys=["token","electricity_token","vend_token","token_number","meter_token","vendToken","electricityToken"];const walk=(x,d=0)=>{if(!x||d>12)return"";if(Array.isArray(x)){for(const v of x){const n=walk(v,d+1);if(n)return n}return""}if(typeof x!=="object")return"";for(const k of keys){const v=x[k];if((typeof v==="string"||typeof v==="number")&&String(v).trim())return String(v).trim()}for(const k of Object.keys(x)){const n=walk(x[k],d+1);if(n)return n}return""};return walk(r)};const setProcessing=(button,label,percent)=>{button.disabled=true;button.innerHTML=`<span style="display:block;font-size:11px;margin-bottom:6px">${label}</span><span style="display:block;height:7px;background:#dfe9e3;border-radius:99px;overflow:hidden"><span style="display:block;width:${percent}%;height:100%;background:#087443;border-radius:99px;transition:width .35s ease"></span></span>`};const showElectricitySuccess=(token)=>{const old=$("habscoElectricitySuccess");if(old)old.remove();const modal=document.createElement("div");modal.id="habscoElectricitySuccess";modal.style.cssText="position:fixed;inset:0;background:rgba(3,35,22,.62);z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px";modal.innerHTML=`<div style="width:min(430px,100%);background:#fff;border-radius:22px;padding:22px;box-shadow:0 20px 60px #0005;text-align:center"><div style="font-size:42px">✓</div><h2 style="margin:5px 0;color:#064f2e">Payment Successful</h2><p style="font-size:12px;color:#65736b">Your electricity payment was completed successfully.</p><div style="margin:16px 0;padding:16px;border-radius:15px;background:#eef8f2;border:1px solid #b9ddc8"><div style="font-size:10px;color:#65736b">ELECTRICITY TOKEN</div><div style="font-size:27px;font-weight:950;letter-spacing:2px;color:#064f2e;margin-top:7px">${esc(token||"Provider completed")}</div></div><button type="button" id="closeElectricitySuccess" class="btn" style="width:100%">DONE</button></div>`;document.body.appendChild(modal);$("closeElectricitySuccess").onclick=()=>modal.remove()};const showPowerResult=(r)=>{const token=powerToken(r);const box=$("meterResult");if(token){box.innerHTML=`<div style="padding:14px;border:1px solid #b9ddc8;border-radius:14px;background:#eef8f2;color:#064f2e"><strong>PAYMENT SUCCESSFUL</strong><br><br><strong>Electricity Token:</strong><div style="font-size:24px;font-weight:900;letter-spacing:2px;margin-top:7px">${esc(token)}</div><div style="margin-top:8px;font-size:11px">Keep this token and enter it on your prepaid meter.</div></div>`;box.scrollIntoView({behavior:"smooth",block:"center"});return token}box.innerHTML=`<div style="padding:12px;border:1px solid #e2ebe5;border-radius:12px;background:#f7faf8"><strong>Payment successful.</strong><br>Your electricity vend was completed, but the provider did not return a token in the response.</div>`;return ""};function showHabscoSuccessModal(o={}) {
+  const old=$("habscoSuccessModal");
+  if(old) old.remove();
+
+  const amount=Number(o.amount||0);
+  const amountText=amount>0
+    ? "₦"+amount.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})
+    : "";
+
+  const now=new Date().toLocaleString("en-NG",{
+    day:"2-digit",month:"short",year:"numeric",
+    hour:"2-digit",minute:"2-digit",hour12:true
+  });
+
+  const rows=[];
+  if(o.service) rows.push(["Service",o.service]);
+  if(o.network) rows.push(["Network",o.network]);
+  if(o.recipient) rows.push(["Recipient",o.recipient]);
+  if(o.meter) rows.push(["Meter",o.meter]);
+  if(o.amount) rows.push(["Amount",amountText]);
+  if(o.token) rows.push(["Token",o.token]);
+  if(o.reference) rows.push(["Reference",o.reference]);
+  rows.push(["Date & Time",now]);
+
+  const modal=document.createElement("div");
+  modal.id="habscoSuccessModal";
+  modal.style.cssText="position:fixed;inset:0;background:rgba(3,35,22,.68);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)";
+
+  modal.innerHTML=`
+    <div style="width:min(440px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:24px;padding:24px 20px;box-shadow:0 24px 80px rgba(0,0,0,.28);text-align:center">
+      <div style="width:68px;height:68px;margin:0 auto 10px;border-radius:50%;background:#087443;color:#fff;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;box-shadow:0 8px 25px rgba(8,116,67,.25)">✓</div>
+
+      <div style="font-size:11px;font-weight:900;letter-spacing:.12em;color:#087443;text-transform:uppercase">HABSCO</div>
+
+      <h2 style="margin:5px 0 4px;color:#064f2e;font-size:25px">Hurray! 🎉</h2>
+
+      <p style="margin:0 0 18px;color:#65736b;font-size:12px">
+        ${esc(o.message||"Your transaction was completed successfully.")}
+      </p>
+
+      <div style="padding:5px 14px;border-radius:18px;background:#eef8f2;border:1px solid #b9ddc8;text-align:left">
+        ${rows.map(r=>`
+          <div style="display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid #dcebe2">
+            <span style="font-size:10px;color:#65736b;font-weight:700">${esc(r[0])}</span>
+            <span style="font-size:11px;color:#123d2a;font-weight:900;text-align:right;word-break:break-word">${esc(String(r[1]))}</span>
+          </div>
+        `).join("")}
+        <div style="display:flex;justify-content:space-between;gap:15px;padding:12px 0">
+          <span style="font-size:10px;color:#65736b;font-weight:700">STATUS</span>
+          <span style="font-size:11px;color:#087443;font-weight:950">✓ SUCCESSFUL</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:9px;margin-top:17px">
+        <button type="button" id="habscoSuccessDone" class="btn" style="flex:1">DONE</button>
+      </div>
+
+      <div style="margin-top:10px;font-size:9px;color:#8a928d">
+        Keep your transaction reference for future enquiries.
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+
+  $("habscoSuccessDone").onclick=()=>modal.remove();
+
+  modal.addEventListener("click",e=>{
+    if(e.target===modal) modal.remove();
+  });
+}
+async function init(){
+ const session=await auth();if(!session)return;
  if($("title"))$("title").textContent=title;if($("subtitle"))$("subtitle").textContent=subtitle;
  if(effectiveAction==="electricity"){await setupUtility();return}
  if(effectiveAction==="airtime"){await setupAirtime();return}
@@ -121,6 +189,7 @@ const powerToken=(r)=>{const keys=["token","electricity_token","vend_token","tok
   form('<div class="api-note">Squad requires BVN-verified customer details before a virtual account can be created. Your BVN and date of birth are used for account creation and are not displayed as your wallet account number.</div><label>First name<input id="vaFirst" value="'+esc(first)+'" required></label><label>Last name<input id="vaLast" value="'+esc(last)+'" required></label><label>Mobile number<input id="vaMobile" inputmode="tel" maxlength="11" value="'+esc(profile.phone||"")+'" required></label><label>Date of birth<input id="vaDob" type="date" required></label><label>BVN<input id="vaBvn" inputmode="numeric" maxlength="11" required></label><label>Gender<select id="vaGender" required><option value="">Select gender</option><option value="1">Male</option><option value="2">Female</option></select></label><label>Address<textarea id="vaAddress" required></textarea></label>');
  }
  if(effectiveAction==="receive"){$("formArea").innerHTML='<div class="api-note">Receive Fund does not create a fake balance. Funds are credited only by approved server-side/admin transactions or completed member transfers.</div>';return}
+ if(effectiveAction==="send"){const {data:fc,error:fe}=await supabaseClient.rpc("member_get_feature_controls");const f=Array.isArray(fc)?fc[0]:fc;if(fe)throw fe;if(f?.transfers_enabled===false){$("formArea").innerHTML='<div class="api-note" style="color:#a52a2a;background:#fff1f1;border:1px solid #f0caca;padding:14px;border-radius:12px"><strong>Inter-Wallet Transfer Restricted</strong><br>Inter-Wallet Transfer has been restricted by the administrator. You cannot send money while this restriction is active.</div>';return}form('<label>Member ID<input id="recipient" placeholder="HF-001" required></label><label>Amount (NGN)<input id="amount" type="number" min="1" step="0.01" required></label><label>Note<input id="note" placeholder="Optional note"></label>'+pinField());}
  else if(effectiveAction==="fund"){form('<div class="api-note fund-pay-card"><div class="fund-pay-title">PAY TO</div><div class="fund-pay-row"><span class="fund-pay-label">Bank</span><span class="fund-pay-value">GTB</span></div><div class="fund-pay-row"><span class="fund-pay-label">Account Name</span><span class="fund-pay-value">Squad-Habsco Universal Enterprises</span></div><div class="fund-pay-row fund-account-row"><span class="fund-pay-label">Account Number</span><span class="fund-pay-value"><span id="fundAccountNumber" class="fund-account-number">9012993312</span> <button type="button" id="copyFundAccount" class="btn fund-account-copy">COPY</button></span></div></div><label class="fund-section-label">NAME<select id="fundSenderType" required><option value="">Select sender</option><option value="self">Self</option><option value="third_party">3rd Party / Other</option></select></label><div id="senderNameDisplay" class="api-note" style="display:none;margin-top:0"></div><div id="thirdPartySenderWrap" style="display:none"><label>3RD PARTY / OTHER NAME<input id="fundSenderName" placeholder="Enter sender name" autocomplete="name"></label></div><label>AMOUNT (NGN)<input id="amount" type="number" min="1" step="0.01" placeholder="Enter amount" required></label><label>PAYMENT REFERENCE<input id="ref" placeholder="Generating reference..." readonly required></label>',"NOTIFY ADMIN");try{const {data:pr,error:pe}=await supabaseClient.from("profiles").select("first_name,middle_name,surname,full_name,member_id").eq("id",session.user.id).maybeSingle();if(pe)throw pe;const n=pr?.full_name||[pr?.first_name,pr?.middle_name,pr?.surname].filter(Boolean).join(" ")||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email||"";window.__habscoFundMemberName=String(n||"");const senderType=$("fundSenderType"),senderWrap=$("thirdPartySenderWrap"),senderInput=$("fundSenderName"),senderDisplay=$("senderNameDisplay");senderType.addEventListener("change",()=>{const third=senderType.value==="third_party";senderWrap.style.display=third?"block":"none";senderDisplay.style.display=third?"none":"block";senderInput.required=third;senderInput.value=third?"":n;senderDisplay.textContent=third?"":"Name: "+n;});senderType.value="";senderWrap.style.display="none";senderDisplay.style.display="none";senderInput.value="";const copyBtn=$("copyFundAccount");if(copyBtn)copyBtn.addEventListener("click",async()=>{const value=$("fundAccountNumber")?.textContent?.trim()||"";try{await navigator.clipboard.writeText(value);copyBtn.textContent="COPIED";setTimeout(()=>copyBtn.textContent="COPY",1200)}catch{const ta=document.createElement("textarea");ta.value=value;ta.style.position="fixed";ta.style.opacity="0";document.body.appendChild(ta);ta.select();document.execCommand("copy");ta.remove();copyBtn.textContent="COPIED";setTimeout(()=>copyBtn.textContent="COPY",1200)}});$("ref").value="Assigned when NOTIFY ADMIN is clicked";}catch(e){const n=session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email||"";if($("fundSenderType"))$("fundSenderType").value="self";if($("fundSenderName"))$("fundSenderName").value=n;$("ref").value="";}}
  else if(effectiveAction==="dividend"){form('<div id="dividendHint" class="api-note">Checking available dividend balance…</div><label>Dividend amount (NGN)<input id="amount" type="number" min="1" step="0.01" required></label>'+pinField(), "WITHDRAW DIVIDEND");try{const {data,error}=await supabaseClient.rpc("member_dashboard_balances");if(error)throw error;const x=Array.isArray(data)?data[0]:data,a=Number(x?.dividend||0),hint=$("dividendHint");if(hint){hint.textContent="Available dividend balance: ₦"+a.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})+" — enter any amount up to this balance.";hint.style.color=a>0?"#087443":"#a52a2a"}const input=$("amount");if(input){input.max=a.toFixed(2);input.placeholder=a>0?"Up to ₦"+a.toLocaleString("en-NG",{maximumFractionDigits:2}):"No dividend available"}}catch(e){const hint=$("dividendHint");if(hint)hint.textContent="Unable to load dividend balance. Please try again.";}}
  else if(effectiveAction==="save")form('<label>Account<select id="account"><option value="savings">Savings Account</option><option value="shares">Shares Account</option><option value="special_savings">Special Savings</option></select></label><label>Amount (NGN)<input id="amount" type="number" min="1" step="0.01" required></label><label>Note<input id="note"></label>'+pinField());
@@ -158,7 +227,8 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
    if(error)throw error;if(data?.error)throw Error(data.error);const x=data?.data;
    $("formArea").innerHTML='<div class="api-note"><strong>Virtual Account Created</strong><br><br><strong>Bank:</strong> '+esc(x?.bank_code||"Squad partner bank")+'<br><strong>Account Number:</strong> '+esc(x?.virtual_account_number||"")+'<br><strong>Customer ID:</strong> '+esc(x?.customer_identifier||"")+'<br><br>You can now transfer money to this account. Confirmed payments will credit your HABSCO Wallet Balance automatically.</div>';
    msg("Virtual account created successfully.",true);return;
- } else if(effectiveAction==="fund"){const fundAmount=Number($("amount").value),fundSender=$("fundSenderType").value==="third_party"?$("fundSenderName").value.trim():(window.__habscoFundMemberName||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email||"");const {data:fundResult,error:fundError}=await supabaseClient.rpc("member_submit_funding_request_v2",{p_amount:fundAmount,p_purpose:"wallet",p_note:fundSender||null});if(fundError)throw Error(fundError.message||fundError);const fundReference=String(fundResult?.reference||"").trim(),fundDate=String(fundResult?.paid_date||"").trim(),fundTime=String(fundResult?.paid_time||"").trim();if(!fundReference)throw Error("Unable to create the funding reference.");$("ref").value=fundReference;const whatsappText=`Hello HABSCO Admin,\n\nNEW WALLET FUNDING NOTIFICATION\n\nName: ${fundSender}\nAmount: ₦${fundAmount.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})}\nPayment Date: ${fundDate}\nNotify Admin Time: ${fundTime}\nReference: ${fundReference}\n\nPlease review and approve this funding request in the HABSCO Admin Portal.`;window.open("https://wa.me/2348135684330?text="+encodeURIComponent(whatsappText),"_blank","noopener");}
+ } else if(effectiveAction==="send")r=await supabaseClient.rpc("member_transfer",{p_recipient_member_id:$("recipient").value.trim().toUpperCase(),p_amount:Number($("amount").value),p_description:$("note").value.trim()||null,p_transaction_pin:$("transactionPin").value.trim()});
+ else if(effectiveAction==="fund"){const fundAmount=Number($("amount").value),fundSender=$("fundSenderType").value==="third_party"?$("fundSenderName").value.trim():(window.__habscoFundMemberName||session.user.user_metadata?.full_name||session.user.user_metadata?.name||session.user.email||"");const {data:fundResult,error:fundError}=await supabaseClient.rpc("member_submit_funding_request_v2",{p_amount:fundAmount,p_purpose:"wallet",p_note:fundSender||null});if(fundError)throw Error(fundError.message||fundError);const fundReference=String(fundResult?.reference||"").trim(),fundDate=String(fundResult?.paid_date||"").trim(),fundTime=String(fundResult?.paid_time||"").trim();if(!fundReference)throw Error("Unable to create the funding reference.");$("ref").value=fundReference;const whatsappText=`Hello HABSCO Admin,\n\nNEW WALLET FUNDING NOTIFICATION\n\nName: ${fundSender}\nAmount: ₦${fundAmount.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})}\nPayment Date: ${fundDate}\nNotify Admin Time: ${fundTime}\nReference: ${fundReference}\n\nPlease review and approve this funding request in the HABSCO Admin Portal.`;window.open("https://wa.me/2348135684330?text="+encodeURIComponent(whatsappText),"_blank","noopener");}
  else if(effectiveAction==="dividend")r=await supabaseClient.rpc("member_withdraw_dividend",{p_amount:Number($("amount").value),p_transaction_pin:$("transactionPin").value.trim()});
  else if(effectiveAction==="save")r=await supabaseClient.rpc("member_contribute_to_account",{p_account_type:$("account").value,p_amount:Number($("amount").value),p_description:$("note").value.trim()||null,p_transaction_pin:$("transactionPin").value.trim()});
  else if(effectiveAction==="qard"||effectiveAction==="request-qard")r=await supabaseClient.rpc("member_submit_qard_request",{p_amount:Number($("amount").value),p_repayment_plan:$("plan").value,purpose:$("purpose").value.trim()});
@@ -172,11 +242,19 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
    setProcessing(b,"COMPLETING AIRTIME PURCHASE…",75);
    r={data:providerResult};
    b.innerHTML="PAYMENT SUCCESSFUL";b.disabled=true;
-   const pr=providerResult?.provider||providerResult?.data?.provider||provider;
+   const rawProvider=providerResult?.provider||providerResult?.data?.provider||provider;
+const pr=typeof rawProvider==="object"
+  ? String(rawProvider?.name||rawProvider?.network||rawProvider?.provider||rawProvider?.label||provider)
+  : String(rawProvider||provider);
    const receipt=providerResult?.provider?.reference||providerResult?.reference||providerResult?.data?.reference||"";
-   const box=$("airtimeResult");
-   box.innerHTML='<div style="padding:14px;border:1px solid #b9ddc8;border-radius:14px;background:#eef8f2;color:#064f2e"><strong>AIRTIME PAYMENT SUCCESSFUL</strong><br><br><strong>Network:</strong> '+esc(pr)+'<br><strong>Phone:</strong> '+esc(phone)+'<br><strong>Amount:</strong> ₦'+purchaseAmount.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})+(receipt?'<br><strong>Reference:</strong> '+esc(receipt):"")+'</div>';
-   box.scrollIntoView({behavior:"smooth",block:"center"});
+   showHabscoSuccessModal({
+     service:"Airtime Purchase",
+     network:pr,
+     recipient:phone,
+     amount:purchaseAmount,
+     reference:receipt,
+     message:"Your airtime purchase was completed successfully."
+   });
  }
  else if(effectiveAction==="electricity"){
    const actionSubmit=$("actionSubmit"),purchaseAmount=Number($("amount").value),key=[$("disco").value.trim(),$("meter_number").value.trim(),$("meter_type").value,String(purchaseAmount)].join("|");
@@ -185,7 +263,23 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
    setProcessing(actionSubmit,"PROCESSING ELECTRICITY PAYMENT…",35);
    const providerResult=await callProvider({action:"power",provider:$("disco").value.trim(),receiver:$("meter_number").value.trim(),meter_number:$("meter_number").value.trim(),meter_type:$("meter_type").value,amount:purchaseAmount,phone_number:$("phone").value.trim(),email:$("email").value.trim(),transaction_pin:$("transactionPin").value.trim()});
    setProcessing(actionSubmit,"COMPLETING ELECTRICITY VEND…",75);r={data:providerResult};
-   const token=showPowerResult(providerResult);if(token)showElectricitySuccess(token);if(token){const receipt=$("meterResult");receipt.dataset.electricityToken=token;try{window.dispatchEvent(new CustomEvent("habsco:electricity-token",{detail:{token,response:providerResult}}))}catch{}}
+   const token=powerToken(providerResult);
+   showPowerResult(providerResult);
+   if(token){
+     const receipt=$("meterResult");
+     receipt.dataset.electricityToken=token;
+     try{window.dispatchEvent(new CustomEvent("habsco:electricity-token",{detail:{token,response:providerResult}}))}catch{}
+   }
+   const electricityReference=providerResult?.provider?.reference||providerResult?.reference||providerResult?.data?.reference||"";
+   showHabscoSuccessModal({
+     service:"Electricity Payment",
+     network:$("disco").value.trim(),
+     meter:$("meter_number").value.trim(),
+     amount:purchaseAmount,
+     token:token,
+     reference:electricityReference,
+     message:"Your electricity payment was completed successfully."
+   });
    actionSubmit.innerHTML="PAYMENT SUCCESSFUL";actionSubmit.disabled=true;
  }
  if(r?.error)throw Error(r.error.message||r.error);
