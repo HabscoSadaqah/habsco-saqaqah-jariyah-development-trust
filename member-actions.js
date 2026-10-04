@@ -154,6 +154,10 @@ async function setupAirtime(){
     verifiedKey="";
     submit.disabled=true;
   };
+
+  // Expose the verified state to the shared form submit handler.
+  // The purchase handler checks this exact key before allowing payment.
+  submit.getAirtimeVerifiedKey=()=>verifiedKey;
 }
 async function init(){
  const session=await auth();if(!session)return;
