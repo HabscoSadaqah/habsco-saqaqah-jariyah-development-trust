@@ -83,6 +83,8 @@ async function setupAirtime(){
   submit.disabled=true;
 
   let verifiedKey="";
+  window.__habscoAirtimeVerifiedKey="";
+  window.__habscoAirtimeValidationReference="";
 
   verify.onclick=async()=>{
     const network=provider.value.trim();
@@ -124,11 +126,15 @@ async function setupAirtime(){
       }
 
       verifiedKey=[network,phone,String(amount)].join("|");
+      window.__habscoAirtimeVerifiedKey=verifiedKey;
+      window.__habscoAirtimeValidationReference=String(r?.validation_reference||r?.data?.validation_reference||"");
       result.textContent="Number verified successfully.";
       result.style.color="#064f2e";
       submit.disabled=false;
     }catch(e){
       verifiedKey="";
+      window.__habscoAirtimeVerifiedKey="";
+      window.__habscoAirtimeValidationReference="";
       submit.disabled=true;
       result.textContent=e.message||"Unable to verify this number.";
       result.style.color="#a52a2a";
@@ -140,6 +146,8 @@ async function setupAirtime(){
 
   provider.onchange=()=>{
     verifiedKey="";
+    window.__habscoAirtimeVerifiedKey="";
+    window.__habscoAirtimeValidationReference="";
     submit.disabled=true;
     result.textContent="Select the network, enter the phone number and amount, then verify before payment.";
     result.style.color="";
@@ -147,11 +155,15 @@ async function setupAirtime(){
 
   $("airtimePhone").oninput=()=>{
     verifiedKey="";
+    window.__habscoAirtimeVerifiedKey="";
+    window.__habscoAirtimeValidationReference="";
     submit.disabled=true;
   };
 
   $("airtimeAmount").oninput=()=>{
     verifiedKey="";
+    window.__habscoAirtimeVerifiedKey="";
+    window.__habscoAirtimeValidationReference="";
     submit.disabled=true;
   };
 
@@ -226,7 +238,10 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
  else if(effectiveAction==="repay-qard")r=await supabaseClient.rpc("member_submit_qard_repayment",{p_qard_request_id:$("qard").value,p_amount:Number($("amount").value),p_paid_date:$("date").value,p_payment_reference:$("ref").value.trim(),p_note:$("note").value.trim()});
  else if(effectiveAction==="airtime"){
    const purchaseAmount=Number($("airtimeAmount").value),provider=$("airtimeProvider").value.trim(),phone=$("airtimePhone").value.trim(),key=[provider,phone,String(purchaseAmount)].join("|");
-   if(!b?.getAirtimeVerifiedKey||b.getAirtimeVerifiedKey()!==key)throw Error("Please verify the phone number before payment.");
+   const verifiedKey=String(window.__habscoAirtimeVerifiedKey||b?.getAirtimeVerifiedKey?.()||"");
+   if(verifiedKey!==key)throw Error("Please verify the phone number before payment.");
+   const validation_reference=String(window.__habscoAirtimeValidationReference||"");
+   if(!validation_reference)throw Error("Phone verification has expired. Please verify the number again.");
    const utilityFeeStatus=await getUtilityFeeStatus();if(!await confirmUtilityFee(purchaseAmount,"Airtime",utilityFeeStatus))return;
    setProcessing(b,"PROCESSING AIRTIME PAYMENT…",35);
    const providerResult=await callAirtimeProvider({action:"airtime",provider,receiver:phone,amount:purchaseAmount,transaction_pin:$("transactionPin").value.trim()});
