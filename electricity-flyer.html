@@ -1,54 +1,75 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>HABSCO Electricity Flyer</title>
-<meta name="theme-color" content="#064f2e">
+<title>HABSCO | Electricity Made Easy</title>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;font-family:Arial,sans-serif;background:#eef5f0;color:#123d2a;padding:18px}
-.page{max-width:520px;margin:auto}
-.flyer{position:relative;overflow:hidden;background:linear-gradient(145deg,#064f2e,#087443 58%,#0b9658);color:#fff;border-radius:28px;padding:32px 24px;min-height:650px;box-shadow:0 20px 55px rgba(0,0,0,.2)}
-.flyer:before,.flyer:after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.13)}
-.flyer:before{width:280px;height:280px;right:-120px;top:-80px}
-.flyer:after{width:220px;height:220px;left:-130px;bottom:-80px}
-.brand{font-size:14px;font-weight:900;letter-spacing:3px}
-.badge{display:inline-block;margin-top:55px;padding:7px 12px;border:1px solid rgba(255,255,255,.3);border-radius:30px;font-size:10px;font-weight:800;letter-spacing:1px}
-h1{font-size:42px;line-height:1;margin:15px 0 12px}
-.subtitle{font-size:15px;line-height:1.6;opacity:.9}
-.icon{width:100px;height:100px;margin:30px auto 22px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;color:#087443;font-size:55px;box-shadow:0 15px 35px rgba(0,0,0,.18)}
-.features{display:grid;gap:10px;margin-top:24px}
-.feature{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);padding:13px 14px;border-radius:14px;font-size:12px;font-weight:700}
-.cta{margin-top:28px;text-align:center;font-size:11px;font-weight:800;letter-spacing:1px}
-.actions{display:flex;gap:10px;margin-top:18px}
-button,a{flex:1;border:0;border-radius:13px;padding:13px;text-align:center;font-weight:900;text-decoration:none;font-size:11px;cursor:pointer}
-.primary{background:#fff;color:#064f2e}
-.secondary{background:#d9f2e4;color:#064f2e}
-.note{text-align:center;font-size:9px;color:#60756a;margin-top:13px}
-@media print{body{padding:0;background:#fff}.actions,.note{display:none}.flyer{border-radius:0;box-shadow:none;min-height:100vh}}
+body{margin:0;background:#eef3f0;font-family:Inter,Arial,sans-serif;color:#10251b}
+.page{min-height:100vh;padding:22px 14px 40px}
+.flyer{width:min(680px,100%);margin:auto;position:relative;overflow:hidden;border-radius:30px;background:linear-gradient(145deg,#062e20,#087443 52%,#10a96e);color:white;box-shadow:0 25px 70px #062d1d33}
+.flyer:before{content:"";position:absolute;width:360px;height:360px;right:-160px;top:-150px;border-radius:50%;background:#ffffff14}
+.flyer:after{content:"";position:absolute;width:260px;height:260px;left:-140px;bottom:-130px;border-radius:50%;background:#ffffff10}
+.top{padding:30px;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2}
+.brand{font-weight:900;letter-spacing:2px;font-size:25px}
+.badge{font-size:11px;font-weight:800;letter-spacing:1px;border:1px solid #ffffff55;padding:8px 12px;border-radius:99px;background:#ffffff12}
+.content{padding:38px 30px 30px;position:relative;z-index:2}
+.icon{width:88px;height:88px;border-radius:26px;background:#ffffff16;border:1px solid #ffffff30;display:grid;place-items:center;font-size:48px}
+h1{font-size:clamp(42px,9vw,76px);line-height:.92;margin:25px 0 18px;letter-spacing:-3px}
+.lead{font-size:18px;line-height:1.6;max-width:540px;color:#e8fff5}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:28px 0}
+.feature{padding:16px 12px;border-radius:18px;background:#ffffff12;border:1px solid #ffffff1c}
+.feature b{display:block;font-size:13px;margin-bottom:5px}.feature span{font-size:12px;color:#d7f8e8}
+.cta{display:inline-block;background:white;color:#075f3b;padding:16px 21px;border-radius:15px;font-weight:900}
+.web{margin-top:26px;font-size:15px;font-weight:800;letter-spacing:.5px}
+.bottom{padding:18px 30px 27px;border-top:1px solid #ffffff22;display:flex;justify-content:space-between;gap:15px;align-items:center;position:relative;z-index:2}
+.trust{font-size:11px;color:#d8f7e8;line-height:1.5}.url{font-weight:900;font-size:14px}
+.controls{width:min(680px,100%);margin:18px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+button{border:0;border-radius:13px;padding:14px 8px;background:#087443;color:white;font-weight:800;cursor:pointer}
+.back{background:#fff;color:#087443}
+@media(max-width:520px){.top,.content,.bottom{padding-left:21px;padding-right:21px}.features{grid-template-columns:1fr}.bottom{display:block}.url{margin-top:8px}.controls{grid-template-columns:1fr 1fr}.controls button:last-child{grid-column:1/-1}}
+@media print{body{background:white}.page{padding:0}.flyer{box-shadow:none;border-radius:0;max-width:none}.controls{display:none}}
 </style>
 </head>
 <body>
 <div class="page">
-<div class="flyer">
-<div class="brand">HABSCO</div>
-<div class="badge">CONVENIENT • SECURE • RELIABLE</div>
-<h1>Electricity<br>Made Easy.</h1>
-<div class="subtitle">Pay your electricity bills and manage your meter conveniently through your HABSCO member wallet.</div>
+<div class="flyer" id="flyer">
+<div class="top"><div class="brand">HABSCO</div><div class="badge">CONVENIENT • SECURE • RELIABLE</div></div>
+<div class="content">
 <div class="icon">💡</div>
+<h1>Electricity<br>Made Easy.</h1>
+<div class="lead">Pay your electricity bills conveniently through HABSCO and keep your home, business and everyday life powered.</div>
 <div class="features">
-<div class="feature">✓ Convenient electricity payment</div>
-<div class="feature">✓ Secure member wallet payment</div>
-<div class="feature">✓ Meter management made simple</div>
+<div class="feature"><b>CONVENIENT</b><span>Pay from your device</span></div>
+<div class="feature"><b>SECURE</b><span>Protected transactions</span></div>
+<div class="feature"><b>RELIABLE</b><span>Simple payment process</span></div>
 </div>
 <div class="cta">KEEP YOUR POWER ON WITH HABSCO</div>
+<div class="web">www.habscosadaqah.org</div>
 </div>
-<div class="actions">
-<button class="primary" onclick="navigator.share?navigator.share({title:'HABSCO Electricity',text:'Pay electricity securely with HABSCO.',url:location.href}):alert('Share is not supported on this device')">SHARE</button>
-<button class="secondary" onclick="window.print()">DOWNLOAD / PRINT</button>
+<div class="bottom"><div class="trust">HABSCO SADAQAH JARIYAH<br>DEVELOPMENT TRUST</div><div class="url">HABSCO • POWERED</div></div>
 </div>
-<a class="note" href="member.html">← Back to Member Dashboard</a>
+<div class="controls">
+<button onclick="downloadFlyer()">⬇ DOWNLOAD FLYER</button>
+<button onclick="shareFlyer()">↗ SHARE FLYER</button>
+<button class="back" onclick="window.print()">🖨 PRINT / PDF</button>
 </div>
+</div>
+<script>
+async function downloadFlyer(){
+ const el=document.getElementById('flyer');
+ const canvas=await html2canvas(el,{scale:3,useCORS:true,backgroundColor:null});
+ const a=document.createElement('a');
+ a.download='HABSCO-Electricity-Flyer.png';
+ a.href=canvas.toDataURL('image/png');
+ a.click();
+}
+async function shareFlyer(){
+ if(navigator.share){await navigator.share({title:'HABSCO Electricity',text:'Electricity Made Easy with HABSCO',url:'https://www.habscosadaqah.org/electricity-flyer.html'});}
+ else alert('Copy and share: https://www.habscosadaqah.org/electricity-flyer.html');
+}
+</script>
 </body>
 </html>
