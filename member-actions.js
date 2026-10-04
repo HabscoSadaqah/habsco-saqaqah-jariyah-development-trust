@@ -72,101 +72,88 @@ async function setupUtility(){
  }
 }
 async function setupAirtime(){
-  form('<div class="utility-section"><div class="utility-section-title">📱 Airtime service details</div><div class="utility-grid"><label>Network Provider<select id="airtimeProvider" required><option value="">Loading network providers...</option></select></label><label>Amount (NGN)<input id="airtimeAmount" type="number" min="50" step="1" placeholder="1000" required></label></div><div class="utility-grid"><label>Phone Number<input id="airtimePhone" inputmode="tel" maxlength="13" placeholder="08012345678" required></label></div><div class="utility-help">Enter the Nigerian mobile number that will receive the airtime.</div></div><div class="utility-section"><div class="utility-section-title">✓ Number verification</div><button id="verifyAirtime" class="btn" type="button">VERIFY NUMBER</button><div id="airtimeResult" class="api-note">Select the network, enter the phone number and amount, then verify before payment.</div></div><div class="utility-section"><div class="utility-section-title">🔐 Secure payment</div>'+pinField()+'<div class="api-note">Payment remains locked until the phone number is successfully verified.</div></div>');
-  const provider=$("airtimeProvider"),verify=$("verifyAirtime"),result=$("airtimeResult"),submit=$("actionSubmit");
-  submit.textContent="PAY";submit.disabled=true;
+  form('<div class="utility-section"><div class="utility-section-title">📱 Airtime service details</div><div class="utility-grid"><label>Network Provider<select id="airtimeProvider" required><option value="">Select network provider</option><option value="MTN">MTN</option><option value="GLO">GLO</option><option value="ETISALAT">ETISALAT</option><option value="T2MOBILE">T2MOBILE</option><option value="AIRTEL">AIRTEL</option></select></label><label>Amount (NGN)<input id="airtimeAmount" type="number" min="50" step="1" placeholder="1000" required></label></div><div class="utility-grid"><label>Phone Number<input id="airtimePhone" inputmode="tel" maxlength="13" placeholder="08012345678" required></label></div><div class="utility-help">Enter the Nigerian mobile number that will receive the airtime.</div></div><div class="utility-section"><div class="utility-section-title">✓ Number verification</div><button id="verifyAirtime" class="btn" type="button">VERIFY NUMBER</button><div id="airtimeResult" class="api-note">Select the network, enter the phone number and amount, then verify before payment.</div></div><div class="utility-section"><div class="utility-section-title">🔐 Secure payment</div>'+pinField()+'<div class="api-note">Payment remains locked until the phone number is successfully verified.</div></div>');
+
+  const provider=$("airtimeProvider");
+  const verify=$("verifyAirtime");
+  const result=$("airtimeResult");
+  const submit=$("actionSubmit");
+
+  submit.textContent="PAY";
+  submit.disabled=true;
+
   let verifiedKey="";
-  try{await loadProviderSelect("airtimeProvider","airtime-providers","Select network provider")}catch(e){result.textContent=e.message;result.style.color="#a52a2a"}
-  const invalidate=()=>{verifiedKey="";submit.disabled=true;result.textContent="Number not verified. Verify again before payment.";result.style.color="#a52a2a"};
-  ["input","change"].forEach(ev=>{provider.addEventListener(ev,invalidate);$("airtimePhone").addEventListener(ev,invalidate);$("airtimeAmount").addEventListener(ev,invalidate)});
+
   verify.onclick=async()=>{
-    const p=provider.value.trim(),phone=$("airtimePhone").value.trim(),amount=Number($("airtimeAmount").value);
-    if(!p||!Number.isFinite(amount)||amount<=0){result.textContent="Select a network and enter a valid airtime amount.";result.style.color="#a52a2a";return}
-    if(!/^\+?234\d{10}$|^0[7-9]\d{9}$/.test(phone)){result.textContent="Enter a valid Nigerian mobile number, e.g. 08012345678.";result.style.color="#a52a2a";return}
-    verify.disabled=true;verify.textContent="VERIFYING NUMBER…";
+    const network=provider.value.trim();
+    const phone=$("airtimePhone").value.trim();
+    const amount=Number($("airtimeAmount").value);
+
+    if(!network){
+      result.textContent="Please select a network provider.";
+      result.style.color="#a52a2a";
+      return;
+    }
+
+    if(!phone){
+      result.textContent="Please enter the phone number.";
+      result.style.color="#a52a2a";
+      return;
+    }
+
+    if(!Number.isFinite(amount)||amount<=0){
+      result.textContent="Please enter a valid airtime amount.";
+      result.style.color="#a52a2a";
+      return;
+    }
+
     try{
-      const r=await callAirtimeProvider({action:"airtime-validate",provider:p,receiver:phone,amount});
-      const ref=String(r?.validation_reference||r?.data?.validation_reference||"").trim();
-      if(!ref)throw Error("Airtime verification did not return a validation reference. Payment has been blocked.");
-      const verifiedAmount=Number(r?.amount??r?.data?.amount??amount);
-      if(!Number.isFinite(verifiedAmount)||verifiedAmount<=0)throw Error("Provider returned an invalid airtime amount.");
-      verifiedKey=[p,phone,String(amount)].join("|");
-      result.innerHTML="<strong>Verified:</strong> "+esc(phone)+" — "+esc(p)+" — ₦"+verifiedAmount.toLocaleString("en-NG");
-      result.style.color="#087443";submit.disabled=false;
-    }catch(e){invalidate();result.textContent=e.message||"Airtime verification failed."}
-    finally{verify.disabled=false;verify.textContent="VERIFY NUMBER"}
+      verify.disabled=true;
+      verify.textContent="VERIFYING...";
+      result.textContent="Verifying number with "+network+"...";
+
+      const r=await callAirtimeProvider({
+        action:"airtime-validate",
+        provider:network,
+        receiver:phone,
+        amount:amount
+      });
+
+      if(!r?.validation_reference){
+        throw new Error(r?.error||"Unable to verify this number.");
+      }
+
+      verifiedKey=[network,phone,String(amount)].join("|");
+      result.textContent="Number verified successfully.";
+      result.style.color="#064f2e";
+      submit.disabled=false;
+    }catch(e){
+      verifiedKey="";
+      submit.disabled=true;
+      result.textContent=e.message||"Unable to verify this number.";
+      result.style.color="#a52a2a";
+    }finally{
+      verify.disabled=false;
+      verify.textContent="VERIFY NUMBER";
+    }
   };
-  submit.getAirtimeVerifiedKey=()=>verifiedKey;
-}
-const powerToken=(r)=>{const keys=["token","electricity_token","vend_token","token_number","meter_token","vendToken","electricityToken"];const walk=(x,d=0)=>{if(!x||d>12)return"";if(Array.isArray(x)){for(const v of x){const n=walk(v,d+1);if(n)return n}return""}if(typeof x!=="object")return"";for(const k of keys){const v=x[k];if((typeof v==="string"||typeof v==="number")&&String(v).trim())return String(v).trim()}for(const k of Object.keys(x)){const n=walk(x[k],d+1);if(n)return n}return""};return walk(r)};const setProcessing=(button,label,percent)=>{button.disabled=true;button.innerHTML=`<span style="display:block;font-size:11px;margin-bottom:6px">${label}</span><span style="display:block;height:7px;background:#dfe9e3;border-radius:99px;overflow:hidden"><span style="display:block;width:${percent}%;height:100%;background:#087443;border-radius:99px;transition:width .35s ease"></span></span>`};const showElectricitySuccess=(token)=>{const old=$("habscoElectricitySuccess");if(old)old.remove();const modal=document.createElement("div");modal.id="habscoElectricitySuccess";modal.style.cssText="position:fixed;inset:0;background:rgba(3,35,22,.62);z-index:999999;display:flex;align-items:center;justify-content:center;padding:18px";modal.innerHTML=`<div style="width:min(430px,100%);background:#fff;border-radius:22px;padding:22px;box-shadow:0 20px 60px #0005;text-align:center"><div style="font-size:42px">✓</div><h2 style="margin:5px 0;color:#064f2e">Payment Successful</h2><p style="font-size:12px;color:#65736b">Your electricity payment was completed successfully.</p><div style="margin:16px 0;padding:16px;border-radius:15px;background:#eef8f2;border:1px solid #b9ddc8"><div style="font-size:10px;color:#65736b">ELECTRICITY TOKEN</div><div style="font-size:27px;font-weight:950;letter-spacing:2px;color:#064f2e;margin-top:7px">${esc(token||"Provider completed")}</div></div><button type="button" id="closeElectricitySuccess" class="btn" style="width:100%">DONE</button></div>`;document.body.appendChild(modal);$("closeElectricitySuccess").onclick=()=>modal.remove()};const showPowerResult=(r)=>{const token=powerToken(r);const box=$("meterResult");if(token){box.innerHTML=`<div style="padding:14px;border:1px solid #b9ddc8;border-radius:14px;background:#eef8f2;color:#064f2e"><strong>PAYMENT SUCCESSFUL</strong><br><br><strong>Electricity Token:</strong><div style="font-size:24px;font-weight:900;letter-spacing:2px;margin-top:7px">${esc(token)}</div><div style="margin-top:8px;font-size:11px">Keep this token and enter it on your prepaid meter.</div></div>`;box.scrollIntoView({behavior:"smooth",block:"center"});return token}box.innerHTML=`<div style="padding:12px;border:1px solid #e2ebe5;border-radius:12px;background:#f7faf8"><strong>Payment successful.</strong><br>Your electricity vend was completed, but the provider did not return a token in the response.</div>`;return ""};function showHabscoSuccessModal(o={}) {
-  const old=$("habscoSuccessModal");
-  if(old) old.remove();
 
-  const amount=Number(o.amount||0);
-  const amountText=amount>0
-    ? "₦"+amount.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})
-    : "";
+  provider.onchange=()=>{
+    verifiedKey="";
+    submit.disabled=true;
+    result.textContent="Select the network, enter the phone number and amount, then verify before payment.";
+    result.style.color="";
+  };
 
-  const now=new Date().toLocaleString("en-NG",{
-    day:"2-digit",month:"short",year:"numeric",
-    hour:"2-digit",minute:"2-digit",hour12:true
-  });
+  $("airtimePhone").oninput=()=>{
+    verifiedKey="";
+    submit.disabled=true;
+  };
 
-  const rows=[];
-  if(o.service) rows.push(["Service",o.service]);
-  if(o.network) rows.push(["Network",o.network]);
-  if(o.recipient) rows.push(["Recipient",o.recipient]);
-  if(o.meter) rows.push(["Meter",o.meter]);
-  if(o.amount) rows.push(["Amount",amountText]);
-  if(o.token) rows.push(["Token",o.token]);
-  if(o.reference) rows.push(["Reference",o.reference]);
-  rows.push(["Date & Time",now]);
-
-  const modal=document.createElement("div");
-  modal.id="habscoSuccessModal";
-  modal.style.cssText="position:fixed;inset:0;background:rgba(3,35,22,.68);z-index:999999;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)";
-
-  modal.innerHTML=`
-    <div style="width:min(440px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:24px;padding:24px 20px;box-shadow:0 24px 80px rgba(0,0,0,.28);text-align:center">
-      <div style="width:68px;height:68px;margin:0 auto 10px;border-radius:50%;background:#087443;color:#fff;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:900;box-shadow:0 8px 25px rgba(8,116,67,.25)">✓</div>
-
-      <div style="font-size:11px;font-weight:900;letter-spacing:.12em;color:#087443;text-transform:uppercase">HABSCO</div>
-
-      <h2 style="margin:5px 0 4px;color:#064f2e;font-size:25px">Hurray! 🎉</h2>
-
-      <p style="margin:0 0 18px;color:#65736b;font-size:12px">
-        ${esc(o.message||"Your transaction was completed successfully.")}
-      </p>
-
-      <div style="padding:5px 14px;border-radius:18px;background:#eef8f2;border:1px solid #b9ddc8;text-align:left">
-        ${rows.map(r=>`
-          <div style="display:flex;justify-content:space-between;gap:15px;padding:11px 0;border-bottom:1px solid #dcebe2">
-            <span style="font-size:10px;color:#65736b;font-weight:700">${esc(r[0])}</span>
-            <span style="font-size:11px;color:#123d2a;font-weight:900;text-align:right;word-break:break-word">${esc(String(r[1]))}</span>
-          </div>
-        `).join("")}
-        <div style="display:flex;justify-content:space-between;gap:15px;padding:12px 0">
-          <span style="font-size:10px;color:#65736b;font-weight:700">STATUS</span>
-          <span style="font-size:11px;color:#087443;font-weight:950">✓ SUCCESSFUL</span>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:9px;margin-top:17px">
-        <button type="button" id="habscoSuccessDone" class="btn" style="flex:1">DONE</button>
-      </div>
-
-      <div style="margin-top:10px;font-size:9px;color:#8a928d">
-        Keep your transaction reference for future enquiries.
-      </div>
-    </div>`;
-
-  document.body.appendChild(modal);
-
-  $("habscoSuccessDone").onclick=()=>modal.remove();
-
-  modal.addEventListener("click",e=>{
-    if(e.target===modal) modal.remove();
-  });
+  $("airtimeAmount").oninput=()=>{
+    verifiedKey="";
+    submit.disabled=true;
+  };
 }
 async function init(){
  const session=await auth();if(!session)return;
