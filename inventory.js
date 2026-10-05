@@ -32,7 +32,31 @@ $("renewBtn")?.addEventListener("click",openAccessModal);
 $("cancelBtn").addEventListener("click",closeModal);$("flashButton").addEventListener("click",()=>{const f=$("flashModal");const cb=f?.__after;if(f?.classList.contains("sorry")){hideFlash();return}hideFlash()});$("flashModal").addEventListener("click",e=>{if(e.target===$("flashModal"))hideFlash()});
 $("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeModal()});
 $("planArea").addEventListener("click",e=>{const p=e.target.closest(".plan");if(p)selectPlan(p.dataset.plan)});
-$("itemForm").addEventListener("submit",async e=>{e.preventDefault();if($("modal").dataset.mode!=="add")return purchaseAccess();const name=$("itemName").value.trim(),amount=Number($("itemAmount").value),pin=$("adminPin").value.trim();if(!name||!Number.isFinite(amount)||amount<0)return alert("Enter a valid item name and amount.");const btn=$("accessContinueBtn");btn.disabled=true;btn.textContent="ADDING…";try{let data,error;if(isAdmin){if(!/^\d{6}$/.test(pin))throw Error("Enter your 6-digit administrator PIN.");({data,error}=await db.rpc("admin_add_inventory_visual_item",{p_user_id:currentUserId,p_name:name,p_amount:amount,p_admin_pin:pin}))}else{({data,error}=await db.rpc("member_add_inventory_visual_item_with_pin",{p_name:name,p_amount:amount,p_transaction_pin:pin}))}if(error)throw error;items.push(data);closeModal();render()}catch(err){alert(err.message||"Unable to add stock.")}finally{btn.disabled=false;btn.textContent=isAdmin?"ADD ITEM":"ADD STOCK";$("adminPin").value=""}});
+async function submitAddItem(){
+  const name=$("itemName").value.trim(),amount=Number($("itemAmount").value),pin=$("adminPin").value.trim(),errorBox=$("pinError");
+  if(errorBox)errorBox.textContent="";
+  if(!name||!Number.isFinite(amount)||amount<0){if(errorBox)errorBox.textContent="Enter a valid item name and amount.";return}
+  if(!isAdmin&&!/^\d{6}$/.test(pin)){if(errorBox)errorBox.textContent="Enter your 6-digit transaction PIN.";return}
+  if(isAdmin&&!/^\d{6}$/.test(pin)){if(errorBox)errorBox.textContent="Enter your 6-digit administrator PIN.";return}
+  const btn=$("accessContinueBtn");btn.disabled=true;btn.textContent=isAdmin?"ADDING…":"ADDING…";
+  try{
+    let data,error;
+    if(isAdmin){
+      ({data,error}=await db.rpc("admin_add_inventory_visual_item",{p_user_id:currentUserId,p_name:name,p_amount:amount,p_admin_pin:pin}));
+    }else{
+      ({data,error}=await db.rpc("member_add_inventory_visual_item_with_pin",{p_name:name,p_amount:amount,p_transaction_pin:pin}));
+    }
+    if(error)throw error;
+    if(data)items.push(data);
+    closeModal();render();
+  }catch(err){
+    if(errorBox)errorBox.textContent=err.message||"Unable to add item.";
+  }finally{
+    btn.disabled=false;btn.textContent=isAdmin?"ADD ITEM":"ADD STOCK";$("adminPin").value="";
+  }
+}
+$("itemForm").addEventListener("submit",async e=>{e.preventDefault();if($("modal").dataset.mode!=="add")return purchaseAccess();await submitAddItem()});
+$("accessContinueBtn").addEventListener("click",async()=>{if($("modal").dataset.mode==="add")return submitAddItem();return purchaseAccess()});
 $("board").addEventListener("pointerdown",e=>{if(e.target.closest(".node")||e.target.closest("button"))return;drag={x:e.clientX,y:e.clientY,r:rotation};$("board").setPointerCapture(e.pointerId)});
 $("board").addEventListener("pointermove",e=>{if(!drag)return;rotation=drag.r+((e.clientX-drag.x)+(e.clientY-drag.y)*.35)/160;render()});
 $("board").addEventListener("pointerup",e=>{drag=null;try{$("board").releasePointerCapture(e.pointerId)}catch{}});
