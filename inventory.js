@@ -42,7 +42,7 @@ async function submitAddItem(){
     if(errorBox)errorBox.textContent="Enter a valid item name and amount.";
     return;
   }
-  if(!/^\\d{6}$/.test(pin)){
+  if(!/^\d{6}$/.test(pin)){
     if(errorBox)errorBox.textContent="Enter your 6-digit transaction PIN.";
     return;
   }
