@@ -15,7 +15,9 @@ async function loadMembers(){
       rows=fallback.data||[];
     }
     const seen=new Set();
-    members=rows.map(x=>({id:x.id,full_name:x.full_name||"Unnamed member",member_id:x.member_id||null,status:String(x.status||"pending").trim().toLowerCase(),role:x.role||"member",savings_withdrawal_enabled:x.savings_withdrawal_enabled})).filter(x=>x.id&&!seen.has(x.id)&&seen.add(x.id));
+    const loadedMembers=rows.map(x=>({id:x.id,full_name:x.full_name||"Unnamed member",member_id:x.member_id||null,status:String(x.status||"pending").trim().toLowerCase(),role:x.role||"member",savings_withdrawal_enabled:x.savings_withdrawal_enabled})).filter(x=>x.id&&!seen.has(x.id)&&seen.add(x.id));
+    if(!loadedMembers.length)throw new Error("The administrator member service returned no member records.");
+    members=loadedMembers;
     renderMembersTable();
     const activeMembers=members.filter(m=>String(m.status||"").trim().toLowerCase()==="active");
     const memberOptions='<option value="">Select member</option>'+activeMembers.map(m=>`<option value="${m.id}">${esc(m.full_name||"Unnamed member")} · ${esc(m.member_id||"No ID")}</option>`).join("");
@@ -25,9 +27,13 @@ async function loadMembers(){
     if($("membersCount"))$("membersCount").textContent=activeMembers.length;
   }catch(e){
     console.error("Member list load failed:",e);
-    members=[];
-    el.innerHTML='<tr><td colspan="12">Unable to load members. Please refresh.</td></tr>';
-    show("globalMsg",e?.message||"Unable to load members.");
+    if(members.length){
+      renderMembersTable();
+      show("globalMsg","Member list refresh failed. Showing the last verified member list.");
+    }else{
+      el.innerHTML='<tr><td colspan="12">Unable to load member records. Please refresh.</td></tr>';
+      show("globalMsg",e?.message||"Unable to load members.");
+    }
   }
 }
 async function load(){
