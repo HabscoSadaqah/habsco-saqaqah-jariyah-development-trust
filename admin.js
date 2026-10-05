@@ -48,13 +48,14 @@ async function load(){
     $("membersCount").textContent=members.filter(m=>"active"===m.status).length;
   };
   try{
-    ["fundingTable","qardTable","approvedQardTable","repaymentTable","auditTable"].forEach((id,i)=>loadingRow(id,[6,5,4,5,4][i]));
+    ["fundingTable","fundingHistoryTable","qardTable","approvedQardTable","repaymentTable","auditTable"].forEach((id,i)=>loadingRow(id,[6,8,5,4,5,4][i]));
     renderMemberRows();
 
-    const [wRes,caRes,fRes,qRes,approvedRes,repaymentRes,auditRes,coopRes]=await Promise.all([
+    const [wRes,caRes,fRes,fHistoryRes,qRes,approvedRes,repaymentRes,auditRes,coopRes]=await Promise.all([
       safe(supabaseClient.from("wallets").select("user_id,balance"),"Wallet data timed out."),
       safe(supabaseClient.rpc("admin_list_member_balances"),"Member balances timed out."),
       safe(supabaseClient.from("funding_requests").select("id,user_id,amount,paid_date,payment_reference,purpose,status,created_at").eq("status","pending").order("created_at",{ascending:false}),"Funding queue timed out."),
+      safe(supabaseClient.from("funding_requests").select("id,user_id,amount,paid_date,payment_reference,purpose,status,created_at,reviewed_at,reviewed_by,note").in("status",["approved","rejected"]).order("reviewed_at",{ascending:false}).order("created_at",{ascending:false}).limit(500),"Funding history timed out."),
       safe(supabaseClient.from("qard_requests").select("id,user_id,amount,repayment_plan,purpose,status,created_at").eq("status","pending").order("created_at",{ascending:false}),"Loan queue timed out."),
       safe(supabaseClient.from("qard_requests").select("id,user_id,amount,purpose,status,created_at").eq("status","approved").order("created_at",{ascending:false}),"Approved loan queue timed out."),
       safe(supabaseClient.from("qard_repayment_requests").select("id,user_id,amount,payment_reference,paid_date,status,created_at").eq("status","pending").order("created_at",{ascending:false}),"Repayment queue timed out."),
@@ -62,7 +63,7 @@ async function load(){
       safe(supabaseClient.from("cooperative_wallets").select("balance,currency,service_balance").eq("id",1).single(),"Cooperative balance timed out.")
     ]);
 
-    const results=[wRes,caRes,fRes,qRes,approvedRes,repaymentRes,auditRes,coopRes];
+    const results=[wRes,caRes,fRes,fHistoryRes,qRes,approvedRes,repaymentRes,auditRes,coopRes];
     loadSquadAdmin();
     const firstError=results.find(x=>x?.error);
     if(firstError)show("globalMsg",`Some dashboard data could not load: ${firstError.error.message||firstError.error}`);
@@ -133,8 +134,9 @@ async function load(){
     await loadTransactionAccess();
 
     const names=Object.fromEntries(members.map(m=>[m.id,m.full_name||m.member_id]));
-    const funding=fRes.data||[],qard=qRes.data||[],approved=approvedRes.data||[],repayments=repaymentRes.data||[];
+    const funding=fRes.data||[],fundingHistory=fHistoryRes.data||[],qard=qRes.data||[],approved=approvedRes.data||[],repayments=repaymentRes.data||[];
     $("fundingTable").innerHTML=funding.map(r=>`<tr><td>${esc(names[r.user_id]||r.user_id)}</td><td>${money(r.amount)}</td><td>${esc(r.payment_reference)}</td><td>${esc(r.purpose)}</td><td>${esc(r.paid_date)}</td><td class="actions"><button class="btn" data-funding="${r.id}" data-decision="approved">APPROVE</button><button class="btn red" data-funding="${r.id}" data-decision="rejected">REJECT</button></td></tr>`).join("")||'<tr><td colspan="6">No pending funding requests.</td></tr>';
+    $("fundingHistoryTable").innerHTML=fundingHistory.map(r=>`<tr><td>${esc(names[r.user_id]||r.user_id)}</td><td>${money(r.amount)}</td><td>${esc(r.payment_reference||"")}</td><td><strong style="color:${r.status==="approved"?"#126b42":"#a63838"}">${esc(String(r.status||"").toUpperCase())}</strong></td><td>${esc(r.created_at?new Date(r.created_at).toLocaleString("en-NG"):"—")}</td><td>${esc(r.reviewed_at?new Date(r.reviewed_at).toLocaleString("en-NG"):"—")}</td><td>${esc(names[r.reviewed_by]||r.reviewed_by||"Administrator")}</td><td>${esc(r.note||"—")}</td></tr>`).join("")||'<tr><td colspan="8">No approved or rejected funding history.</td></tr>';
     $("qardTable").innerHTML=qard.map(r=>`<tr><td>${esc(names[r.user_id]||r.user_id)}</td><td>${money(r.amount)}</td><td>${esc(r.repayment_plan)}</td><td>${esc(r.purpose)}</td><td class="actions"><button class="btn" data-qard="${r.id}" data-decision="approved">APPROVE</button><button class="btn red" data-qard="${r.id}" data-decision="rejected">REJECT</button></td></tr>`).join("")||'<tr><td colspan="5">No pending Interest-Free Loan requests.</td></tr>';
     $("approvedQardTable").innerHTML=approved.map(r=>`<tr><td>${esc(names[r.user_id]||r.user_id)}</td><td>${money(r.amount)}</td><td>${esc(r.purpose)}</td><td><button class="btn gold" data-disburse="${r.id}">DISBURSE</button></td></tr>`).join("")||'<tr><td colspan="4">No approved Interest-Free Loan waiting for disbursement.</td></tr>';
     $("repaymentTable").innerHTML=repayments.map(r=>`<tr><td>${esc(names[r.user_id]||r.user_id)}</td><td>${money(r.amount)}</td><td>${esc(r.payment_reference)}</td><td>${esc(r.paid_date)}</td><td class="actions"><button class="btn" data-repay="${r.id}" data-decision="approved">APPROVE</button><button class="btn red" data-repay="${r.id}" data-decision="rejected">REJECT</button></td></tr>`).join("")||'<tr><td colspan="5">No pending repayment proofs.</td></tr>';
