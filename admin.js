@@ -5,12 +5,15 @@ async function loadMembers(){
   el.innerHTML='<tr><td colspan="12">Loading members…</td></tr>';
   try{
     let result=await Promise.race([
-      supabaseClient.rpc("admin_list_members"),
-      new Promise((_,reject)=>setTimeout(()=>reject(new Error("Member list timed out.")),10000))
+      supabaseClient.from("profiles").select("id,full_name,member_id,status,role,savings_withdrawal_enabled,created_at").eq("role","member").order("created_at",{ascending:false}),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error("Member profile query timed out.")),10000))
     ]);
     let rows=result?.data||[];
     if(result?.error||!rows.length){
-      const fallback=await supabaseClient.from("profiles").select("id,full_name,member_id,status,role,savings_withdrawal_enabled,created_at").eq("role","member").order("created_at",{ascending:false});
+      const fallback=await Promise.race([
+        supabaseClient.rpc("admin_list_members"),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error("Administrator member service timed out.")),10000))
+      ]);
       if(fallback.error)throw result?.error||fallback.error;
       rows=fallback.data||[];
     }
