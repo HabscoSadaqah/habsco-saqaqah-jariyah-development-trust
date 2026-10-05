@@ -16,7 +16,7 @@ function selectPlan(plan){selectedPlan=plan;document.querySelectorAll(".plan").f
 async function loadWalletBalance(){if(!$("walletBalance"))return;const{data,error}=await db.from("wallets").select("balance").eq("user_id",currentUserId).maybeSingle();if(error){$("walletBalance").textContent="Unable to load";return}$("walletBalance").textContent=money(data?.balance||0)}
 function openAccessModal(){const m=$("modal");if(!m)return;m.dataset.mode="purchase";$("modalTitle").textContent="Choose Add Stock access";$("modalDescription").textContent="Select a plan, pay securely from your HABSCO wallet, and get immediate access.";$("planArea").style.display="block";$("paymentArea").style.display="block";$("itemFields").style.setProperty("display","none","important");$("adminPinWrap").style.display="none";$("accessContinueBtn").textContent="PAY ₦1,000";const cancel=$("cancelBtn");if(cancel)cancel.style.display="inline-flex";m.classList.add("show");m.setAttribute("aria-hidden","false");$("transactionPin").value="";$("pinError").textContent="";selectPlan(selectedPlan||"monthly");loadWalletBalance();setTimeout(()=>$("transactionPin")?.focus(),80)}
 function showFlash(kind,title,text,buttonText="CONTINUE",after=null){const f=$("flashModal");if(!f)return;f.className="flash show "+(kind||"");$("flashIcon").textContent=kind==="sorry"?"↩":"✓";$("flashTitle").textContent=title;$("flashText").textContent=text;$("flashButton").textContent=buttonText;f.setAttribute("aria-hidden","false");f.__after=after||null}function hideFlash(){const f=$("flashModal");if(!f)return;f.classList.remove("show");f.setAttribute("aria-hidden","true");const cb=f.__after;f.__after=null;if(cb)cb()}function closeModal(){const m=$("modal");if(!m)return;if(!isAdmin&&!accessExpiresAt){m.classList.remove("show");m.setAttribute("aria-hidden","true");showFlash("sorry","Sorry to see you go","No problem. Add Stock access is optional. You can return whenever you are ready.","BACK TO DASHBOARD",()=>{location.href="member.html"});return}m.classList.remove("show");m.setAttribute("aria-hidden","true");$("transactionPin").value="";$("pinError").textContent=""}
-function openAddModal(){const m=$("modal"),fields=$("itemFields");if(!m||!fields)return;m.classList.add("show");m.setAttribute("aria-hidden","false");m.dataset.mode="add";$("modalTitle").textContent="Add wallet item";$("modalDescription").textContent="Add your wallet item yourself. Enter the item name, latest amount and your transaction PIN."; $("planArea").style.display="none";$("paymentArea").style.display="none";fields.classList.remove("hidden");fields.classList.add("item-form-visible");fields.style.setProperty("display","grid","important");$("adminPinWrap").style.display="block";$("adminPin").required=true;$("adminPinLabel").textContent="Transaction PIN";$("adminPin").placeholder="6-digit transaction PIN";$("itemName").required=true;$("itemAmount").required=true;$("accessContinueBtn").textContent="ADD ITEM";$("itemName").value="";$("itemAmount").value="";$("adminPin").value="";if($("itemError"))$("itemError").textContent="";setTimeout(()=>$("itemName")?.focus(),60)}
+function openAddModal(){const m=$("addItemModal");if(!m)return;m.classList.add("show");m.setAttribute("aria-hidden","false");$("standaloneItemName").value="";$("standaloneItemAmount").value="";$("standaloneItemPin").value="";$("standaloneItemError").textContent="";setTimeout(()=>$("standaloneItemName")?.focus(),80)}function closeAddItemModal(){const m=$("addItemModal");if(m){m.classList.remove("show");m.setAttribute("aria-hidden","true")}}
 async function purchaseAccess(){const pin=$("transactionPin").value.trim();if(!/^[0-9]{6}$/.test(pin)){ $("pinError").textContent="Enter your 6-digit transaction PIN.";return }const amount=selectedPlan==="monthly"?1000:10000;const{data:bal}=await db.from("wallets").select("balance").eq("user_id",currentUserId).maybeSingle();if(Number(bal?.balance||0)<amount){$("pinError").textContent="Insufficient wallet balance for this plan.";return}if(!confirm("Confirm payment of "+money(amount)+" for "+(selectedPlan==="monthly"?"Monthly":"Yearly")+" Add Stock access?"))return;const btn=$("accessContinueBtn");btn.disabled=true;btn.textContent="PROCESSING…";$("pinError").textContent="";try{const{data,error}=await db.rpc("member_purchase_add_stock_access",{p_plan:selectedPlan,p_transaction_pin:pin});if(error)throw error;accessExpiresAt=data.expires_at;setLocked(false);updateCountdown();closeModal();await loadItems();showFlash("success","Congratulations!","Your Add Stock access is now active. You can start using the protected Wallet Board immediately.","OPEN WALLET BOARD")}catch(e){$("pinError").textContent=e.message||"Payment failed."}finally{btn.disabled=false;btn.textContent="PAY "+money(amount)}}
 function calendarParts(from,to){let y=to.getUTCFullYear()-from.getUTCFullYear(),m=to.getUTCMonth()-from.getUTCMonth(),d=to.getUTCDate()-from.getUTCDate();if(d<0){m--;const prev=new Date(Date.UTC(to.getUTCFullYear(),to.getUTCMonth(),0));d+=prev.getUTCDate()}if(m<0){y--;m+=12}return{y,m,d}}
 function updateCountdown(){const el=$("accessCountdown");if(!el||!accessExpiresAt)return;const target=new Date(accessExpiresAt),now=new Date(),ms=Math.max(0,target-now);if(ms<=0){accessExpiresAt=null;el.innerHTML="<b>Access expired</b><span>Please choose a new plan to continue.</span>";setLocked(true);openAccessModal();return}const p=calendarParts(now,target),days=Math.floor(ms/86400000),mins=Math.floor(ms/60000),secs=Math.floor(ms/1000);el.innerHTML="<div class='count-main'>"+p.y+" year"+(p.y===1?"":"s")+" · "+p.m+" month"+(p.m===1?"":"s")+" · "+p.d+" day"+(p.d===1?"":"s")+"</div><div class='count-sub'>"+mins.toLocaleString()+" minutes · "+secs.toLocaleString()+" seconds remaining</div><small>Expires "+target.toLocaleString("en-NG")+"</small>"} 
@@ -32,42 +32,8 @@ $("renewBtn")?.addEventListener("click",openAccessModal);
 $("cancelBtn").addEventListener("click",closeModal);$("flashButton").addEventListener("click",()=>{const f=$("flashModal");const cb=f?.__after;if(f?.classList.contains("sorry")){hideFlash();return}hideFlash()});$("flashModal").addEventListener("click",e=>{if(e.target===$("flashModal"))hideFlash()});
 $("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeModal()});
 $("planArea").addEventListener("click",e=>{const p=e.target.closest(".plan");if(p)selectPlan(p.dataset.plan)});
-async function submitAddItem(){
-  const name=$("itemName").value.trim();
-  const amount=Number($("itemAmount").value);
-  const pin=$("adminPin").value.trim();
-  const errorBox=$("itemError");
-  if(errorBox)errorBox.textContent="";
-  if(!name||!Number.isFinite(amount)||amount<0){
-    if(errorBox)errorBox.textContent="Enter a valid item name and amount.";
-    return;
-  }
-  if(!/^\d{6}$/.test(pin)){
-    if(errorBox)errorBox.textContent="Enter your 6-digit transaction PIN.";
-    return;
-  }
-  const btn=$("accessContinueBtn");
-  btn.disabled=true;
-  btn.textContent="ADDING…";
-  try{
-    const {data,error}=await db.rpc("inventory_add_item_self_service",{
-      p_name:name,
-      p_amount:amount,
-      p_transaction_pin:pin
-    });
-    if(error)throw error;
-    if(data)items.push(data);
-    closeModal();
-    render();
-  }catch(err){
-    if(errorBox)errorBox.textContent=err.message||"Unable to add item.";
-  }finally{
-    btn.disabled=false;
-    btn.textContent="ADD ITEM";
-    $("adminPin").value="";
-  }
-}
-$("itemForm").addEventListener("submit",async e=>{e.preventDefault();if($("modal").dataset.mode!=="add")return purchaseAccess();await submitAddItem()});
+async function submitAddItem(){const name=$("standaloneItemName").value.trim(),amount=Number($("standaloneItemAmount").value),pin=$("standaloneItemPin").value.trim(),err=$("standaloneItemError"),btn=$("standaloneItemSubmit");err.textContent="";if(!name||!Number.isFinite(amount)||amount<0){err.textContent="Enter a valid item name and amount.";return}if(!/^\d{6}$/.test(pin)){err.textContent="Enter your 6-digit transaction PIN.";return}btn.disabled=true;btn.textContent="ADDING…";try{const{data,error}=await db.rpc("inventory_add_item_self_service",{p_name:name,p_amount:amount,p_transaction_pin:pin});if(error)throw error;if(data)items.push(data);closeAddItemModal();render()}catch(err2){err.textContent=err2.message||"Unable to add item."}finally{btn.disabled=false;btn.textContent="ADD ITEM";$("standaloneItemPin").value=""}}
+$("standaloneItemClose").addEventListener("click",closeAddItemModal);$("addItemModal").addEventListener("click",e=>{if(e.target===$("addItemModal"))closeAddItemModal()});$("addItemStandaloneForm").addEventListener("submit",async e=>{e.preventDefault();await submitAddItem()});$("itemForm").addEventListener("submit",async e=>{e.preventDefault();if($("modal").dataset.mode!=="add")return purchaseAccess();await submitAddItem()});
 $("accessContinueBtn").addEventListener("click",async()=>{if($("modal").dataset.mode==="add")return submitAddItem();return purchaseAccess()});
 $("board").addEventListener("pointerdown",e=>{if(e.target.closest(".node")||e.target.closest("button"))return;drag={x:e.clientX,y:e.clientY,r:rotation};$("board").setPointerCapture(e.pointerId)});
 $("board").addEventListener("pointermove",e=>{if(!drag)return;rotation=drag.r+((e.clientX-drag.x)+(e.clientY-drag.y)*.35)/160;render()});
