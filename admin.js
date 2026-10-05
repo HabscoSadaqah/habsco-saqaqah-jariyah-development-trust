@@ -4,20 +4,18 @@ async function loadMembers(){
   if(!el)return;
   el.innerHTML='<tr><td colspan="12">Loading members…</td></tr>';
   try{
-    const result=await Promise.race([
+    let result=await Promise.race([
       supabaseClient.rpc("admin_list_members"),
       new Promise((_,reject)=>setTimeout(()=>reject(new Error("Member list timed out.")),10000))
     ]);
-    if(result.error)throw result.error;
+    let rows=result?.data||[];
+    if(result?.error||!rows.length){
+      const fallback=await supabaseClient.from("profiles").select("id,full_name,member_id,status,role,savings_withdrawal_enabled,created_at").eq("role","member").order("created_at",{ascending:false});
+      if(fallback.error)throw result?.error||fallback.error;
+      rows=fallback.data||[];
+    }
     const seen=new Set();
-    members=(result.data||[]).map(x=>({
-      id:x.id,
-      full_name:x.full_name||"Unnamed member",
-      member_id:x.member_id||null,
-      status:x.status||"pending",
-      role:x.role||"member",
-      savings_withdrawal_enabled:x.savings_withdrawal_enabled
-    })).filter(x=>x.id&&!seen.has(x.id)&&seen.add(x.id));
+    members=rows.map(x=>({id:x.id,full_name:x.full_name||"Unnamed member",member_id:x.member_id||null,status:x.status||"pending",role:x.role||"member",savings_withdrawal_enabled:x.savings_withdrawal_enabled})).filter(x=>x.id&&!seen.has(x.id)&&seen.add(x.id));
     renderMembersTable();
     const activeMembers=members.filter(m=>"active"===m.status);
     const memberOptions='<option value="">Select member</option>'+activeMembers.map(m=>`<option value="${m.id}">${esc(m.full_name||"Unnamed member")} · ${esc(m.member_id||"No ID")}</option>`).join("");
