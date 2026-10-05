@@ -55,7 +55,7 @@ async function load(){
       safe(supabaseClient.from("wallets").select("user_id,balance"),"Wallet data timed out."),
       safe(supabaseClient.rpc("admin_list_member_balances"),"Member balances timed out."),
       safe(supabaseClient.from("funding_requests").select("id,user_id,amount,paid_date,payment_reference,purpose,status,created_at").eq("status","pending").order("created_at",{ascending:false}),"Funding queue timed out."),
-      safe(supabaseClient.from("funding_requests").select("id,user_id,amount,paid_date,payment_reference,purpose,status,created_at,reviewed_at,reviewed_by,note").in("status",["approved","rejected"]).order("reviewed_at",{ascending:false}).order("created_at",{ascending:false}).limit(500),"Funding history timed out."),
+      safe(supabaseClient.rpc("admin_list_funding_history"),"Funding history timed out."),
       safe(supabaseClient.from("qard_requests").select("id,user_id,amount,repayment_plan,purpose,status,created_at").eq("status","pending").order("created_at",{ascending:false}),"Loan queue timed out."),
       safe(supabaseClient.from("qard_requests").select("id,user_id,amount,purpose,status,created_at").eq("status","approved").order("created_at",{ascending:false}),"Approved loan queue timed out."),
       safe(supabaseClient.from("qard_repayment_requests").select("id,user_id,amount,payment_reference,paid_date,status,created_at").eq("status","pending").order("created_at",{ascending:false}),"Repayment queue timed out."),
