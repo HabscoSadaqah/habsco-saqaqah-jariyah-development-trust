@@ -33,22 +33,38 @@ $("cancelBtn").addEventListener("click",closeModal);$("flashButton").addEventLis
 $("modal").addEventListener("click",e=>{if(e.target===$("modal"))closeModal()});
 $("planArea").addEventListener("click",e=>{const p=e.target.closest(".plan");if(p)selectPlan(p.dataset.plan)});
 async function submitAddItem(){
-  const name=$("itemName").value.trim(),amount=Number($("itemAmount").value),pin=$("adminPin").value.trim(),errorBox=$("itemError");
+  const name=$("itemName").value.trim();
+  const amount=Number($("itemAmount").value);
+  const pin=$("adminPin").value.trim();
+  const errorBox=$("itemError");
   if(errorBox)errorBox.textContent="";
-  if(!name||!Number.isFinite(amount)||amount<0){if(errorBox)errorBox.textContent="Enter a valid item name and amount.";return}
-  if(!/^\d{6}$/.test(pin)){if(errorBox)errorBox.textContent="Enter your 6-digit transaction PIN.";return}
-  const btn=$("accessContinueBtn");btn.disabled=true;btn.textContent=isAdmin?"ADDING…":"ADDING…";
+  if(!name||!Number.isFinite(amount)||amount<0){
+    if(errorBox)errorBox.textContent="Enter a valid item name and amount.";
+    return;
+  }
+  if(!/^\\d{6}$/.test(pin)){
+    if(errorBox)errorBox.textContent="Enter your 6-digit transaction PIN.";
+    return;
+  }
+  const btn=$("accessContinueBtn");
+  btn.disabled=true;
+  btn.textContent="ADDING…";
   try{
-    let data,error;
-    ({data,error}=await db.rpc("inventory_add_item_self_service",{p_name:name,p_amount:amount,p_transaction_pin:pin}));=await db.rpc("member_add_inventory_visual_item_with_pin",{p_name:name,p_amount:amount,p_transaction_pin:pin}));
-    }
+    const {data,error}=await db.rpc("inventory_add_item_self_service",{
+      p_name:name,
+      p_amount:amount,
+      p_transaction_pin:pin
+    });
     if(error)throw error;
     if(data)items.push(data);
-    closeModal();render();
+    closeModal();
+    render();
   }catch(err){
     if(errorBox)errorBox.textContent=err.message||"Unable to add item.";
   }finally{
-    btn.disabled=false;btn.textContent="ADD ITEM";$("adminPin").value="";
+    btn.disabled=false;
+    btn.textContent="ADD ITEM";
+    $("adminPin").value="";
   }
 }
 $("itemForm").addEventListener("submit",async e=>{e.preventDefault();if($("modal").dataset.mode!=="add")return purchaseAccess();await submitAddItem()});
