@@ -35,20 +35,9 @@ async function load(){
   loading=true;
   const timeout=(promise,ms,label)=>Promise.race([promise,new Promise((_,reject)=>setTimeout(()=>reject(new Error(label)),ms))]);
   const safe=(promise,label)=>timeout(promise,7000,label).then(x=>({data:x?.data||null,error:x?.error||null})).catch(error=>({data:null,error}));
-  const renderMemberRows=()=>{
-    const rows=members.map(m=>{
-      const a=memberAccounts[m.id]||{wallet:0,savings:0,shares:0,total:0};
-      const wallet=Number(a.wallet??memberWallets[m.id]??0);
-      const savings=Number(a.savings||0),shares=Number(a.shares||0);
-      const total=Number(a.total||wallet+savings+shares);
-      return `<tr><td>${esc(m.full_name)}</td><td><strong>${esc(m.member_id||"NOT ISSUED")}</strong></td><td>${esc(m.status)}</td><td>${esc(m.role)}</td><td>${money(wallet)}</td><td>${money(savings)}</td><td>${money(shares)}</td><td><strong>${money(total)}</strong></td><td>${money(memberLoans[m.id]||0)}</td><td><button class="member-detail-btn" type="button" data-member-detail="${m.id}" aria-expanded="false" onclick="window.habscoToggleMemberDetails(this);event.stopPropagation()">VIEW DETAILS</button></td><td><button class="member-delete-btn" type="button" data-delete-member="${m.id}" title="Permanently delete this member account">DELETE ACCOUNT</button></td></tr>`;
-    }).join("");
-    $("membersTable").innerHTML=rows||'<tr><td colspan="12">No active members.</td></tr>';
-    $("membersCount").textContent=members.filter(m=>String(m.status||"").trim().toLowerCase()==="active").length;
-  };
   try{
     ["fundingTable","fundingHistoryTable","qardTable","approvedQardTable","repaymentTable","auditTable"].forEach((id,i)=>loadingRow(id,[6,8,5,4,5,4][i]));
-    renderMemberRows();
+    renderMembersTable();
 
     const [wRes,caRes,fRes,fHistoryRes,qRes,approvedRes,repaymentRes,auditRes,coopRes]=await Promise.all([
       safe(supabaseClient.from("wallets").select("user_id,balance"),"Wallet data timed out."),
@@ -129,7 +118,7 @@ async function load(){
       refreshTransactionAccessControls();
     };
 
-    renderMemberRows();
+    renderMembersTable();
     await loadTransactionAccess();
 
     const names=Object.fromEntries(members.map(m=>[m.id,m.full_name||m.member_id]));
@@ -144,7 +133,7 @@ async function load(){
   }catch(e){
     console.error("Administrator dashboard load failed:",e);
     show("globalMsg",e?.message||"Unable to load administrator data.");
-    renderMemberRows();
+    renderMembersTable();
   }finally{
     loading=false;
   }
