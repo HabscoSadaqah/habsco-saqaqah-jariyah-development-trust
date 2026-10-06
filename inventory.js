@@ -31,6 +31,7 @@ function setWalletDirection(direction){
     ["fromWalletDirectionLabel",labels.from],
     ["toWalletDirectionLabel",labels.to],
     ["fromWalletPrimaryDenomTitle",labels.fromPrimary],
+    ["fromWalletPrimaryTotalLabel",walletDirection==="credit"?"Received Total:":"Paid Total:"],
     ["toWalletPrimaryDenomTitle",labels.toPrimary],
     ["fromWalletDenomHelp",labels.fromHelp],
     ["toWalletDenomHelp",labels.toHelp],
