@@ -17,6 +17,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.webkit.WebResourceError
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -27,7 +28,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 class MainActivity : AppCompatActivity() {
     private lateinit var webView: WebView
     private lateinit var refresh: SwipeRefreshLayout
-    private val home = "https://habscosadaqah.org/"
+    private val home = "https://habscosadaqah.org/home.html"
     private val allowedHost = "habscosadaqah.org"
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
             displayZoomControls = false
             mediaPlaybackRequiresUserGesture = true
             userAgentString = "$userAgentString HABSCOAndroid/1.0"
+            mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
         }
 
         CookieManager.getInstance().setAcceptCookie(true)
@@ -63,6 +65,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.webViewClient = object : WebViewClient() {
+            override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
+                if (request.isForMainFrame) Toast.makeText(this@MainActivity, "Unable to load HABSCO. Check your internet connection.", Toast.LENGTH_LONG).show()
+            }
+
             override fun shouldOverrideUrlLoading(
                 view: WebView,
                 request: WebResourceRequest
@@ -108,7 +114,8 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-        webView.loadUrl(intent?.data?.toString() ?: home)
+        val startUrl = intent?.data?.toString()?.takeIf { it.startsWith("https://") } ?: home
+        webView.loadUrl(startUrl)
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -149,6 +156,4 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-// Trigger Android CI after workflow configuration fix.
 
-// Android workflow trigger verification.
