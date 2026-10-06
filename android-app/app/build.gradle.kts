@@ -27,7 +27,7 @@ android {
                 !keyPasswordValue.isNullOrBlank()
             ) {
                 storeFile = file(keystorePath)
-                storePassword = storePassword
+                this.storePassword = storePassword
                 keyAlias = keyAliasValue
                 keyPassword = keyPasswordValue
             }
