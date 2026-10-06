@@ -48,6 +48,7 @@ function cancelItemEdit(){
   $("standalonePinCaption").textContent="Enter your 6-digit Transaction PIN to authorize this item.";
   $("standaloneItemError").textContent="";
 }
+function closeModal(){const m=$("modal");if(!m)return;m.classList.remove("show");m.setAttribute("aria-hidden","true");}
 function openAccessModal(){
   const m=$("modal");
   if(!m)return;
