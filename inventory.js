@@ -20,7 +20,9 @@ async function submitTransfer(e){
   const denominationMode=!!dest;
   const paidDenoms=denominationMode?denominationData("paidDenoms"):[],changeDenoms=denominationMode?denominationData("changeDenoms"):[];
   const paidTotal=denominationMode?denominationTotal("paidDenoms"):0,changeTotal=denominationMode?denominationTotal("changeDenoms"):0;
-  const calculatedAccountAmount=denominationMode?Math.max(0,paidTotal-changeTotal):Math.max(0,Number($("transferAmount").value||0));\n  const customAmountValue=denominationMode&&$("customTransferAmount")?.value.trim()?Number($("customTransferAmount").value):null;\n  const accountAmount=customAmountValue!==null?Math.max(0,customAmountValue):calculatedAccountAmount;
+  const calculatedAccountAmount=denominationMode?Math.max(0,paidTotal-changeTotal):Math.max(0,Number($("transferAmount").value||0));
+  const customAmountValue=denominationMode&&$("customTransferAmount")?.value.trim()?Number($("customTransferAmount").value):null;
+  const accountAmount=customAmountValue!==null?Math.max(0,customAmountValue):calculatedAccountAmount;
   if(denominationMode&&(!paidDenoms.length||changeTotal>paidTotal||!Number.isFinite(accountAmount)||accountAmount<=0))return setTransferStatus(changeTotal>paidTotal?"Change Given cannot be greater than Denomination Paid.":"Select the denominations paid and enter valid quantities. Account Amount must be greater than zero.");
   const amount=accountAmount;
   const fee=Math.max(0,Number((isThirdParty?$("thirdPartyServiceFee"):$("serviceFee"))?.value||0));
