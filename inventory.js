@@ -137,7 +137,7 @@ async function loadHistory(){
   const body=$("historyBody");
   if(!body)return;
   if(!isAdmin){
-    body.innerHTML='<tr><td colspan="11" class="history-empty">Wallet Board history is available to administrators.</td></tr>';
+    body.innerHTML='<tr><td colspan="12" class="history-empty">Wallet Board history is available to administrators.</td></tr>';
     if($("historyCount"))$("historyCount").textContent="0";
     if($("historyProfit"))$("historyProfit").textContent=money(0);
     return;
@@ -159,7 +159,7 @@ async function loadHistory(){
       const action=canDelete
         ? '<button type="button" class="history-delete-btn" data-delete-history="'+esc(x.id)+'">DELETE</button>'
         : (isCapitalIncrement ? '<span title="Working Capital Increment is a permanent capital entry">CAPITAL</span>' : '<span title="Locked after the day ends">LOCKED</span>');
-      return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td>'+esc(x.source_name||"—")+'</td><td>'+esc(x.destination_name||"—")+'</td><td>'+money(x.amount)+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>=0?"+":"")+money(m)+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+action+'</td></tr>';
+      const activity=isCapitalIncrement?"Working Capital Increament":(String(x.reference||"").startsWith("WCI-")?"Working Capital Increament":"Wallet Board Transfer"); return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td><b>'+activity+'</b></td><td>'+esc(x.source_name||"—")+'</td><td>'+esc(x.destination_name||"—")+'</td><td>'+money(x.amount)+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>=0?"+":"")+money(m)+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+action+'</td></tr>';
     }).join("");
     body.querySelectorAll("[data-delete-history]").forEach(btn=>btn.addEventListener("click",()=>deleteHistoryActivity(btn.dataset.deleteHistory)));
   }catch(e){console.error("Wallet Board history:",e);body.innerHTML='<tr><td colspan="11" class="history-empty">Unable to load history.</td></tr>'}
