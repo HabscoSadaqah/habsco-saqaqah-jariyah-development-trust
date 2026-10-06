@@ -51,7 +51,17 @@ function cancelItemEdit(){
   $("standalonePinCaption").textContent="Enter your 6-digit Transaction PIN to authorize this item.";
   $("standaloneItemError").textContent="";
 }
-function closeModal(){const m=$("modal");if(!m)return;m.classList.remove("show");m.setAttribute("aria-hidden","true");}
+function closeModal(){const m=$("modal");if(!m)return;m.classList.remove("show");m.setAttribute("aria-hidden","true");document.body.classList.remove("access-checking");}
+function bindAccessPlanControls(){
+  document.querySelectorAll(".plan[data-plan]").forEach(card=>{
+    card.addEventListener("click",()=>selectPlan(card.dataset.plan));
+    card.addEventListener("keydown",e=>{
+      if(e.key==="Enter"||e.key===" "){e.preventDefault();selectPlan(card.dataset.plan)}
+    });
+    card.setAttribute("role","button");
+    card.setAttribute("tabindex","0");
+  });
+}
 function openAccessModal(){
   const m=$("modal");
   if(!m)return;
@@ -142,6 +152,7 @@ async function loadHistory(){
     body.querySelectorAll("[data-delete-history]").forEach(btn=>btn.addEventListener("click",()=>deleteHistoryActivity(btn.dataset.deleteHistory)));
   }catch(e){console.error("Wallet Board history:",e);body.innerHTML='<tr><td colspan="11" class="history-empty">Unable to load history.</td></tr>'}
 }
+bindAccessPlanControls();
 initTransfer();
 $("historyRefresh")?.addEventListener("click",loadHistory);
 $("renewBtn")?.addEventListener("click",openAccessModal);
