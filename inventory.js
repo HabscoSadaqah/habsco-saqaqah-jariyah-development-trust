@@ -4,7 +4,6 @@ const showFatal=msg=>{const m=$("modal"),w=$("walletBalance");if(w)w.textContent
 if(!window.supabase||typeof window.supabase.createClient!=="function"){showFatal("Supabase client library did not load.");return;}
 const URL="https://ythnoeyxovapydbmymdo.supabase.co",KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",db=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
-const $=id=>document.getElementById(id),money=n=>"₦"+Number(n||0).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
 let items=[],rotation=0,drag=null,currentUserId="",isAdmin=false,accessExpiresAt=null,selectedPlan="monthly";
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const transferState={mode:"internal"};
