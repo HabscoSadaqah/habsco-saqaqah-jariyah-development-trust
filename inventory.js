@@ -6,7 +6,7 @@ const URL="https://ythnoeyxovapydbmymdo.supabase.co",KEY="sb_publishable_nfSR2tM
 
 let items=[],rotation=0,drag=null,currentUserId="",isAdmin=false,accessExpiresAt=null,selectedPlan="monthly",editingItemId=null,rotationEnabled=true;
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const transferState={mode:"internal"};const CASH_DENOMS=[10,20,50,100,200,500,1000,2000,5000,10000,20000];
+const transferState={mode:"internal"};const CASH_DENOMS=[5,10,20,50,100,200,500,1000];
 function setTransferStatus(msg,ok=false){const e=$("transferStatus");if(e){e.textContent=msg||"";e.className="transferStatus "+(msg?(ok?"ok":"err"):"")}}
 function fillTransferItems(){const s=$("transferSource"),d=$("transferDestination");if(!s||!d)return;const opts=items.map(x=>'<option value="'+x.id+'">'+esc(x.name)+" · "+money(x.amount)+"</option>").join("");d.innerHTML='<option value="">Select destination…</option>'+opts+'<option value="__third_party__">3rd party</option><option value="__third_party_utility__">3rd-party utility → CASH</option>';s.innerHTML=opts;const preferred=items.find(x=>!x.is_system_cash);s.value=(preferred||items[0])?.id||"";toggleThirdPartyFields()}
 function denominationTotal(id){return [...document.querySelectorAll("#"+id+" .denom-row")].reduce((n,row)=>{const cb=row.querySelector("input[type=checkbox]"),q=row.querySelector("input[type=number]");return n+(cb?.checked?Number(row.dataset.value||0)*Math.max(0,Number(q?.value||0)):0)},0)}
