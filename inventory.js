@@ -224,6 +224,7 @@ function initSalesReports(){
  setPeriod("day");
 }
 bindAccessPlanControls();
+initSalesReports();
 initTransfer();
 initWheelControls();
 $("historyRefresh")?.addEventListener("click",loadHistory);
