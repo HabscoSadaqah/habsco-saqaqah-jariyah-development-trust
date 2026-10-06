@@ -1,5 +1,5 @@
 // HABSCO FAST WORKER v28: member/admin documents are always network-fresh.
-const CACHE_NAME = "habsco-static-v35";
+const CACHE_NAME = "habsco-static-v36";
 
 const STATIC_DESTINATIONS = new Set(["style","script","image","font","manifest"]);
 
@@ -24,6 +24,13 @@ self.addEventListener("fetch",event=>{
   if(request.method!=="GET")return;
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
+
+  // Wallet Board must always use the current HTML/JavaScript. Never serve an old
+  // inventory page or inventory.js from CacheStorage after a deployment.
+  if(url.pathname==="/inventory.html"||url.pathname==="/inventory"||url.pathname==="/inventory.js"){
+    event.respondWith(fetch(new Request(request,{cache:"no-store"})));
+    return;
+  }
 
   // Admin pages and every admin asset must bypass CacheStorage. This prevents stale member loaders/scripts from surviving deployments.
   const adminReferrer = /\/admin(?:\.html)?(?:[?#]|$)/.test(new URL(request.referrer||"",self.location.origin).pathname);
