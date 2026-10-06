@@ -12,15 +12,16 @@ function fillTransferItems(){const s=$("transferSource"),d=$("transferDestinatio
 function denominationTotal(id){return [...document.querySelectorAll("#"+id+" .denom-row")].reduce((n,row)=>{const cb=row.querySelector("input[type=checkbox]"),q=row.querySelector("input[type=number]");return n+(cb?.checked?Number(row.dataset.value||0)*Math.max(0,Number(q?.value||0)):0)},0)}
 function denominationData(id){return [...document.querySelectorAll("#"+id+" .denom-row")].filter(row=>row.querySelector("input[type=checkbox]")?.checked).map(row=>({denomination:Number(row.dataset.value||0),quantity:Math.max(0,Number(row.querySelector("input[type=number]")?.value||0))}).filter(x=>x.quantity>0))}
 function renderDenominations(id){const box=$(id);if(!box)return;box.innerHTML=CASH_DENOMS.map(v=>'<label class="denom-row" data-value="'+v+'"><input type="checkbox" aria-label="Select '+money(v)+'"><span>'+money(v)+'</span><input type="number" min="1" step="1" value="1" disabled aria-label="Quantity of '+money(v)+'"></label>').join("");box.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.addEventListener("change",()=>{const q=cb.closest(".denom-row")?.querySelector('input[type="number"]');if(q)q.disabled=!cb.checked;recalc()}));box.querySelectorAll('input[type="number"]').forEach(q=>q.addEventListener("input",recalc))}
-function recalc(){const destination=$("transferDestination")?.value||"",isThirdParty=destination==="__third_party__"||destination==="__third_party_utility__",utility=destination==="__third_party_utility__",paid=utility?denominationTotal("paidDenoms"):0,change=utility?denominationTotal("changeDenoms"):0,accountAmount=utility?Math.max(0,paid-change):Math.max(0,Number($("transferAmount")?.value||0));if(utility&&$("transferAmount"))$("transferAmount").value=accountAmount?accountAmount.toFixed(2):"";const a=accountAmount,feeEl=isThirdParty?$("thirdPartyServiceFee"):$("serviceFee"),providerEl=isThirdParty?$("thirdPartyProviderFee"):null,discountEl=isThirdParty?$("thirdPartyProviderDiscount"):null,f=Math.max(0,Number(feeEl?.value||0)),providerFee=Math.max(0,Number(providerEl?.value||0)),discountPct=Math.max(0,Number(discountEl?.value||0)),providerDiscount=a*discountPct/100,total=a+f,margin=f-providerFee+providerDiscount;if($("paidTotal"))$("paidTotal").textContent=money(paid);if($("changeTotal"))$("changeTotal").textContent=money(change);if($("accountAmount"))$("accountAmount").textContent=money(accountAmount);if($("feeAmount"))$("feeAmount").textContent=money(a);if($("providerFeeValue"))$("providerFeeValue").textContent=money(providerFee);if($("providerDiscountValue"))$("providerDiscountValue").textContent=money(providerDiscount);if($("feeValue"))$("feeValue").textContent=money(f);if($("totalDebit"))$("totalDebit").textContent=money(total);if($("netServiceMargin"))$("netServiceMargin").textContent=money(margin)}
+function recalc(){const destination=$("transferDestination")?.value||"",isThirdParty=destination==="__third_party__"||destination==="__third_party_utility__",denominationMode=!!destination,paid=denominationMode?denominationTotal("paidDenoms"):0,change=denominationMode?denominationTotal("changeDenoms"):0,accountAmount=denominationMode?Math.max(0,paid-change):Math.max(0,Number($("transferAmount")?.value||0));if(utility&&$("transferAmount"))$("transferAmount").value=accountAmount?accountAmount.toFixed(2):"";const a=accountAmount,feeEl=isThirdParty?$("thirdPartyServiceFee"):$("serviceFee"),providerEl=isThirdParty?$("thirdPartyProviderFee"):null,discountEl=isThirdParty?$("thirdPartyProviderDiscount"):null,f=Math.max(0,Number(feeEl?.value||0)),providerFee=Math.max(0,Number(providerEl?.value||0)),discountPct=Math.max(0,Number(discountEl?.value||0)),providerDiscount=a*discountPct/100,total=a+f,margin=f-providerFee+providerDiscount;if($("paidTotal"))$("paidTotal").textContent=money(paid);if($("changeTotal"))$("changeTotal").textContent=money(change);if($("accountAmount"))$("accountAmount").textContent=money(accountAmount);if($("feeAmount"))$("feeAmount").textContent=money(a);if($("providerFeeValue"))$("providerFeeValue").textContent=money(providerFee);if($("providerDiscountValue"))$("providerDiscountValue").textContent=money(providerDiscount);if($("feeValue"))$("feeValue").textContent=money(f);if($("totalDebit"))$("totalDebit").textContent=money(total);if($("netServiceMargin"))$("netServiceMargin").textContent=money(margin)}
 async function submitTransfer(e){
   e.preventDefault();
   const source=$("transferSource").value,dest=$("transferDestination").value;
   const isThirdParty=dest==="__third_party__"||dest==="__third_party_utility__",isUtility=dest==="__third_party_utility__";
-  const paidDenoms=isUtility?denominationData("paidDenoms"):[],changeDenoms=isUtility?denominationData("changeDenoms"):[];
-  const paidTotal=isUtility?denominationTotal("paidDenoms"):0,changeTotal=isUtility?denominationTotal("changeDenoms"):0;
-  const accountAmount=isUtility?Math.max(0,paidTotal-changeTotal):Math.max(0,Number($("transferAmount").value||0));
-  if(isUtility&&(!paidDenoms.length||changeTotal>paidTotal||accountAmount<=0))return setTransferStatus(changeTotal>paidTotal?"Change Given cannot be greater than Denomination Paid.":"Select the denominations paid and enter valid quantities. Account Amount must be greater than zero.");
+  const denominationMode=!!dest;
+  const paidDenoms=denominationMode?denominationData("paidDenoms"):[],changeDenoms=denominationMode?denominationData("changeDenoms"):[];
+  const paidTotal=denominationMode?denominationTotal("paidDenoms"):0,changeTotal=denominationMode?denominationTotal("changeDenoms"):0;
+  const accountAmount=denominationMode?Math.max(0,paidTotal-changeTotal):Math.max(0,Number($("transferAmount").value||0));
+  if(denominationMode&&(!paidDenoms.length||changeTotal>paidTotal||accountAmount<=0))return setTransferStatus(changeTotal>paidTotal?"Change Given cannot be greater than Denomination Paid.":"Select the denominations paid and enter valid quantities. Account Amount must be greater than zero.");
   const amount=accountAmount;
   const fee=Math.max(0,Number((isThirdParty?$("thirdPartyServiceFee"):$("serviceFee"))?.value||0));
   const providerFee=Math.max(0,Number((isThirdParty?$("thirdPartyProviderFee"):null)?.value||0));
@@ -39,7 +40,7 @@ async function submitTransfer(e){
       p_provider_fee:isThirdParty?providerFee:0,p_provider_discount:isThirdParty?providerDiscount:0
     });
     if(error)throw error;
-    if(isUtility){
+    if(denominationMode){
       const{error:attachError}=await db.rpc("wallet_board_attach_cash_denominations",{
         p_transfer_id:data.id,p_paid_denominations:paidDenoms,p_change_denominations:changeDenoms,p_account_amount:amount
       });
@@ -196,9 +197,9 @@ async function loadHistory(){
       const m=Number(x.net_service_margin||0),isCapitalIncrement=String(x.reference||"").startsWith("WCI-"),canDelete=isAdmin&&!isCapitalIncrement&&canDeleteHistoryToday(x.created_at);
       const action=canDelete?'<button type="button" class="history-delete-btn" data-delete-history="'+esc(x.id)+'">DELETE</button>':(isCapitalIncrement?'<span title="Working Capital Increment is a permanent capital entry">CAPITAL</span>':'<span title="Locked after the day ends">LOCKED</span>');
       const activity=isCapitalIncrement?"Working Capital Increament":(String(x.reference||"").startsWith("WCI-")?"Working Capital Increament":"Wallet Board Transfer");
-      const paid=String(x.transfer_type||"")==="third_party_utility"?formatDenoms(x.paid_denominations):"—";
-      const change=String(x.transfer_type||"")==="third_party_utility"?formatDenoms(x.change_denominations):"—";
-      const account=String(x.transfer_type||"")==="third_party_utility"?money(x.account_amount||x.amount):"—";
+      const paid=formatDenoms(x.paid_denominations);
+      const change=formatDenoms(x.change_denominations);
+      const account=x.account_amount!=null?money(x.account_amount):"—";
       return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td><b>'+activity+'</b></td><td>'+esc(x.source_name||"—")+'</td><td>'+esc(x.destination_name||"—")+'</td><td>'+money(x.amount)+'</td><td>'+paid+'</td><td>'+change+'</td><td>'+account+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>=0?"+":"")+money(m)+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+action+'</td></tr>';
     }).join("");
     body.querySelectorAll("[data-delete-history]").forEach(btn=>btn.addEventListener("click",()=>deleteHistoryActivity(btn.dataset.deleteHistory)));
