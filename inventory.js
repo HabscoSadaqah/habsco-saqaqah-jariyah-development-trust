@@ -4,7 +4,7 @@ const showFatal=msg=>{const m=$("modal"),w=$("walletBalance");if(w)w.textContent
 if(!window.supabase||typeof window.supabase.createClient!=="function"){showFatal("Supabase client library did not load.");return;}
 const URL="https://ythnoeyxovapydbmymdo.supabase.co",KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",db=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
-let items=[],rotation=0,drag=null,currentUserId="",isAdmin=false,accessExpiresAt=null,selectedPlan="monthly",editingItemId=null;
+let items=[],rotation=0,drag=null,currentUserId="",isAdmin=false,accessExpiresAt=null,selectedPlan="monthly",editingItemId=null,rotationEnabled=true;
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const transferState={mode:"internal"};
 function setTransferStatus(msg,ok=false){const e=$("transferStatus");if(e){e.textContent=msg||"";e.className="transferStatus "+(msg?(ok?"ok":"err"):"")}}
@@ -129,6 +129,8 @@ function renderList(){renderStandaloneExistingItems()}
 function Renderlist(){renderStandaloneExistingItems()}
 function editItem(x){startItemEdit(x.id)}
 async function saveStandaloneItem(){const name=$("standaloneItemName")?.value.trim()||"",amount=Number($("standaloneItemAmount")?.value),pin=$("standaloneItemPin")?.value.trim()||"";const err=$("standaloneItemError");if(err)err.textContent="";if(!name||!Number.isFinite(amount)||amount<0){if(err)err.textContent="Enter a valid item name and amount.";return}if(!/^\d{6}$/.test(pin)){if(err)err.textContent="Enter your 6-digit Transaction PIN.";return}const btn=$("standaloneItemSubmit");if(btn){btn.disabled=true;btn.textContent=editingItemId?"SAVING…":"ADDING…"}try{const rpc=editingItemId?"inventory_update_item_self_service":"inventory_add_item_self_service";const args=editingItemId?{p_item_id:editingItemId,p_name:name,p_amount:amount,p_transaction_pin:pin}:{p_name:name,p_amount:amount,p_transaction_pin:pin};const{data,error}=await db.rpc(rpc,args);if(error)throw error;await loadItems();cancelItemEdit();closeAddItemModal();showFlash("success",editingItemId?"Item updated":"Item added",editingItemId?"Wallet item updated successfully.":"Wallet item added successfully.","OPEN WALLET BOARD")}catch(e){if(err)err.textContent=e?.message||"Unable to save wallet item."}finally{if(btn){btn.disabled=false;btn.textContent=editingItemId?"SAVE CHANGES":"ADD ITEM"}}}
+function applyWheelMode(){const board=$("board"),toggle=$("wheelToggle");if(!board)return;rotationEnabled=toggle?!!toggle.checked:rotationEnabled;board.classList.toggle("wheel-static",!rotationEnabled);board.style.touchAction=rotationEnabled?"none":"pan-y";if(!rotationEnabled)drag=null}
+function initWheelControls(){const toggle=$("wheelToggle");if(toggle){toggle.checked=true;toggle.addEventListener("change",applyWheelMode)}const board=$("board");if(!board)return;board.addEventListener("pointerdown",e=>{if(!rotationEnabled)return;if(e.button!==0&&e.pointerType==="mouse")return;drag={x:e.clientX,y:e.clientY,rotation};try{board.setPointerCapture(e.pointerId)}catch{}});board.addEventListener("pointermove",e=>{if(!rotationEnabled||!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;rotation=drag.rotation+(dx+dy)*0.006;render();});const end=e=>{if(!drag)return;drag=null;try{board.releasePointerCapture(e.pointerId)}catch{}};board.addEventListener("pointerup",end);board.addEventListener("pointercancel",end);applyWheelMode()}
 function render(){const ring=$("ring");if(!ring)return;ring.innerHTML="";$("empty").style.display=items.length?"none":"grid";const total=items.reduce((a,x)=>a+Number(x.amount||0),0);$("totalAmount").textContent=money(total);$("itemCount").textContent=items.length+" item"+(items.length===1?"":"s");positions().forEach((p,i)=>{const x=items[i],node=document.createElement("div");node.className="node";node.style.transform="translate("+p.x+"px,"+p.y+"px) scale("+(0.88+p.z*.08)+")";node.style.zIndex=String(20+Math.round((p.z+1)*10));node.innerHTML='<div class="ico">'+iconFor(x.name)+'</div><b title="'+esc(x.name)+'">'+esc(x.name)+'</b><small>'+money(x.amount)+'</small>';if(isAdmin)node.onclick=()=>editItem(x);ring.appendChild(node)});renderList();fillTransferItems()}
 function historyDateInLagos(value){try{const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Lagos",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date(value));const get=k=>parts.find(p=>p.type===k)?.value||"";return get("year")+"-"+get("month")+"-"+get("day")}catch{return new Date(value).toISOString().slice(0,10)}}
 function canDeleteHistoryToday(value){return historyDateInLagos(value)===historyDateInLagos(new Date())}
@@ -142,7 +144,7 @@ async function loadHistory(){
     if($("historyProfit"))$("historyProfit").textContent=money(0);
     return;
   }
-  body.innerHTML='<tr><td colspan="11" class="history-empty">Loading history…</td></tr>';
+  body.innerHTML='<tr><td colspan="12" class="history-empty">Loading history…</td></tr>';
   try{
     const result=await Promise.race([
       db.rpc("admin_wallet_board_transfer_history"),
@@ -166,6 +168,7 @@ async function loadHistory(){
 }
 bindAccessPlanControls();
 initTransfer();
+initWheelControls();
 $("historyRefresh")?.addEventListener("click",loadHistory);
 $("renewBtn")?.addEventListener("click",openAccessModal);
 $("addBtn")?.addEventListener("click",openAddModal);
