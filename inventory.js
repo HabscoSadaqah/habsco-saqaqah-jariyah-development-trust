@@ -19,8 +19,9 @@ async function submitTransfer(e){
   const source=$("transferSource").value,dest=$("transferDestination").value;
   const isThirdParty=dest==="__third_party__"||dest==="__third_party_utility__",isUtility=dest==="__third_party_utility__";
   const denominationMode=!!dest;
-  const paidDenoms=denominationMode?denominationData("paidDenoms"):[],changeDenoms=denominationMode?denominationData("changeDenoms"):[];
-  const paidTotal=denominationMode?denominationTotal("paidDenoms"):0,changeTotal=denominationMode?denominationTotal("changeDenoms"):0;
+  const ids=activeDenominationIds(dest);
+  const paidDenoms=denominationMode?denominationData(ids.paid):[],changeDenoms=denominationMode?denominationData(ids.change):[];
+  const paidTotal=denominationMode?denominationTotal(ids.paid):0,changeTotal=denominationMode?denominationTotal(ids.change):0;
   const calculatedAccountAmount=denominationMode?Math.max(0,paidTotal-changeTotal):Math.max(0,Number($("transferAmount").value||0));
   const customAmountValue=denominationMode&&$(ids.custom)?.value.trim()?Number($(ids.custom).value):null;
   const accountAmount=customAmountValue!==null?Math.max(0,customAmountValue):calculatedAccountAmount;
