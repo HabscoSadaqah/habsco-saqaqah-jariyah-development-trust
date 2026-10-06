@@ -127,7 +127,10 @@ $("historyRefresh")?.addEventListener("click",loadHistory);
 $("addBtn")?.addEventListener("click",openAddModal);
 $("cancelBtn")?.addEventListener("click",closeModal);
 $("accessContinueBtn")?.addEventListener("click",purchaseAccess);
-$("closeModal")?.addEventListener("click",closeModal);\n$("standaloneItemClose")?.addEventListener("click",closeAddItemModal);\n$("standaloneItemCancelEdit")?.addEventListener("click",cancelItemEdit);\n$("addItemStandaloneForm")?.addEventListener("submit",e=>{e.preventDefault();saveStandaloneItem()});
+$("closeModal")?.addEventListener("click",closeModal);
+$("standaloneItemClose")?.addEventListener("click",closeAddItemModal);
+$("standaloneItemCancelEdit")?.addEventListener("click",cancelItemEdit);
+$("addItemStandaloneForm")?.addEventListener("submit",e=>{e.preventDefault();saveStandaloneItem()});
 load().then(loadHistory).catch(e=>{
   console.error("Wallet Board startup:",e);
   const el=$("walletBalance");
