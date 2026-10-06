@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.title = "HABSCO"
+
         refresh = SwipeRefreshLayout(this)
         webView = WebView(this)
         refresh.addView(webView)
@@ -62,7 +63,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         webView.webViewClient = object : WebViewClient() {
-            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+            override fun shouldOverrideUrlLoading(
+                view: WebView,
+                request: WebResourceRequest
+            ): Boolean {
                 val uri = request.url
                 return if (uri.host == allowedHost || uri.host == "www.$allowedHost") {
                     false
@@ -79,32 +83,52 @@ class MainActivity : AppCompatActivity() {
             request.setMimeType(mimeType)
             request.setTitle("HABSCO download")
             request.setDescription("Downloading from HABSCO")
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "HABSCO-" + System.currentTimeMillis())
+            request.setNotificationVisibility(
+                DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
+            )
+            request.setDestinationInExternalPublicDir(
+                Environment.DIRECTORY_DOWNLOADS,
+                "HABSCO-" + System.currentTimeMillis()
+            )
             (getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager).enqueue(request)
             Toast.makeText(this, "Download started", Toast.LENGTH_SHORT).show()
         })
 
-        if (android.os.Build.VERSION.SDK_INT >= 33 &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 20)
+        if (
+            android.os.Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                20
+            )
         }
 
         webView.loadUrl(intent?.data?.toString() ?: home)
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (webView.canGoBack()) webView.goBack() else finish()
+                if (webView.canGoBack()) {
+                    webView.goBack()
+                } else {
+                    finish()
+                }
             }
         })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menu.add("Privacy Policy").setOnMenuItemClickListener {
-            webView.loadUrl("$home/privacy-policy.html"); true
+            webView.loadUrl("$home/privacy-policy.html")
+            true
         }
         menu.add("Delete Account").setOnMenuItemClickListener {
-            webView.loadUrl("$home/delete-account.html"); true
+            webView.loadUrl("$home/delete-account.html")
+            true
         }
         return true
     }
@@ -112,10 +136,10 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean =
         super.onOptionsItemSelected(item)
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        intent?.data?.toString()?.let { webView.loadUrl(it) }
+        intent.data?.toString()?.let { webView.loadUrl(it) }
     }
 
     override fun onDestroy() {
