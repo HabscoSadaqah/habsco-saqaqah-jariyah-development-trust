@@ -149,19 +149,9 @@ function calendarParts(from,to){let y=to.getUTCFullYear()-from.getUTCFullYear(),
 function updateCountdown(){const el=$("accessCountdown");if(!el||!accessExpiresAt)return;const target=new Date(accessExpiresAt),now=new Date(),ms=Math.max(0,target-now);if(ms<=0){accessExpiresAt=null;el.innerHTML="<b>Access expired</b><span>Please choose a new plan to continue.</span>";setLocked(true);openAccessModal();return}const p=calendarParts(now,target),days=Math.floor(ms/86400000),mins=Math.floor(ms/60000),secs=Math.floor(ms/1000);el.innerHTML="<div class='count-main'>"+p.y+" year"+(p.y===1?"":"s")+" · "+p.m+" month"+(p.m===1?"":"s")+" · "+p.d+" day"+(p.d===1?"":"s")+"</div><div class='count-sub'>"+mins.toLocaleString()+" minutes · "+secs.toLocaleString()+" seconds remaining</div><small>Expires "+target.toLocaleString("en-NG")+"</small>"} 
 async function loadAccess(){if(isAdmin){setLocked(false);return}const{data,error}=await db.rpc("member_add_stock_access_status");if(error)throw error;accessExpiresAt=data?.active?data.expires_at:null;if(accessExpiresAt){setLocked(false);updateCountdown();if(window.__accessTimer)clearInterval(window.__accessTimer);window.__accessTimer=setInterval(updateCountdown,1000)}else{setLocked(true);openAccessModal()}}
 async function loadItems(){
-  if(isAdmin){
-    const{data,error}=await db.from("inventory_visual_items").select("*").order("sort_order",{ascending:true}).order("created_at",{ascending:true});
-    if(error){
-      console.error("Wallet Board admin items query failed:",error);
-      const fallback=await db.rpc("member_inventory_visual_items");
-      if(fallback.error)throw new Error("Unable to load Wallet Board items: "+(error.message||fallback.error.message||"database request failed"));
-      items=fallback.data||[];
-    }else items=data||[];
-  }else{
-    const{data,error}=await db.rpc("member_inventory_visual_items");
-    if(error)throw new Error("Unable to load Wallet Board items: "+(error.message||"database request failed"));
-    items=data||[];
-  }
+  const{data,error}=await db.rpc("member_inventory_visual_items");
+  if(error)throw new Error("Unable to load Wallet Board items: "+(error.message||"database request failed"));
+  items=(data||[]).filter(x=>String(x.owner_user_id||"")===String(currentUserId));
   render();
 }
 async function load(){
