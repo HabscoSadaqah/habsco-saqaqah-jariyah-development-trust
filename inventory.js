@@ -13,7 +13,52 @@ function denominationTotal(id){return [...document.querySelectorAll("#"+id+" .de
 function denominationData(id){return [...document.querySelectorAll("#"+id+" .denom-row")].filter(row=>row.querySelector("input[type=checkbox]")?.checked).map(row=>({denomination:Number(row.dataset.value||0),quantity:Math.max(0,Number(row.querySelector("input[type=number]")?.value||0))}).filter(x=>x.quantity>0))}
 function renderDenominations(id){const box=$(id);if(!box)return;box.innerHTML=CASH_DENOMS.map(v=>'<label class="denom-row" data-value="'+v+'"><input type="checkbox"><span>'+money(v)+'</span><input type="number" min="1" step="1" value="1"></label>').join("");box.querySelectorAll("input").forEach(el=>el.addEventListener("input",recalc))}
 function recalc(){const destination=$("transferDestination")?.value||"",isThirdParty=destination==="__third_party__"||destination==="__third_party_utility__",utility=destination==="__third_party_utility__",paid=utility?denominationTotal("paidDenoms"):0,change=utility?denominationTotal("changeDenoms"):0,accountAmount=utility?Math.max(0,paid-change):Math.max(0,Number($("transferAmount")?.value||0));if(utility&&$("transferAmount"))$("transferAmount").value=accountAmount?accountAmount.toFixed(2):"";const a=accountAmount,feeEl=isThirdParty?$("thirdPartyServiceFee"):$("serviceFee"),providerEl=isThirdParty?$("thirdPartyProviderFee"):null,discountEl=isThirdParty?$("thirdPartyProviderDiscount"):null,f=Math.max(0,Number(feeEl?.value||0)),providerFee=Math.max(0,Number(providerEl?.value||0)),discountPct=Math.max(0,Number(discountEl?.value||0)),providerDiscount=a*discountPct/100,total=a+f,margin=f-providerFee+providerDiscount;if($("paidTotal"))$("paidTotal").textContent=money(paid);if($("changeTotal"))$("changeTotal").textContent=money(change);if($("accountAmount"))$("accountAmount").textContent=money(accountAmount);if($("feeAmount"))$("feeAmount").textContent=money(a);if($("providerFeeValue"))$("providerFeeValue").textContent=money(providerFee);if($("providerDiscountValue"))$("providerDiscountValue").textContent=money(providerDiscount);if($("feeValue"))$("feeValue").textContent=money(f);if($("totalDebit"))$("totalDebit").textContent=money(total);if($("netServiceMargin"))$("netServiceMargin").textContent=money(margin)}
-async function submitTransfer(e){e.preventDefault();const source=$("transferSource").value,dest=$("transferDestination").value,amount=Number($("transferAmount").value),isThirdParty=dest==="__third_party__"||dest==="__third_party_utility__",isUtility=dest==="__third_party_utility__",fee=Math.max(0,Number((isThirdParty?$("thirdPartyServiceFee"):$("serviceFee"))?.value||0)),providerFee=Math.max(0,Number((isThirdParty?$("thirdPartyProviderFee"):null)?.value||0)),discountPct=Math.max(0,Number((isThirdParty?$("thirdPartyProviderDiscount"):null)?.value||0)),providerDiscount=amount*discountPct/100,provider=$("thirdPartyItemName")?.value.trim()||"",accountNumber=$("thirdPartyAccountNumber")?.value.trim()||"",accountName=$("thirdPartyAccountName")?.value.trim()||"";if(isUtility&&(paidTotal<=0||accountAmount<=0))return setTransferStatus("Select the denominations paid and the denominations given as change. Account Amount must be greater than zero.");if(!source||!dest||(isThirdParty&&!provider)||(isThirdParty&&!accountNumber)||(isThirdParty&&!accountName)||(!isThirdParty&&dest===source)||!Number.isFinite(amount)||amount<=0||!Number.isFinite(fee)||!Number.isFinite(providerFee))return setTransferStatus(isThirdParty?"Complete the 3rd-party details and enter valid amount, provider fee and service charge.":"Choose different wallet items and enter valid amount and service fee.");if(!confirm((isThirdParty?"Record 3rd-party transfer to "+provider+" / "+accountNumber+"? ":"Transfer ")+"Amount "+money(amount)+" · Service Charge "+money(fee)+" · Total Debit "+money(amount+fee)+" · Net Service Margin "+money(fee-providerFee+providerDiscount)+"?"))return;const btn=$("transferSubmit");btn.disabled=true;btn.textContent="PROCESSING…";try{const{data,error}=await db.rpc("wallet_board_internal_transfer",{p_source_item_id:source,p_destination_item_id:isThirdParty?null:dest,p_amount:accountAmount,p_service_fee:fee,p_transfer_type:isUtility?"third_party_utility":(isThirdParty?"third_party":"internal"),p_provider_name:isThirdParty?provider:null,p_account_number:isThirdParty?accountNumber:null,p_account_name:isThirdParty?accountName:null,p_provider_fee:isThirdParty?providerFee:0,p_provider_discount:isThirdParty?providerDiscount:0});if(error)throw error;setTransferStatus((isUtility?"3rd-party utility transfer recorded":(isThirdParty?"3rd-party transfer recorded":"Transfer successful"))+" · "+data.reference,true);await loadItems();await loadHistory();$("transferAmount").value="";$("serviceFee").value="0";document.querySelectorAll("#paidDenoms input,#changeDenoms input").forEach(el=>{if(el.type==="checkbox")el.checked=false;else el.value="1"});if($("thirdPartyServiceFee"))$("thirdPartyServiceFee").value="0";if($("thirdPartyProviderFee"))$("thirdPartyProviderFee").value="0";if($("thirdPartyProviderDiscount"))$("thirdPartyProviderDiscount").value="0";if($("thirdPartyItemName"))$("thirdPartyItemName").value="";if($("thirdPartyAccountNumber"))$("thirdPartyAccountNumber").value="";if($("thirdPartyAccountName"))$("thirdPartyAccountName").value="";$("transferDestination").value="";toggleThirdPartyFields();recalc()}catch(err){setTransferStatus(err.message||"Transfer failed")}finally{btn.disabled=false;btn.textContent="TRANSFER"}}
+async function submitTransfer(e){
+  e.preventDefault();
+  const source=$("transferSource").value,dest=$("transferDestination").value;
+  const isThirdParty=dest==="__third_party__"||dest==="__third_party_utility__",isUtility=dest==="__third_party_utility__";
+  const paidDenoms=isUtility?denominationData("paidDenoms"):[],changeDenoms=isUtility?denominationData("changeDenoms"):[];
+  const paidTotal=isUtility?denominationTotal("paidDenoms"):0,changeTotal=isUtility?denominationTotal("changeDenoms"):0;
+  const accountAmount=isUtility?Math.max(0,paidTotal-changeTotal):Math.max(0,Number($("transferAmount").value||0));
+  if(isUtility&&(!paidDenoms.length||accountAmount<=0))return setTransferStatus("Select the denominations paid and the denominations given as change. Account Amount must be greater than zero.");
+  const amount=accountAmount;
+  const fee=Math.max(0,Number((isThirdParty?$("thirdPartyServiceFee"):$("serviceFee"))?.value||0));
+  const providerFee=Math.max(0,Number((isThirdParty?$("thirdPartyProviderFee"):null)?.value||0));
+  const discountPct=Math.max(0,Number((isThirdParty?$("thirdPartyProviderDiscount"):null)?.value||0));
+  const providerDiscount=amount*discountPct/100;
+  const provider=$("thirdPartyItemName")?.value.trim()||"",accountNumber=$("thirdPartyAccountNumber")?.value.trim()||"",accountName=$("thirdPartyAccountName")?.value.trim()||"";
+  if(!source||!dest||(isThirdParty&&!provider)||(isThirdParty&&!accountNumber)||(isThirdParty&&!accountName)||(!isThirdParty&&dest===source)||!Number.isFinite(amount)||amount<=0||!Number.isFinite(fee)||!Number.isFinite(providerFee))
+    return setTransferStatus(isThirdParty?"Complete the 3rd-party details and enter valid amount, provider fee and service charge.":"Choose different wallet items and enter valid amount and service fee.");
+  if(!confirm((isUtility?"Record 3rd-party utility transfer of "+money(amount):isThirdParty?"Record 3rd-party transfer to "+provider+" / "+accountNumber+"?":"Transfer")+" Amount "+money(amount)+" · Service Charge "+money(fee)+" · Total Debit "+money(amount+fee)+" · Net Service Margin "+money(fee-providerFee+providerDiscount)+"?"))return;
+  const btn=$("transferSubmit");btn.disabled=true;btn.textContent="PROCESSING…";
+  try{
+    const{data,error}=await db.rpc("wallet_board_internal_transfer",{
+      p_source_item_id:source,p_destination_item_id:isThirdParty?null:dest,p_amount:amount,p_service_fee:fee,
+      p_transfer_type:isUtility?"third_party_utility":(isThirdParty?"third_party":"internal"),
+      p_provider_name:isThirdParty?provider:null,p_account_number:isThirdParty?accountNumber:null,p_account_name:isThirdParty?accountName:null,
+      p_provider_fee:isThirdParty?providerFee:0,p_provider_discount:isThirdParty?providerDiscount:0
+    });
+    if(error)throw error;
+    if(isUtility){
+      const{error:attachError}=await db.rpc("wallet_board_attach_cash_denominations",{
+        p_transfer_id:data.id,p_paid_denominations:paidDenoms,p_change_denominations:changeDenoms,p_account_amount:amount
+      });
+      if(attachError)throw attachError;
+    }
+    setTransferStatus((isUtility?"3rd-party utility transfer recorded":(isThirdParty?"3rd-party transfer recorded":"Transfer successful"))+" · "+data.reference,true);
+    await loadItems();await loadHistory();
+    $("transferAmount").value="";$("serviceFee").value="0";
+    document.querySelectorAll("#paidDenoms input,#changeDenoms input").forEach(el=>{if(el.type==="checkbox")el.checked=false;else el.value="1"});
+    if($("thirdPartyServiceFee"))$("thirdPartyServiceFee").value="0";
+    if($("thirdPartyProviderFee"))$("thirdPartyProviderFee").value="0";
+    if($("thirdPartyProviderDiscount"))$("thirdPartyProviderDiscount").value="0";
+    if($("thirdPartyItemName"))$("thirdPartyItemName").value="";
+    if($("thirdPartyAccountNumber"))$("thirdPartyAccountNumber").value="";
+    if($("thirdPartyAccountName"))$("thirdPartyAccountName").value="";
+    $("transferDestination").value="";toggleThirdPartyFields();recalc();
+  }catch(err){setTransferStatus(err.message||"Transfer failed")}
+  finally{btn.disabled=false;btn.textContent="TRANSFER"}
+}
 function toggleThirdPartyFields(){const destination=$("transferDestination")?.value||"",third=destination==="__third_party__"||destination==="__third_party_utility__",utility=destination==="__third_party_utility__",box=$("thirdPartyFields");if(box)box.classList.toggle("hidden",!third);const title=$("thirdPartyTitle");if(title)title.textContent=utility?"3rd-party utility details":"3rd-party transfer details";const fee=$("serviceFee"),thirdFee=$("thirdPartyServiceFee"),providerFee=$("thirdPartyProviderFee"),providerDiscount=$("thirdPartyProviderDiscount");if(fee)fee.closest("label").style.display=third?"none":"";if(thirdFee)thirdFee.closest("label").style.display=third?"":"none";if(providerFee)providerFee.closest("label").style.display=third?"":"none";if(providerDiscount)providerDiscount.closest("label").style.display=utility?"":"none";const cashBox=$("cashDenominationBox");if(cashBox)cashBox.classList.toggle("hidden",!utility);if($("totalDebitLabel"))$("totalDebitLabel").textContent=utility?"Total Debit → CASH":"Total Debit";if($("transferStatus")&&!third&&$("transferStatus").textContent.includes("3rd-party"))setTransferStatus("")}
 function initTransfer(){renderDenominations("paidDenoms");renderDenominations("changeDenoms");fillTransferItems();$("transferDestination")?.addEventListener("change",()=>{toggleThirdPartyFields();recalc()});$("transferAmount")?.addEventListener("input",recalc);$("serviceFee")?.addEventListener("input",recalc);$("thirdPartyServiceFee")?.addEventListener("input",recalc);$("thirdPartyProviderFee")?.addEventListener("input",recalc);$("thirdPartyProviderDiscount")?.addEventListener("input",recalc);$("transferForm")&&($("transferForm").onsubmit=submitTransfer);recalc()}
 function iconFor(name){const n=String(name||"").trim();return n.split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase()||"◉"}
@@ -139,12 +184,11 @@ function historyDateInLagos(value){try{const parts=new Intl.DateTimeFormat("en-C
 function canDeleteHistoryToday(value){return historyDateInLagos(value)===historyDateInLagos(new Date())}
 async function deleteHistoryActivity(id){if(!id)return;if(!confirm("Delete this Wallet Board activity? Only today’s activity can be deleted. The related wallet balances will be reversed."))return;const btn=document.querySelector('[data-delete-history="'+id+'"]');if(btn){btn.disabled=true;btn.textContent="DELETING…"}try{const{error}=await db.rpc("admin_delete_wallet_board_transfer",{p_transfer_id:id});if(error)throw error;await loadItems();await loadHistory()}catch(e){if(btn){btn.disabled=false;btn.textContent="DELETE"}alert(e?.message||"Unable to delete this activity.")}}
 async function loadHistory(){
-  const body=$("historyBody");
-  if(!body)return;
-    body.innerHTML='<tr><td colspan="12" class="history-empty">Loading history…</td></tr>';
+  const body=$("historyBody");if(!body)return;
+  body.innerHTML='<tr><td colspan="15" class="history-empty">Loading history…</td></tr>';
   try{
     const result=await Promise.race([
-      db.rpc("member_wallet_board_transfer_history"),
+      db.rpc("member_wallet_board_transfer_history_v2"),
       new Promise((_,reject)=>setTimeout(()=>reject(new Error("History request timed out.")),7000))
     ]);
     const{data,error}=result;if(error)throw error;
@@ -152,16 +196,22 @@ async function loadHistory(){
     if($("historyCount"))$("historyCount").textContent=rows.length.toLocaleString("en-NG");
     const margin=rows.reduce((n,x)=>n+Number(x.net_service_margin||0),0);
     if($("historyProfit"))$("historyProfit").textContent=money(margin);
-    if(!rows.length){body.innerHTML='<tr><td colspan="11" class="history-empty">No Wallet Board transfer activity yet.</td></tr>';return}
+    if(!rows.length){body.innerHTML='<tr><td colspan="15" class="history-empty">No Wallet Board transfer activity yet.</td></tr>';return}
+    const formatDenoms=(list)=>{
+      if(!Array.isArray(list)||!list.length)return "—";
+      return list.map(d=>money(d.denomination)+" × "+Number(d.quantity||0)).join(", ");
+    };
     body.innerHTML=rows.map(x=>{
       const m=Number(x.net_service_margin||0),isCapitalIncrement=String(x.reference||"").startsWith("WCI-"),canDelete=isAdmin&&!isCapitalIncrement&&canDeleteHistoryToday(x.created_at);
-      const action=canDelete
-        ? '<button type="button" class="history-delete-btn" data-delete-history="'+esc(x.id)+'">DELETE</button>'
-        : (isCapitalIncrement ? '<span title="Working Capital Increment is a permanent capital entry">CAPITAL</span>' : '<span title="Locked after the day ends">LOCKED</span>');
-      const activity=isCapitalIncrement?"Working Capital Increament":(String(x.reference||"").startsWith("WCI-")?"Working Capital Increament":"Wallet Board Transfer"); return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td><b>'+activity+'</b></td><td>'+esc(x.source_name||"—")+'</td><td>'+esc(x.destination_name||"—")+'</td><td>'+money(x.amount)+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>=0?"+":"")+money(m)+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+action+'</td></tr>';
+      const action=canDelete?'<button type="button" class="history-delete-btn" data-delete-history="'+esc(x.id)+'">DELETE</button>':(isCapitalIncrement?'<span title="Working Capital Increment is a permanent capital entry">CAPITAL</span>':'<span title="Locked after the day ends">LOCKED</span>');
+      const activity=isCapitalIncrement?"Working Capital Increament":(String(x.reference||"").startsWith("WCI-")?"Working Capital Increament":"Wallet Board Transfer");
+      const paid=String(x.transfer_type||"")==="third_party_utility"?formatDenoms(x.paid_denominations):"—";
+      const change=String(x.transfer_type||"")==="third_party_utility"?formatDenoms(x.change_denominations):"—";
+      const account=String(x.transfer_type||"")==="third_party_utility"?money(x.account_amount||x.amount):"—";
+      return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td><b>'+activity+'</b></td><td>'+esc(x.source_name||"—")+'</td><td>'+esc(x.destination_name||"—")+'</td><td>'+money(x.amount)+'</td><td>'+paid+'</td><td>'+change+'</td><td>'+account+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>=0?"+":"")+money(m)+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+action+'</td></tr>';
     }).join("");
     body.querySelectorAll("[data-delete-history]").forEach(btn=>btn.addEventListener("click",()=>deleteHistoryActivity(btn.dataset.deleteHistory)));
-  }catch(e){console.error("Wallet Board history:",e);body.innerHTML='<tr><td colspan="11" class="history-empty">Unable to load history.</td></tr>'}
+  }catch(e){console.error("Wallet Board history:",e);body.innerHTML='<tr><td colspan="15" class="history-empty">Unable to load history.</td></tr>'}
 }
 bindAccessPlanControls();
 initTransfer();
