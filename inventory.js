@@ -48,6 +48,27 @@ function cancelItemEdit(){
   $("standalonePinCaption").textContent="Enter your 6-digit Transaction PIN to authorize this item.";
   $("standaloneItemError").textContent="";
 }
+function openAccessModal(){
+  const m=$("modal");
+  if(!m)return;
+  m.dataset.mode="purchase";
+  $("modalTitle").textContent="Unlock Add Stock";
+  $("modalDescription").textContent="Choose your access period and unlock the Wallet Board immediately after secure payment.";
+  $("planArea").style.display="block";
+  $("paymentArea").style.display="block";
+  $("itemFields").style.setProperty("display","none","important");
+  $("adminPinWrap").style.display="none";
+  $("accessContinueBtn").textContent="PAY ₦1,000";
+  const cancel=$("cancelBtn");
+  if(cancel)cancel.style.display="inline-flex";
+  m.classList.add("show");
+  m.setAttribute("aria-hidden","false");
+  $("transactionPin").value="";
+  $("pinError").textContent="";
+  selectPlan(selectedPlan||"monthly");
+  loadWalletBalance();
+  setTimeout(()=>$("transactionPin")?.focus(),120);
+}
 function openAddModal(){if(!isAdmin&&(!accessExpiresAt||document.body.classList.contains("access-checking")||document.body.classList.contains("stock-locked"))){closeAddItemModal();openAccessModal();return}const accessModal=$("modal");if(accessModal?.classList.contains("show")){accessModal.classList.remove("show");accessModal.setAttribute("aria-hidden","true")}const m=$("addItemModal");if(!m)return;cancelItemEdit();renderStandaloneExistingItems();m.classList.add("show");m.setAttribute("aria-hidden","false");setTimeout(()=>$("standaloneItemName")?.focus(),80)}
 function closeAddItemModal(){const m=$("addItemModal");if(m){m.classList.remove("show");m.setAttribute("aria-hidden","true")}cancelItemEdit()}
 async function purchaseAccess(){const pin=$("transactionPin").value.trim();if(!/^[0-9]{6}$/.test(pin)){ $("pinError").textContent="Enter your 6-digit transaction PIN.";return }const amount=selectedPlan==="monthly"?1000:10000;const{data:balData,error:balError}=await db.rpc("member_dashboard_balances");if(balError){$("pinError").textContent=balError.message||"Unable to verify wallet balance.";return}const walletBalance=Number(balData?.available||0);if(walletBalance<amount){$("pinError").textContent="Insufficient wallet balance for this plan.";return}if(!confirm("Confirm payment of "+money(amount)+" for "+(selectedPlan==="monthly"?"Monthly":"Yearly")+" Add Stock access?"))return;const btn=$("accessContinueBtn");btn.disabled=true;btn.textContent="PROCESSING…";$("pinError").textContent="";try{const{data,error}=await db.rpc("member_purchase_add_stock_access",{p_plan:selectedPlan,p_transaction_pin:pin});if(error)throw error;accessExpiresAt=data.expires_at;setLocked(false);updateCountdown();closeModal();await loadItems();showFlash("success","Congratulations!","Your Add Stock access is now active. You can start using the protected Wallet Board immediately.","OPEN WALLET BOARD")}catch(e){$("pinError").textContent=e.message||"Payment failed."}finally{btn.disabled=false;btn.textContent="PAY "+money(amount)}}
@@ -84,7 +105,10 @@ async function loadHistory(){
     if(!rows.length){body.innerHTML='<tr><td colspan="11" class="history-empty">No Wallet Board transfer activity yet.</td></tr>';return}
     body.innerHTML=rows.map(x=>{
       const m=Number(x.net_service_margin||0),canDelete=canDeleteHistoryToday(x.created_at);
-      return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td>'+esc(x.source_name||"—")+'</td><td>'+esc(x.destination_name||"—")+'</td><td>'+money(x.amount)+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>=0?"+":"")+money(m)+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+${canDelete?'<button type="button" class="history-delete-btn" data-delete-history="'+esc(x.id)+'">DELETE</button>':'<span title="Locked after the day ends">LOCKED</span>'}+'</td></tr>';
+      const action=canDelete
+        ? '<button type="button" class="history-delete-btn" data-delete-history="'+esc(x.id)+'">DELETE</button>'
+        : '<span title="Locked after the day ends">LOCKED</span>';
+      return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td>'+esc(x.source_name||"—")+'</td><td>'+esc(x.destination_name||"—")+'</td><td>'+money(x.amount)+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>=0?"+":"")+money(m)+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+action+'</td></tr>';
     }).join("");
     body.querySelectorAll("[data-delete-history]").forEach(btn=>btn.addEventListener("click",()=>deleteHistoryActivity(btn.dataset.deleteHistory)));
   }catch(e){console.error("Wallet Board history:",e);body.innerHTML='<tr><td colspan="11" class="history-empty">Unable to load history.</td></tr>'}
