@@ -178,10 +178,10 @@ async function editHistoryActivity(id){const row=(window.__walletHistoryRows||[]
 async function deleteHistoryActivity(id){if(!id)return;if(!confirm("Delete this Wallet Board activity? Only today’s activity can be deleted. The related wallet balances will be reversed."))return;const btn=document.querySelector('[data-delete-history="'+id+'"]');if(btn){btn.disabled=true;btn.textContent="DELETING…"}try{const{error}=await db.rpc("admin_delete_wallet_board_transfer",{p_transfer_id:id});if(error)throw error;await loadItems();await loadHistory()}catch(e){if(btn){btn.disabled=false;btn.textContent="DELETE"}alert(e?.message||"Unable to delete this activity.")}}
 async function loadHistory(){
   const body=$("historyBody");if(!body)return;
-  body.innerHTML='<tr><td colspan="15" class="history-empty">Loading history…</td></tr>';
+  body.innerHTML='<tr><td colspan="16" class="history-empty">Loading history…</td></tr>';
   try{
     const result=await Promise.race([
-      db.rpc("member_wallet_board_transfer_history_v2"),
+      db.rpc("member_wallet_board_transfer_history_v3"),
       new Promise((_,reject)=>setTimeout(()=>reject(new Error("History request timed out.")),7000))
     ]);
     const{data,error}=result;if(error)throw error;
@@ -189,7 +189,7 @@ async function loadHistory(){
     if($("historyCount"))$("historyCount").textContent=rows.length.toLocaleString("en-NG");
     const margin=rows.reduce((n,x)=>n+Number(x.net_service_margin||0),0);
     if($("historyProfit"))$("historyProfit").textContent=money(margin);
-    if(!rows.length){body.innerHTML='<tr><td colspan="15" class="history-empty">No Wallet Board transfer activity yet.</td></tr>';return}
+    if(!rows.length){body.innerHTML='<tr><td colspan="16" class="history-empty">No Wallet Board transfer activity yet.</td></tr>';return}
     const formatDenoms=(list)=>{
       if(!Array.isArray(list)||!list.length)return "—";
       return list.map(d=>money(d.denomination)+" × "+Number(d.quantity||0)).join(", ");
@@ -197,14 +197,22 @@ async function loadHistory(){
     body.innerHTML=rows.map(x=>{
       const m=Number(x.net_service_margin||0),isCapitalIncrement=String(x.reference||"").startsWith("WCI-"),canDelete=isAdmin&&!isCapitalIncrement&&canDeleteHistoryToday(x.created_at);
       const action=canDelete?'<div class="history-actions"><button type="button" class="history-edit-btn" data-edit-history="'+esc(x.id)+'">EDIT</button><button type="button" class="history-delete-btn" data-delete-history="'+esc(x.id)+'">DELETE</button></div>':(isCapitalIncrement?'<span title="Working Capital Increment is a permanent capital entry">CAPITAL</span>':'<span title="Locked after the day ends">LOCKED</span>');
-      const activity=isCapitalIncrement?"Working Capital Increament":(String(x.reference||"").startsWith("WCI-")?"Working Capital Increament":"Wallet Board Transfer");
+      const isUtility=x.transfer_type==="third_party_utility";
+      const activity=isCapitalIncrement?"Working Capital Increament":(isUtility?"Utility/Deposit to CASH":(String(x.reference||"").startsWith("WCI-")?"Working Capital Increament":"Wallet Board Transfer"));
+      const utilityInfo=isUtility?[
+        x.provider_name||x.metadata?.recipient_provider,
+        x.account_number||x.metadata?.recipient_account,
+        x.account_name||x.metadata?.recipient_name,
+        x.cash_credit!=null?"Customer cash "+money(x.cash_credit):null,
+        x.service_fee>0?"Service charge "+money(x.service_fee):null
+      ].filter(Boolean).join(" · "):"—";
       const paid=formatDenoms(x.paid_denominations);
       const change=formatDenoms(x.change_denominations);
       const account=x.account_amount!=null?money(x.account_amount):"—";
-      return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td><b>'+activity+'</b></td><td>'+esc(x.source_name||"—")+'</td><td>'+esc(x.destination_name||"—")+'</td><td>'+money(x.amount)+'</td><td>'+paid+'</td><td>'+change+'</td><td>'+account+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>=0?"+":"")+money(m)+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+action+'</td></tr>';
+      return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td><b>'+activity+'</b></td><td>'+esc(x.source_name||"—")+'</td><td>'+(isUtility?"CASH":esc(x.destination_name||"—"))+'</td><td>'+money(x.amount)+'</td><td>'+paid+'</td><td>'+change+'</td><td>'+account+'</td><td>'+esc(utilityInfo)+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>=0?"+":"")+money(m)+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+action+'</td></tr>';
     }).join("");
     body.querySelectorAll("[data-edit-history]").forEach(btn=>btn.addEventListener("click",()=>editHistoryActivity(btn.dataset.editHistory)));body.querySelectorAll("[data-delete-history]").forEach(btn=>btn.addEventListener("click",()=>deleteHistoryActivity(btn.dataset.deleteHistory)));
-  }catch(e){console.error("Wallet Board history:",e);body.innerHTML='<tr><td colspan="15" class="history-empty">Unable to load history.</td></tr>'}
+  }catch(e){console.error("Wallet Board history:",e);body.innerHTML='<tr><td colspan="16" class="history-empty">Unable to load history.</td></tr>'}
 }
 bindAccessPlanControls();
 initTransfer();
@@ -223,7 +231,7 @@ load().then(loadHistory).catch(e=>{
   const el=$("walletBalance");
   if(el)el.textContent="Unable to load";
   const body=$("historyBody");
-  if(body)body.innerHTML='<tr><td colspan="11" class="history-empty">Unable to load Wallet Board.</td></tr>';
+  if(body)body.innerHTML='<tr><td colspan="16" class="history-empty">Unable to load Wallet Board.</td></tr>';
   const message=e?.message||"Unable to load Wallet Board.";
   console.error("Wallet Board startup failure:",message,e);
   alert(message);
