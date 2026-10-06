@@ -79,8 +79,27 @@ async function purchaseAccess(){const pin=$("transactionPin").value.trim();if(!/
 function calendarParts(from,to){let y=to.getUTCFullYear()-from.getUTCFullYear(),m=to.getUTCMonth()-from.getUTCMonth(),d=to.getUTCDate()-from.getUTCDate();if(d<0){m--;const prev=new Date(Date.UTC(to.getUTCFullYear(),to.getUTCMonth(),0));d+=prev.getUTCDate()}if(m<0){y--;m+=12}return{y,m,d}}
 function updateCountdown(){const el=$("accessCountdown");if(!el||!accessExpiresAt)return;const target=new Date(accessExpiresAt),now=new Date(),ms=Math.max(0,target-now);if(ms<=0){accessExpiresAt=null;el.innerHTML="<b>Access expired</b><span>Please choose a new plan to continue.</span>";setLocked(true);openAccessModal();return}const p=calendarParts(now,target),days=Math.floor(ms/86400000),mins=Math.floor(ms/60000),secs=Math.floor(ms/1000);el.innerHTML="<div class='count-main'>"+p.y+" year"+(p.y===1?"":"s")+" · "+p.m+" month"+(p.m===1?"":"s")+" · "+p.d+" day"+(p.d===1?"":"s")+"</div><div class='count-sub'>"+mins.toLocaleString()+" minutes · "+secs.toLocaleString()+" seconds remaining</div><small>Expires "+target.toLocaleString("en-NG")+"</small>"} 
 async function loadAccess(){if(isAdmin){setLocked(false);return}const{data,error}=await db.rpc("member_add_stock_access_status");if(error)throw error;accessExpiresAt=data?.active?data.expires_at:null;if(accessExpiresAt){setLocked(false);updateCountdown();if(window.__accessTimer)clearInterval(window.__accessTimer);window.__accessTimer=setInterval(updateCountdown,1000)}else{setLocked(true);openAccessModal()}}
-async function loadItems(){if(isAdmin){const{data,error}=await db.from("inventory_visual_items").select("*").order("sort_order",{ascending:true}).order("created_at",{ascending:true});if(error)throw error;items=data||[]}else{const{data,error}=await db.rpc("member_inventory_visual_items");if(error)throw error;items=data||[]}render()}
-async function load(){await sessionAndRole();await loadAccess();await loadItems()}
+async function loadItems(){
+  if(isAdmin){
+    const{data,error}=await db.from("inventory_visual_items").select("*").order("sort_order",{ascending:true}).order("created_at",{ascending:true});
+    if(error){
+      console.error("Wallet Board admin items query failed:",error);
+      const fallback=await db.rpc("member_inventory_visual_items");
+      if(fallback.error)throw new Error("Unable to load Wallet Board items: "+(error.message||fallback.error.message||"database request failed"));
+      items=fallback.data||[];
+    }else items=data||[];
+  }else{
+    const{data,error}=await db.rpc("member_inventory_visual_items");
+    if(error)throw new Error("Unable to load Wallet Board items: "+(error.message||"database request failed"));
+    items=data||[];
+  }
+  render();
+}
+async function load(){
+  try{await sessionAndRole()}catch(e){throw new Error("Account check failed: "+(e?.message||"Unable to verify your account."))}
+  try{await loadAccess()}catch(e){throw new Error("Add Stock access check failed: "+(e?.message||"Unable to check Add Stock access."))}
+  try{await loadItems()}catch(e){throw new Error(e?.message||"Unable to load Wallet Board items.")}
+}
 function positions(){const n=items.length;if(!n)return[];const rx=Math.min(370,Math.max(170,window.innerWidth*.34)),ry=Math.min(255,Math.max(175,window.innerWidth*.23));return items.map((x,i)=>{const a=i/n*Math.PI*2+rotation-Math.PI/2;return{x:rx*Math.cos(a),y:ry*Math.sin(a),z:Math.sin(a)}})}
 function showFlash(type,title,text,buttonText="CONTINUE"){const m=$("flashModal");if(!m)return;const icon=$("flashIcon"),t=$("flashTitle"),p=$("flashText"),b=$("flashButton");if(icon)icon.textContent=type==="success"?"✓":"!";if(t)t.textContent=title||"";if(p)p.textContent=text||"";if(b){b.textContent=buttonText||"CONTINUE";b.onclick=()=>{m.classList.remove("show");m.setAttribute("aria-hidden","true")}}m.classList.add("show");m.setAttribute("aria-hidden","false")}
 function renderStandaloneExistingItems(){const e=$("standaloneExistingItems");if(!e)return;if(!items.length){e.innerHTML='<div class="history-empty">No wallet items yet.</div>';return}e.innerHTML=items.map(x=>'<button type="button" class="list-row" data-edit-item="'+esc(x.id)+'"><span><b>'+esc(x.name)+'</b><br><small>'+money(x.amount)+'</small></span><span>EDIT</span></button>').join("");e.querySelectorAll("[data-edit-item]").forEach(b=>b.addEventListener("click",()=>startItemEdit(b.dataset.editItem)))}
@@ -124,6 +143,7 @@ async function loadHistory(){
 }
 initTransfer();
 $("historyRefresh")?.addEventListener("click",loadHistory);
+$("renewBtn")?.addEventListener("click",openAccessModal);
 $("addBtn")?.addEventListener("click",openAddModal);
 $("cancelBtn")?.addEventListener("click",closeModal);
 $("accessContinueBtn")?.addEventListener("click",purchaseAccess);
@@ -137,6 +157,8 @@ load().then(loadHistory).catch(e=>{
   if(el)el.textContent="Unable to load";
   const body=$("historyBody");
   if(body)body.innerHTML='<tr><td colspan="11" class="history-empty">Unable to load Wallet Board.</td></tr>';
-  alert(e?.message||"Unable to load Wallet Board.");
+  const message=e?.message||"Unable to load Wallet Board.";
+  console.error("Wallet Board startup failure:",message,e);
+  alert(message);
 });
 })();
