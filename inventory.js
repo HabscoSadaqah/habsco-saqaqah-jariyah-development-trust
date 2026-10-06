@@ -112,4 +112,18 @@ async function loadHistory(){
     }).join("");
     body.querySelectorAll("[data-delete-history]").forEach(btn=>btn.addEventListener("click",()=>deleteHistoryActivity(btn.dataset.deleteHistory)));
   }catch(e){console.error("Wallet Board history:",e);body.innerHTML='<tr><td colspan="11" class="history-empty">Unable to load history.</td></tr>'}
+initTransfer();
+$("historyRefresh")?.addEventListener("click",loadHistory);
+$("addBtn")?.addEventListener("click",openAddModal);
+$("cancelBtn")?.addEventListener("click",closeModal);
+$("accessContinueBtn")?.addEventListener("click",purchaseAccess);
+$("closeModal")?.addEventListener("click",closeModal);
+load().then(loadHistory).catch(e=>{
+  console.error("Wallet Board startup:",e);
+  const el=$("walletBalance");
+  if(el)el.textContent="Unable to load";
+  const body=$("historyBody");
+  if(body)body.innerHTML='<tr><td colspan="11" class="history-empty">Unable to load Wallet Board.</td></tr>';
+  alert(e?.message||"Unable to load Wallet Board.");
+});
 })();
