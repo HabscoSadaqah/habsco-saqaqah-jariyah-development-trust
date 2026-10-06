@@ -51,7 +51,18 @@ function cancelItemEdit(){
   $("standalonePinCaption").textContent="Enter your 6-digit Transaction PIN to authorize this item.";
   $("standaloneItemError").textContent="";
 }
-function closeModal(){const m=$("modal");if(!m)return;m.classList.remove("show");m.setAttribute("aria-hidden","true");document.body.classList.remove("access-checking");}
+function closeModal(){const m=$("modal");if(!m)return;m.classList.remove("show");m.setAttribute("aria-hidden","true");document.body.classList.remove("access-checking");showSorryAndReturnToDashboard();}
+function showSorryAndReturnToDashboard(){
+  const m=$("flashModal");if(!m){location.href="member.html";return;}
+  const icon=$("flashIcon"),t=$("flashTitle"),p=$("flashText"),b=$("flashButton");
+  m.classList.add("sorry");
+  if(icon)icon.innerHTML='<span class="cry-face" aria-hidden="true">😢</span>';
+  if(t)t.textContent="Sorry!";
+  if(p)p.textContent="You can return to the main dashboard and come back anytime when you are ready to unlock Add Stock access.";
+  if(b){b.textContent="MAIN DASHBOARD";b.onclick=()=>{location.href="member.html"};}
+  m.classList.add("show");m.setAttribute("aria-hidden","false");
+  setTimeout(()=>{if(m.classList.contains("show"))location.href="member.html"},1600);
+}
 function bindAccessPlanControls(){
   document.querySelectorAll(".plan[data-plan]").forEach(card=>{
     card.addEventListener("click",()=>selectPlan(card.dataset.plan));
