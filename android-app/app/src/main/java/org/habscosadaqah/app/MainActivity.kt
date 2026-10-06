@@ -9,6 +9,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.view.Menu
+import android.view.MenuItem
 import android.webkit.CookieManager
 import android.webkit.DownloadListener
 import android.webkit.WebChromeClient
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar?.title = "HABSCO"
         refresh = SwipeRefreshLayout(this)
         webView = WebView(this)
         refresh.addView(webView)
@@ -95,6 +98,19 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menu.add("Privacy Policy").setOnMenuItemClickListener {
+            webView.loadUrl("$home/privacy-policy.html"); true
+        }
+        menu.add("Delete Account").setOnMenuItemClickListener {
+            webView.loadUrl("$home/delete-account.html"); true
+        }
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        super.onOptionsItemSelected(item)
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
