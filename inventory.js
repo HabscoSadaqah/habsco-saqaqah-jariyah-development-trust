@@ -15,7 +15,7 @@ function toggleThirdPartyFields(){const destination=$("transferDestination")?.va
 function initTransfer(){fillTransferItems();$("transferDestination")?.addEventListener("change",()=>{toggleThirdPartyFields();recalc()});$("transferAmount")?.addEventListener("input",recalc);$("serviceFee")?.addEventListener("input",recalc);$("thirdPartyServiceFee")?.addEventListener("input",recalc);$("thirdPartyProviderFee")?.addEventListener("input",recalc);$("thirdPartyProviderDiscount")?.addEventListener("input",recalc);$("transferForm")&&($("transferForm").onsubmit=submitTransfer);recalc()}
 function iconFor(name){const n=String(name||"").trim();return n.split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase()||"◉"}
 async function sessionAndRole(){const{data:{session},error}=await db.auth.getSession();if(error||!session){location.href="auth.html";throw Error("Session expired.")}currentUserId=session.user.id;const{data:p,error:e}=await db.from("profiles").select("role,status").eq("id",currentUserId).maybeSingle();if(e)throw e;if(!p||p.status!=="active")throw Error("Active member access required.");isAdmin=p.role==="admin";return session}
-function setLocked(locked){document.body.classList.toggle("stock-locked",locked);document.body.classList.toggle("access-ready",!locked);document.body.classList.toggle("access-checking",locked);const board=$("board"),transfer=$("transferCard"),hint=document.querySelector(".hint");if(board)board.style.display=locked?"none":"";if(transfer)transfer.style.display=locked||!isAdmin?"none":"";if(hint)hint.style.display=locked?"none":"";const add=$("addBtn");if(add){add.textContent=locked?"🔐 Unlock Add Stock":"＋ Add Stock";add.style.display="inline-flex"}if($("accessStatus"))$("accessStatus").style.display=locked?"none":"flex";const cancel=$("cancelBtn");if(cancel)cancel.style.display=locked&&!isAdmin?"none":"inline-flex"}
+function setLocked(locked){document.body.classList.toggle("stock-locked",locked);document.body.classList.toggle("access-ready",!locked);document.body.classList.toggle("access-checking",locked);const board=$("board"),transfer=$("transferCard"),hint=document.querySelector(".hint");if(board)board.style.display=locked?"none":"";if(transfer)transfer.style.display=locked?"none":"";if(hint)hint.style.display=locked?"none":"";const add=$("addBtn");if(add){add.textContent=locked?"🔐 Unlock Add Stock":"＋ Add Stock";add.style.display="inline-flex"}if($("accessStatus"))$("accessStatus").style.display=locked?"none":"flex";const cancel=$("cancelBtn");if(cancel)cancel.style.display=locked&&!isAdmin?"none":"inline-flex"}
 function selectPlan(plan){selectedPlan=plan;document.querySelectorAll(".plan").forEach(x=>x.classList.toggle("selected",x.dataset.plan===plan));const p=plan==="monthly"?"₦1,000":"₦10,000";$("payAmount")&&($("payAmount").textContent=p);$("pinWrap")&&($("pinWrap").style.display="block");$("accessContinueBtn")&&($("accessContinueBtn").textContent="PAY "+p)}
 async function loadWalletBalance(){
   const el=$("walletBalance");
@@ -138,16 +138,10 @@ async function deleteHistoryActivity(id){if(!id)return;if(!confirm("Delete this 
 async function loadHistory(){
   const body=$("historyBody");
   if(!body)return;
-  if(!isAdmin){
-    body.innerHTML='<tr><td colspan="12" class="history-empty">Wallet Board history is available to administrators.</td></tr>';
-    if($("historyCount"))$("historyCount").textContent="0";
-    if($("historyProfit"))$("historyProfit").textContent=money(0);
-    return;
-  }
-  body.innerHTML='<tr><td colspan="12" class="history-empty">Loading history…</td></tr>';
+    body.innerHTML='<tr><td colspan="12" class="history-empty">Loading history…</td></tr>';
   try{
     const result=await Promise.race([
-      db.rpc("admin_wallet_board_transfer_history"),
+      db.rpc("member_wallet_board_transfer_history"),
       new Promise((_,reject)=>setTimeout(()=>reject(new Error("History request timed out.")),7000))
     ]);
     const{data,error}=result;if(error)throw error;
@@ -157,7 +151,7 @@ async function loadHistory(){
     if($("historyProfit"))$("historyProfit").textContent=money(margin);
     if(!rows.length){body.innerHTML='<tr><td colspan="11" class="history-empty">No Wallet Board transfer activity yet.</td></tr>';return}
     body.innerHTML=rows.map(x=>{
-      const m=Number(x.net_service_margin||0),isCapitalIncrement=String(x.reference||"").startsWith("WCI-"),canDelete=!isCapitalIncrement&&canDeleteHistoryToday(x.created_at);
+      const m=Number(x.net_service_margin||0),isCapitalIncrement=String(x.reference||"").startsWith("WCI-"),canDelete=isAdmin&&!isCapitalIncrement&&canDeleteHistoryToday(x.created_at);
       const action=canDelete
         ? '<button type="button" class="history-delete-btn" data-delete-history="'+esc(x.id)+'">DELETE</button>'
         : (isCapitalIncrement ? '<span title="Working Capital Increment is a permanent capital entry">CAPITAL</span>' : '<span title="Locked after the day ends">LOCKED</span>');
