@@ -148,3 +148,5 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 }
+
+// Trigger Android CI after workflow configuration fix.
