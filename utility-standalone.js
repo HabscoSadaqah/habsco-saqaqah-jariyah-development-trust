@@ -4,10 +4,21 @@ const META={data:{title:"Mobile Data",icon:"📶",providers:"data-providers",pac
 const M=META[SERVICE]||META.data;
 async function auth(){let {data:{session},error}=await supabaseClient.auth.getSession();if(error||!session){const r=await supabaseClient.auth.refreshSession();if(r.error||!r.data.session){location.href="auth.html";return null}session=r.data.session}return session}
 async function call(body){const session=await auth();if(!session)throw Error("Authentication required.");const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy-v2",{body});if(error)throw Error(error.message||"Utility service request failed.");if(data?.error)throw Error(typeof data.error==="string"?data.error:(data.error.message||"Utility service request failed."));return data||{}}
-function rows(x){if(Array.isArray(x))return x;if(Array.isArray(x?.data))return x.data;if(Array.isArray(x?.providers))return x.providers;if(Array.isArray(x?.packages))return x.packages;if(Array.isArray(x?.items))return x.items;if(Array.isArray(x?.results))return x.results;if(x&&typeof x==="object"&&(x.code||x.name||x.package||x.package_name))return [x];return []}
-function code(x){return String(x?.code??x?.variation_code??x?.variationCode??x?.package_code??x?.id??"").trim()}
-function name(x){return String(x?.package??x?.name??x?.package_name??x?.variation??x?.description??x?.plan_name??code(x)).trim()}
-function amount(x){const n=Number(String(x?.amount??x?.price??x?.selling_price??x?.sellingPrice??x?.cost??x?.value??"").replace(/[^0-9.\-]/g,""));return Number.isFinite(n)&&n>0?n:null}
+function rows(x){
+ if(Array.isArray(x))return x;
+ if(!x||typeof x!=="object")return [];
+ for(const k of ["data","packages","plans","variations","items","results","result","records","list"]){
+  if(k in x){
+   const a=rows(x[k]);
+   if(a.length)return a;
+  }
+ }
+ if(x.code||x.name||x.package||x.package_name||x.package_code||x.variation_code||x.provider_code)return [x];
+ return [];
+}
+function code(x){return String(x?.code??x?.package_code??x?.variation_code??x?.variationCode??x?.variation_code??x?.id??x?.package_api_code??"").trim()}
+function name(x){return String(x?.package_name??x?.package??x?.name??x?.variation??x?.description??x?.plan_name??x?.title??code(x)).trim()}
+function amount(x){const n=Number(String(x?.package_amount??x?.amount??x?.price??x?.selling_price??x?.sellingPrice??x?.selling_amount??x?.cost??x?.value??"").replace(/[^0-9.\-]/g,""));return Number.isFinite(n)&&n>0?n:null}
 function setMsg(t,ok=false){const e=$("result");e.textContent=t;e.style.color=ok?"#087443":"#a52a2a"}
 const FALLBACK_PROVIDERS={data:[{code:"MTN",name:"MTN"},{code:"AIRTEL",name:"Airtel"},{code:"GLO",name:"Glo"},{code:"9MOBILE",name:"9mobile"}],tv:[{code:"DSTV",name:"DStv"},{code:"GOTV",name:"GOtv"},{code:"STARTIMES",name:"Startimes"}],education:[{code:"JAMB",name:"JAMB"},{code:"WAEC",name:"WAEC"},{code:"NECO",name:"NECO"},{code:"NABTEB",name:"NABTEB"}]};\nasync function loadProviders(){const s=$("provider");const fallback=FALLBACK_PROVIDERS[SERVICE]||[];s.disabled=false;s.innerHTML='<option value="">Select provider</option>';fallback.forEach(x=>{const o=document.createElement("option");o.value=x.code;o.textContent=x.name;s.appendChild(o)});let a=[];try{const r=await call({action:M.providers});a=rows(r)}catch(e){return}if(!a.length)return;s.innerHTML='<option value="">Select provider</option>';const seen=new Set();a.forEach(x=>{const c=String(x?.short_name||x?.code||x?.provider||x?.provider_code||x?.name||"").trim();const n=String(x?.name||x?.provider_name||x?.provider||x?.short_name||x?.code||c).trim();if(!c||seen.has(c.toUpperCase()))return;seen.add(c.toUpperCase());const o=document.createElement("option");o.value=c;o.textContent=n===c?n:n+" ("+c+")";s.appendChild(o)});s.disabled=false;if(!a.length)throw Error("No providers are currently available.")}
 async function loadPackages(){const p=$("provider").value.trim(),s=$("package");if(!p){s.innerHTML='<option value="">Select provider first</option>';return}s.disabled=true;s.innerHTML='<option value="">Loading packages...</option>';try{const r=await call({action:M.packages,provider:p,page:1,limit:100});const a=rows(r);if(!a.length){s.innerHTML='<option value="">No packages available</option>';return}s.innerHTML='<option value="">Select package</option>';a.forEach(x=>{const c=code(x);if(!c)return;const o=document.createElement("option");o.value=c;const n=name(x),v=amount(x);o.dataset.amount=v!=null?String(v):"";o.textContent=v!=null?n+" — ₦"+v.toLocaleString("en-NG"):n;s.appendChild(o)});s.disabled=false}catch(e){s.innerHTML='<option value="">Unable to load packages</option>';throw e}}
