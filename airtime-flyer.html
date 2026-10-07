@@ -765,7 +765,7 @@ async function downloadFlyer(){
   try{
     if(illustration){
       illustration.style.left='50%';
-      illustration.style.top='57%';
+      illustration.style.top='68%';
       illustration.style.transform='translate(-50%,-50%)';
       illustration.style.width='clamp(225px,32vw,340px)';
       illustration.style.height='clamp(195px,28vw,295px)';
@@ -786,18 +786,38 @@ async function downloadFlyer(){
         const clonedIllustration=doc.getElementById('realLifePhoto');
         if(clonedIllustration){
           clonedIllustration.style.left='50%';
-          clonedIllustration.style.top='57%';
+          clonedIllustration.style.top='68%';
           clonedIllustration.style.transform='translate(-50%,-50%)';
           clonedIllustration.style.margin='0';
                clonedIllustration.style.width='clamp(225px,32vw,340px)';
                clonedIllustration.style.height='clamp(195px,28vw,295px)';
         }
-        const svg=doc.getElementById('serviceIllustration')?.querySelector('svg');
-        if(svg){
+        const art=doc.getElementById('serviceIllustration');
+        const svg=art?.querySelector('svg');
+        if(art&&svg){
+          art.style.position='absolute';
+          art.style.left='0';
+          art.style.top='0';
+          art.style.width='100%';
+          art.style.height='100%';
+          art.style.display='block';
+          art.style.margin='0';
+          art.style.transform='none';
+          art.style.overflow='visible';
           svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+          svg.setAttribute('x','0');
+          svg.setAttribute('y','0');
+          svg.setAttribute('width','100%');
+          svg.setAttribute('height','100%');
+          svg.style.position='absolute';
+          svg.style.left='50%';
+          svg.style.top='50%';
+          svg.style.width='100%';
+          svg.style.height='100%';
           svg.style.display='block';
-          svg.style.margin='0 auto';
-          svg.style.transform='none';
+          svg.style.margin='0';
+          svg.style.transform='translate(-50%,-50%)';
+          svg.style.transformOrigin='50% 50%';
           svg.querySelectorAll('g').forEach(g=>g.removeAttribute('transform'));
         }
       }
