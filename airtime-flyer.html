@@ -494,8 +494,43 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   .flyer .benefits{bottom:18.5%!important}
 }
 </style>
-</head><body><div class="stage"><section class="flyer" id="flyer">
-<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
+<style id="real-life-photo-focal-point">
+/* Real-life photographic focal point for each service flyer. */
+.flyer .real-life-photo{
+  position:absolute!important;left:50%!important;top:51%!important;
+  transform:translate(-50%,-50%)!important;width:clamp(210px,31vw,330px)!important;
+  height:clamp(180px,27vw,290px)!important;border-radius:30px!important;
+  overflow:hidden!important;z-index:19!important;
+  border:1px solid rgba(255,255,255,.34)!important;
+  background:rgba(255,255,255,.08)!important;
+  box-shadow:0 24px 60px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.28)!important;
+}
+.flyer .real-life-photo img{
+  width:100%!important;height:100%!important;display:block!important;
+  object-fit:cover!important;object-position:center!important;
+}
+.flyer .real-life-photo:after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(0,0,0,.02) 45%,rgba(0,0,0,.48) 100%);
+  pointer-events:none;
+}
+.flyer .photo-subject{
+  position:absolute!important;left:50%!important;bottom:10px!important;
+  transform:translateX(-50%)!important;z-index:2!important;
+  width:90%!important;text-align:center!important;
+  color:#fff!important;font-size:clamp(14px,2vw,21px)!important;
+  line-height:1.05!important;font-weight:950!important;
+  letter-spacing:1.2px!important;text-transform:uppercase!important;
+  text-shadow:0 3px 12px rgba(0,0,0,.65)!important;
+}
+.flyer .real-life-quote{top:80.8%!important}
+.flyer .benefits{bottom:19%!important}
+@media(max-width:600px){
+  .flyer .real-life-photo{top:50%!important;width:clamp(145px,48vw,220px)!important;height:clamp(125px,40vw,185px)!important;border-radius:20px!important}
+  .flyer .photo-subject{bottom:7px!important;font-size:clamp(9px,3.4vw,14px)!important;letter-spacing:.7px!important}
+}
+</style></head><body><div class="stage"><section class="flyer" id="flyer">
+<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><img id="servicePhoto" alt="" crossorigin="anonymous"><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
 <div class="benefits"><div class="benefit"><b id="benefit1">FAST</b><span id="benefitText1">Simple access</span></div><div class="benefit"><b id="benefit2">SECURE</b><span id="benefitText2">Protected transactions</span></div><div class="benefit"><b id="benefit3">EASY</b><span id="benefitText3">Built for members</span></div></div>
@@ -506,6 +541,15 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 const flyer=document.getElementById('flyer');
 const tz='Africa/Lagos';
 const serviceKey=new URLSearchParams(location.search).get('service')||'airtime';
+const servicePhotos={
+  electricity:{url:'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=900&q=85',subject:'Electricity'},
+  airtime:{url:'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85',subject:'Airtime'},
+  data:{url:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=85',subject:'Data'},
+  tv:{url:'https://images.unsplash.com/photo-1586899028174-e7098604235b?auto=format&fit=crop&w=900&q=85',subject:'TV'},
+  education:{url:'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=85',subject:'Education'},
+  savings:{url:'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=900&q=85',subject:'Savings & Shares'},
+  loan:{url:'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=85',subject:'Interest-Free Loan'}
+};
 const services={
   electricity:{label:'Electricity',icon:'⚡',nodes:['🔌','💡','🏠'],kicker:'POWER YOUR DAY',headline:'Electricity<br>Made Simple.',lead:'Pay electricity services conveniently through HABSCO and keep your home or business powered.',benefits:['POWER','SECURE','SIMPLE'],texts:['Keep your meter active','Protected transactions','Easy member experience'],cta:'POWER YOUR DAY WITH HABSCO',quote:'Reliable power supports everyday life.',theme:'electricity'},
   airtime:{label:'Airtime',icon:'📱',nodes:['📶','💬','☎️'],kicker:'STAY CONNECTED',headline:'Airtime<br>Made Easy.',lead:'Recharge conveniently through HABSCO and keep every important conversation moving.',benefits:['RECHARGE','CONNECT','EASY'],texts:['Quick mobile top-up','Protected transactions','Built for members'],cta:'STAY CONNECTED WITH HABSCO',quote:'Connection keeps people and ideas moving.',theme:'airtime'},
@@ -517,7 +561,10 @@ const services={
 };
 const svc=services[serviceKey]||services.airtime;
 flyer.dataset.service=serviceKey;
-document.querySelector('.service-symbol').textContent=svc.icon;
+const photo=servicePhotos[serviceKey]||servicePhotos.airtime;
+document.getElementById('servicePhoto').src=photo.url;
+document.getElementById('servicePhoto').alt=photo.subject;
+document.getElementById('servicePhotoLabel').textContent=photo.subject;
 document.getElementById('dailyIcon').textContent=svc.icon;
 document.getElementById('dailyNode1').textContent=svc.nodes[0];
 document.getElementById('dailyNode2').textContent=svc.nodes[1];
