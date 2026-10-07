@@ -121,7 +121,7 @@ try{
 }catch(err){setTransferStatus(err.message||"Transfer failed")}
 finally{btn.disabled=false;btn.textContent="TRANSFER"}
 }
-function denominationModeForTransferfunction denominationModeForTransfer(isThirdParty,walletMode){return false;}
+function denominationModeForTransfer(isThirdParty,walletMode){return false;}
 function toggleThirdPartyFields(){
 const source=$("transferSource")?.value||"",destination=$("transferDestination")?.value||"",third=destination==="__third_party__"||destination==="__third_party_utility__",utility=destination==="__third_party_utility__",walletMode=!!source&&!third,box=$("thirdPartyFields");
 if(box)box.classList.toggle("hidden",!third);
@@ -148,7 +148,7 @@ $("transferForm")&&($("transferForm").onsubmit=submitTransfer);
 toggleThirdPartyFields();
 recalc();
 }
-function loadfunction loadWalletBalance(){
+async function loadWalletBalance(){
   const el=$("walletBalance");
   if(!el)return;
   el.textContent="Checking…";
