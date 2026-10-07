@@ -26,10 +26,10 @@
 .flyer[data-theme="royal"]{background:radial-gradient(circle at 50% 42%,#276c62 0,#164844 30%,#082d31 62%,#031519 100%);--gold:#f3d56d}
 .flyer[data-theme="sunrise"]{background:radial-gradient(circle at 50% 42%,#3d9869 0,#28623f 28%,#0b3b28 58%,#03150d 100%);--gold:#ffd36b}
 .flyer[data-theme="forest"]{background:radial-gradient(circle at 50% 42%,#2f8a5b 0,#17633f 24%,#0b3d27 52%,#062719 78%,#03150d 100%)}
-</style></head><body><div class="stage"><section class="flyer" id="flyer">
+.flyer.daily-alt .core{border-radius:28%;transform:translate(-50%,-50%) rotate(45deg)}.flyer.daily-alt .node{border-radius:14px}.flyer.daily-pulse .core{box-shadow:0 0 55px var(--gold),0 0 130px rgba(255,255,255,.18)}.flyer.daily-pulse .orbit.two{animation-duration:9s}.flyer.daily-soft .core{filter:saturate(.8)}</style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="brand"><img src="/assets/habsco-wordmark.svg?v=20260917" alt="HABSCO"><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay powered</div><h1>Electricity<br>Made Easy.</h1><div class="lead">Pay your electricity bill conveniently through HABSCO — a simple, secure experience for keeping your home and business powered.</div></div>
-<div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone">⚡</div><div class="node n1">💡</div><div class="node n2">🔒</div><div class="node n3">✓</div></div>
+<div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">⚡</div><div class="node n1" id="dailyNode1">💡</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">🔌</div></div>
 <div class="benefits"><div class="benefit"><b>CONVENIENT</b><span>Pay from your device</span></div><div class="benefit"><b>SECURE</b><span>Protected transactions</span></div><div class="benefit"><b>RELIABLE</b><span>Simple payment process</span></div></div>
 <div class="cta"><span>KEEP YOUR POWER ON WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable electricity bill payment services for our members</span></div><div class="web-address">habscosadaqah.org</div></div>
 </section><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD A4 PNG</button><button onclick="shareFlyer()">↗ SHARE FLYER</button><button class="back" onclick="window.print()">🖨 PRINT / PDF</button></div></div>
@@ -46,8 +46,27 @@ const selected=validDate(requested)?requested:today;
 if(requested!==selected) history.replaceState(null,'',location.pathname+'?date='+selected);
 const d=new Date(selected+'T00:00:00Z');
 const start=new Date(d.getUTCFullYear(),0,1), day=Math.floor((d-new Date(Date.UTC(d.getUTCFullYear(),0,1)))/86400000)+1;
-const themes=['forest','emerald','gold','midnight','fresh','royal','sunrise'];
-flyer.dataset.theme=themes[(day-1)%themes.length];
+const dailyDesigns=[
+['forest','⚡','💡','🔌','🏠','Stay powered','Electricity Made Easy.','Pay your electricity bill conveniently and keep your home or business powered.',['CONVENIENT','SECURE','RELIABLE'],['Pay from your device','Protected transactions','Simple payment process'],'KEEP YOUR POWER ON'],
+['emerald','💡','⚡','🔌','🏢','Power your day','Keep The Lights On.','A simple HABSCO experience for managing electricity payments when you need power.',['EASY PAY','SECURE','DEPENDABLE'],['Convenient bill payment','Protected transactions','Member-focused service'],'POWER YOUR HOME WITH HABSCO'],
+['gold','🔋','💡','⚡','🏠','Power that matters','Pay. Power. Continue.','Make your electricity payment and keep everyday life, work and business moving.',['HOME','BUSINESS','LIGHT'],['Keep homes powered','Support daily work','Keep the lights on'],'KEEP POWER FLOWING WITH HABSCO'],
+['midnight','🔌','⚡','💡','🏢','Power made simple','Electricity At Your Fingertips.','A convenient way for HABSCO members to handle electricity bill payments.',['CONVENIENT','SECURE','SIMPLE'],['Pay from your device','Protected payments','Easy member experience'],'PAY YOUR ELECTRICITY WITH HABSCO'],
+['fresh','💡','🔋','🏠','⚡','Light up your day','Power Your Everyday.','Stay ready for home, work and business with convenient electricity payments.',['READY','POWERED','SECURE'],['Convenient payments','Keep power available','Protected transactions'],'STAY POWERED WITH HABSCO'],
+['royal','⚡','🏢','🔌','💡','Reliable power access','Your Power. Your Day.','Make electricity payments conveniently through HABSCO and keep your routine running.',['EASY','RELIABLE','SECURE'],['Simple payment flow','Member-focused service','Protected transactions'],'POWER YOUR DAY WITH HABSCO'],
+['sunrise','💡','🏠','⚡','🔌','A brighter day','Keep Your Space Powered.','Convenient electricity payment support for the moments and places that matter.',['HOME','WORK','POWER'],['Keep homes bright','Support daily work','Stay powered'],'KEEP YOUR SPACE POWERED']
+];
+const design=dailyDesigns[(day-1)%dailyDesigns.length];
+flyer.dataset.theme=design[0];
+flyer.classList.add(day%3===0?'daily-pulse':day%3===1?'daily-soft':'daily-alt');
+document.getElementById('dailyIcon').textContent=design[1];
+document.getElementById('dailyNode1').textContent=design[2];
+document.getElementById('dailyNode2').textContent=design[3];
+document.getElementById('dailyNode3').textContent=design[4];
+document.querySelector('.kicker').textContent=design[5];
+document.querySelector('h1').innerHTML=design[6].replace(/\s+/,'<br>');
+document.querySelector('.lead').textContent=design[7];
+document.querySelectorAll('.benefit').forEach((el,i)=>{el.querySelector('b').textContent=design[8][i];el.querySelector('span').textContent=design[9][i]});
+document.querySelector('.cta span').textContent=design[10];
 const formatted=new Intl.DateTimeFormat('en-NG',{timeZone:tz,day:'numeric',month:'long',year:'numeric'}).format(d);
 document.getElementById('dailyMeta').textContent=(selected===today?'TODAY • ':'')+formatted.toUpperCase();
 const archive=document.getElementById('archive');
