@@ -177,7 +177,7 @@ function lagosDate(){
   const p=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
   const o={};p.forEach(x=>o[x.type]=x.value);return `${o.year}-${o.month}-${o.day}`;
 }
-function validDate(s){return /^\\d{4}-\\d{2}-\\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s+'T00:00:00'))&&s<=lagosDate();}
+function validDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s+'T00:00:00'))&&s<=lagosDate();}
 const today=lagosDate(), requested=new URLSearchParams(location.search).get('date');
 const selected=validDate(requested)?requested:today;
 if(requested!==selected) history.replaceState(null,'',location.pathname+'?service='+serviceKey+'&date='+selected);
