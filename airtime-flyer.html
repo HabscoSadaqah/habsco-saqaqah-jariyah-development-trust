@@ -110,34 +110,35 @@
 .archive a.today{background:#087443;color:#fff}.archive-label{width:100%;text-align:center;color:#355044;font-size:11px;font-weight:800;margin-bottom:1px}
 @media(max-width:600px){.daily-meta{right:5%;top:1%;font-size:7px;padding:4px 7px}.archive a{font-size:10px;padding:6px 7px}}
 </style><style id="daily-themes">
-/* Seven distinct static editorial themes. No animation. Each day gets its own visual direction. */
-.flyer[data-theme="aurora"]{background:radial-gradient(circle at 18% 18%,#67e8c0 0,transparent 29%),radial-gradient(circle at 82% 78%,#7c5cff 0,transparent 34%),linear-gradient(145deg,#071f1a 0%,#063d35 48%,#03120f 100%)!important;--gold:#b7ffe9}
-.flyer[data-theme="cobalt"]{background:radial-gradient(circle at 72% 22%,#4aa8ff 0,transparent 32%),linear-gradient(160deg,#06152c 0%,#103b78 50%,#020916 100%)!important;--gold:#8bd8ff}
-.flyer[data-theme="champagne"]{background:radial-gradient(circle at 50% 12%,rgba(255,225,153,.58) 0,transparent 32%),linear-gradient(145deg,#19150d 0%,#514020 45%,#090806 100%)!important;--gold:#ffe5a3}
-.flyer[data-theme="violet"]{background:radial-gradient(circle at 25% 25%,#b07cff 0,transparent 30%),radial-gradient(circle at 80% 72%,#ff6fae 0,transparent 30%),linear-gradient(145deg,#180d2c 0%,#40206a 48%,#08040f 100%)!important;--gold:#f2c7ff}
-.flyer[data-theme="aqua"]{background:radial-gradient(circle at 80% 18%,#5ff1ff 0,transparent 30%),linear-gradient(145deg,#03282d 0%,#08727a 48%,#021216 100%)!important;--gold:#a9fbff}
-.flyer[data-theme="sunset"]{background:radial-gradient(circle at 18% 18%,#ffb36b 0,transparent 32%),radial-gradient(circle at 82% 76%,#ff5d73 0,transparent 35%),linear-gradient(145deg,#35120f 0%,#813b2c 48%,#110607 100%)!important;--gold:#ffd29b}
-.flyer[data-theme="onyx"]{background:radial-gradient(circle at 50% 20%,#4f5a55 0,transparent 30%),linear-gradient(145deg,#050807 0%,#18201d 48%,#020303 100%)!important;--gold:#f4d98a}
-.flyer[data-theme="aurora"] .service-symbol{border-radius:50%!important;background:rgba(89,241,205,.12)!important}
-.flyer[data-theme="cobalt"] .service-symbol{border-radius:12px!important;transform:translate(-50%,-50%) rotate(-3deg)!important}
-.flyer[data-theme="champagne"] .service-symbol{border-radius:50%!important;border-color:rgba(255,229,163,.55)!important;background:rgba(255,229,163,.10)!important}
-.flyer[data-theme="violet"] .service-symbol{border-radius:22px 8px 22px 8px!important}
-.flyer[data-theme="aqua"] .service-symbol{border-radius:8px 28px 8px 28px!important}
-.flyer[data-theme="sunset"] .service-symbol{border-radius:28px!important;background:rgba(255,255,255,.13)!important}
-.flyer[data-theme="onyx"] .service-symbol{border-radius:50%!important;border:2px solid rgba(244,217,138,.5)!important;background:rgba(255,255,255,.04)!important}
-.flyer[data-theme="aurora"] .benefit,.flyer[data-theme="aqua"] .benefit{border-color:rgba(169,251,255,.24)!important}
-.flyer[data-theme="cobalt"] .benefit{background:rgba(74,168,255,.10)!important;border-color:rgba(139,216,255,.24)!important}
-.flyer[data-theme="champagne"] .benefit{background:rgba(255,229,163,.08)!important;border-color:rgba(255,229,163,.28)!important}
-.flyer[data-theme="violet"] .benefit{background:rgba(176,124,255,.10)!important;border-color:rgba(242,199,255,.24)!important}
-.flyer[data-theme="sunset"] .benefit{background:rgba(255,179,107,.09)!important;border-color:rgba(255,210,155,.25)!important}
-.flyer[data-theme="onyx"] .benefit{background:rgba(255,255,255,.045)!important;border-color:rgba(244,217,138,.24)!important}
-.flyer[data-theme="aurora"] .cta span{color:#063c32!important}
-.flyer[data-theme="cobalt"] .cta span{color:#082c63!important}
-.flyer[data-theme="champagne"] .cta span{color:#4a3511!important}
-.flyer[data-theme="violet"] .cta span{color:#40125f!important}
-.flyer[data-theme="aqua"] .cta span{color:#03565c!important}
-.flyer[data-theme="sunset"] .cta span{color:#642116!important}
-.flyer[data-theme="onyx"] .cta span{color:#15120b!important}
+/* Seven distinct static editorial themes. No animation. Each day gets a fresh visual direction. */
+.flyer[data-theme="pearl"]{background:radial-gradient(circle at 22% 18%,#f3f8f5 0,transparent 25%),radial-gradient(circle at 82% 76%,#a9d8c8 0,transparent 34%),linear-gradient(145deg,#18352d 0%,#315f50 48%,#071511 100%)!important;--gold:#e7fff4}
+.flyer[data-theme="sapphire"]{background:radial-gradient(circle at 78% 18%,#78c8ff 0,transparent 30%),linear-gradient(145deg,#07152f 0%,#164b88 50%,#020817 100%)!important;--gold:#b9e5ff}
+.flyer[data-theme="terracotta"]{background:radial-gradient(circle at 18% 18%,#ffbd91 0,transparent 31%),radial-gradient(circle at 82% 76%,#d95f55 0,transparent 34%),linear-gradient(145deg,#321514 0%,#7b3c32 48%,#100706 100%)!important;--gold:#ffe0c4}
+.flyer[data-theme="plum"]{background:radial-gradient(circle at 25% 22%,#d49bff 0,transparent 30%),radial-gradient(circle at 80% 72%,#8d4fc4 0,transparent 32%),linear-gradient(145deg,#1b0d27 0%,#52225f 48%,#09040e 100%)!important;--gold:#f3d4ff}
+.flyer[data-theme="mint"]{background:radial-gradient(circle at 82% 18%,#8fffe0 0,transparent 31%),linear-gradient(145deg,#052522 0%,#0c7061 48%,#021311 100%)!important;--gold:#c5fff0}
+.flyer[data-theme="coral"]{background:radial-gradient(circle at 18% 20%,#ffd08a 0,transparent 31%),radial-gradient(circle at 82% 75%,#ff7180 0,transparent 34%),linear-gradient(145deg,#351314 0%,#9b3f45 48%,#110607 100%)!important;--gold:#ffe1b5}
+.flyer[data-theme="graphite"]{background:radial-gradient(circle at 52% 16%,#7b8580 0,transparent 28%),linear-gradient(145deg,#080a09 0%,#252d2a 50%,#020303 100%)!important;--gold:#f5dfa0}
+.flyer[data-theme="pearl"] .service-symbol{border-radius:50%!important;background:rgba(255,255,255,.11)!important;border-color:rgba(231,255,244,.42)!important}
+.flyer[data-theme="sapphire"] .service-symbol{border-radius:14px!important}
+.flyer[data-theme="terracotta"] .service-symbol{border-radius:30px 10px 30px 10px!important}
+.flyer[data-theme="plum"] .service-symbol{border-radius:50%!important;border-color:rgba(243,212,255,.45)!important}
+.flyer[data-theme="mint"] .service-symbol{border-radius:12px 30px 12px 30px!important}
+.flyer[data-theme="coral"] .service-symbol{border-radius:28px!important}
+.flyer[data-theme="graphite"] .service-symbol{border-radius:50%!important;border:2px solid rgba(245,223,160,.48)!important;background:rgba(255,255,255,.045)!important}
+.flyer[data-theme="pearl"] .benefit{background:rgba(255,255,255,.09)!important;border-color:rgba(231,255,244,.25)!important}
+.flyer[data-theme="sapphire"] .benefit{background:rgba(120,200,255,.09)!important;border-color:rgba(185,229,255,.24)!important}
+.flyer[data-theme="terracotta"] .benefit{background:rgba(255,189,145,.09)!important;border-color:rgba(255,224,196,.24)!important}
+.flyer[data-theme="plum"] .benefit{background:rgba(212,155,255,.09)!important;border-color:rgba(243,212,255,.24)!important}
+.flyer[data-theme="mint"] .benefit{background:rgba(143,255,224,.08)!important;border-color:rgba(197,255,240,.24)!important}
+.flyer[data-theme="coral"] .benefit{background:rgba(255,208,138,.09)!important;border-color:rgba(255,225,181,.24)!important}
+.flyer[data-theme="graphite"] .benefit{background:rgba(255,255,255,.045)!important;border-color:rgba(245,223,160,.23)!important}
+.flyer[data-theme="pearl"] .cta span{color:#123f32!important}
+.flyer[data-theme="sapphire"] .cta span{color:#092d62!important}
+.flyer[data-theme="terracotta"] .cta span{color:#65271e!important}
+.flyer[data-theme="plum"] .cta span{color:#4b1760!important}
+.flyer[data-theme="mint"] .cta span{color:#07594f!important}
+.flyer[data-theme="coral"] .cta span{color:#681f25!important}
+.flyer[data-theme="graphite"] .cta span{color:#17130a!important}
 .flyer.daily-alt .core{border-radius:28%;transform:translate(-50%,-50%) rotate(45deg)}
 .flyer.daily-alt .node{border-radius:14px}
 .flyer.daily-pulse .core{box-shadow:0 0 55px var(--gold),0 0 130px rgba(255,255,255,.18)}
@@ -660,13 +661,13 @@ if(requested!==selected) history.replaceState(null,'',location.pathname+'?servic
 const d=new Date(selected+'T00:00:00Z');
 const start=new Date(Date.UTC(d.getUTCFullYear(),0,1)), day=Math.floor((d-start)/86400000)+1;
 const dailyStyles=[
-['aurora','✦','◌','↗','A brighter everyday.','Clean access for the moments that matter.'],
-['cobalt','◇','◈','↗','Connected with confidence.','Modern service access, made simple.'],
-['champagne','◆','✦','✓','Progress, beautifully planned.','Purposeful services for everyday life.'],
-['violet','✦','◎','▣','Designed for your next move.','A refined HABSCO experience for members.'],
-['aqua','◇','✚','↗','Simple. Fresh. Ready.','Convenience that keeps life moving.'],
-['sunset','●','✦','✓','Make today count.','Reliable access with a warmer touch.'],
-['onyx','✧','◎','↗','HABSCO, with purpose.','Clear. Bold. Member-focused.']
+  ['pearl','◇','✦','✓','A softer way forward.','Refined everyday service access with a clean HABSCO feel.'],
+  ['sapphire','✦','◈','↗','Made for momentum.','Confident service access for the moments that matter.'],
+  ['terracotta','◆','✧','✓','Warm. Bold. Purposeful.','Everyday services with a distinctive HABSCO character.'],
+  ['plum','✦','◎','▣','Progress, with polish.','A richer member experience built around simplicity.'],
+  ['mint','◇','✚','↗','Fresh access. Clear purpose.','Simple services that fit naturally into everyday life.'],
+  ['coral','●','✦','✓','Bring more to today.','A warm, energetic HABSCO experience for everyday needs.'],
+  ['graphite','✧','◎','↗','Quietly powerful.','Premium simplicity with HABSCO at the centre.']
 ];
 const style=dailyStyles[(day-1)%dailyStyles.length];
 
