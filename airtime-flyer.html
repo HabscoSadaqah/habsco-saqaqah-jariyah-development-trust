@@ -561,12 +561,12 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   .flyer .real-life-photo{top:67%!important;width:clamp(140px,44vw,205px)!important;height:clamp(120px,37vw,175px)!important}
   .flyer .photo-subject{bottom:-22px!important;font-size:clamp(9px,3.4vw,14px)!important;letter-spacing:.7px!important}
 }
-</style></head><body><div class="stage"><section class="flyer" id="flyer">
+</style><style id="service-web-icons">.web-service-icon{display:inline-grid;place-items:center;width:1.05em;height:1.05em;margin-right:6px;vertical-align:-.12em;color:var(--gold);flex:0 0 auto}.web-service-icon svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.web-address{display:inline-flex!important;align-items:center!important}</style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
 
-<div class="cta"><span id="serviceCta">POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div class="footer-brand"><div class="web-address">www.habscosadaqah.org</div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div></div>
+<div class="cta"><span id="serviceCta">POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div class="footer-brand"><div class="web-address"><span class="web-service-icon" id="webServiceIcon" aria-hidden="true"></span><span>www.habscosadaqah.org</span></div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div></div>
 </section><div id="dailyFlyerRailMount"></div>
 <a class="back-dashboard" href="member.html">← BACK TO DASHBOARD</a><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD PNG FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button></div></div>
 <script>
@@ -606,6 +606,17 @@ document.getElementById('serviceCta').textContent=svc.cta;
 document.getElementById('serviceQuote').textContent=svc.quote;
 document.getElementById('serviceQuoteBy').textContent='HABSCO • '+svc.label.toUpperCase();
 document.title='HABSCO | '+svc.label+' Flyer';
+const webIcons={
+  electricity:'<svg viewBox="0 0 24 24"><path d="M13 2 4.5 13h6l-1 9L19.5 10h-6L13 2Z"/></svg>',
+  airtime:'<svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10 5.5h4M10 18.5h4"/></svg>',
+  data:'<svg viewBox="0 0 24 24"><path d="M3 9.5a13 13 0 0 1 18 0M6 13a8.5 8.5 0 0 1 12 0M9.5 16.5a4 4 0 0 1 5 0M12 20h.01"/></svg>',
+  tv:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m9 2 3 3 3-3M8 22h8"/></svg>',
+  education:'<svg viewBox="0 0 24 24"><path d="m3 9 9-4 9 4-9 4-9-4Z"/><path d="M7 11v5c2.5 2 7.5 2 10 0v-5M21 10v6"/></svg>',
+  savings:'<svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-8M22 19V3"/><path d="m3 6 6-3 6 3 7-5"/></svg>',
+  loan:'<svg viewBox="0 0 24 24"><path d="M8 11h8M9 15h6M6 5h12l2 4H4l2-4Z"/><path d="M4 9v10h16V9M8 19v3h8v-3"/></svg>'
+};
+const webIcon=document.getElementById('webServiceIcon');
+if(webIcon) webIcon.innerHTML=webIcons[serviceKey]||webIcons.airtime;
 
 function lagosDate(){
   const p=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
