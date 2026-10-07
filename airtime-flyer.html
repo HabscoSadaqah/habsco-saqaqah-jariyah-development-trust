@@ -368,7 +368,52 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 .flyer .hero h1{grid-column:1!important;grid-row:3!important;text-align:center!important;margin:0!important}
 .flyer .hero .lead{grid-column:1!important;grid-row:4!important;text-align:center!important;margin:8px auto 0!important}
 }
-</style></head><body><div class="stage"><section class="flyer" id="flyer">
+</style><style id="web-address-footer-final">
+/* Website address: clean, full-width footer treatment — no box, border, or curved container. */
+.flyer .footer{
+  left:5%!important;
+  right:5%!important;
+  bottom:1.15%!important;
+  width:auto!important;
+  min-width:0!important;
+  display:block!important;
+  padding:0!important;
+  text-align:center!important;
+}
+.flyer .footer>div:first-child{display:none!important}
+.flyer .footer .web-address{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:0 auto!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  color:#fff!important;
+  text-align:center!important;
+  font-size:clamp(15px,2.05vw,23px)!important;
+  line-height:1.1!important;
+  font-weight:950!important;
+  letter-spacing:clamp(1.2px,.24vw,3px)!important;
+  text-decoration:none!important;
+  text-shadow:0 2px 10px rgba(0,0,0,.5)!important;
+  white-space:nowrap!important;
+}
+@media(max-width:600px){
+  .flyer .footer{
+    left:5%!important;
+    right:5%!important;
+    bottom:1%!important;
+  }
+  .flyer .footer .web-address{
+    font-size:clamp(11px,3.35vw,16px)!important;
+    letter-spacing:clamp(.7px,.18vw,1.8px)!important;
+  }
+}
+</style>
+</head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
