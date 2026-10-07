@@ -645,6 +645,77 @@ const dailyStyles=[
 ];
 const style=dailyStyles[(day-1)%dailyStyles.length];
 
+/* Daily illustration rotation: seven distinct real-life line-art scenes per service.
+   The selected scene changes with the flyer date, so consecutive days do not repeat. */
+const svgLine=(label,body)=>'<svg viewBox="0 0 420 300" role="img" aria-label="'+label+'"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">'+body+'</g></svg>';
+const dailyIllustrationVariants={
+  electricity:[
+    svgLine('Electricity technician checking a meter','<rect x="168" y="55" width="82" height="145" rx="8"/><circle cx="209" cy="103" r="18"/><path d="M185 148h48M185 165h48"/><circle cx="300" cy="91" r="30"/><path d="M300 62v58M271 91h58M278 70l44 42M322 70l-44 42"/><path d="M105 245c25-43 54-64 83-72"/>'),
+    svgLine('Electricity bulb and power lines','<path d="M211 63c-34 0-56 25-56 57 0 22 11 35 25 47h62c14-12 25-25 25-47 0-32-22-57-56-57z"/><path d="M191 184h40m-34 18h28"/><path d="M211 88v54m-20-30 20 30 20-30"/><path d="M77 116h55m-27-27v54M288 116h55m-27-27v54"/>'),
+    svgLine('Electricity home connection','<path d="M86 151l124-92 124 92"/><path d="M116 143v91h188v-91"/><path d="M183 234v-58h54v58"/><path d="M210 59v-25m-8 0h16"/><path d="M332 96v92"/><rect x="315" y="144" width="34" height="38" rx="4"/><path d="M349 163h28"/><path d="M377 151v24"/>'),
+    svgLine('Electricity technician with cable','<circle cx="143" cy="75" r="28"/><path d="M116 108c28-18 56-18 83 0v64H116z"/><path d="M199 125l77-42 48 25-77 43z"/><path d="M276 83l25-27m-4 17 18 10"/><path d="M247 151c22 19 47 29 76 28"/><path d="M323 179l17-11m-17 11 3-19"/>'),
+    svgLine('Electricity switch and lightning','<rect x="104" y="68" width="105" height="150" rx="12"/><circle cx="156" cy="112" r="22"/><path d="M156 90v44m-22-22h44"/><path d="M278 52l-45 96h39l-29 93 77-122h-42z"/><path d="M209 197h37"/>'),
+    svgLine('Electricity power pole','<path d="M205 246l-22-172m32 172 22-172"/><path d="M151 74h126M134 98h164"/><path d="M164 74l-30-30m122 30 30-30"/><circle cx="168" cy="114" r="13"/><circle cx="252" cy="114" r="13"/><path d="M55 202c40-32 76-32 112 0m88 0c38-32 75-32 110 0"/>'),
+    svgLine('Electricity smart meter','<rect x="125" y="48" width="170" height="175" rx="14"/><rect x="154" y="75" width="112" height="52" rx="6"/><path d="M171 101h78M171 112h54"/><circle cx="165" cy="170" r="12"/><circle cx="210" cy="170" r="12"/><circle cx="255" cy="170" r="12"/><path d="M210 223v31m-33 0h66"/>')
+  ],
+  airtime:[
+    svgLine('Person using a phone','<circle cx="210" cy="67" r="27"/><path d="M170 108c25-18 55-18 80 0v88h-80z"/><rect x="187" y="127" width="46" height="82" rx="7"/><circle cx="210" cy="194" r="4"/><path d="M120 246c25-38 51-55 77-61m108 61c-25-38-51-55-77-61"/>'),
+    svgLine('Hand tapping mobile recharge','<rect x="166" y="48" width="88" height="166" rx="14"/><path d="M185 80h50m-50 22h35"/><circle cx="210" cy="190" r="7"/><path d="M111 236c16-25 30-38 46-45l20 20-18 18 27 28"/><path d="M276 92c27 7 46 25 58 52m-47-70c34 8 58 30 72 61"/>'),
+    svgLine('Mobile signal and phone','<rect x="171" y="82" width="78" height="142" rx="13"/><circle cx="210" cy="197" r="6"/><path d="M191 110h38"/><path d="M122 113c19-19 45-29 70-29m-52 50c13-13 31-20 52-20m-25 43c7-7 16-10 25-10"/><path d="M298 113c-19-19-45-29-70-29m52 50c-13-13-31-20-52-20m25 43c-7-7-16-10-25-10"/>'),
+    svgLine('Friends on a call','<circle cx="130" cy="82" r="25"/><circle cx="290" cy="82" r="25"/><path d="M92 125c25-18 51-18 76 0v57H92zm160 0c25-18 51-18 76 0v57h-76z"/><path d="M155 112c24-21 86-21 110 0M174 150h72"/>'),
+    svgLine('Phone with recharge card','<rect x="162" y="47" width="96" height="170" rx="15"/><path d="M184 79h52m-52 24h39"/><circle cx="210" cy="195" r="7"/><rect x="282" y="102" width="72" height="54" rx="5"/><path d="M296 119h44m-44 15h29"/><path d="M282 129l-24 12"/>'),
+    svgLine('Mobile shop recharge','<path d="M82 96h256l-24-43H106z"/><path d="M101 96v139h238V96"/><path d="M126 126h78v78h-78z"/><rect x="237" y="129" width="70" height="100" rx="10"/><circle cx="272" cy="210" r="5"/><path d="M254 151h36m-36 19h27"/><path d="M146 235v19m128-25v25"/>'),
+    svgLine('Phone and conversation waves','<rect x="169" y="56" width="82" height="165" rx="14"/><circle cx="210" cy="196" r="6"/><path d="M187 89h46m-46 21h33"/><path d="M101 91c23 0 41 12 51 31m-51 0c13 0 24 7 30 17M319 91c-23 0-41 12-51 31m51 0c-13 0-24 7-30 17"/>')
+  ],
+  data:[
+    svgLine('Laptop with data connection','<rect x="91" y="56" width="238" height="145" rx="10"/><path d="M63 225h294l-29 28H92z"/><path d="M130 158l43-39 35 25 59-60 35 31"/><circle cx="130" cy="158" r="4"/><circle cx="173" cy="119" r="4"/><circle cx="208" cy="144" r="4"/><circle cx="267" cy="84" r="4"/>'),
+    svgLine('Mobile data signal','<rect x="169" y="86" width="82" height="138" rx="13"/><circle cx="210" cy="196" r="6"/><path d="M190 112h40"/><path d="M123 116c22-22 52-33 81-33m-56 57c15-15 35-23 56-23m-29 47c8-8 18-12 29-12"/><path d="M297 116c-22-22-52-33-81-33m56 57c-15-15-35-23-56-23m29 47c-8-8-18-12-29-12"/>'),
+    svgLine('Wi-Fi router and laptop','<path d="M93 182h234l-27 38H120z"/><path d="M139 167v-82h142v82"/><path d="M158 104h104v45H158z"/><path d="M210 195c-8-22-8-41 0-57"/><path d="M170 66c23-22 57-22 80 0m-100-20c34-34 86-34 120 0"/><circle cx="210" cy="197" r="5"/>'),
+    svgLine('Phone streaming data','<rect x="168" y="45" width="84" height="173" rx="14"/><path d="M188 76h44m-44 21h30"/><path d="M188 143l24-20 22 28 24-22"/><circle cx="210" cy="196" r="6"/><path d="M108 95c22-22 50-33 78-33m-54 57c13-13 31-20 54-20m-26 43c7-7 16-10 26-10"/>'),
+    svgLine('Cloud and connected device','<path d="M145 187c-27 0-43-16-43-38 0-22 17-39 40-39 8-28 34-47 65-47 37 0 67 27 72 62 25 3 44 20 44 43 0 25-19 42-48 42z"/><rect x="173" y="174" width="75" height="43" rx="6"/><path d="M190 229h42m-21-12v12"/><path d="M210 158v-22m-12 11 12-11 12 11"/>'),
+    svgLine('Data dashboard','<rect x="84" y="55" width="252" height="164" rx="12"/><path d="M115 177V142m43 35V119m43 58V93m43 84v-58"/><path d="M115 142l43-23 43-26 43 26"/><circle cx="115" cy="142" r="4"/><circle cx="158" cy="119" r="4"/><circle cx="201" cy="93" r="4"/><circle cx="244" cy="119" r="4"/><path d="M144 245h132"/>'),
+    svgLine('Connected work desk','<rect x="84" y="70" width="168" height="112" rx="8"/><path d="M67 213h206M138 182v31h60v-31"/><rect x="285" y="107" width="50" height="88" rx="8"/><path d="M297 127h26m-26 20h20"/><path d="M252 126c18-19 40-28 63-28"/>')
+  ],
+  tv:[
+    svgLine('Family watching television','<rect x="116" y="57" width="188" height="122" rx="9"/><path d="M174 205h72m-43-26v26m18-26v26"/><circle cx="151" cy="229" r="22"/><circle cx="269" cy="229" r="22"/><path d="M126 255c12-20 36-20 50 0m68 0c14-20 38-20 50 0"/><path d="M177 112l57 34-57 34z"/>'),
+    svgLine('Remote and television','<rect x="90" y="57" width="240" height="145" rx="10"/><path d="M162 231h96m-62-29v29m28-29v29"/><rect x="292" y="155" width="28" height="80" rx="12"/><circle cx="306" cy="176" r="5"/><circle cx="306" cy="194" r="5"/><path d="M145 121h90"/>'),
+    svgLine('Streaming screen','<rect x="76" y="55" width="268" height="155" rx="12"/><path d="M147 239h126m-82-29v29m38-29v29"/><path d="M172 103c27-23 49-23 76 0m-61 18c17-14 30-14 46 0"/><circle cx="210" cy="145" r="7"/><path d="M124 87h48"/>'),
+    svgLine('TV living room','<rect x="136" y="52" width="148" height="104" rx="8"/><path d="M175 184h70m-47-28v28m24-28v28"/><path d="M92 232h236"/><path d="M111 207h78v25h-78z"/><path d="M231 207h78v25h-78z"/><path d="M210 102l42 25-42 25z"/>'),
+    svgLine('TV subscription card','<rect x="88" y="62" width="244" height="146" rx="10"/><path d="M151 244h118m-76-36v36m34-36v36"/><rect x="119" y="91" width="118" height="62" rx="6"/><path d="M140 111h76m-76 20h49"/><rect x="260" y="91" width="40" height="62" rx="6"/><path d="M270 111h20m-20 18h20"/>'),
+    svgLine('Movie night','<rect x="105" y="57" width="210" height="138" rx="9"/><path d="M157 225h106m-69-30v30m32-30v30"/><path d="M174 100l70 26-70 26z"/><circle cx="126" cy="238" r="18"/><circle cx="294" cy="238" r="18"/><path d="M108 263h36m132 0h36"/>'),
+    svgLine('TV antenna and broadcast','<rect x="103" y="72" width="214" height="132" rx="9"/><path d="M164 239h92m-58-35v35m24-35v35"/><path d="M210 72V40m-36 24 36-24 36 24"/><path d="M157 122h106"/><path d="M174 150l36-24 36 24"/>')
+  ],
+  education:[
+    svgLine('Student studying','<circle cx="210" cy="67" r="26"/><path d="M168 108c27-18 57-18 84 0v75h-84z"/><path d="M126 210h168l-24 39H150z"/><path d="M162 226h96"/><path d="M181 137l29 22 29-22"/><path d="M186 88h48"/>'),
+    svgLine('Online learning laptop','<rect x="92" y="55" width="236" height="148" rx="10"/><path d="M62 226h296l-29 28H91z"/><path d="M126 101h168v70H126z"/><path d="M154 136l31-24 34 27 47-38"/><circle cx="154" cy="136" r="4"/><circle cx="185" cy="112" r="4"/><circle cx="219" cy="139" r="4"/><circle cx="266" cy="101" r="4"/>'),
+    svgLine('Open book and pencil','<path d="M82 94c43-25 84-25 128 0v139c-44-25-85-25-128 0z"/><path d="M338 94c-43-25-84-25-128 0v139c44-25 85-25 128 0z"/><path d="M210 94v139"/><path d="M276 58l44 28-68 104-44-28z"/><path d="M252 93l44 28"/>'),
+    svgLine('Teacher at board','<rect x="94" y="48" width="232" height="144" rx="6"/><circle cx="75" cy="82" r="22"/><path d="M43 123c22-18 44-18 64 0v86H43z"/><path d="M130 86h120m-120 31h90m-90 31h150"/><path d="M104 142l26-25"/>'),
+    svgLine('Graduation cap','<path d="M78 111l132-59 132 59-132 59z"/><path d="M127 132v61c54 28 112 28 166 0v-61"/><path d="M342 113v77m0 0c-13 7-25 7-37 0m37 0c13 7 25 7 37 0"/><path d="M210 170v67m-48 0h96"/><path d="M272 58v36"/>'),
+    svgLine('Library learning','<path d="M91 226h238"/><rect x="111" y="74" width="44" height="152" rx="5"/><rect x="166" y="54" width="44" height="172" rx="5"/><rect x="221" y="88" width="44" height="138" rx="5"/><rect x="276" y="64" width="32" height="162" rx="5"/><circle cx="210" cy="236" r="12"/><path d="M210 224v-45m0 0 34-23m-34 23-34-23"/>'),
+    svgLine('Student with tablet','<circle cx="126" cy="76" r="24"/><path d="M91 112c23-17 47-17 70 0v78H91z"/><rect x="175" y="86" width="118" height="98" rx="8"/><path d="M198 113h72m-72 22h50m-50 22h72"/><path d="M105 206h175"/>')
+  ],
+  savings:[
+    svgLine('Savings jar','<path d="M153 85h114l10 35v86c0 28-26 46-67 46s-67-18-67-46v-86z"/><path d="M168 85V62h84v23"/><path d="M181 121h58"/><circle cx="210" cy="166" r="22"/><path d="M210 151v30m-12-21h24m-24 12h24"/><path d="M122 109h-26m230 0h26"/>'),
+    svgLine('Coins growing','<circle cx="155" cy="205" r="34"/><circle cx="210" cy="165" r="34"/><circle cx="265" cy="205" r="34"/><path d="M155 187v36m-16-25h32m-32 12h32M210 147v36m-16-25h32m-32 12h32M265 187v36m-16-25h32m-32 12h32"/><path d="M210 108v-42m0 0-17 17m17-17 17 17"/>'),
+    svgLine('Savings wallet','<path d="M103 92h214c17 0 28 12 28 28v99c0 17-11 29-28 29H103c-17 0-28-12-28-29V120c0-16 11-28 28-28z"/><path d="M75 128h238c17 0 32 13 32 30v36H242c-21 0-38-17-38-38s17-38 38-38h73"/><circle cx="242" cy="156" r="6"/><path d="M126 71h110"/>'),
+    svgLine('Growth chart savings','<path d="M84 239h252M108 216V78m54 138V115m54 101V94m54 122V62"/><path d="M95 192l62-39 54 18 57-71 58 31"/><circle cx="95" cy="192" r="5"/><circle cx="157" cy="153" r="5"/><circle cx="211" cy="171" r="5"/><circle cx="268" cy="100" r="5"/><circle cx="326" cy="131" r="5"/>'),
+    svgLine('Member savings','<circle cx="210" cy="78" r="28"/><path d="M166 119c29-20 59-20 88 0v76h-88z"/><rect x="98" y="169" width="82" height="55" rx="8"/><path d="M115 187h48m-48 18h31"/><rect x="240" y="169" width="82" height="55" rx="8"/><path d="M257 187h48m-48 18h31"/><path d="M180 196h60"/>'),
+    svgLine('Piggy bank savings','<path d="M116 155c0-48 38-76 94-76s94 28 94 76c0 45-39 70-94 70s-94-25-94-70z"/><path d="M303 133l34-20-7 35m-214 7-25-18"/><circle cx="175" cy="130" r="5"/><path d="M205 112v38m-16-25h32m-32 12h32"/><path d="M164 225v24m91-24v24"/>'),
+    svgLine('Shares and investment','<rect x="93" y="135" width="58" height="90" rx="6"/><rect x="181" y="105" width="58" height="120" rx="6"/><rect x="269" y="72" width="58" height="153" rx="6"/><path d="M78 242h264"/><path d="M107 112l74-39 74 12 62-45"/><path d="M300 40h17v17"/>')
+  ],
+  loan:[
+    svgLine('Interest-free loan handshake','<path d="M78 151l63-43 50 35 41-27 110 61-43 44-69-38-47 25z"/><path d="M141 108l38-30 39 26-27 24z"/><path d="M180 143l-31 31m61-19-32 34m62-23-30 30"/><path d="M116 205l-28 28m220-42 28 28"/>'),
+    svgLine('Loan agreement','<rect x="117" y="45" width="186" height="210" rx="10"/><path d="M151 82h118m-118 33h118m-118 33h88"/><circle cx="151" cy="185" r="12"/><path d="M145 185l5 5 9-11"/><circle cx="151" cy="221" r="12"/><path d="M145 221l5 5 9-11"/><path d="M255 185h18m-18 36h18"/>'),
+    svgLine('Member receiving support','<circle cx="141" cy="79" r="26"/><path d="M102 120c25-18 53-18 78 0v84h-78z"/><circle cx="279" cy="79" r="26"/><path d="M240 120c25-18 53-18 78 0v84h-78z"/><path d="M180 146h60m-17-18 18 18-18 18"/><rect x="176" y="190" width="68" height="45" rx="6"/><path d="M192 212h36"/>'),
+    svgLine('Loan calculator','<rect x="123" y="43" width="174" height="213" rx="14"/><rect x="147" y="69" width="126" height="48" rx="6"/><path d="M157 137h24m18 0h24m18 0h24M157 165h24m18 0h24m18 0h24M157 193h24m18 0h24m18 0h24"/><circle cx="169" cy="221" r="10"/><path d="M163 221h12"/>'),
+    svgLine('Community support','<circle cx="210" cy="72" r="25"/><circle cx="121" cy="104" r="23"/><circle cx="299" cy="104" r="23"/><path d="M172 112c24-17 52-17 76 0v83h-76z"/><path d="M85 145c21-16 43-16 64 0v62H85zm186 0c21-16 43-16 64 0v62h-64z"/><path d="M180 153h60m-30-30v60"/><path d="M210 129v48m-24-24h48"/>'),
+    svgLine('Approved loan document','<path d="M118 47h139l45 45v163H118z"/><path d="M257 47v46h45"/><path d="M150 122h110m-110 33h110m-110 33h75"/><circle cx="157" cy="218" r="14"/><path d="M151 218l5 6 11-15"/><path d="M231 215h28"/>'),
+    svgLine('Repayment plan','<path d="M87 222h246"/><path d="M112 187h48v35h-48zm64-53h48v88h-48zm64-48h48v136h-48z"/><path d="M103 105l73-36 64 17 63-45"/><path d="M289 41h18v18"/>')
+  ]
+};
+document.getElementById('serviceIllustration').innerHTML=(dailyIllustrationVariants[serviceKey]||dailyIllustrationVariants.airtime)[(day-1)%7];
+
+
 /* Daily copy rotation: the large headline and smaller supporting write-up change by day.
    Each service has seven distinct copy sets, so a new day does not repeat the same wording. */
 const dailyCopy={
