@@ -519,6 +519,21 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   -webkit-mask-size:100% 100%!important;
   mask-size:100% 100%!important;
 }
+.flyer.photo-hand-cutout .real-life-photo img{
+  mix-blend-mode:screen!important;
+  opacity:.98!important;
+  clip-path:none!important;
+  -webkit-mask-image:radial-gradient(ellipse 78% 92% at 48% 52%,#000 0%,#000 48%,rgba(0,0,0,.94) 63%,rgba(0,0,0,.58) 77%,rgba(0,0,0,.18) 90%,transparent 100%)!important;
+  mask-image:radial-gradient(ellipse 78% 92% at 48% 52%,#000 0%,#000 48%,rgba(0,0,0,.94) 63%,rgba(0,0,0,.58) 77%,rgba(0,0,0,.18) 90%,transparent 100%)!important;
+}
+.flyer.photo-hand-cutout .real-life-photo:before{
+  display:none!important;
+}
+.flyer.photo-hand-cutout .real-life-photo:after{
+  background:radial-gradient(ellipse at center,transparent 42%,rgba(242,201,76,.14) 78%,transparent 100%)!important;
+  mix-blend-mode:screen!important;
+  opacity:.7!important;
+}
 .flyer .real-life-photo:before{
   content:""!important;position:absolute!important;inset:7%!important;z-index:1!important;
   pointer-events:none!important;border-radius:50%!important;
@@ -565,7 +580,7 @@ const servicePhotos={
   data:{url:'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=900&q=85',subject:'Data'},
   tv:{url:'https://images.unsplash.com/photo-1586899028174-e7098604235b?auto=format&fit=crop&w=900&q=85',subject:'TV'},
   education:{url:'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=85',subject:'Education'},
-  savings:{url:'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=900&q=85',subject:'Savings & Shares'},
+  savings:{url:'https://images.pexels.com/photos/13570135/pexels-photo-13570135.jpeg?auto=compress&cs=tinysrgb&w=900',subject:'Savings & Shares'},
   loan:{url:'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=900&q=85',subject:'Interest-Free Loan'}
 };
 const services={
@@ -579,6 +594,7 @@ const services={
 };
 const svc=services[serviceKey]||services.airtime;
 flyer.dataset.service=serviceKey;
+flyer.classList.toggle('photo-hand-cutout',serviceKey==='savings');
 const photo=servicePhotos[serviceKey]||servicePhotos.airtime;
 document.getElementById('servicePhoto').src=photo.url;
 document.getElementById('servicePhoto').alt=photo.subject;
