@@ -32,7 +32,7 @@
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
 <div class="benefits"><div class="benefit"><b>INSTANT</b><span>Fast airtime purchase</span></div><div class="benefit"><b>SECURE</b><span>Protected transactions</span></div><div class="benefit"><b>EASY</b><span>Simple member experience</span></div></div>
 <div class="cta"><span>POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div><div class="web-address">habscosadaqah.org</div></div>
-</section><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD A4 PNG</button><button onclick="shareFlyer()">↗ SHARE FLYER</button><button class="back" onclick="window.print()">🖨 PRINT / PDF</button></div></div>
+</section><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD ANIMATED FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button><button class="back" onclick="window.print()">🖨 PRINT / PDF</button></div></div>
 <script>
 const flyer=document.getElementById('flyer');
 const tz='Africa/Lagos';
@@ -75,7 +75,49 @@ for(let i=1;i<=7;i++){const x=new Date(d.getTime()-i*86400000);const s=x.toISOSt
 if(selected!==today) links+=`<a class="today" href="?date=${today}">Today</a>`;
 archive.innerHTML=links;
 flyer.addEventListener('pointermove',e=>{const r=flyer.getBoundingClientRect();flyer.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');flyer.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%')});
-async function downloadFlyer(){const canvas=await html2canvas(flyer,{scale:3,useCORS:true,backgroundColor:'#020907'});const a=document.createElement('a');a.download='HABSCO-Airtime-Flyer-'+selected+'.png';a.href=canvas.toDataURL('image/png');a.click()}
+async function downloadFlyer(){
+  const btn=event&&event.currentTarget?event.currentTarget:null;
+  if(btn){btn.disabled=true;btn.textContent='⏳ CREATING ANIMATED FLYER...'}
+  try{
+    if(!HTMLCanvasElement.prototype.captureStream||!window.MediaRecorder){
+      alert('Your browser does not support animated flyer downloads. Please use Chrome on Android.');
+      return;
+    }
+    const scale=1.5;
+    const width=Math.round(flyer.clientWidth*scale);
+    const height=Math.round(flyer.clientHeight*scale);
+    const out=document.createElement('canvas');
+    out.width=width;out.height=height;
+    const ctx=out.getContext('2d');
+    const stream=out.captureStream(15);
+    const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
+    const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:4500000});
+    const chunks=[];
+    recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+    const stopped=new Promise(resolve=>recorder.onstop=resolve);
+    recorder.start();
+    const startTime=performance.now(), duration=7000;
+    while(performance.now()-startTime<duration){
+      const frame=await html2canvas(flyer,{scale, useCORS:true, backgroundColor:'#020907', logging:false});
+      ctx.clearRect(0,0,width,height);
+      ctx.drawImage(frame,0,0,width,height);
+      await new Promise(r=>setTimeout(r,66));
+    }
+    recorder.stop();
+    await stopped;
+    const blob=new Blob(chunks,{type:'video/webm'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.download='HABSCO-Airtime-Flyer-'+selected+'.webm';
+    a.href=url;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+  }catch(err){
+    console.error(err);
+    alert('Unable to create the animated flyer. Please try again.');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD ANIMATED FLYER'}
+  }
+}
 async function shareFlyer(){const title='HABSCO Airtime Flyer — '+formatted;const text='Stay connected with HABSCO — Airtime Made Easy. '+formatted;if(navigator.share){try{await navigator.share({title,text,url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)}
 </script>
 <footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body></html>
