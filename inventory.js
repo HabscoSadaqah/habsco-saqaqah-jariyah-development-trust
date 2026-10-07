@@ -6,6 +6,18 @@ const URL="https://ythnoeyxovapydbmymdo.supabase.co",KEY="sb_publishable_nfSR2tM
 
 let items=[],rotation=0,drag=null,currentUserId="",isAdmin=false,accessExpiresAt=null,selectedPlan="monthly",editingItemId=null,rotationEnabled=false;
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function iconFor(name){
+  const s=String(name||"").toLowerCase();
+  if(s.includes("cash"))return "💵";
+  if(s.includes("electric")||s.includes("ibedc")||s.includes("power"))return "⚡";
+  if(s.includes("airtime")||s.includes("data")||s.includes("telecom"))return "📱";
+  if(s.includes("transfer")||s.includes("bank"))return "↔️";
+  if(s.includes("wallet"))return "👛";
+  if(s.includes("loan")||s.includes("credit"))return "💳";
+  if(s.includes("saving"))return "🏦";
+  if(s.includes("donat")||s.includes("waqf"))return "🤲";
+  return "💰";
+}
 const transferState={mode:"internal"};let walletDirection="debit";const CASH_DENOMS=[5,10,20,50,100,200,500,1000];
 function setTransferStatus(msg,ok=false){const e=$("transferStatus");if(e){e.textContent=msg||"";e.className="transferStatus "+(msg?(ok?"ok":"err"):"")}}
 function fillTransferItems(){const s=$("transferSource"),d=$("transferDestination");if(!s||!d)return;const opts=items.map(x=>'<option value="'+x.id+'">'+esc(x.name)+" · "+money(x.amount)+"</option>").join("");d.innerHTML='<option value="">Select destination…</option>'+opts+'<option value="__third_party_utility__">Utility/Deposit to CASH</option>';s.innerHTML=opts;const preferred=items.find(x=>!x.is_system_cash);s.value=(preferred||items[0])?.id||"";toggleThirdPartyFields()}
