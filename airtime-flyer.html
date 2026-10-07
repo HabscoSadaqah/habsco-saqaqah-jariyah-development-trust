@@ -740,7 +740,7 @@ async function downloadFlyer(){
   if(btn){btn.disabled=true;btn.textContent='⏳ CREATING PNG...'}
   try{
     if(!window.html2canvas) throw new Error('PNG engine is not loaded. Refresh and try again.');
-    const canvas=await html2canvas(flyer,{scale:Math.min(3,Math.max(2,window.devicePixelRatio||2)),useCORS:true,backgroundColor:'#020907',logging:false,removeContainer:true});
+    const canvas=await html2canvas(flyer,{scale:Math.min(3,Math.max(2,window.devicePixelRatio||2)),useCORS:true,backgroundColor:'#020907',logging:false,removeContainer:true,onclone:(doc)=>{const f=doc.getElementById('flyer');if(!f)return;const p=doc.getElementById('realLifePhoto'),i=doc.getElementById('serviceIllustration'),s=doc.getElementById('servicePhotoLabel');if(p){p.style.left='50%';p.style.transform='translate(-50%,-50%)';p.style.margin='0';p.style.right='auto';p.style.bottom='auto';}if(i){i.style.left='0';i.style.right='0';i.style.top='0';i.style.bottom='0';i.style.width='100%';i.style.height='100%';i.style.margin='0';i.style.transform='none';i.style.display='flex';i.style.alignItems='center';i.style.justifyContent='center';}if(s){s.style.left='50%';s.style.right='auto';s.style.width='100%';s.style.transform='translateX(-50%)';s.style.textAlign='center';}}});
     canvas.toBlob(blob=>{
       if(!blob) throw new Error('PNG creation returned an empty file.');
       const url=URL.createObjectURL(blob),a=document.createElement('a');
