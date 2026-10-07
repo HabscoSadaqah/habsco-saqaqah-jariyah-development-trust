@@ -177,6 +177,8 @@ function showHabscoFailedModal(info={}){
 
 
 async function setupSubscriptionUtility(){
+ const session=await auth();
+ if(!session)return;
  const service=effectiveAction;
  const meta={
   data:{icon:"📶",title:"Mobile Data",providerAction:"data-providers",packageAction:"data-packages",validateAction:"data-validate",receiverLabel:"Phone Number",receiverPlaceholder:"08012345678"},
@@ -325,6 +327,7 @@ async function init(){
  if($("title"))$("title").textContent=title;if($("subtitle"))$("subtitle").textContent=subtitle;
  if(effectiveAction==="electricity"){await setupUtility();return}
  if(effectiveAction==="airtime"){await setupAirtime();return}
+ if(["data","tv","education"].includes(effectiveAction)){await setupUtility();return}
  if(effectiveAction==="virtual-account"){
   const {data:va,error:vae}=await supabaseClient.functions.invoke("squad-virtual-account",{body:{action:"get"}});
   if(vae)throw vae;
