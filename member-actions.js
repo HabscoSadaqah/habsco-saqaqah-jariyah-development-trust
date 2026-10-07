@@ -199,7 +199,7 @@ async function setupSubscriptionUtility(){
   if(!Number.isFinite(amount)||amount<=0){msg("The selected utility package has no valid amount.",false);return}
   verify.disabled=true;verify.textContent="VERIFYING...";
   try{
-   const r=await callProvider({action:meta.validateAction,provider:p,code,package:code,receiver,phone_number:ph,email:session.user.email||""}),v=r?.data?.data||r?.data||r,vr=String(r?.validation_reference||v?.validation_reference||"").trim();
+   const r=await callProvider({action:meta.validateAction,provider:p,code,package:code,receiver:rc,phone_number:ph,email:session.user.email||""}),v=r?.data?.data||r?.data||r,vr=String(r?.validation_reference||v?.validation_reference||"").trim();
    if(!vr)throw Error(r?.error||"Provider verification failed.");
    window.__habscoUtilityValidationReference=vr;window.__habscoUtilityVerifiedKey=[p,code,rc,ph,String(amount)].join("|");
    result.style.display="block";result.style.color="#087443";const customer=v?.customer_name||v?.customer_info?.customer_name||v?.customer?.name||"Customer";result.textContent="Verified successfully"+(customer&&customer!=="Customer"?": "+customer:"")+". You can now pay.";submit.disabled=false;msg("Customer verified successfully.",true);
