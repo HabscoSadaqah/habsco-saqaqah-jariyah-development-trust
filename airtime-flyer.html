@@ -789,6 +789,26 @@ async function downloadFlyer(){
         const art=doc.getElementById('serviceIllustration');
         const svg=art?.querySelector('svg');
         if(art&&svg){
+          /* html2canvas can offset inline SVG transforms. For PNG export,
+             rasterize this exact SVG into an image and center that image. */
+          const svgText=new XMLSerializer().serializeToString(svg);
+          const svgData='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgText);
+          const svgImage=doc.createElement('img');
+          svgImage.src=svgData;
+          svgImage.alt='';
+          svgImage.setAttribute('aria-hidden','true');
+          svgImage.style.position='absolute';
+          svgImage.style.left='0';
+          svgImage.style.top='0';
+          svgImage.style.width='100%';
+          svgImage.style.height='100%';
+          svgImage.style.display='block';
+          svgImage.style.margin='0';
+          svgImage.style.padding='0';
+          svgImage.style.objectFit='contain';
+          svgImage.style.objectPosition='50% 50%';
+          svgImage.style.transform='none';
+          svgImage.style.filter='none';
           art.style.position='absolute';
           art.style.left='0';
           art.style.top='0';
@@ -796,22 +816,11 @@ async function downloadFlyer(){
           art.style.height='100%';
           art.style.display='block';
           art.style.margin='0';
+          art.style.padding='0';
           art.style.transform='none';
           art.style.overflow='visible';
-          svg.setAttribute('preserveAspectRatio','xMidYMid meet');
-          svg.setAttribute('x','0');
-          svg.setAttribute('y','0');
-          svg.setAttribute('width','100%');
-          svg.setAttribute('height','100%');
-          svg.style.position='absolute';
-          svg.style.left='50%';
-          svg.style.top='50%';
-          svg.style.width='100%';
-          svg.style.height='100%';
-          svg.style.display='block';
-          svg.style.margin='0';
-          svg.style.transform='translate(-50%,-50%)';
-          svg.style.transformOrigin='50% 50%';
+          art.innerHTML='';
+          art.appendChild(svgImage);
         }
       }
     });
