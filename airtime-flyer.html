@@ -620,17 +620,12 @@ const artTransforms=[
   'translate(4 -10) rotate(3 210 150) scale(.97)',
   'translate(0 8) rotate(0 210 150) scale(1.1)'
 ];
-const artAccents=[
-  '<path d="M58 72l18-12m-8 31 24-4m268 15 20-9"/>',
-  '<circle cx="72" cy="214" r="10"/><circle cx="348" cy="64" r="7"/>',
-  '<path d="M54 166c20-18 38-22 58-20m196 54c20 2 36 10 53 28"/>',
-  '<path d="M68 78h28m-14-14v28m254 126h28m-14-14v28"/>',
-  '<path d="M48 236l22-16 22 16m258-120 22-16 22 16"/>',
-  '<circle cx="66" cy="92" r="5"/><circle cx="352" cy="204" r="11"/><circle cx="330" cy="52" r="4"/>',
-  '<path d="M48 132c12-12 24-18 38-18m248 58c18 0 31 6 42 18"/>'
-];
-const art= lineArt[serviceKey]||lineArt.airtime;
-document.getElementById('serviceIllustration').innerHTML=art.replace('<g ','<g transform="'+artTransforms[artDay]+'" ');
+try{
+  const art=lineArt[serviceKey]||lineArt.airtime;
+  document.getElementById('serviceIllustration').innerHTML=art.replace('<g ','<g transform="'+artTransforms[artDay]+'" ');
+}catch(e){
+  console.warn('Daily illustration skipped:',e);
+}
 document.getElementById('servicePhotoLabel').textContent=photo.subject;
 document.getElementById('dailyIcon').textContent=svc.icon;
 document.getElementById('dailyNode1').textContent=svc.nodes[0];
