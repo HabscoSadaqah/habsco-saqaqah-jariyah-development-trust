@@ -461,6 +461,22 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 /* Remove the green circular ball from the flyer center; keep the service icon clean. */
 .flyer .universe .core{display:none!important}
 </style>
+<style id="remove-center-icon-duplicates">
+/* Remove the duplicate center icon and its bordered/glassy container; keep the main visual above the center. */
+.flyer .universe .phone{display:none!important}
+.flyer .universe .core{display:none!important}
+.flyer .universe .orbit,
+.flyer .universe .node{display:none!important}
+.flyer .service-symbol{
+  top:31%!important;
+  width:clamp(74px,11vw,120px)!important;
+  height:clamp(74px,11vw,120px)!important;
+  border-radius:30% 70% 62% 38%/38% 40% 60% 62%!important;
+}
+@media(max-width:600px){
+  .flyer .service-symbol{top:31%!important;width:clamp(54px,15vw,78px)!important;height:clamp(54px,15vw,78px)!important}
+}
+</style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
