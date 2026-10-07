@@ -5,13 +5,13 @@
 :root{--g:#0b5d31;--d:#03150d;--gold:#f2c94c}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#e9eee9;color:#fff}body{display:flex;justify-content:center}.stage{width:100%;min-height:100vh;padding:22px 14px 36px}.flyer{position:relative;width:min(794px,100%);aspect-ratio:210/297;margin:auto;overflow:hidden;border-radius:20px;background:radial-gradient(circle at 50% 42%,#2f8a5b 0,#17633f 24%,#0b3d27 52%,#062719 78%,#03150d 100%);box-shadow:0 22px 65px rgba(0,0,0,.32);isolation:isolate}.flyer:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 48%,rgba(242,201,76,.10),transparent 28%),linear-gradient(135deg,rgba(255,255,255,.06),transparent 30%,rgba(0,0,0,.10));pointer-events:none;z-index:1}.flyer:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.16);pointer-events:none;z-index:50}
 .stars,.stars:before,.stars:after{position:absolute;inset:-12%;content:"";pointer-events:none}.stars{opacity:.38;background-image:radial-gradient(circle,rgba(255,255,255,.8) 0 .8px,transparent 1.4px),radial-gradient(circle,rgba(255,255,255,.42) 0 .6px,transparent 1.2px),radial-gradient(circle,rgba(242,201,76,.5) 0 .7px,transparent 1.3px);background-size:137px 149px,73px 81px,191px 203px;background-position:17px 23px,31px 11px,67px 91px;}.stars:before{background:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.12),rgba(242,201,76,.08) 20%,transparent 58%);}.stars:after{background-image:radial-gradient(circle,rgba(255,255,255,.9) 0 1.3px,transparent 2.4px);background-size:257px 271px;background-position:73px 41px;opacity:.28;}
 .brand-logo{font-size:clamp(30px,6vw,58px);font-weight:1000;letter-spacing:6px;line-height:1;color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.45);font-family:Inter,ui-sans-serif,system-ui,sans-serif}.brand{position:absolute;top:5%;left:50%;transform:translateX(-50%);z-index:20;text-align:center;width:88%}.brand img{width:min(260px,48%);height:auto;display:block;margin:auto;filter:brightness(0) invert(1)}.badge{display:inline-block;margin-top:11px;padding:6px 13px;border:1px solid rgba(242,201,76,.45);border-radius:999px;background:rgba(2,9,7,.32);color:#fff8dc;font-size:clamp(8px,1.05vw,12px);font-weight:850;letter-spacing:2px}
-.hero{position:absolute;top:50%;left:9%;right:9%;transform:translateY(-50%);z-index:30;text-align:center}.kicker{color:var(--gold);font-size:clamp(9px,1.15vw,13px);font-weight:900;letter-spacing:3px;text-transform:uppercase}h1{margin:10px 0 9px;font-size:clamp(43px,6.5vw,70px);line-height:.9;letter-spacing:-3px;text-shadow:0 8px 25px rgba(0,0,0,.3)}.lead{max-width:560px;margin:auto;color:#e5f4eb;font-size:clamp(11px,1.25vw,15px);line-height:1.5}
+.hero{position:absolute;top:18%;left:9%;right:9%;z-index:15;text-align:center}.kicker{color:var(--gold);font-size:clamp(9px,1.15vw,13px);font-weight:900;letter-spacing:3px;text-transform:uppercase}h1{margin:10px 0 9px;font-size:clamp(43px,6.5vw,70px);line-height:.9;letter-spacing:-3px;text-shadow:0 8px 25px rgba(0,0,0,.3)}.lead{max-width:560px;margin:auto;color:#e5f4eb;font-size:clamp(11px,1.25vw,15px);line-height:1.5}
 .universe{position:absolute;left:50%;top:51%;width:58%;aspect-ratio:1;transform:translate(-50%,-50%);z-index:8}.orbit{position:absolute;left:50%;top:50%;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}.orbit.one{width:100%;height:46%;border:1px solid rgba(255,255,255,.38);box-shadow:0 0 30px rgba(242,201,76,.08)}.orbit.two{width:88%;height:29%;border:1px solid rgba(242,201,76,.32);transform:translate(-50%,-50%) rotate(35deg);}.orbit.three{width:79%;height:24%;border:1px solid rgba(255,255,255,.13);transform:translate(-50%,-50%) rotate(-40deg);}
 .core{position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 34% 27%,#fff9d5 0,#f2c94c 17%,#17814d 40%,#06341f 68%,transparent 71%);box-shadow:0 0 42px rgba(242,201,76,.45),0 0 110px rgba(242,201,76,.16);}.core:before{content:"";position:absolute;inset:-11%;border:1px solid rgba(242,201,76,.4);border-radius:50%;box-shadow:0 0 25px rgba(242,201,76,.16) inset}.core:after{content:"";position:absolute;inset:-18%;border:1px solid rgba(255,255,255,.12);border-radius:50%;transform:rotate(25deg) scaleY(.4)}.phone{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(43px,5.8vw,62px);filter:drop-shadow(0 8px 15px rgba(0,0,0,.35));}
 .node{position:absolute;left:50%;top:50%;width:clamp(38px,4.7vw,50px);height:clamp(38px,4.7vw,50px);display:grid;place-items:center;border-radius:50%;border:1.5px solid rgba(255,255,255,.9);background:radial-gradient(circle at 30% 25%,#fff,#e4e8e5 58%,#8a938e);box-shadow:0 7px 18px rgba(0,0,0,.3);font-size:clamp(15px,2vw,21px);}.n1{transform:translate(-50%,-50%) translate(205px,-25px)}.n2{transform:translate(-50%,-50%) translate(-205px,25px);}.n3{transform:translate(-50%,-50%) translate(145px,72px);}
 .benefits{position:absolute;left:9%;right:9%;bottom:19%;z-index:20;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.benefit{padding:13px 9px;text-align:center;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:rgba(255,255,255,.075);backdrop-filter:blur(9px);box-shadow:inset 0 1px rgba(255,255,255,.1)}.benefit b{display:block;font-size:clamp(9px,1.1vw,12px);letter-spacing:1.2px}.benefit span{display:block;margin-top:4px;color:#cde8d9;font-size:clamp(7px,.9vw,10px);line-height:1.35}.cta{position:absolute;left:9%;right:9%;bottom:11%;z-index:20;text-align:center}.cta span{display:inline-flex;justify-content:center;align-items:center;min-width:64%;padding:12px 20px;border-radius:999px;background:#fff;color:#075b38;font-size:clamp(8px,1.05vw,12px);font-weight:950;letter-spacing:1px;box-shadow:0 9px 28px rgba(0,0,0,.22)}.footer{position:absolute;left:7%;right:7%;bottom:2.8%;z-index:20;display:flex;justify-content:space-between;align-items:end;gap:16px;color:#fff;font-size:clamp(8px,1.05vw,12px);line-height:1.35;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,.45)}.footer strong{display:block;color:#fff;font-size:clamp(9px,1.2vw,14px);font-weight:950;letter-spacing:.55px}.footer .service-text{display:block;margin-top:3px;color:#eefaf2;font-size:clamp(7px,.95vw,11px);font-weight:750}.web-address{display:inline-block;flex:0 0 auto;color:#fff;background:rgba(3,21,13,.55);border:1px solid rgba(242,201,76,.7);border-radius:8px;padding:6px 10px;font-size:clamp(10px,1.35vw,16px);font-weight:950;letter-spacing:.3px;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 .controls{width:min(794px,100%);margin:12px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}button{border:0;border-radius:11px;padding:12px 8px;background:#087443;color:#fff;font-weight:850;cursor:pointer}.back{background:#fff;color:#087443}
-@media(max-width:600px){.brand-logo{font-size:clamp(27px,8vw,44px);letter-spacing:4px}.stage{padding:6px}.flyer{border-radius:14px}.brand{top:4%}.brand img{width:52%}.hero{top:50%;transform:translateY(-50%)}.universe{width:68%;top:51%}.n1{transform:translate(-50%,-50%) translate(31vw,-4vw)}.n2{transform:translate(-50%,-50%) translate(-31vw,4vw)}.n3{transform:translate(-50%,-50%) translate(22vw,11vw)}.benefits{gap:5px;bottom:18.5%}.benefit{padding:9px 5px}.cta{bottom:10.4%}.cta span{min-width:76%;padding:10px 12px}.footer{left:5%;right:5%;bottom:2.2%;gap:8px}.footer .service-text{font-size:clamp(7px,1.7vw,10px)}.web-address{font-size:clamp(9px,2.2vw,13px);padding:5px 7px}.controls{grid-template-columns:1fr 1fr}.controls button:last-child{grid-column:1/-1}}@media(prefers-reduced-motion:reduce){.stars,.stars:before,.stars:after,.orbit,.core,.phone,.node{}}@media print{html,body{background:#fff}.stage{padding:0}.flyer{width:210mm;height:297mm;aspect-ratio:auto;border-radius:0;box-shadow:none}.controls{display:none}}
+@media(max-width:600px){.brand-logo{font-size:clamp(27px,8vw,44px);letter-spacing:4px}.stage{padding:6px}.flyer{border-radius:14px}.brand{top:4%}.brand img{width:52%}.hero{top:17%}.universe{width:68%;top:51%}.n1{transform:translate(-50%,-50%) translate(31vw,-4vw)}.n2{transform:translate(-50%,-50%) translate(-31vw,4vw)}.n3{transform:translate(-50%,-50%) translate(22vw,11vw)}.benefits{gap:5px;bottom:18.5%}.benefit{padding:9px 5px}.cta{bottom:10.4%}.cta span{min-width:76%;padding:10px 12px}.footer{left:5%;right:5%;bottom:2.2%;gap:8px}.footer .service-text{font-size:clamp(7px,1.7vw,10px)}.web-address{font-size:clamp(9px,2.2vw,13px);padding:5px 7px}.controls{grid-template-columns:1fr 1fr}.controls button:last-child{grid-column:1/-1}}@media(prefers-reduced-motion:reduce){.stars,.stars:before,.stars:after,.orbit,.core,.phone,.node{}}@media print{html,body{background:#fff}.stage{padding:0}.flyer{width:210mm;height:297mm;aspect-ratio:auto;border-radius:0;box-shadow:none}.controls{display:none}}
 
 /* Premium real-world quote treatment */
 .real-life-quote{position:absolute;left:10%;right:10%;top:42.5%;z-index:21;text-align:center;padding:12px 18px 10px;border-top:1px solid rgba(255,255,255,.22);border-bottom:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.93)}.real-life-quote q{display:block;font-family:Georgia,'Times New Roman',serif;font-size:clamp(11px,1.45vw,17px);font-style:italic;line-height:1.35}.real-life-quote cite{display:block;margin-top:5px;color:#f4c95d;font:700 clamp(7px,.8vw,10px)/1.2 Inter,system-ui,sans-serif;letter-spacing:1.2px;text-transform:uppercase}.quote-mark{font-family:Georgia,serif;color:#f4c95d;font-size:1.5em;line-height:0;vertical-align:-.2em}.service-symbol{position:absolute;left:50%;top:31%;transform:translate(-50%,-50%);z-index:19;width:clamp(74px,11vw,120px);height:clamp(74px,11vw,120px);display:grid;place-items:center;border-radius:30% 70% 62% 38%/38% 40% 60% 62%;font-size:clamp(34px,5vw,58px);background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);box-shadow:0 20px 50px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.18);backdrop-filter:blur(12px)}
@@ -131,7 +131,7 @@
 .benefit b,.benefit span{overflow-wrap:anywhere}
 .cta span{max-width:100%;white-space:normal;text-align:center;line-height:1.25}
 .footer{min-width:0}
-.footer>div:first-child{min-width:0;flex:1 1 auto}.footer-brand{display:flex;flex-direction:column;align-items:flex-start;min-width:0}.footer-brand .web-address{order:0;margin-bottom:5px}.footer-brand strong{order:1}.footer-brand .service-text{order:2}
+.footer>div:first-child{min-width:0;flex:1 1 auto}
 .footer strong{overflow-wrap:anywhere}
 .service-text{overflow-wrap:anywhere}
 @media (max-width:480px){
@@ -140,7 +140,7 @@
   .brand{top:3.2%;width:92%}
   .brand-logo{font-size:clamp(24px,9vw,38px);letter-spacing:3px}
   .badge{margin-top:7px;padding:4px 8px;letter-spacing:1.2px}
-  .hero{top:50%;left:6%;right:6%;transform:translateY(-50%)}
+  .hero{top:15.5%;left:6%;right:6%}
   .kicker{font-size:clamp(7px,2.2vw,10px);letter-spacing:1.8px}
   h1{margin:7px 0 6px;font-size:clamp(30px,9.4vw,43px);line-height:.92;letter-spacing:-1.8px}
   .lead{font-size:clamp(8px,2.45vw,11px);line-height:1.35;max-width:95%}
@@ -497,15 +497,15 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 <style id="real-life-photo-focal-point">
 /* Real-life photographic focal point for each service flyer. */
 .flyer .real-life-photo{
-  position:absolute!important;left:50%!important;top:68%!important;
-  transform:translate(-50%,-50%)!important;width:clamp(225px,32vw,340px)!important;
-  height:clamp(195px,28vw,295px)!important;overflow:visible!important;
+  position:absolute!important;left:50%!important;top:55%!important;
+  transform:translate(-50%,-50%)!important;width:clamp(250px,36vw,380px)!important;
+  height:clamp(215px,31vw,330px)!important;overflow:visible!important;
   z-index:19!important;border:0!important;background:transparent!important;
   box-shadow:none!important;border-radius:0!important;
   isolation:isolate!important;
 }
-.flyer #serviceIllustration{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;margin:0!important;padding:0!important;filter:none!important;background:transparent!important;box-shadow:none!important}
-.flyer #serviceIllustration svg{position:absolute!important;left:50%!important;top:50%!important;width:100%!important;height:100%!important;display:block!important;margin:0!important;overflow:visible!important;transform:translate(-50%,-50%)!important;transform-origin:50% 50%!important;filter:none!important;background:transparent!important}
+.flyer #serviceIllustration{width:100%!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;filter:drop-shadow(0 6px 18px rgba(255,255,255,.16))!important}
+.flyer #serviceIllustration svg{width:100%!important;height:100%!important;overflow:visible!important}
 .flyer #serviceIllustration svg g{fill:none!important;stroke:#fff!important}
 .flyer.photo-hand-cutout .real-life-photo:after{display:none!important}
 .flyer .real-life-photo img{
@@ -539,13 +539,19 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   mix-blend-mode:screen!important;
   opacity:.55!important;
 }
-.flyer .real-life-photo:before,
+.flyer .real-life-photo:before{
+  content:""!important;position:absolute!important;inset:7%!important;z-index:1!important;
+  pointer-events:none!important;border-radius:50%!important;
+  background:radial-gradient(ellipse at center,transparent 28%,rgba(0,0,0,.05) 45%,rgba(0,0,0,.16) 68%,rgba(0,0,0,.08) 82%,transparent 100%)!important;
+  mix-blend-mode:multiply!important;opacity:.34!important;
+  filter:blur(5px)!important;
+}
 .flyer .real-life-photo:after{
-  display:none!important;
-  content:none!important;
-  background:none!important;
-  box-shadow:none!important;
-  filter:none!important;
+  content:""!important;position:absolute!important;inset:0!important;z-index:2!important;
+  pointer-events:none!important;border-radius:50%!important;
+  background:radial-gradient(ellipse at center,rgba(255,255,255,.055) 0%,transparent 52%),linear-gradient(180deg,rgba(255,255,255,.025),transparent 48%,var(--gold,rgba(242,201,76,.16)) 100%)!important;
+  mix-blend-mode:soft-light!important;opacity:.55!important;
+  filter:blur(1px)!important;
 }
 .flyer .photo-subject{
   position:absolute!important;left:50%!important;bottom:-28px!important;
@@ -558,15 +564,15 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 .flyer .real-life-quote{top:80.8%!important}
 .flyer .benefits{bottom:19%!important}
 @media(max-width:600px){
-  .flyer .real-life-photo{top:67%!important;width:clamp(140px,44vw,205px)!important;height:clamp(120px,37vw,175px)!important}
+  .flyer .real-life-photo{top:54%!important;width:clamp(145px,48vw,220px)!important;height:clamp(125px,40vw,185px)!important}
   .flyer .photo-subject{bottom:-22px!important;font-size:clamp(9px,3.4vw,14px)!important;letter-spacing:.7px!important}
 }
-</style><style id="service-web-icons">.web-service-icon{display:inline-grid;place-items:center;width:1.05em;height:1.05em;margin-right:6px;vertical-align:-.12em;color:var(--gold);flex:0 0 auto}.web-service-icon svg{width:100%;height:100%;display:block;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.web-address{display:inline-flex!important;align-items:center!important}</style></head><body><div class="stage"><section class="flyer" id="flyer">
-<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
+</style></head><body><div class="stage"><section class="flyer" id="flyer">
+<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
 
-<div class="cta"><span id="serviceCta">POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div class="footer-brand"><div class="web-address"><span class="web-service-icon" id="webServiceIcon" aria-hidden="true"></span><span>www.habscosadaqah.org</span></div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div></div>
+<div class="cta"><span id="serviceCta">POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div><div class="web-address">www.habscosadaqah.org</div></div>
 </section><div id="dailyFlyerRailMount"></div>
 <a class="back-dashboard" href="member.html">← BACK TO DASHBOARD</a><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD PNG FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button></div></div>
 <script>
@@ -595,6 +601,17 @@ const svc=services[serviceKey]||services.airtime;
 flyer.dataset.service=serviceKey;
 flyer.classList.toggle('photo-hand-cutout',serviceKey==='savings');
 const photo=servicePhotos[serviceKey]||servicePhotos.airtime;
+const lineArt={
+electricity:'<svg viewBox="0 0 420 300" role="img" aria-label="Electricity line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M208 250c-12-28-9-60 5-91 12-27 26-46 48-62"/><path d="M196 253c-22-9-42-25-55-46-14-23-17-51-11-78"/><path d="M245 97l35-25 32 24-35 24z"/><path d="M279 72l-6-28m39 52 27-7M255 112l-14 25 24-8-11 25"/><path d="M137 129l-30-18m35 42-34 4m47 37-28 19"/></g></svg>',
+airtime:'<svg viewBox="0 0 420 300" role="img" aria-label="Airtime line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="170" y="45" width="92" height="178" rx="14"/><circle cx="216" cy="198" r="7"/><path d="M188 76h56m-56 24h40"/><path d="M124 250c-2-35 8-66 28-88 14-16 29-27 48-32"/><path d="M292 91c18 7 31 21 38 39m-50-57c30 8 53 28 65 55"/></g></svg>',
+data:'<svg viewBox="0 0 420 300" role="img" aria-label="Data line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="95" y="62" width="230" height="142" rx="10"/><path d="M75 225h270M150 225l-18 28h168l-18-28"/><path d="M135 169l35-31 28 20 50-52 37 31"/><circle cx="135" cy="169" r="4"/><circle cx="170" cy="138" r="4"/><circle cx="198" cy="158" r="4"/><circle cx="248" cy="106" r="4"/></g></svg>',
+tv:'<svg viewBox="0 0 420 300" role="img" aria-label="TV line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="88" y="62" width="244" height="154" rx="10"/><path d="M147 248h126m-80-32v32m58-32v32"/><path d="M155 43l-28-24m138 24 28-24"/><path d="M184 116l54 32-54 32z"/><circle cx="294" cy="235" r="4"/></g></svg>',
+education:'<svg viewBox="0 0 420 300" role="img" aria-label="Education line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M86 110l124-58 124 58-124 58z"/><path d="M134 132v61c34 21 74 21 108 0v-61"/><path d="M334 112v78m0 0c-13 7-23 7-34 0m34 0c13 7 23 7 34 0"/><path d="M180 235h80"/></g></svg>',
+savings:'<svg viewBox="0 0 420 300" role="img" aria-label="Savings and shares line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="170" y="42" width="92" height="174" rx="14"/><circle cx="216" cy="190" r="7"/><path d="M188 72h56"/><path d="M117 250c-2-34 9-64 29-85 15-16 32-27 52-31"/><path d="M276 120c29 8 50 28 64 56"/><circle cx="306" cy="82" r="18"/><path d="M306 70v24m-8-8h16"/><path d="M86 225l34-20 34 20 34-20 34 20"/><path d="M86 225v28h136v-28"/></g></svg>',
+loan:'<svg viewBox="0 0 420 300" role="img" aria-label="Interest-free loan line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M82 206l78-45 65 35 46-30 68 40"/><path d="M126 181l35-22 33 17-35 22z"/><path d="M254 166l34-20 31 18-35 22z"/><path d="M179 224c20 17 44 24 70 24 30 0 58-9 79-28"/><path d="M185 224l-18-16m18 16 16-15"/></g></svg>'
+};
+document.getElementById('serviceIllustration').innerHTML=lineArt[serviceKey]||lineArt.airtime;
+document.getElementById('servicePhotoLabel').textContent=photo.subject;
 document.getElementById('dailyIcon').textContent=svc.icon;
 document.getElementById('dailyNode1').textContent=svc.nodes[0];
 document.getElementById('dailyNode2').textContent=svc.nodes[1];
@@ -606,17 +623,6 @@ document.getElementById('serviceCta').textContent=svc.cta;
 document.getElementById('serviceQuote').textContent=svc.quote;
 document.getElementById('serviceQuoteBy').textContent='HABSCO • '+svc.label.toUpperCase();
 document.title='HABSCO | '+svc.label+' Flyer';
-const webIcons={
-  electricity:'<svg viewBox="0 0 24 24"><path d="M13 2 4.5 13h6l-1 9L19.5 10h-6L13 2Z"/></svg>',
-  airtime:'<svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10 5.5h4M10 18.5h4"/></svg>',
-  data:'<svg viewBox="0 0 24 24"><path d="M3 9.5a13 13 0 0 1 18 0M6 13a8.5 8.5 0 0 1 12 0M9.5 16.5a4 4 0 0 1 5 0M12 20h.01"/></svg>',
-  tv:'<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m9 2 3 3 3-3M8 22h8"/></svg>',
-  education:'<svg viewBox="0 0 24 24"><path d="m3 9 9-4 9 4-9 4-9-4Z"/><path d="M7 11v5c2.5 2 7.5 2 10 0v-5M21 10v6"/></svg>',
-  savings:'<svg viewBox="0 0 24 24"><path d="M4 19V9M10 19V5M16 19v-8M22 19V3"/><path d="m3 6 6-3 6 3 7-5"/></svg>',
-  loan:'<svg viewBox="0 0 24 24"><path d="M8 11h8M9 15h6M6 5h12l2 4H4l2-4Z"/><path d="M4 9v10h16V9M8 19v3h8v-3"/></svg>'
-};
-const webIcon=document.getElementById('webServiceIcon');
-if(webIcon) webIcon.innerHTML=webIcons[serviceKey]||webIcons.airtime;
 
 function lagosDate(){
   const p=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
@@ -638,23 +644,6 @@ const dailyStyles=[
 ['forest','✧','◎','↗','HABSCO in your corner.','Simple. Clear. Member-focused.']
 ];
 const style=dailyStyles[(day-1)%dailyStyles.length];
-const artDay=(day-1)%7;
-const artTransforms=[
-  'translate(-8 6) rotate(-7 210 150) scale(.96)',
-  'translate(8 -4) rotate(5 210 150) scale(1.02)',
-  'translate(-4 -8) rotate(-2 210 150) scale(1.08)',
-  'translate(10 7) rotate(9 210 150) scale(.93)',
-  'translate(-10 2) rotate(-11 210 150) scale(1.01)',
-  'translate(4 -10) rotate(3 210 150) scale(.97)',
-  'translate(0 8) rotate(0 210 150) scale(1.1)'
-];
-try{
-  const art=lineArt[serviceKey]||lineArt.airtime;
-  document.getElementById('serviceIllustration').innerHTML=art.replace('<g ','<g transform="'+artTransforms[artDay]+'" ');
-}catch(e){
-  console.warn('Daily illustration skipped:',e);
-}
-
 
 /* Daily copy rotation: the large headline and smaller supporting write-up change by day.
    Each service has seven distinct copy sets, so a new day does not repeat the same wording. */
@@ -750,21 +739,8 @@ async function downloadFlyer(){
   const btn=document.activeElement&&document.activeElement.tagName==='BUTTON'?document.activeElement:null;
   if(btn){btn.disabled=true;btn.textContent='⏳ CREATING PNG...'}
   try{
-    flyer.classList.add('exporting');
     if(!window.html2canvas) throw new Error('PNG engine is not loaded. Refresh and try again.');
-    const canvas=await html2canvas(flyer,{
-      scale:Math.min(3,Math.max(2,window.devicePixelRatio||2)),
-      useCORS:true,
-      backgroundColor:'#020907',
-      logging:false,
-      removeContainer:true,
-      scrollX:0,
-      scrollY:0,
-      onclone:(doc)=>{
-        const clonedFlyer=doc.getElementById('flyer')||doc.querySelector('.flyer');
-        if(clonedFlyer) clonedFlyer.classList.add('exporting');
-      }
-    });
+    const canvas=await html2canvas(flyer,{scale:Math.min(3,Math.max(2,window.devicePixelRatio||2)),useCORS:true,backgroundColor:'#020907',logging:false,removeContainer:true});
     canvas.toBlob(blob=>{
       if(!blob) throw new Error('PNG creation returned an empty file.');
       const url=URL.createObjectURL(blob),a=document.createElement('a');
@@ -772,10 +748,7 @@ async function downloadFlyer(){
       document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);
     },'image/png');
   }catch(err){console.error('PNG export:',err);alert('PNG creation failed: '+(err&&err.message?err.message:'Please try again.'))}
-  finally{
-    flyer.classList.remove('exporting');
-    if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD PNG FLYER'}
-  }
+  finally{if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD PNG FLYER'}}
 }
 async function shareFlyer(){
   const title='HABSCO '+svc.label+' Flyer — '+formatted;
