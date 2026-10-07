@@ -770,8 +770,36 @@ async function downloadFlyer(){
       illustration.style.width='clamp(250px,36vw,380px)';
       illustration.style.height='clamp(215px,31vw,330px)';
     }
+    flyer.classList.add('exporting');
     if(!window.html2canvas) throw new Error('PNG engine is not loaded. Refresh and try again.');
-    const canvas=await html2canvas(flyer,{scale:Math.min(3,Math.max(2,window.devicePixelRatio||2)),useCORS:true,backgroundColor:'#020907',logging:false,removeContainer:true});
+    const canvas=await html2canvas(flyer,{
+      scale:Math.min(3,Math.max(2,window.devicePixelRatio||2)),
+      useCORS:true,
+      backgroundColor:'#020907',
+      logging:false,
+      removeContainer:true,
+      scrollX:0,
+      scrollY:0,
+      onclone:(doc)=>{
+        const clonedFlyer=doc.getElementById('flyer')||doc.querySelector('.flyer');
+        if(clonedFlyer) clonedFlyer.classList.add('exporting');
+        const clonedIllustration=doc.getElementById('realLifePhoto');
+        if(clonedIllustration){
+          clonedIllustration.style.left='50%';
+          clonedIllustration.style.top='55%';
+          clonedIllustration.style.transform='translate(-50%,-50%)';
+          clonedIllustration.style.margin='0';
+        }
+        const svg=doc.getElementById('serviceIllustration')?.querySelector('svg');
+        if(svg){
+          svg.setAttribute('preserveAspectRatio','xMidYMid meet');
+          svg.style.display='block';
+          svg.style.margin='0 auto';
+          svg.style.transform='none';
+          svg.querySelectorAll('g').forEach(g=>g.removeAttribute('transform'));
+        }
+      }
+    });
     canvas.toBlob(blob=>{
       if(!blob) throw new Error('PNG creation returned an empty file.');
       const url=URL.createObjectURL(blob),a=document.createElement('a');
@@ -780,6 +808,7 @@ async function downloadFlyer(){
     },'image/png');
   }catch(err){console.error('PNG export:',err);alert('PNG creation failed: '+(err&&err.message?err.message:'Please try again.'))}
   finally{
+    flyer.classList.remove('exporting');
     if(illustration){
       illustration.style.left=previous.left;
       illustration.style.top=previous.top;
