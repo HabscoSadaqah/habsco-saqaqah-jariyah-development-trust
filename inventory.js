@@ -230,6 +230,17 @@ function closeAddItemModal(){const m=$("addItemModal");if(m){m.classList.remove(
 async function purchaseAccess(){const pin=$("transactionPin").value.trim();if(!/^[0-9]{6}$/.test(pin)){ $("pinError").textContent="Enter your 6-digit transaction PIN.";return }const amount=selectedPlan==="monthly"?1000:10000;const{data:balData,error:balError}=await db.rpc("member_dashboard_balances");if(balError){$("pinError").textContent=balError.message||"Unable to verify wallet balance.";return}const walletBalance=Number(balData?.available||0);if(walletBalance<amount){$("pinError").textContent="Insufficient wallet balance for this plan.";return}if(!confirm("Confirm payment of "+money(amount)+" for "+(selectedPlan==="monthly"?"Monthly":"Yearly")+" Add Stock access?"))return;const btn=$("accessContinueBtn");btn.disabled=true;btn.textContent="PROCESSING…";$("pinError").textContent="";try{const{data,error}=await db.rpc("member_purchase_add_stock_access",{p_plan:selectedPlan,p_transaction_pin:pin});if(error)throw error;accessExpiresAt=data.expires_at;setLocked(false);updateCountdown();closeModal();await loadItems();showWelcomeFlash("Congratulations!","Welcome to Add Stock access. Your payment was successful and your Wallet Board is now unlocked.","OPEN WALLET BOARD")}catch(e){$("pinError").textContent=e.message||"Payment failed."}finally{btn.disabled=false;btn.textContent="PAY "+money(amount)}}
 function calendarParts(from,to){let y=to.getUTCFullYear()-from.getUTCFullYear(),m=to.getUTCMonth()-from.getUTCMonth(),d=to.getUTCDate()-from.getUTCDate();if(d<0){m--;const prev=new Date(Date.UTC(to.getUTCFullYear(),to.getUTCMonth(),0));d+=prev.getUTCDate()}if(m<0){y--;m+=12}return{y,m,d}}
 function updateCountdown(){const el=$("accessCountdown");if(!el||!accessExpiresAt)return;const target=new Date(accessExpiresAt),now=new Date(),ms=Math.max(0,target-now);if(ms<=0){accessExpiresAt=null;el.innerHTML="<b>Access expired</b><span>Please choose a new plan to continue.</span>";setLocked(true);openAccessModal();return}const p=calendarParts(now,target),days=Math.floor(ms/86400000),mins=Math.floor(ms/60000),secs=Math.floor(ms/1000);el.innerHTML="<div class='count-main'>"+p.y+" year"+(p.y===1?"":"s")+" · "+p.m+" month"+(p.m===1?"":"s")+" · "+p.d+" day"+(p.d===1?"":"s")+"</div><div class='count-sub'>"+mins.toLocaleString()+" minutes · "+secs.toLocaleString()+" seconds remaining</div><small>Expires "+target.toLocaleString("en-NG")+"</small>"} 
+async function sessionAndRole(){
+  const {data,error}=await db.auth.getUser();
+  if(error)throw error;
+  const user=data?.user;
+  if(!user?.id)throw new Error("No active signed-in session.");
+  currentUserId=user.id;
+  const {data:isAdminResult,error:roleError}=await db.rpc("is_admin");
+  if(roleError)throw roleError;
+  isAdmin=!!isAdminResult;
+  document.body.classList.remove("access-checking");
+}
 async function loadAccess(){if(isAdmin){setLocked(false);return}const{data,error}=await db.rpc("member_add_stock_access_status");if(error)throw error;accessExpiresAt=data?.active?data.expires_at:null;if(accessExpiresAt){setLocked(false);updateCountdown();if(window.__accessTimer)clearInterval(window.__accessTimer);window.__accessTimer=setInterval(updateCountdown,1000)}else{setLocked(true);openAccessModal()}}
 async function loadItems(){
   const{data,error}=await db.rpc("member_inventory_visual_items");
