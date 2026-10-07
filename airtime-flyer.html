@@ -567,71 +567,7 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   .flyer .real-life-photo{top:54%!important;width:clamp(145px,48vw,220px)!important;height:clamp(125px,40vw,185px)!important}
   .flyer .photo-subject{bottom:-22px!important;font-size:clamp(9px,3.4vw,14px)!important;letter-spacing:.7px!important}
 }
-<style id="illustration-glass-circle">
-/* Premium glass circle around the service illustration. */
-.flyer .real-life-photo{
-  width:clamp(285px,39vw,410px)!important;
-  height:clamp(285px,39vw,410px)!important;
-  border-radius:50%!important;
-  background:
-    radial-gradient(circle at 32% 24%,rgba(255,255,255,.20),transparent 31%),
-    radial-gradient(circle at 70% 78%,rgba(242,201,76,.10),transparent 48%),
-    rgba(255,255,255,.055)!important;
-  border:1px solid rgba(255,255,255,.52)!important;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.40),
-    inset 0 0 34px rgba(255,255,255,.055),
-    0 0 0 7px rgba(255,255,255,.035),
-    0 18px 55px rgba(0,0,0,.24),
-    0 0 45px rgba(242,201,76,.10)!important;
-  backdrop-filter:blur(14px) saturate(125%)!important;
-  -webkit-backdrop-filter:blur(14px) saturate(125%)!important;
-  overflow:visible!important;
-}
-.flyer .real-life-photo:before{
-  content:""!important;
-  position:absolute!important;
-  inset:10px!important;
-  border-radius:50%!important;
-  border:1px solid rgba(255,255,255,.16)!important;
-  box-shadow:inset 0 0 20px rgba(255,255,255,.045)!important;
-  pointer-events:none!important;
-  z-index:3!important;
-}
-.flyer .real-life-photo:after{
-  content:""!important;
-  position:absolute!important;
-  inset:0!important;
-  border-radius:50%!important;
-  pointer-events:none!important;
-  background:linear-gradient(145deg,rgba(255,255,255,.13),transparent 34%,transparent 70%,rgba(242,201,76,.07))!important;
-  box-shadow:inset -8px -10px 25px rgba(0,0,0,.08)!important;
-  z-index:2!important;
-}
-.flyer #serviceIllustration{
-  position:absolute!important;
-  inset:7%!important;
-  width:auto!important;
-  height:auto!important;
-  z-index:1!important;
-}
-.flyer #serviceIllustration svg{
-  width:100%!important;
-  height:100%!important;
-}
-.flyer .photo-subject{
-  bottom:-34px!important;
-  z-index:6!important;
-}
-@media(max-width:600px){
-  .flyer .real-life-photo{
-    width:clamp(175px,57vw,245px)!important;
-    height:clamp(175px,57vw,245px)!important;
-  }
-  .flyer #serviceIllustration{inset:7%!important}
-  .flyer .photo-subject{bottom:-27px!important}
-}
-</style></style></head><body><div class="stage"><section class="flyer" id="flyer">
+</style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
