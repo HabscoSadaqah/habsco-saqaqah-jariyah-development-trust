@@ -144,6 +144,40 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   .daily-flyer-card{flex-basis:164px;min-height:145px;padding:13px;border-radius:16px}
   .daily-flyer-card strong{font-size:16px}
 }
+</style><style id="subject-specific-flyer-design">
+/* Subject-first visual system: each service gets its own visual world, not the homepage theme. */
+.flyer[data-service="electricity"]{background:radial-gradient(circle at 50% 25%,rgba(255,214,82,.34),transparent 28%),linear-gradient(145deg,#062b1a 0%,#0a6b3d 45%,#04150d 100%)!important}
+.flyer[data-service="airtime"]{background:radial-gradient(circle at 75% 22%,rgba(255,126,166,.34),transparent 28%),linear-gradient(145deg,#170b34 0%,#623a9b 48%,#10071f 100%)!important}
+.flyer[data-service="data"]{background:radial-gradient(circle at 78% 20%,rgba(74,221,255,.38),transparent 30%),linear-gradient(145deg,#031a32 0%,#126b9d 48%,#020b18 100%)!important}
+.flyer[data-service="tv"]{background:radial-gradient(circle at 78% 18%,rgba(255,75,119,.32),transparent 26%),linear-gradient(145deg,#160720 0%,#702b86 46%,#09030e 100%)!important}
+.flyer[data-service="education"]{background:radial-gradient(circle at 76% 20%,rgba(255,208,91,.32),transparent 28%),linear-gradient(145deg,#032c2a 0%,#08766d 48%,#021718 100%)!important}
+.flyer[data-service="savings"]{background:radial-gradient(circle at 78% 20%,rgba(255,218,91,.34),transparent 28%),linear-gradient(145deg,#092d19 0%,#4e8d3e 48%,#06170d 100%)!important}
+.flyer[data-service="loan"]{background:radial-gradient(circle at 78% 20%,rgba(119,207,255,.30),transparent 28%),linear-gradient(145deg,#071a3d 0%,#275fa4 48%,#040d1e 100%)!important}
+
+/* Make the subject the first thing a viewer sees. */
+.hero{top:18.5%!important;z-index:30}
+.kicker{font-size:clamp(10px,1.3vw,15px)!important;letter-spacing:3.4px!important}
+.hero h1{font-size:clamp(58px,9.2vw,104px)!important;line-height:.86!important;letter-spacing:-5px!important;font-weight:1000!important;margin:12px auto 15px!important;max-width:92%!important;text-wrap:balance;text-shadow:0 10px 34px rgba(0,0,0,.38)!important}
+.lead{font-size:clamp(12px,1.45vw,17px)!important;max-width:570px!important;line-height:1.5!important}
+
+/* Strong, centered website address for easy viewing in PNG/social shares. */
+.footer{left:7%!important;right:7%!important;bottom:1.2%!important;display:block!important;text-align:center!important}
+.footer>div:first-child{display:none!important}
+.web-address{display:block!important;width:fit-content!important;max-width:92%!important;margin:0 auto!important;padding:8px 18px!important;border-radius:999px!important;background:rgba(0,0,0,.42)!important;border:1.5px solid var(--premium-gold)!important;color:#fff!important;font-size:clamp(13px,1.8vw,21px)!important;font-weight:1000!important;letter-spacing:.8px!important;text-decoration:none!important;box-shadow:0 8px 26px rgba(0,0,0,.28)!important;text-shadow:0 2px 8px rgba(0,0,0,.28)!important}
+
+@media(max-width:600px){
+  .hero{top:16.5%!important}
+  .kicker{font-size:clamp(7px,2.5vw,11px)!important;letter-spacing:2px!important}
+  .hero h1{font-size:clamp(40px,11.5vw,58px)!important;line-height:.88!important;letter-spacing:-2.8px!important;margin:8px auto 8px!important;max-width:96%!important}
+  .lead{font-size:clamp(8.5px,2.6vw,12px)!important;line-height:1.35!important;max-width:96%!important}
+  .footer{left:4%!important;right:4%!important;bottom:.9%!important}
+  .web-address{max-width:94%!important;padding:5px 12px!important;font-size:clamp(10px,3.2vw,15px)!important;letter-spacing:.35px!important}
+}
+@media(max-width:480px){
+  .hero{top:15.5%!important}
+  .hero h1{font-size:clamp(36px,11.8vw,52px)!important}
+  .lead{font-size:clamp(8px,2.55vw,10.5px)!important}
+}
 </style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
