@@ -504,6 +504,10 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   box-shadow:none!important;border-radius:0!important;
   isolation:isolate!important;
 }
+.flyer #serviceIllustration{width:100%!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;filter:drop-shadow(0 6px 18px rgba(255,255,255,.16))!important}
+.flyer #serviceIllustration svg{width:100%!important;height:100%!important;overflow:visible!important}
+.flyer #serviceIllustration svg g{fill:none!important;stroke:#fff!important}
+.flyer.photo-hand-cutout .real-life-photo:after{display:none!important}
 .flyer .real-life-photo img{
   width:100%!important;height:100%!important;display:block!important;
   object-fit:cover!important;object-position:center!important;
@@ -564,7 +568,7 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   .flyer .photo-subject{bottom:-22px!important;font-size:clamp(9px,3.4vw,14px)!important;letter-spacing:.7px!important}
 }
 </style></head><body><div class="stage"><section class="flyer" id="flyer">
-<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><img id="servicePhoto" alt="" crossorigin="anonymous"><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
+<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
 
@@ -597,8 +601,16 @@ const svc=services[serviceKey]||services.airtime;
 flyer.dataset.service=serviceKey;
 flyer.classList.toggle('photo-hand-cutout',serviceKey==='savings');
 const photo=servicePhotos[serviceKey]||servicePhotos.airtime;
-document.getElementById('servicePhoto').src=photo.url;
-document.getElementById('servicePhoto').alt=photo.subject;
+const lineArt={
+electricity:'<svg viewBox="0 0 420 300" role="img" aria-label="Electricity line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M208 250c-12-28-9-60 5-91 12-27 26-46 48-62"/><path d="M196 253c-22-9-42-25-55-46-14-23-17-51-11-78"/><path d="M245 97l35-25 32 24-35 24z"/><path d="M279 72l-6-28m39 52 27-7M255 112l-14 25 24-8-11 25"/><path d="M137 129l-30-18m35 42-34 4m47 37-28 19"/></g></svg>',
+airtime:'<svg viewBox="0 0 420 300" role="img" aria-label="Airtime line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="170" y="45" width="92" height="178" rx="14"/><circle cx="216" cy="198" r="7"/><path d="M188 76h56m-56 24h40"/><path d="M124 250c-2-35 8-66 28-88 14-16 29-27 48-32"/><path d="M292 91c18 7 31 21 38 39m-50-57c30 8 53 28 65 55"/></g></svg>',
+data:'<svg viewBox="0 0 420 300" role="img" aria-label="Data line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="95" y="62" width="230" height="142" rx="10"/><path d="M75 225h270M150 225l-18 28h168l-18-28"/><path d="M135 169l35-31 28 20 50-52 37 31"/><circle cx="135" cy="169" r="4"/><circle cx="170" cy="138" r="4"/><circle cx="198" cy="158" r="4"/><circle cx="248" cy="106" r="4"/></g></svg>',
+tv:'<svg viewBox="0 0 420 300" role="img" aria-label="TV line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="88" y="62" width="244" height="154" rx="10"/><path d="M147 248h126m-80-32v32m58-32v32"/><path d="M155 43l-28-24m138 24 28-24"/><path d="M184 116l54 32-54 32z"/><circle cx="294" cy="235" r="4"/></g></svg>',
+education:'<svg viewBox="0 0 420 300" role="img" aria-label="Education line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M86 110l124-58 124 58-124 58z"/><path d="M134 132v61c34 21 74 21 108 0v-61"/><path d="M334 112v78m0 0c-13 7-23 7-34 0m34 0c13 7 23 7 34 0"/><path d="M180 235h80"/></g></svg>',
+savings:'<svg viewBox="0 0 420 300" role="img" aria-label="Savings and shares line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="170" y="42" width="92" height="174" rx="14"/><circle cx="216" cy="190" r="7"/><path d="M188 72h56"/><path d="M117 250c-2-34 9-64 29-85 15-16 32-27 52-31"/><path d="M276 120c29 8 50 28 64 56"/><circle cx="306" cy="82" r="18"/><path d="M306 70v24m-8-8h16"/><path d="M86 225l34-20 34 20 34-20 34 20"/><path d="M86 225v28h136v-28"/></g></svg>',
+loan:'<svg viewBox="0 0 420 300" role="img" aria-label="Interest-free loan line illustration"><g fill="none" stroke="white" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M82 206l78-45 65 35 46-30 68 40"/><path d="M126 181l35-22 33 17-35 22z"/><path d="M254 166l34-20 31 18-35 22z"/><path d="M179 224c20 17 44 24 70 24 30 0 58-9 79-28"/><path d="M185 224l-18-16m18 16 16-15"/></g></svg>'
+};
+document.getElementById('serviceIllustration').innerHTML=lineArt[serviceKey]||lineArt.airtime;
 document.getElementById('servicePhotoLabel').textContent=photo.subject;
 document.getElementById('dailyIcon').textContent=svc.icon;
 document.getElementById('dailyNode1').textContent=svc.nodes[0];
