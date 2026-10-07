@@ -89,13 +89,13 @@
   .stage{padding:8px}
   .flyer{width:min(50vw,794px)}
 }
-</style></head><body><div class="stage"><section class="flyer" id="flyer">
+</style><style id="dashboard-back-button">.back-dashboard{display:flex;align-items:center;justify-content:center;gap:7px;width:min(794px,100%);margin:10px auto 0;padding:11px 16px;border-radius:12px;background:#fff;color:#075b38;border:1px solid #d7e1da;text-decoration:none;font-weight:900;font-size:13px;box-shadow:0 5px 16px rgba(0,0,0,.08)}.back-dashboard:active{transform:translateY(1px)}</style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1>Airtime<br>Made Easy.</h1><div class="lead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
 <div class="benefits"><div class="benefit"><b>INSTANT</b><span>Fast airtime purchase</span></div><div class="benefit"><b>SECURE</b><span>Protected transactions</span></div><div class="benefit"><b>EASY</b><span>Simple member experience</span></div></div>
 <div class="cta"><span>POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div><div class="web-address">habscosadaqah.org</div></div>
-</section><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD ANIMATED FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button><button class="back" onclick="window.print()">🖨 PRINT / PDF</button></div></div>
+</section><a class="back-dashboard" href="member.html">← BACK TO DASHBOARD</a><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD ANIMATED FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button><button class="back" onclick="window.print()">🖨 PRINT / PDF</button></div></div>
 <script>
 const flyer=document.getElementById('flyer');
 const tz='Africa/Lagos';
