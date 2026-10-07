@@ -89,12 +89,39 @@
   .stage{padding:8px}
   .flyer{width:min(50vw,794px)}
 }
+</style><style id="daily-ad-creative-system">
+/* Daily MP4 ads: each day gets a deliberately different advertising composition. */
+.flyer.daily-layout-0 .hero h1,.flyer.daily-layout-2 .hero h1,.flyer.daily-layout-5 .hero h1{font-size:clamp(58px,9.8vw,106px);line-height:.82;letter-spacing:-5px;text-transform:uppercase}
+.flyer.daily-layout-0 .hero{top:17%}.flyer.daily-layout-0 .universe{top:53%;width:62%}
+.flyer.daily-layout-1{background:linear-gradient(135deg,#06251a 0 48%,#f2c94c 48% 100%)}
+.flyer.daily-layout-1 .hero{text-align:left;left:7%;right:48%;top:23%}.flyer.daily-layout-1 .hero h1{font-size:clamp(56px,8.5vw,94px);color:#fff}.flyer.daily-layout-1 .lead{margin:0;color:#e9fff1}
+.flyer.daily-layout-1 .universe{left:76%;top:48%;width:50%}.flyer.daily-layout-1 .benefits{left:7%;right:48%;bottom:17%;grid-template-columns:1fr}
+.flyer.daily-layout-1 .benefit{text-align:left;padding:9px 12px}.flyer.daily-layout-1 .cta{left:7%;right:48%;bottom:8%}.flyer.daily-layout-1 .cta span{min-width:100%;background:#f2c94c;color:#06251a}
+.flyer.daily-layout-2{background:radial-gradient(circle at 75% 35%,#ffe37c 0,#f2c94c 16%,#8f6a12 17%,#152b20 55%,#03150d 100%)}
+.flyer.daily-layout-2 .hero{top:18%}.flyer.daily-layout-2 .lead{font-weight:700}.flyer.daily-layout-2 .universe{top:55%}
+.flyer.daily-layout-3{background:#f7f4e9;color:#123526}.flyer.daily-layout-3 .brand-logo{color:#0b5d31;text-shadow:none}.flyer.daily-layout-3 .badge{background:#0b5d31;color:#fff}.flyer.daily-layout-3 .hero{top:21%}.flyer.daily-layout-3 .kicker{color:#0b5d31}.flyer.daily-layout-3 h1{color:#0b5d31;text-shadow:none;font-size:clamp(54px,8.8vw,98px)}.flyer.daily-layout-3 .lead{color:#365748;font-weight:650}.flyer.daily-layout-3 .universe{top:57%}.flyer.daily-layout-3 .orbit{border-color:rgba(11,93,49,.22)}.flyer.daily-layout-3 .benefit{background:#fff;border-color:#d5e0d7;color:#0b5d31}.flyer.daily-layout-3 .benefit span{color:#557064}.flyer.daily-layout-3 .cta span{background:#0b5d31;color:#fff}.flyer.daily-layout-3 .footer{color:#173a2b;text-shadow:none}.flyer.daily-layout-3 .footer strong,.flyer.daily-layout-3 .footer .service-text{color:#173a2b}.flyer.daily-layout-3 .web-address{background:#fff;color:#0b5d31;border-color:#0b5d31}
+.flyer.daily-layout-4{background:linear-gradient(160deg,#071b3b,#123f7a 48%,#f2c94c 48.2%,#f2c94c 100%)}
+.flyer.daily-layout-4 .hero{text-align:left;left:8%;right:50%;top:24%}.flyer.daily-layout-4 .hero h1{font-size:clamp(54px,8.2vw,92px)}.flyer.daily-layout-4 .lead{margin:0}.flyer.daily-layout-4 .universe{left:77%;top:50%;width:48%}.flyer.daily-layout-4 .benefits{left:8%;right:50%;bottom:18%;grid-template-columns:1fr}.flyer.daily-layout-4 .benefit{text-align:left;padding:8px 11px}.flyer.daily-layout-4 .cta{left:8%;right:50%;bottom:9%}.flyer.daily-layout-4 .cta span{min-width:100%;background:#fff;color:#123f7a}
+.flyer.daily-layout-5{background:radial-gradient(circle at 50% 30%,#6b2d72 0,#30164b 35%,#0a0d2b 70%,#03020f 100%)}.flyer.daily-layout-5 .hero{top:19%}.flyer.daily-layout-5 .kicker{color:#ffd86a}.flyer.daily-layout-5 .universe{top:56%}.flyer.daily-layout-5 .benefits{bottom:18%}
+.flyer.daily-layout-6{background:linear-gradient(145deg,#ffefe0,#ffd0aa 38%,#e77c4d 38.2%,#a62f3b 100%)}.flyer.daily-layout-6 .brand-logo,.flyer.daily-layout-6 .footer{color:#fff}.flyer.daily-layout-6 .hero{top:20%}.flyer.daily-layout-6 .hero h1{font-size:clamp(54px,8.6vw,96px)}.flyer.daily-layout-6 .lead{color:#fff}.flyer.daily-layout-6 .universe{top:56%}.flyer.daily-layout-6 .benefit{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3)}
+/* Make the product/service name impossible to miss. */
+.service-label{position:absolute;left:6%;right:6%;top:11.5%;z-index:22;text-align:center;font-size:clamp(20px,4vw,42px);font-weight:1000;letter-spacing:1px;text-transform:uppercase;color:#fff;text-shadow:0 5px 18px rgba(0,0,0,.38)}
+.daily-layout-3 .service-label{color:#0b5d31;text-shadow:none}
+.howto{position:absolute;left:7%;right:7%;bottom:16%;z-index:23;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.howto-step{position:relative;min-height:54px;padding:7px 6px 7px 34px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);font-size:clamp(7px,.95vw,10px);font-weight:850;line-height:1.25}
+.howto-step b{display:block;font-size:clamp(8px,1vw,11px);color:#fff}.howto-step span{color:#d9eee2}
+.howto-num{position:absolute;left:7px;top:8px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#f2c94c;color:#073b25;font-weight:1000}
+.howto-cartoon{position:absolute;right:8%;top:56%;z-index:24;font-size:clamp(34px,6vw,65px);filter:drop-shadow(0 8px 12px rgba(0,0,0,.3));animation:cartoonHop 1.8s ease-in-out infinite}
+.howto-phone{position:absolute;right:17%;top:58%;z-index:24;font-size:clamp(28px,5vw,52px);animation:phoneTap 2s ease-in-out infinite}
+@keyframes cartoonHop{50%{transform:translateY(-10px) rotate(-3deg)}}@keyframes phoneTap{50%{transform:translateY(-7px) rotate(4deg)}}
+.flyer.exporting .howto-cartoon,.flyer.exporting .howto-phone{animation:none!important;transform:translateY(var(--export-howto-y,0px)) rotate(var(--export-howto-r,0deg))!important}
+@media(max-width:600px){.service-label{top:11%;font-size:clamp(16px,4.8vw,27px)}.howto{left:6%;right:6%;bottom:16.5%;gap:4px}.howto-step{min-height:43px;padding:5px 4px 5px 26px;border-radius:8px;font-size:clamp(5.5px,1.7vw,8px)}.howto-step b{font-size:clamp(6px,1.9vw,9px)}.howto-num{left:5px;top:6px;width:16px;height:16px;font-size:8px}.howto-cartoon{right:7%;top:56%;font-size:clamp(27px,8vw,43px)}.howto-phone{right:18%;top:59%;font-size:clamp(23px,6vw,36px)}.flyer.daily-layout-1 .hero,.flyer.daily-layout-4 .hero{right:45%}.flyer.daily-layout-1 .universe,.flyer.daily-layout-4 .universe{left:78%;width:48%}}
 </style><style id="dashboard-back-button">.back-dashboard{display:flex;align-items:center;justify-content:center;gap:7px;width:min(794px,100%);margin:10px auto 0;padding:11px 16px;border-radius:12px;background:#fff;color:#075b38;border:1px solid #d7e1da;text-decoration:none;font-weight:900;font-size:13px;box-shadow:0 5px 16px rgba(0,0,0,.08)}.back-dashboard:active{transform:translateY(1px)}</style></head><body><div class="stage"><section class="flyer" id="flyer">
-<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
+<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-label" id="serviceLabel">ELECTRICITY</div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay powered</div><h1>Electricity<br>Made Easy.</h1><div class="lead">Pay your electricity bill conveniently through HABSCO — a simple, secure experience for keeping your home and business powered.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">⚡</div><div class="node n1" id="dailyNode1">💡</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">🔌</div></div>
 <div class="benefits"><div class="benefit"><b>CONVENIENT</b><span>Pay from your device</span></div><div class="benefit"><b>SECURE</b><span>Protected transactions</span></div><div class="benefit"><b>RELIABLE</b><span>Simple payment process</span></div></div>
-<div class="cta"><span>KEEP YOUR POWER ON WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable electricity bill payment services for our members</span></div><div class="web-address">habscosadaqah.org</div></div>
+<div class="howto" id="howto"><div class="howto-step"><i class="howto-num">1</i><b>OPEN HABSCO</b><span>Visit the website and sign in.</span></div><div class="howto-step"><i class="howto-num">2</i><b>CHOOSE ELECTRICITY</b><span>Enter your meter details and amount.</span></div><div class="howto-step"><i class="howto-num">3</i><b>PAY & GET TOKEN</b><span>Confirm payment and receive your token.</span></div></div><div class="howto-cartoon" aria-hidden="true">🧑🏽‍💻</div><div class="howto-phone" aria-hidden="true">📱</div><div class="cta"><span>KEEP YOUR POWER ON WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable electricity bill payment services for our members</span></div><div class="web-address">habscosadaqah.org</div></div>
 </section><a class="back-dashboard" href="member.html">← BACK TO DASHBOARD</a><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD ANIMATED FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button><button class="back" onclick="window.print()">🖨 PRINT / PDF</button></div></div>
 <script>
 let MediabunnyPromise=import('https://cdn.jsdelivr.net/npm/mediabunny@1.61.3/dist/index.min.js');
@@ -121,7 +148,7 @@ const dailyDesigns=[
 ];
 const design=dailyDesigns[(day-1)%dailyDesigns.length];
 flyer.dataset.theme=design[0];
-flyer.classList.add(day%3===0?'daily-pulse':day%3===1?'daily-soft':'daily-alt');
+flyer.classList.add('daily-layout-'+((day-1)%7)); flyer.classList.add(day%3===0?'daily-pulse':day%3===1?'daily-soft':'daily-alt');
 document.getElementById('dailyIcon').textContent=design[1];
 document.getElementById('dailyNode1').textContent=design[2];
 document.getElementById('dailyNode2').textContent=design[3];
@@ -130,7 +157,7 @@ document.querySelector('.kicker').textContent=design[5];
 document.querySelector('h1').innerHTML=design[6].replace(/\s+/,'<br>');
 document.querySelector('.lead').textContent=design[7];
 document.querySelectorAll('.benefit').forEach((el,i)=>{el.querySelector('b').textContent=design[8][i];el.querySelector('span').textContent=design[9][i]});
-document.querySelector('.cta span').textContent=design[10];
+document.querySelector('.cta span').textContent=design[10]; document.getElementById('serviceLabel').textContent='ELECTRICITY';
 const formatted=new Intl.DateTimeFormat('en-NG',{timeZone:tz,day:'numeric',month:'long',year:'numeric'}).format(d);
 document.getElementById('dailyMeta').textContent=(selected===today?'TODAY • ':'')+formatted.toUpperCase();
 const archive=document.getElementById('archive');
@@ -153,7 +180,7 @@ async function downloadFlyer(){
       flyer.style.setProperty('--export-core-scale',(1+.04*Math.sin(t*2.4)).toFixed(4));
       flyer.style.setProperty('--export-phone-y',(Math.sin(t*2.2)*6)+'px');
       flyer.style.setProperty('--export-phone-r',(Math.sin(t*2)*5)+'deg');
-      flyer.style.setProperty('--export-node-y',(Math.sin(t*1.8)*8)+'px');
+      flyer.style.setProperty('--export-node-y',(Math.sin(t*1.8)*8)+'px'); flyer.style.setProperty('--export-howto-y',(Math.sin(t*2)*7)+'px'); flyer.style.setProperty('--export-howto-r',(Math.sin(t*1.7)*4)+'deg');
       frames.push(await html2canvas(flyer,{scale:1,useCORS:false,backgroundColor:'#020907',logging:false,removeContainer:true}));
       if(btn)btn.textContent='⏳ FRAMES '+Math.round((i+1)/totalFrames*100)+'%';
     }
@@ -184,7 +211,7 @@ async function downloadFlyer(){
     document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);
   }catch(err){console.error('MP4 export:',err);alert('MP4 creation failed: '+(err&&err.message?err.message:'Please try again.'))}
   finally{
-    ['--export-a','--export-b','--export-core-angle','--export-core-scale','--export-phone-y','--export-phone-r','--export-node-y'].forEach(x=>flyer.style.removeProperty(x));
+    ['--export-a','--export-b','--export-core-angle','--export-core-scale','--export-phone-y','--export-phone-r','--export-node-y','--export-howto-y','--export-howto-r'].forEach(x=>flyer.style.removeProperty(x));
     if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD ANIMATED FLYER'}
   }
 }
