@@ -765,10 +765,10 @@ async function downloadFlyer(){
   try{
     if(illustration){
       illustration.style.left='50%';
-      illustration.style.top='55%';
+      illustration.style.top='57%';
       illustration.style.transform='translate(-50%,-50%)';
-      illustration.style.width='clamp(250px,36vw,380px)';
-      illustration.style.height='clamp(215px,31vw,330px)';
+      illustration.style.width='clamp(225px,32vw,340px)';
+      illustration.style.height='clamp(195px,28vw,295px)';
     }
     flyer.classList.add('exporting');
     if(!window.html2canvas) throw new Error('PNG engine is not loaded. Refresh and try again.');
@@ -786,7 +786,7 @@ async function downloadFlyer(){
         const clonedIllustration=doc.getElementById('realLifePhoto');
         if(clonedIllustration){
           clonedIllustration.style.left='50%';
-          clonedIllustration.style.top='55%';
+          clonedIllustration.style.top='57%';
           clonedIllustration.style.transform='translate(-50%,-50%)';
           clonedIllustration.style.margin='0';
         }
