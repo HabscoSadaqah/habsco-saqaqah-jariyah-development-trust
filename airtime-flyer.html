@@ -497,37 +497,47 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 <style id="real-life-photo-focal-point">
 /* Real-life photographic focal point for each service flyer. */
 .flyer .real-life-photo{
-  position:absolute!important;left:50%!important;top:51%!important;
+  position:absolute!important;left:50%!important;top:55%!important;
   transform:translate(-50%,-50%)!important;width:clamp(210px,31vw,330px)!important;
-  height:clamp(180px,27vw,290px)!important;border-radius:30px!important;
-  overflow:hidden!important;z-index:19!important;
-  border:1px solid rgba(255,255,255,.34)!important;
-  background:rgba(255,255,255,.08)!important;
-  box-shadow:0 24px 60px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.28)!important;
+  height:clamp(180px,27vw,290px)!important;overflow:visible!important;
+  z-index:19!important;border:0!important;background:transparent!important;
+  box-shadow:none!important;border-radius:0!important;
+  isolation:isolate!important;
 }
 .flyer .real-life-photo img{
   width:100%!important;height:100%!important;display:block!important;
   object-fit:cover!important;object-position:center!important;
+  border:0!important;border-radius:0!important;
+  opacity:.94!important;
+  filter:saturate(.92) contrast(1.02) brightness(.98)!important;
+  -webkit-mask-image:radial-gradient(ellipse 78% 78% at 50% 48%,#000 0%,#000 52%,rgba(0,0,0,.82) 67%,transparent 100%)!important;
+  mask-image:radial-gradient(ellipse 78% 78% at 50% 48%,#000 0%,#000 52%,rgba(0,0,0,.82) 67%,transparent 100%)!important;
+}
+.flyer .real-life-photo:before{
+  content:""!important;position:absolute!important;inset:7%!important;z-index:1!important;
+  pointer-events:none!important;border-radius:50%!important;
+  background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.22) 78%,transparent 100%)!important;
+  mix-blend-mode:multiply!important;opacity:.7!important;
 }
 .flyer .real-life-photo:after{
-  content:"";position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(0,0,0,.02) 45%,rgba(0,0,0,.48) 100%);
-  pointer-events:none;
+  content:""!important;position:absolute!important;inset:0!important;z-index:2!important;
+  pointer-events:none!important;border-radius:50%!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.03),transparent 45%,var(--gold,rgba(242,201,76,.20)) 100%)!important;
+  mix-blend-mode:soft-light!important;opacity:.65!important;
 }
 .flyer .photo-subject{
-  position:absolute!important;left:50%!important;bottom:10px!important;
-  transform:translateX(-50%)!important;z-index:2!important;
-  width:90%!important;text-align:center!important;
-  color:#fff!important;font-size:clamp(14px,2vw,21px)!important;
-  line-height:1.05!important;font-weight:950!important;
-  letter-spacing:1.2px!important;text-transform:uppercase!important;
-  text-shadow:0 3px 12px rgba(0,0,0,.65)!important;
+  position:absolute!important;left:50%!important;bottom:-28px!important;
+  transform:translateX(-50%)!important;z-index:4!important;width:100%!important;
+  text-align:center!important;color:#fff!important;
+  font-size:clamp(13px,1.8vw,19px)!important;line-height:1!important;
+  font-weight:950!important;letter-spacing:1.4px!important;text-transform:uppercase!important;
+  text-shadow:0 3px 14px rgba(0,0,0,.65)!important;
 }
 .flyer .real-life-quote{top:80.8%!important}
 .flyer .benefits{bottom:19%!important}
 @media(max-width:600px){
-  .flyer .real-life-photo{top:50%!important;width:clamp(145px,48vw,220px)!important;height:clamp(125px,40vw,185px)!important;border-radius:20px!important}
-  .flyer .photo-subject{bottom:7px!important;font-size:clamp(9px,3.4vw,14px)!important;letter-spacing:.7px!important}
+  .flyer .real-life-photo{top:54%!important;width:clamp(145px,48vw,220px)!important;height:clamp(125px,40vw,185px)!important}
+  .flyer .photo-subject{bottom:-22px!important;font-size:clamp(9px,3.4vw,14px)!important;letter-spacing:.7px!important}
 }
 </style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><img id="servicePhoto" alt="" crossorigin="anonymous"><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
