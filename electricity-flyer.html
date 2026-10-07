@@ -87,48 +87,54 @@ async function downloadFlyer(){
   const btn=document.activeElement&&document.activeElement.tagName==='BUTTON'?document.activeElement:null;
   if(btn){btn.disabled=true;btn.textContent='⏳ CREATING MP4...'}
   try{
-    const duration=5000,fps=8,totalFrames=duration/1000*fps,frames=[];
-    const width=flyer.clientWidth,height=flyer.clientHeight;
+    const duration=4000,fps=6,totalFrames=duration/1000*fps,frames=[];
     for(let i=0;i<totalFrames;i++){
       const t=i/fps;
-      flyer.style.setProperty('--export-a',((t*21)%360)+'deg');
-      flyer.style.setProperty('--export-b',((-t*15)%360)+'deg');
-      flyer.style.setProperty('--export-core-angle',(t*8+(flyer.classList.contains('daily-alt')?45:0))+'deg');
-      flyer.style.setProperty('--export-core-scale',(1+.035*Math.sin(t*2.2)).toFixed(4));
-      flyer.style.setProperty('--export-phone-y',(Math.sin(t*2)*5)+'px');
-      flyer.style.setProperty('--export-phone-r',(Math.sin(t*1.9)*4)+'deg');
-      flyer.style.setProperty('--export-node-y',(Math.sin(t*1.6)*7)+'px');
-      frames.push(await html2canvas(flyer,{scale:1,useCORS:true,backgroundColor:'#020907',logging:false,foreignObjectRendering:false}));
+      flyer.style.setProperty('--export-a',((t*24)%360)+'deg');
+      flyer.style.setProperty('--export-b',((-t*17)%360)+'deg');
+      flyer.style.setProperty('--export-core-angle',(t*10+(flyer.classList.contains('daily-alt')?45:0))+'deg');
+      flyer.style.setProperty('--export-core-scale',(1+.04*Math.sin(t*2.4)).toFixed(4));
+      flyer.style.setProperty('--export-phone-y',(Math.sin(t*2.2)*6)+'px');
+      flyer.style.setProperty('--export-phone-r',(Math.sin(t*2)*5)+'deg');
+      flyer.style.setProperty('--export-node-y',(Math.sin(t*1.8)*8)+'px');
+      frames.push(await html2canvas(flyer,{scale:1,useCORS:false,backgroundColor:'#020907',logging:false,removeContainer:true}));
       if(btn)btn.textContent='⏳ MP4 '+Math.round((i+1)/totalFrames*100)+'%';
     }
     const data=await encodeMP4(frames,fps);
     const blob=new Blob([data],{type:'video/mp4'});
-    const url=URL.createObjectURL(blob),a=document.createElement('a');
-    a.download='HABSCO-Electricity-Flyer-'+selected+'.mp4';a.href=url;a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),10000);
-  }catch(err){console.error(err);alert('MP4 creation failed. Please try again in Chrome.');}
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='HABSCO-Electricity-Flyer-'+selected+'.mp4';document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),15000);
+  }catch(err){console.error('MP4 export:',err);alert('MP4 creation failed: '+(err&&err.message?err.message:'Please try again in Chrome.'))}
   finally{
-    flyer.style.removeProperty('--export-a');flyer.style.removeProperty('--export-b');flyer.style.removeProperty('--export-core-angle');flyer.style.removeProperty('--export-core-scale');flyer.style.removeProperty('--export-phone-y');flyer.style.removeProperty('--export-phone-r');flyer.style.removeProperty('--export-node-y');
+    ['--export-a','--export-b','--export-core-angle','--export-core-scale','--export-phone-y','--export-phone-r','--export-node-y'].forEach(x=>flyer.style.removeProperty(x));
     if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD MP4 ANIMATED FLYER'}
   }
 }
 async function encodeMP4(frames,fps){
-  if(!window.FFmpeg) await loadFFmpeg();
+  if(!window.FFmpeg || !window.FFmpeg.FFmpeg) await loadFFmpeg();
   const ffmpeg=new window.FFmpeg.FFmpeg();
   const fetchFile=window.FFmpeg.fetchFile;
-  await ffmpeg.load({coreURL:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',wasmURL:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm'});
+  ffmpeg.on('progress',p=>{});
+  await ffmpeg.load({
+    coreURL:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.js',
+    wasmURL:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.wasm'
+  });
   for(let i=0;i<frames.length;i++){
-    const blob=await new Promise(resolve=>frames[i].toBlob(resolve,'image/jpeg',.88));
-    await ffmpeg.writeFile('f'+String(i).padStart(3,'0')+'.jpg',await fetchFile(blob));
+    const blob=await new Promise(resolve=>frames[i].toBlob(resolve,'image/jpeg',.82));
+    if(!blob) throw new Error('Could not create video frame');
+    await ffmpeg.writeFile('frame'+String(i).padStart(3,'0')+'.jpg',await fetchFile(blob));
   }
-  await ffmpeg.exec(['-framerate',String(fps),'-i','f%03d.jpg','-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart','-crf','23','output.mp4']);
+  await ffmpeg.exec(['-framerate',String(fps),'-i','frame%03d.jpg','-vf','scale=trunc(iw/2)*2:trunc(ih/2)*2','-c:v','libx264','-preset','ultrafast','-pix_fmt','yuv420p','-movflags','+faststart','-crf','25','output.mp4']);
   return await ffmpeg.readFile('output.mp4');
 }
 async function loadFFmpeg(){
+  if(window.FFmpeg && window.FFmpeg.FFmpeg) return;
   await new Promise((resolve,reject)=>{
     const s=document.createElement('script');
     s.src='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js';
-    s.onload=resolve;s.onerror=reject;document.head.appendChild(s);
+    s.onload=()=>resolve();s.onerror=()=>reject(new Error('Could not load MP4 encoder'));
+    document.head.appendChild(s);
   });
 }
 async function shareFlyer(){const title='HABSCO Electricity Flyer — '+formatted;const text='Keep your power on with HABSCO — Electricity Made Easy. '+formatted;if(navigator.share){try{await navigator.share({title,text,url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)}
