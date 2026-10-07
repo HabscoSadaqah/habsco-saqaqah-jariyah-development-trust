@@ -192,7 +192,7 @@ async function setupSubscriptionUtility(){
  try{await loadProviderSelect("utilityProvider",meta.providerAction,"Select provider")}catch(e){msg(e.message||"Unable to load providers.",false);return}
  const invalidate=()=>{window.__habscoUtilityVerifiedKey="";window.__habscoUtilityValidationReference="";submit.disabled=true;result.style.display="none"};
  provider.onchange=async()=>{invalidate();pkg.innerHTML='<option value="">Loading packages...</option>';try{await loadPackages(meta.packageAction,provider.value.trim(),"utilityPackage")}catch(e){msg(e.message||"Unable to load packages.",false)}};
- pkg.onchange=invalidate;receiver.oninput=invalidate;phone.oninput=invalidate;
+ pkg.onchange=invalidate;receiver.oninput=invalidate;if(phone)phone.oninput=invalidate;
  verify.onclick=async()=>{
   const p=provider.value.trim(),code=pkg.value.trim(),rc=receiver.value.trim(),ph=service==="data"?rc:phone.value.trim(),selected=pkg.options[pkg.selectedIndex],amount=Number(selected?.dataset?.amount||0);
   if(!p||!code||!rc||(!ph&&service!=="data")){msg("Select a provider and package, then enter the customer and phone details.",false);return}
