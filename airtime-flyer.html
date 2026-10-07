@@ -462,19 +462,24 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 .flyer .universe .core{display:none!important}
 </style>
 <style id="remove-center-icon-duplicates">
-/* Remove the duplicate center icon and its bordered/glassy container; keep the main visual above the center. */
+/* Keep one premium service icon in a glass container and center it in the flyer. */
 .flyer .universe .phone{display:none!important}
 .flyer .universe .core{display:none!important}
 .flyer .universe .orbit,
 .flyer .universe .node{display:none!important}
 .flyer .service-symbol{
-  top:31%!important;
-  width:clamp(74px,11vw,120px)!important;
-  height:clamp(74px,11vw,120px)!important;
+  top:51%!important;
+  width:clamp(88px,13vw,136px)!important;
+  height:clamp(88px,13vw,136px)!important;
   border-radius:30% 70% 62% 38%/38% 40% 60% 62%!important;
+  z-index:19!important;
 }
 @media(max-width:600px){
-  .flyer .service-symbol{top:31%!important;width:clamp(54px,15vw,78px)!important;height:clamp(54px,15vw,78px)!important}
+  .flyer .service-symbol{
+    top:50%!important;
+    width:clamp(64px,18vw,92px)!important;
+    height:clamp(64px,18vw,92px)!important;
+  }
 }
 </style>
 <style id="quote-above-cta-final">
