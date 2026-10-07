@@ -85,7 +85,7 @@ archive.innerHTML=links;
 flyer.addEventListener('pointermove',e=>{const r=flyer.getBoundingClientRect();flyer.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');flyer.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%')});
 async function downloadFlyer(){
   const btn=document.activeElement&&document.activeElement.tagName==='BUTTON'?document.activeElement:null;
-  if(btn){btn.disabled=true;btn.textContent='⏳ PREPARING MP4...'}
+  if(btn){btn.disabled=true;btn.textContent='⏳ CREATING MP4...'}
   try{
     const duration=4000,fps=6,totalFrames=duration/1000*fps,frames=[];
     for(let i=0;i<totalFrames;i++){
@@ -102,7 +102,7 @@ async function downloadFlyer(){
     }
     if(btn)btn.textContent='⏳ ENCODING MP4...';
     const data=await encodeMP4(frames,fps);
-    const blob=new Blob([data],{type:'video/mp4'});
+    const blob=new Blob([data.buffer||data],{type:'video/mp4'});
     const url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download='HABSCO-Airtime-Flyer-'+selected+'.mp4';
     document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);
@@ -112,28 +112,31 @@ async function downloadFlyer(){
     if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD MP4 ANIMATED FLYER'}
   }
 }
-async function loadScript(src){
-  return new Promise((resolve,reject)=>{
-    const s=document.createElement('script');s.src=src;s.async=true;
-    s.onload=resolve;s.onerror=()=>reject(new Error('Could not load MP4 encoder library'));
-    document.head.appendChild(s);
-  });
+async function loadFFmpegModule(){
+  if(window._habscoFFmpegPromise) return window._habscoFFmpegPromise;
+  window._habscoFFmpegPromise=(async()=>{
+    const src='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/index.js';
+    const utilSrc='https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/dist/umd/index.js';
+    const [a,b]=await Promise.all([fetch(src),fetch(utilSrc)]);
+    if(!a.ok||!b.ok) throw new Error('Could not download MP4 encoder');
+    const at=await a.text(),bt=await b.text();
+    const am=await import(URL.createObjectURL(new Blob([at],{type:'text/javascript'})));
+    const bm=await import(URL.createObjectURL(new Blob([bt],{type:'text/javascript'})));
+    return {FFmpeg:am.FFmpeg,fetchFile:bm.fetchFile,toBlobURL:bm.toBlobURL};
+  })();
+  return window._habscoFFmpegPromise;
 }
 async function encodeMP4(frames,fps){
-  if(!window.FFmpeg || !window.FFmpeg.FFmpeg){
-    await loadScript('https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js');
-  }
-  if(!window.FFmpeg || !window.FFmpeg.FFmpeg) throw new Error('MP4 encoder library did not load. Check internet access and refresh.');
-  const ffmpeg=new window.FFmpeg.FFmpeg();
-  const fetchFile=window.FFmpeg.fetchFile;
+  const mod=await loadFFmpegModule();
+  const ffmpeg=new mod.FFmpeg();
+  const base='https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd';
   await ffmpeg.load({
-    coreURL:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.js',
-    wasmURL:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.wasm',
-    workerURL:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/umd/ffmpeg-core.worker.js'
+    coreURL:await mod.toBlobURL(base+'/ffmpeg-core.js','text/javascript'),
+    wasmURL:await mod.toBlobURL(base+'/ffmpeg-core.wasm','application/wasm')
   });
   for(let i=0;i<frames.length;i++){
     const blob=await new Promise(resolve=>frames[i].toBlob(resolve,'image/jpeg',.82));
-    await ffmpeg.writeFile('frame'+String(i).padStart(3,'0')+'.jpg',await fetchFile(blob));
+    await ffmpeg.writeFile('frame'+String(i).padStart(3,'0')+'.jpg',await mod.fetchFile(blob));
   }
   await ffmpeg.exec(['-framerate',String(fps),'-i','frame%03d.jpg','-vf','scale=trunc(iw/2)*2:trunc(ih/2)*2','-c:v','libx264','-preset','ultrafast','-pix_fmt','yuv420p','-movflags','+faststart','-crf','25','output.mp4']);
   return await ffmpeg.readFile('output.mp4');
