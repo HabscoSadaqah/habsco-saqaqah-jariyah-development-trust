@@ -145,7 +145,31 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   .daily-flyer-card strong{font-size:16px}
 }
 </style><style id="subject-specific-flyer-design">
-/* Premium service flyer system — strict separation, generous whitespace, no overlaps. */
+/* FINAL WEB FLYER GRID — consistent alignment across every service */
+.flyer[data-service]{display:grid!important;grid-template-rows:auto 1fr auto auto!important;overflow:hidden!important}
+.flyer .hero{position:relative!important;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.45fr)!important;grid-template-rows:auto 1fr!important;align-items:center!important;column-gap:clamp(18px,4vw,58px)!important;padding:clamp(28px,5vw,64px) clamp(6%,8vw,10%) clamp(18px,3vw,34px)!important;text-align:left!important;min-height:0!important}
+.flyer .hero .visual,.flyer .hero .hero-visual,.flyer .hero .service-visual{grid-column:1!important;grid-row:1 / span 2!important;position:relative!important;inset:auto!important;transform:none!important;width:clamp(150px,22vw,260px)!important;height:clamp(150px,22vw,260px)!important;margin:auto!important;justify-self:center!important;align-self:center!important;order:initial!important}
+.flyer .hero .kicker{grid-column:2!important;grid-row:1!important;margin:0 0 10px!important;text-align:left!important;align-self:end!important}
+.flyer .hero h1{grid-column:2!important;grid-row:2!important;position:relative!important;inset:auto!important;max-width:720px!important;margin:0!important;padding:0!important;text-align:left!important;font-size:clamp(48px,7.2vw,92px)!important;line-height:.88!important;letter-spacing:-3px!important;font-weight:1000!important;text-wrap:balance!important;align-self:start!important}
+.flyer .hero .lead{grid-column:2!important;grid-row:2!important;position:relative!important;margin:clamp(100px,11vw,145px) 0 0!important;max-width:570px!important;text-align:left!important;font-size:clamp(12px,1.3vw,16px)!important;line-height:1.45!important;align-self:start!important}
+.flyer .hero .orbit,.flyer .hero .nodes,.flyer .hero .service-nodes{pointer-events:none!important;z-index:0!important}
+.flyer .hero>*:not(.orbit):not(.nodes):not(.service-nodes){z-index:2!important}
+.flyer .benefits{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:0 clamp(6%,8vw,10%) 14px!important}
+.flyer .cta{margin:0 clamp(6%,8vw,10%) 16px!important;text-align:center!important}
+.flyer .footer{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;min-height:42px!important;display:flex!important;justify-content:center!important;align-items:center!important;padding:7px 6%!important}
+.flyer .footer>div:first-child{display:none!important}
+.flyer .web-address{display:block!important;position:relative!important;max-width:90%!important;margin:0 auto!important;padding:6px 16px!important;border-radius:999px!important;background:rgba(0,0,0,.28)!important;border:1px solid rgba(255,255,255,.5)!important;color:#fff!important;font-size:clamp(11px,1.3vw,16px)!important;font-weight:800!important;line-height:1.2!important;text-align:center!important;white-space:nowrap!important}
+@media(max-width:700px){
+ .flyer[data-service]{grid-template-rows:auto 1fr auto auto!important}
+ .flyer .hero{grid-template-columns:1fr!important;grid-template-rows:auto auto auto auto!important;text-align:center!important;padding:26px 7% 20px!important;row-gap:10px!important}
+ .flyer .hero .visual,.flyer .hero .hero-visual,.flyer .hero .service-visual{grid-column:1!important;grid-row:1!important;width:clamp(100px,29vw,145px)!important;height:clamp(100px,29vw,145px)!important;margin:0 auto 4px!important}
+ .flyer .hero .kicker{grid-column:1!important;grid-row:2!important;text-align:center!important;margin:0!important;align-self:auto!important}
+ .flyer .hero h1{grid-column:1!important;grid-row:3!important;text-align:center!important;font-size:clamp(40px,11vw,62px)!important;line-height:.9!important;letter-spacing:-2px!important;margin:0!important}
+ .flyer .hero .lead{grid-column:1!important;grid-row:4!important;text-align:center!important;margin:0 auto!important;max-width:92%!important;font-size:clamp(11px,3.2vw,14px)!important}
+ .flyer .benefits{grid-template-columns:1fr!important;margin:0 7% 10px!important;gap:7px!important}
+ .flyer .cta{margin:0 7% 10px!important}
+ .flyer .web-address{max-width:94%!important;font-size:clamp(9px,3vw,13px)!important}
+}
 .flyer[data-service="electricity"]{background:linear-gradient(145deg,#061c12,#087545 55%,#03110a)!important}
 .flyer[data-service="airtime"]{background:linear-gradient(145deg,#160b2b,#633a91 55%,#0d0619)!important}
 .flyer[data-service="data"]{background:linear-gradient(145deg,#04172c,#087aa7 55%,#02101e)!important}
@@ -153,30 +177,6 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 .flyer[data-service="education"]{background:linear-gradient(145deg,#032b29,#08756c 55%,#021716)!important}
 .flyer[data-service="savings"]{background:linear-gradient(145deg,#092b18,#4d873d 55%,#06160c)!important}
 .flyer[data-service="loan"]{background:linear-gradient(145deg,#071b3b,#2c64a7 55%,#040d1d)!important}
-
-/* Keep every visual and text element in its own clean zone. */
-.flyer .hero{position:relative!important;top:auto!important;display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important;padding:7vh 7% 3vh!important;z-index:30!important}
-.flyer .hero .visual,.flyer .hero .hero-visual,.flyer .hero .service-visual{position:relative!important;inset:auto!important;transform:none!important;order:1!important;margin:0 auto 3.5vh!important;width:clamp(105px,19vw,190px)!important;height:clamp(105px,19vw,190px)!important;flex:0 0 auto!important}
-.flyer .hero .kicker{order:2!important;margin:0 0 1.2vh!important;font-size:clamp(9px,1.1vw,13px)!important;letter-spacing:3px!important}
-.flyer .hero h1{order:3!important;position:relative!important;margin:0 auto 1.8vh!important;padding:0!important;max-width:900px!important;font-size:clamp(52px,8vw,94px)!important;line-height:.9!important;letter-spacing:-4px!important;font-weight:1000!important;text-wrap:balance!important;text-shadow:0 8px 25px rgba(0,0,0,.28)!important}
-.flyer .hero .lead{order:4!important;position:relative!important;margin:0 auto!important;max-width:600px!important;font-size:clamp(12px,1.35vw,16px)!important;line-height:1.5!important}
-
-/* Prevent decorative nodes/orbits from crossing the copy area. */
-.flyer .hero .orbit,.flyer .hero .nodes,.flyer .hero .service-nodes{pointer-events:none!important;z-index:-1!important}
-.flyer .benefits,.flyer .cta{position:relative!important;z-index:20!important;margin-top:2vh!important}
-
-/* Website address: isolated, centered, readable and never competing with the subject. */
-.flyer .footer{left:6%!important;right:6%!important;bottom:1.5%!important;display:flex!important;justify-content:center!important;align-items:center!important;text-align:center!important}
-.flyer .footer>div:first-child{display:none!important}
-.flyer .web-address{display:block!important;position:relative!important;width:auto!important;max-width:90%!important;margin:0 auto!important;padding:7px 18px!important;border-radius:999px!important;background:rgba(0,0,0,.34)!important;border:1px solid rgba(255,255,255,.55)!important;color:#fff!important;font-size:clamp(12px,1.5vw,18px)!important;font-weight:800!important;letter-spacing:.55px!important;line-height:1.2!important;text-align:center!important;white-space:nowrap!important;box-shadow:0 6px 20px rgba(0,0,0,.2)!important}
-
-@media(max-width:600px){
- .flyer .hero{padding:5vh 5% 2vh!important}
- .flyer .hero .visual,.flyer .hero .hero-visual,.flyer .hero .service-visual{width:clamp(82px,25vw,125px)!important;height:clamp(82px,25vw,125px)!important;margin-bottom:2.5vh!important}
- .flyer .hero h1{font-size:clamp(38px,11vw,58px)!important;letter-spacing:-2px!important;line-height:.9!important}
- .flyer .hero .lead{font-size:clamp(9px,2.7vw,12px)!important;max-width:92%!important}
- .flyer .web-address{max-width:94%!important;padding:5px 12px!important;font-size:clamp(9px,3vw,14px)!important}
-}
 </style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
