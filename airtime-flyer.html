@@ -504,8 +504,8 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   box-shadow:none!important;border-radius:0!important;
   isolation:isolate!important;
 }
-.flyer #serviceIllustration{width:100%!important;height:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;filter:drop-shadow(0 6px 18px rgba(255,255,255,.16))!important}
-.flyer #serviceIllustration svg{width:100%!important;height:100%!important;overflow:visible!important}
+.flyer #serviceIllustration{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:block!important;margin:0!important;padding:0!important;filter:none!important;background:transparent!important;box-shadow:none!important}
+.flyer #serviceIllustration svg{position:absolute!important;left:50%!important;top:50%!important;width:100%!important;height:100%!important;display:block!important;margin:0!important;overflow:visible!important;transform:translate(-50%,-50%)!important;transform-origin:50% 50%!important;filter:none!important;background:transparent!important}
 .flyer #serviceIllustration svg g{fill:none!important;stroke:#fff!important}
 .flyer.photo-hand-cutout .real-life-photo:after{display:none!important}
 .flyer .real-life-photo img{
@@ -539,19 +539,13 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   mix-blend-mode:screen!important;
   opacity:.55!important;
 }
-.flyer .real-life-photo:before{
-  content:""!important;position:absolute!important;inset:7%!important;z-index:1!important;
-  pointer-events:none!important;border-radius:50%!important;
-  background:radial-gradient(ellipse at center,transparent 28%,rgba(0,0,0,.05) 45%,rgba(0,0,0,.16) 68%,rgba(0,0,0,.08) 82%,transparent 100%)!important;
-  mix-blend-mode:multiply!important;opacity:.34!important;
-  filter:blur(5px)!important;
-}
+.flyer .real-life-photo:before,
 .flyer .real-life-photo:after{
-  content:""!important;position:absolute!important;inset:0!important;z-index:2!important;
-  pointer-events:none!important;border-radius:50%!important;
-  background:radial-gradient(ellipse at center,rgba(255,255,255,.055) 0%,transparent 52%),linear-gradient(180deg,rgba(255,255,255,.025),transparent 48%,var(--gold,rgba(242,201,76,.16)) 100%)!important;
-  mix-blend-mode:soft-light!important;opacity:.55!important;
-  filter:blur(1px)!important;
+  display:none!important;
+  content:none!important;
+  background:none!important;
+  box-shadow:none!important;
+  filter:none!important;
 }
 .flyer .photo-subject{
   position:absolute!important;left:50%!important;bottom:-28px!important;
@@ -818,7 +812,6 @@ async function downloadFlyer(){
           svg.style.margin='0';
           svg.style.transform='translate(-50%,-50%)';
           svg.style.transformOrigin='50% 50%';
-          svg.querySelectorAll('g').forEach(g=>g.removeAttribute('transform'));
         }
       }
     });
