@@ -355,6 +355,19 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 .flyer[data-service="loan"] .visual,
 .flyer[data-service="loan"] .hero-visual,
 .flyer[data-service="loan"] .service-visual{filter:drop-shadow(0 10px 18px rgba(0,0,0,.24))}
+</style><style id="headline-supporting-text-final">
+/* Typography order: BIG headline first, smaller supporting text directly underneath. */
+.flyer .hero{display:grid!important}
+.flyer .hero .kicker{grid-column:2!important;grid-row:1!important;margin:0 0 6px!important;align-self:end!important}
+.flyer .hero h1{grid-column:2!important;grid-row:2!important;margin:0!important;align-self:start!important}
+.flyer .hero .lead{grid-column:2!important;grid-row:3!important;margin:10px 0 0!important;align-self:start!important;max-width:570px!important}
+@media(max-width:700px){
+.flyer .hero{grid-template-columns:1fr!important;grid-template-rows:auto auto auto auto!important}
+.flyer .hero .visual,.flyer .hero .hero-visual,.flyer .hero .service-visual{grid-column:1!important;grid-row:1!important}
+.flyer .hero .kicker{grid-column:1!important;grid-row:2!important;text-align:center!important;margin:0!important}
+.flyer .hero h1{grid-column:1!important;grid-row:3!important;text-align:center!important;margin:0!important}
+.flyer .hero .lead{grid-column:1!important;grid-row:4!important;text-align:center!important;margin:8px auto 0!important}
+}
 </style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
