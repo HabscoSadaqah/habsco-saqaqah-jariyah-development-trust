@@ -1,6 +1,6 @@
 <!doctype html><html lang="en-NG"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#03150d">
-<title>HABSCO | Airtime Made Easy</title><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>\n
+<title>HABSCO | Daily Service Flyer</title><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>\n
 <style>
 :root{--g:#0b5d31;--d:#03150d;--gold:#f2c94c}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#e9eee9;color:#fff}body{display:flex;justify-content:center}.stage{width:100%;min-height:100vh;padding:22px 14px 36px}.flyer{position:relative;width:min(794px,100%);aspect-ratio:210/297;margin:auto;overflow:hidden;border-radius:20px;background:radial-gradient(circle at 50% 42%,#2f8a5b 0,#17633f 24%,#0b3d27 52%,#062719 78%,#03150d 100%);box-shadow:0 22px 65px rgba(0,0,0,.32);isolation:isolate}.flyer:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 48%,rgba(242,201,76,.10),transparent 28%),linear-gradient(135deg,rgba(255,255,255,.06),transparent 30%,rgba(0,0,0,.10));pointer-events:none;z-index:1}.flyer:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.16);pointer-events:none;z-index:50}
 .stars,.stars:before,.stars:after{position:absolute;inset:-12%;content:"";pointer-events:none}.stars{opacity:.38;background-image:radial-gradient(circle,rgba(255,255,255,.8) 0 .8px,transparent 1.4px),radial-gradient(circle,rgba(255,255,255,.42) 0 .6px,transparent 1.2px),radial-gradient(circle,rgba(242,201,76,.5) 0 .7px,transparent 1.3px);background-size:137px 149px,73px 81px,191px 203px;background-position:17px 23px,31px 11px,67px 91px;}.stars:before{background:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.12),rgba(242,201,76,.08) 20%,transparent 58%);}.stars:after{background-image:radial-gradient(circle,rgba(255,255,255,.9) 0 1.3px,transparent 2.4px);background-size:257px 271px;background-position:73px 41px;opacity:.28;}
@@ -16,6 +16,17 @@
 /* Premium real-world quote treatment */
 .real-life-quote{position:absolute;left:10%;right:10%;top:42.5%;z-index:21;text-align:center;padding:12px 18px 10px;border-top:1px solid rgba(255,255,255,.22);border-bottom:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.93)}.real-life-quote q{display:block;font-family:Georgia,'Times New Roman',serif;font-size:clamp(11px,1.45vw,17px);font-style:italic;line-height:1.35}.real-life-quote cite{display:block;margin-top:5px;color:#f4c95d;font:700 clamp(7px,.8vw,10px)/1.2 Inter,system-ui,sans-serif;letter-spacing:1.2px;text-transform:uppercase}.quote-mark{font-family:Georgia,serif;color:#f4c95d;font-size:1.5em;line-height:0;vertical-align:-.2em}.service-symbol{position:absolute;left:50%;top:31%;transform:translate(-50%,-50%);z-index:19;width:clamp(74px,11vw,120px);height:clamp(74px,11vw,120px);display:grid;place-items:center;border-radius:30% 70% 62% 38%/38% 40% 60% 62%;font-size:clamp(34px,5vw,58px);background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);box-shadow:0 20px 50px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.18);backdrop-filter:blur(12px)}
 @media(max-width:600px){.real-life-quote{left:8%;right:8%;top:40.5%;padding:8px 9px}.real-life-quote q{font-size:clamp(8px,2.15vw,11px)}.real-life-quote cite{font-size:6px;margin-top:3px}.service-symbol{top:31%;width:clamp(54px,15vw,78px);height:clamp(54px,15vw,78px);font-size:clamp(25px,7vw,38px);border-radius:25% 75% 55% 45%/40% 40% 60% 60%}}
+</style><style id="daily-service-themes">
+.flyer[data-service="electricity"]{background:radial-gradient(circle at 50% 42%,#55b879 0,#176a45 28%,#063d28 57%,#02150d 100%);--gold:#ffe071}
+.flyer[data-service="airtime"]{background:radial-gradient(circle at 50% 42%,#8b6de0 0,#4b2e78 28%,#21133e 58%,#090615 100%);--gold:#ff9dba}
+.flyer[data-service="data"]{background:radial-gradient(circle at 50% 42%,#3287b8 0,#174d78 28%,#071e3b 58%,#020b18 100%);--gold:#65e5ff}
+.flyer[data-service="tv"]{background:radial-gradient(circle at 50% 42%,#8a4bb5 0,#4c246f 28%,#241136 58%,#09040f 100%);--gold:#ffcf66}
+.flyer[data-service="education"]{background:radial-gradient(circle at 50% 42%,#43a49b 0,#176b68 28%,#0a393c 58%,#03191d 100%);--gold:#ffd46a}
+.flyer[data-service="savings"]{background:radial-gradient(circle at 50% 42%,#6ba84e 0,#28603a 28%,#0d3925 58%,#03170f 100%);--gold:#f7d66c}
+.flyer[data-service="loan"]{background:radial-gradient(circle at 50% 42%,#467cc1 0,#244e86 28%,#102b55 58%,#06101f 100%);--gold:#8fe7bd}
+.daily-flyer-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+.utility-card{transition:none!important}
+@media(max-width:600px){.daily-flyer-grid{grid-template-columns:1fr!important}}
 </style><style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style><style id="daily-flyer-system">
 .daily-meta{position:absolute;top:1.2%;right:6.5%;z-index:25;padding:5px 9px;border:1px solid rgba(242,201,76,.65);border-radius:999px;background:rgba(3,21,13,.58);color:#fff;font-size:clamp(7px,.9vw,10px);font-weight:900;letter-spacing:.7px}
 .archive{width:min(794px,100%);margin:10px auto 0;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
@@ -111,59 +122,89 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 @media(max-width:480px){.hero{top:17.5%!important}.universe{top:49.5%!important}.benefits{bottom:21%!important}.howto{bottom:12.2%!important}.cta{bottom:7%!important}.footer{bottom:1%!important}}
 @media print{.stage{padding:0!important}.flyer{border-radius:0!important;box-shadow:none!important}.flyer:after{border-radius:0}}
 .utility-marketing{width:min(794px,100%);margin:20px auto 0;padding:24px;border-radius:24px;background:linear-gradient(145deg,#ffffff,#f3f7f4);border:1px solid #dce7e0;box-shadow:0 18px 50px rgba(3,20,12,.10);color:#102119}.utility-marketing-head{text-align:left;margin-bottom:15px}.utility-marketing-head>span{font-size:10px;font-weight:950;letter-spacing:2px;color:#087443}.utility-marketing-head h2{margin:5px 0 5px;font-size:clamp(22px,4vw,32px);line-height:1.05;letter-spacing:-1.1px}.utility-marketing-head p{margin:0;color:#68766e;font-size:12px;line-height:1.5}.utility-marketing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.utility-card{position:relative;display:flex;flex-direction:column;min-height:190px;padding:17px;border-radius:19px;text-decoration:none;color:#fff;overflow:hidden;box-shadow:0 14px 30px rgba(3,20,12,.13);}.utility-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px rgba(3,20,12,.18)}.utility-card:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.16),transparent 42%,rgba(0,0,0,.16));pointer-events:none}.utility-icon{position:relative;width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.24);font-size:24px;font-weight:1000;backdrop-filter:blur(8px)}.utility-kicker{position:relative;display:block;margin-top:20px;font-size:8px;font-weight:900;letter-spacing:1.4px;opacity:.82}.utility-card h3{position:relative;margin:3px 0 5px;font-size:24px;letter-spacing:-.8px}.utility-card p{position:relative;margin:0;color:rgba(255,255,255,.80);font-size:10px;line-height:1.45}.utility-card>b{position:relative;margin-top:auto;padding-top:16px;font-size:9px;letter-spacing:1px}.utility-tv{background:radial-gradient(circle at 80% 15%,#9b67ff 0,transparent 30%),linear-gradient(145deg,#2c155e,#120b2b)}.utility-education{background:radial-gradient(circle at 80% 15%,#ffc857 0,transparent 28%),linear-gradient(145deg,#075f58,#06332f)}.utility-data{background:radial-gradient(circle at 80% 15%,#55d9ff 0,transparent 30%),linear-gradient(145deg,#073d67,#061b35)}@media(max-width:600px){.utility-marketing{margin-top:14px;padding:16px;border-radius:18px}.utility-marketing-head h2{font-size:22px}.utility-marketing-head p{font-size:10px}.utility-marketing-grid{grid-template-columns:1fr;gap:8px}.utility-card{min-height:120px;padding:14px;border-radius:15px}.utility-card h3{font-size:21px}.utility-icon{width:42px;height:42px;border-radius:13px;font-size:21px}.utility-kicker{margin-top:11px}.utility-card>b{padding-top:11px}}</style></head><body><div class="stage"><section class="flyer" id="flyer">
-<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span>Communication is the essence of human existence.</q><cite>— John A. Piece</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
-<div class="hero"><div class="kicker">Stay connected</div><h1>Airtime<br>Made Easy.</h1><div class="lead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
+<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
+<div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
-<div class="benefits"><div class="benefit"><b>INSTANT</b><span>Fast airtime purchase</span></div><div class="benefit"><b>SECURE</b><span>Protected transactions</span></div><div class="benefit"><b>EASY</b><span>Simple member experience</span></div></div>
-<div class="cta"><span>POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div><div class="web-address">habscosadaqah.org</div></div>
-</section><section class="utility-marketing" aria-label="Explore more HABSCO utility services">
-  <div class="utility-marketing-head"><span>MORE FROM HABSCO</span><h2>Everything you need, in one place.</h2><p>Explore our other everyday utility services and keep life moving with HABSCO.</p></div>
-  <div class="utility-marketing-grid">
-    <a class="utility-card utility-tv" href="member-actions.html?action=tv" aria-label="TV services"><div class="utility-icon">▣</div><div><span class="utility-kicker">ENTERTAINMENT</span><h3>TV</h3><p>Stay entertained with convenient TV services.</p></div><b>EXPLORE →</b></a>
-    <a class="utility-card utility-education" href="member-actions.html?action=education" aria-label="Education services"><div class="utility-icon">⌘</div><div><span class="utility-kicker">LEARNING</span><h3>Education</h3><p>Support learning, growth and everyday progress.</p></div><b>EXPLORE →</b></a>
-    <a class="utility-card utility-data" href="member-actions.html?action=data" aria-label="Data services"><div class="utility-icon">◈</div><div><span class="utility-kicker">CONNECTIVITY</span><h3>Data</h3><p>Get connected for work, study and everyday life.</p></div><b>EXPLORE →</b></a>
+<div class="benefits"><div class="benefit"><b id="benefit1">FAST</b><span id="benefitText1">Simple access</span></div><div class="benefit"><b id="benefit2">SECURE</b><span id="benefitText2">Protected transactions</span></div><div class="benefit"><b id="benefit3">EASY</b><span id="benefitText3">Built for members</span></div></div>
+<div class="cta"><span id="serviceCta">POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div><div class="web-address">habscosadaqah.org</div></div>
+</section><section class="utility-marketing" aria-label="HABSCO daily flyer collection">
+  <div class="utility-marketing-head"><span>HABSCO DAILY FLYERS</span><h2>Seven services. One premium experience.</h2><p>Open any service below to view today's flyer, choose another date, download PNG, or share it.</p></div>
+  <div class="utility-marketing-grid daily-flyer-grid">
+    <a class="utility-card utility-electricity" href="?service=electricity" aria-label="Electricity flyer"><div class="utility-icon">⚡</div><div><span class="utility-kicker">POWER</span><h3>Electricity</h3><p>Power your home and business with ease.</p></div><b>OPEN →</b></a>
+    <a class="utility-card utility-airtime" href="?service=airtime" aria-label="Airtime flyer"><div class="utility-icon">📱</div><div><span class="utility-kicker">MOBILE</span><h3>Airtime</h3><p>Keep calls and everyday communication moving.</p></div><b>OPEN →</b></a>
+    <a class="utility-card utility-data" href="?service=data" aria-label="Data flyer"><div class="utility-icon">📶</div><div><span class="utility-kicker">CONNECTIVITY</span><h3>Data</h3><p>Stay connected for work, study and life.</p></div><b>OPEN →</b></a>
+    <a class="utility-card utility-tv" href="?service=tv" aria-label="TV flyer"><div class="utility-icon">▣</div><div><span class="utility-kicker">ENTERTAINMENT</span><h3>TV</h3><p>Keep your favourite entertainment active.</p></div><b>OPEN →</b></a>
+    <a class="utility-card utility-education" href="?service=education" aria-label="Education flyer"><div class="utility-icon">🎓</div><div><span class="utility-kicker">LEARNING</span><h3>Education</h3><p>Support learning, growth and opportunity.</p></div><b>OPEN →</b></a>
+    <a class="utility-card utility-savings" href="?service=savings" aria-label="Savings and Shares flyer"><div class="utility-icon">💎</div><div><span class="utility-kicker">WEALTH</span><h3>Savings &amp; Shares</h3><p>Build disciplined savings and ownership.</p></div><b>OPEN →</b></a>
+    <a class="utility-card utility-loan" href="?service=loan" aria-label="Interest-free loan flyer"><div class="utility-icon">🤝</div><div><span class="utility-kicker">SUPPORT</span><h3>Interest-Free Loan</h3><p>Access member-focused financial support.</p></div><b>OPEN →</b></a>
   </div>
 </section><a class="back-dashboard" href="member.html">← BACK TO DASHBOARD</a><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD PNG FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button></div></div>
 <script>
 const flyer=document.getElementById('flyer');
 const tz='Africa/Lagos';
+const serviceKey=new URLSearchParams(location.search).get('service')||'airtime';
+const services={
+  electricity:{label:'Electricity',icon:'⚡',nodes:['🔌','💡','🏠'],kicker:'POWER YOUR DAY',headline:'Electricity<br>Made Simple.',lead:'Pay electricity services conveniently through HABSCO and keep your home or business powered.',benefits:['POWER','SECURE','SIMPLE'],texts:['Keep your meter active','Protected transactions','Easy member experience'],cta:'POWER YOUR DAY WITH HABSCO',quote:'Reliable power supports everyday life.',theme:'electricity'},
+  airtime:{label:'Airtime',icon:'📱',nodes:['📶','💬','☎️'],kicker:'STAY CONNECTED',headline:'Airtime<br>Made Easy.',lead:'Recharge conveniently through HABSCO and keep every important conversation moving.',benefits:['RECHARGE','CONNECT','EASY'],texts:['Quick mobile top-up','Protected transactions','Built for members'],cta:'STAY CONNECTED WITH HABSCO',quote:'Connection keeps people and ideas moving.',theme:'airtime'},
+  data:{label:'Data',icon:'📶',nodes:['☁️','💻','📲'],kicker:'ALWAYS CONNECTED',headline:'Data<br>That Moves You.',lead:'Get mobile data for work, study, business and everyday life through HABSCO.',benefits:['CONNECT','BROWSE','GO'],texts:['Stay online','Simple member flow','Ready for everyday use'],cta:'KEEP YOUR WORLD CONNECTED',quote:'Connectivity turns possibility into participation.',theme:'data'},
+  tv:{label:'TV',icon:'📺',nodes:['▶️','🎬','✨'],kicker:'ENTERTAINMENT',headline:'TV<br>Made Convenient.',lead:'Keep your entertainment subscription active with a simple HABSCO experience.',benefits:['ENTERTAIN','RENEW','ENJOY'],texts:['Convenient subscription payment','Protected transactions','Keep watching'],cta:'KEEP ENTERTAINMENT ON',quote:'Stories bring people together.',theme:'tv'},
+  education:{label:'Education',icon:'🎓',nodes:['📚','✏️','🏆'],kicker:'LEARNING & GROWTH',headline:'Education<br>Within Reach.',lead:'Support education services conveniently and keep learning moving forward.',benefits:['LEARN','SUPPORT','GROW'],texts:['Convenient service access','Protected transactions','Built for progress'],cta:'INVEST IN THE NEXT STEP',quote:'Education opens doors to opportunity.',theme:'education'},
+  savings:{label:'Savings & Shares',icon:'💎',nodes:['🐷','📈','🤝'],kicker:'BUILD YOUR FUTURE',headline:'Save. Own.<br>Grow.',lead:'Build disciplined savings and participate in HABSCO shares with a clear member experience.',benefits:['SAVE','OWN','GROW'],texts:['Build financial discipline','Member ownership','Plan with purpose'],cta:'BUILD YOUR FUTURE WITH HABSCO',quote:'Small, consistent steps can build lasting progress.',theme:'savings'},
+  loan:{label:'Interest-Free Loan',icon:'🤝',nodes:['💼','🌱','✓'],kicker:'MEMBER SUPPORT',headline:'Support<br>When It Matters.',lead:'Explore HABSCO interest-free loan support designed around responsible member needs.',benefits:['SUPPORT','RESPONSIBLE','MEMBER-FIRST'],texts:['Clear member process','Purpose-led support','Built around responsibility'],cta:'MOVE FORWARD WITH HABSCO',quote:'Support is strongest when it helps people move forward.',theme:'loan'}
+};
+const svc=services[serviceKey]||services.airtime;
+flyer.dataset.service=serviceKey;
+document.querySelector('.service-symbol').textContent=svc.icon;
+document.getElementById('dailyIcon').textContent=svc.icon;
+document.getElementById('dailyNode1').textContent=svc.nodes[0];
+document.getElementById('dailyNode2').textContent=svc.nodes[1];
+document.getElementById('dailyNode3').textContent=svc.nodes[2];
+document.querySelector('.kicker').textContent=svc.kicker;
+document.getElementById('serviceHeadline').innerHTML=svc.headline;
+document.getElementById('serviceLead').textContent=svc.lead;
+document.getElementById('benefit1').textContent=svc.benefits[0];
+document.getElementById('benefit2').textContent=svc.benefits[1];
+document.getElementById('benefit3').textContent=svc.benefits[2];
+document.getElementById('benefitText1').textContent=svc.texts[0];
+document.getElementById('benefitText2').textContent=svc.texts[1];
+document.getElementById('benefitText3').textContent=svc.texts[2];
+document.getElementById('serviceCta').textContent=svc.cta;
+document.getElementById('serviceQuote').textContent=svc.quote;
+document.getElementById('serviceQuoteBy').textContent='HABSCO • '+svc.label.toUpperCase();
+document.title='HABSCO | '+svc.label+' Flyer';
+
 function lagosDate(){
   const p=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
   const o={};p.forEach(x=>o[x.type]=x.value);return `${o.year}-${o.month}-${o.day}`;
 }
-function validDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s+'T00:00:00'))&&s<=lagosDate();}
+function validDate(s){return /^\\d{4}-\\d{2}-\\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s+'T00:00:00'))&&s<=lagosDate();}
 const today=lagosDate(), requested=new URLSearchParams(location.search).get('date');
 const selected=validDate(requested)?requested:today;
-if(requested!==selected) history.replaceState(null,'',location.pathname+'?date='+selected);
+if(requested!==selected) history.replaceState(null,'',location.pathname+'?service='+serviceKey+'&date='+selected);
 const d=new Date(selected+'T00:00:00Z');
-const start=new Date(d.getUTCFullYear(),0,1), day=Math.floor((d-new Date(Date.UTC(d.getUTCFullYear(),0,1)))/86400000)+1;
-const dailyDesigns=[
-['forest','📱','📶','💬','☎️','Stay connected','Airtime Made Easy.','Recharge your line quickly and keep every important conversation going.',['FAST RECHARGE','STAY CONNECTED','EASY ACCESS'],['Quick airtime purchase','Keep calls and data active','Simple member experience'],'KEEP TALKING WITH HABSCO'],
-['emerald','📲','📶','💳','💬','Recharge today','Top Up. Connect. Go.','A convenient way to keep your mobile line ready for calls, messages and everyday needs.',['QUICK TOP-UP','SECURE PAY','ALWAYS READY'],['Recharge with ease','Protected transactions','Keep your line active'],'TOP UP YOUR LINE WITH HABSCO'],
-['gold','📞','🔋','📶','💬','Never miss a call','Keep Your Line Alive.','Get the airtime you need for family, work, business and staying in touch.',['CALL','TEXT','CONNECT'],['Stay reachable','Keep messaging','Stay connected'],'STAY CONNECTED WITH HABSCO'],
-['midnight','📡','📲','🔒','☎️','Your connection matters','Airtime At Your Fingertips.','A simple HABSCO experience for convenient mobile airtime purchases.',['CONVENIENT','SECURE','RELIABLE'],['Buy from your device','Protected payments','Built for members'],'RECHARGE WITH HABSCO'],
-['fresh','💬','📶','📱','☎️','Stay in touch','Recharge & Stay Connected.','Keep your mobile connection ready whenever you need to reach someone.',['RECHARGE','CONNECT','GO'],['Simple airtime purchase','Stay reachable','Ready for everyday use'],'KEEP CONNECTED WITH HABSCO'],
-['royal','📱','☎️','💬','📶','Mobile made simple','Airtime When You Need It.','Convenient airtime access for calls, messages and everyday communication.',['EASY','FAST','SECURE'],['Simple member flow','Quick recharge','Protected transactions'],'POWER YOUR MOBILE WITH HABSCO'],
-['sunrise','📲','🔋','📡','💬','Start connected','Your Airtime. Your Connection.','Recharge conveniently through HABSCO and keep your day moving.',['READY','CONNECTED','SIMPLE'],['Recharge when needed','Stay in touch','Easy experience'],'RECHARGE WITH HABSCO']
+const start=new Date(Date.UTC(d.getUTCFullYear(),0,1)), day=Math.floor((d-start)/86400000)+1;
+const dailyStyles=[
+['emerald','⚡','✨','🔒','Power today.','Make every unit count.'],
+['midnight','◈','☁️','🔐','Connected living.','Keep your everyday services moving.'],
+['gold','◆','✦','✓','Plan with purpose.','Simple services for real life.'],
+['royal','✦','◌','▣','Built for progress.','A smarter everyday experience.'],
+['fresh','◇','✚','↗','Move forward.','Convenience designed around you.'],
+['sunrise','●','✦','✓','Everyday made easier.','Reliable access when you need it.'],
+['forest','✧','◎','↗','HABSCO in your corner.','Simple. Clear. Member-focused.']
 ];
-const design=dailyDesigns[(day-1)%dailyDesigns.length];
-flyer.dataset.theme=design[0];
-flyer.classList.add(day%3===0?'daily-pulse':day%3===1?'daily-soft':'daily-alt');
-document.getElementById('dailyIcon').textContent=design[1];
-document.getElementById('dailyNode1').textContent=design[2];
-document.getElementById('dailyNode2').textContent=design[3];
-document.getElementById('dailyNode3').textContent=design[4];
-document.querySelector('.kicker').textContent=design[5];
-document.querySelector('h1').innerHTML=design[6].replace(/\s+/,'<br>');
-document.querySelector('.lead').textContent=design[7];
-document.querySelectorAll('.benefit').forEach((el,i)=>{el.querySelector('b').textContent=design[8][i];el.querySelector('span').textContent=design[9][i]});
-document.querySelector('.cta span').textContent=design[10];
+const style=dailyStyles[(day-1)%dailyStyles.length];
+flyer.dataset.theme=style[0];
+document.getElementById('dailyIcon').textContent=svc.icon;
+document.getElementById('dailyNode1').textContent=svc.nodes[0];
+document.getElementById('dailyNode2').textContent=svc.nodes[1];
+document.getElementById('dailyNode3').textContent=svc.nodes[2];
+document.getElementById('dailyMeta').textContent=(selected===today?'TODAY • ':'')+svc.label.toUpperCase()+' • '+new Intl.DateTimeFormat('en-NG',{timeZone:tz,day:'numeric',month:'long',year:'numeric'}).format(d).toUpperCase();
+
 const formatted=new Intl.DateTimeFormat('en-NG',{timeZone:tz,day:'numeric',month:'long',year:'numeric'}).format(d);
-document.getElementById('dailyMeta').textContent=(selected===today?'TODAY • ':'')+formatted.toUpperCase();
 const archive=document.getElementById('archive');
 let links='<div class="archive-label">Previous daily flyers — tap a date to view, download or share</div>';
-for(let i=1;i<=7;i++){const x=new Date(d.getTime()-i*86400000);const s=x.toISOString().slice(0,10);if(s>today)continue;const label=new Intl.DateTimeFormat('en-NG',{day:'numeric',month:'short'}).format(x);links+=`<a href="?date=${s}">${label}</a>`;}
-if(selected!==today) links+=`<a class="today" href="?date=${today}">Today</a>`;
+for(let i=1;i<=7;i++){const x=new Date(d.getTime()-i*86400000);const s=x.toISOString().slice(0,10);if(s>today)continue;const label=new Intl.DateTimeFormat('en-NG',{day:'numeric',month:'short'}).format(x);links+=`<a href="?service=${encodeURIComponent(serviceKey)}&date=${s}">${label}</a>`;}
+if(selected!==today) links+=`<a class="today" href="?service=${encodeURIComponent(serviceKey)}&date=${today}">Today</a>`;
 archive.innerHTML=links;
 
 async function downloadFlyer(){
@@ -175,12 +216,15 @@ async function downloadFlyer(){
     canvas.toBlob(blob=>{
       if(!blob) throw new Error('PNG creation returned an empty file.');
       const url=URL.createObjectURL(blob),a=document.createElement('a');
-      a.href=url;a.download='HABSCO-Airtime-Flyer-'+selected+'.png';
+      a.href=url;a.download='HABSCO-'+svc.label.replace(/[^a-z0-9]+/gi,'-')+'-Flyer-'+selected+'.png';
       document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);
     },'image/png');
   }catch(err){console.error('PNG export:',err);alert('PNG creation failed: '+(err&&err.message?err.message:'Please try again.'))}
   finally{if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD PNG FLYER'}}
 }
-async function shareFlyer(){const title='HABSCO Airtime Flyer — '+formatted;const text='Stay connected with HABSCO — Airtime Made Easy. '+formatted;if(navigator.share){try{await navigator.share({title,text,url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)}
-</script>
+async function shareFlyer(){
+  const title='HABSCO '+svc.label+' Flyer — '+formatted;
+  const text=svc.label+' — '+svc.cta+' • '+formatted;
+  if(navigator.share){try{await navigator.share({title,text,url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)
+}</script>
 <footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body></html>
