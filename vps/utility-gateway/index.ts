@@ -43,7 +43,9 @@ if(action==="data-validate"||action==="tv-validate"||action==="education-validat
   let val:any;
   if(service==="data"){
     if(!code)return J({error:"Data package code is required."},400);
-    val=await call(t,B()+"/merchant/data/validate","POST",{provider,code,receiver});
+    const normalizedReceiver=normalizeNGPhone(receiver);
+    if(!normalizedReceiver)return J({error:"Receiver phone must be a valid Nigerian mobile phone number."},400);
+    val=await call(t,B()+"/merchant/data/validate","POST",{provider,code,receiver:normalizedReceiver});
   }else if(service==="tv"){
     if(!pkg)return J({error:"TV package is required."},400);
     val=await call(t,B()+"/merchant/tv/validate","POST",{provider:provider.toLowerCase(),package:pkg,receiver,email:String(b?.email||"").trim()||undefined,phone_number:normalizeNGPhone(b?.phone_number)||undefined});
@@ -61,7 +63,7 @@ if(!["airtime","data","tv","education","power"].includes(action))return J({error
  try{
   if(action==="power"){amount=Number(b?.amount);if(!Number.isFinite(amount)||amount<=0)return J({error:"A valid power amount is required."},400);val=await call(t,P()+"/merchant/power/validate","POST",{meter_type:String(b?.meter_type||"PREPAID").toUpperCase(),provider,receiver,amount,phone_number:normalizeNGPhone(b?.phone_number)||undefined,email:String(b?.email||"").trim()||undefined,create_beneficiary:false})}
   else if(action==="airtime"){amount=Number(b?.amount);if(!Number.isFinite(amount)||amount<=0)return J({error:"A valid airtime amount is required."},400);val=await call(t,B()+"/merchant/airtime/validate","POST",{provider,amount,receiver})}
-  else if(action==="data"){val=await call(t,B()+"/merchant/data/validate","POST",{provider,code:String(b?.code||""),receiver})}
+  else if(action==="data"){const normalizedReceiver=normalizeNGPhone(receiver);if(!normalizedReceiver)return J({error:"Receiver phone must be a valid Nigerian mobile phone number."},400);val=await call(t,B()+"/merchant/data/validate","POST",{provider,code:String(b?.code||""),receiver:normalizedReceiver})}
   else if(action==="tv"){val=await call(t,B()+"/merchant/tv/validate","POST",{provider:provider.toLowerCase(),package:String(b?.package||""),receiver,email:String(b?.email||"").trim()||undefined,phone_number:normalizeNGPhone(b?.phone_number)||undefined})}
   else{val=await call(t,B()+"/merchant/education/validate","POST",{provider,code:String(b?.code||""),receiver,email:String(b?.email||"").trim()||undefined,phone_number:normalizeNGPhone(b?.phone_number)||undefined,create_beneficiary:Boolean(b?.create_beneficiary),beneficiary_name:String(b?.beneficiary_name||"").trim()||undefined})}
   vd=val.data?.data||val.data;if(!val.ok||!vd?.validation_reference)return J({error:val.data?.message||"Utility validation failed.",data:val.data},502);amount=Number(vd.amount??amount);if(!Number.isFinite(amount)||amount<=0)return J({error:"Provider returned an invalid amount."},502)
