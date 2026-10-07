@@ -12,12 +12,51 @@
 .benefits{position:absolute;left:9%;right:9%;bottom:19%;z-index:20;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.benefit{padding:13px 9px;text-align:center;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:rgba(255,255,255,.075);backdrop-filter:blur(9px);box-shadow:inset 0 1px rgba(255,255,255,.1)}.benefit b{display:block;font-size:clamp(9px,1.1vw,12px);letter-spacing:1.2px}.benefit span{display:block;margin-top:4px;color:#cde8d9;font-size:clamp(7px,.9vw,10px);line-height:1.35}.cta{position:absolute;left:9%;right:9%;bottom:11%;z-index:20;text-align:center}.cta span{display:inline-flex;justify-content:center;align-items:center;min-width:64%;padding:12px 20px;border-radius:999px;background:#fff;color:#075b38;font-size:clamp(8px,1.05vw,12px);font-weight:950;letter-spacing:1px;box-shadow:0 9px 28px rgba(0,0,0,.22)}.footer{position:absolute;left:7%;right:7%;bottom:2.8%;z-index:20;display:flex;justify-content:space-between;align-items:end;gap:16px;color:#fff;font-size:clamp(8px,1.05vw,12px);line-height:1.35;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,.45)}.footer strong{display:block;color:#fff;font-size:clamp(9px,1.2vw,14px);font-weight:950;letter-spacing:.55px}.footer .service-text{display:block;margin-top:3px;color:#eefaf2;font-size:clamp(7px,.95vw,11px);font-weight:750}.web-address{display:inline-block;flex:0 0 auto;color:#fff;background:rgba(3,21,13,.55);border:1px solid rgba(242,201,76,.7);border-radius:8px;padding:6px 10px;font-size:clamp(10px,1.35vw,16px);font-weight:950;letter-spacing:.3px;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 .controls{width:min(794px,100%);margin:12px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}button{border:0;border-radius:11px;padding:12px 8px;background:#087443;color:#fff;font-weight:850;cursor:pointer}.back{background:#fff;color:#087443}
 @media(max-width:600px){.stage{padding:6px}.flyer{border-radius:14px}.brand{top:4%}.brand img{width:52%}.hero{top:17%}.universe{width:68%;top:51%}.n1{transform:translate(-50%,-50%) translate(31vw,-4vw)}.n2{transform:translate(-50%,-50%) translate(-31vw,4vw)}.n3{transform:translate(-50%,-50%) translate(22vw,11vw)}.benefits{gap:5px;bottom:18.5%}.benefit{padding:9px 5px}.cta{bottom:10.4%}.cta span{min-width:76%;padding:10px 12px}.footer{left:5%;right:5%;bottom:2.2%;gap:8px}.footer .service-text{font-size:clamp(7px,1.7vw,10px)}.web-address{font-size:clamp(9px,2.2vw,13px);padding:5px 7px}.controls{grid-template-columns:1fr 1fr}.controls button:last-child{grid-column:1/-1}}@media(prefers-reduced-motion:reduce){.stars,.stars:before,.stars:after,.orbit,.core,.phone,.node{animation:none!important}}@media print{html,body{background:#fff}.stage{padding:0}.flyer{width:210mm;height:297mm;aspect-ratio:auto;border-radius:0;box-shadow:none}.controls{display:none}}
-</style><style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style></head><body><div class="stage"><section class="flyer" id="flyer">
-<div class="stars"></div><div class="brand"><img src="/assets/habsco-wordmark.svg?v=20260917" alt="HABSCO"><div class="badge">FAST • SIMPLE • SECURE</div></div>
+</style><style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style><style id="daily-flyer-system">
+.daily-meta{position:absolute;top:1.2%;right:6.5%;z-index:25;padding:5px 9px;border:1px solid rgba(242,201,76,.65);border-radius:999px;background:rgba(3,21,13,.58);color:#fff;font-size:clamp(7px,.9vw,10px);font-weight:900;letter-spacing:.7px}
+.archive{width:min(794px,100%);margin:10px auto 0;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.archive a{padding:7px 9px;border-radius:9px;background:#fff;color:#075b38;text-decoration:none;font-size:11px;font-weight:850;border:1px solid #d7e1da}
+.archive a.today{background:#087443;color:#fff}.archive-label{width:100%;text-align:center;color:#355044;font-size:11px;font-weight:800;margin-bottom:1px}
+@media(max-width:600px){.daily-meta{right:5%;top:1%;font-size:7px;padding:4px 7px}.archive a{font-size:10px;padding:6px 7px}}
+</style><style id="daily-themes">
+.flyer[data-theme="emerald"]{background:radial-gradient(circle at 50% 42%,#35a66c 0,#14734a 28%,#073d29 58%,#03150d 100%);--gold:#ffe07a}
+.flyer[data-theme="gold"]{background:radial-gradient(circle at 50% 42%,#6b8f48 0,#285f35 30%,#0b3524 60%,#02140c 100%);--gold:#ffd85a}
+.flyer[data-theme="midnight"]{background:radial-gradient(circle at 50% 42%,#226b61 0,#103f3b 30%,#062521 62%,#020f12 100%);--gold:#73e5c0}
+.flyer[data-theme="fresh"]{background:radial-gradient(circle at 50% 42%,#35a87c 0,#147153 30%,#063d2e 60%,#02170f 100%);--gold:#9ff0cf}
+.flyer[data-theme="royal"]{background:radial-gradient(circle at 50% 42%,#276c62 0,#164844 30%,#082d31 62%,#031519 100%);--gold:#f3d56d}
+.flyer[data-theme="sunrise"]{background:radial-gradient(circle at 50% 42%,#3d9869 0,#28623f 28%,#0b3b28 58%,#03150d 100%);--gold:#ffd36b}
+.flyer[data-theme="forest"]{background:radial-gradient(circle at 50% 42%,#2f8a5b 0,#17633f 24%,#0b3d27 52%,#062719 78%,#03150d 100%)}
+</style></head><body><div class="stage"><section class="flyer" id="flyer">
+<div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="brand"><img src="/assets/habsco-wordmark.svg?v=20260917" alt="HABSCO"><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1>Airtime<br>Made Easy.</h1><div class="lead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone">📱</div><div class="node n1">⚡</div><div class="node n2">🔒</div><div class="node n3">✓</div></div>
 <div class="benefits"><div class="benefit"><b>INSTANT</b><span>Fast airtime purchase</span></div><div class="benefit"><b>SECURE</b><span>Protected transactions</span></div><div class="benefit"><b>EASY</b><span>Simple member experience</span></div></div>
 <div class="cta"><span>POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div><div class="web-address">habscosadaqah.org</div></div>
-</section><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD A4 PNG</button><button onclick="shareFlyer()">↗ SHARE FLYER</button><button class="back" onclick="window.print()">🖨 PRINT / PDF</button></div></div>
-<script>const flyer=document.getElementById('flyer');flyer.addEventListener('pointermove',e=>{const r=flyer.getBoundingClientRect();flyer.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');flyer.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%')});async function downloadFlyer(){const canvas=await html2canvas(flyer,{scale:3,useCORS:true,backgroundColor:'#020907'});const a=document.createElement('a');a.download='HABSCO-Airtime-Flyer-A4.png';a.href=canvas.toDataURL('image/png');a.click()}async function shareFlyer(){if(navigator.share){try{await navigator.share({title:'HABSCO Airtime',text:'Stay connected with HABSCO — Airtime Made Easy.',url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)}</script>
+</section><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD A4 PNG</button><button onclick="shareFlyer()">↗ SHARE FLYER</button><button class="back" onclick="window.print()">🖨 PRINT / PDF</button></div></div>
+<script>
+const flyer=document.getElementById('flyer');
+const tz='Africa/Lagos';
+function lagosDate(){
+  const p=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const o={};p.forEach(x=>o[x.type]=x.value);return `${o.year}-${o.month}-${o.day}`;
+}
+function validDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s+'T00:00:00'))&&s<=lagosDate();}
+const today=lagosDate(), requested=new URLSearchParams(location.search).get('date');
+const selected=validDate(requested)?requested:today;
+if(requested!==selected) history.replaceState(null,'',location.pathname+'?date='+selected);
+const d=new Date(selected+'T00:00:00Z');
+const start=new Date(d.getUTCFullYear(),0,1), day=Math.floor((d-new Date(Date.UTC(d.getUTCFullYear(),0,1)))/86400000)+1;
+const themes=['forest','emerald','gold','midnight','fresh','royal','sunrise'];
+flyer.dataset.theme=themes[(day-1)%themes.length];
+const formatted=new Intl.DateTimeFormat('en-NG',{timeZone:tz,day:'numeric',month:'long',year:'numeric'}).format(d);
+document.getElementById('dailyMeta').textContent=(selected===today?'TODAY • ':'')+formatted.toUpperCase();
+const archive=document.getElementById('archive');
+let links='<div class="archive-label">Previous daily flyers — tap a date to view, download or share</div>';
+for(let i=1;i<=7;i++){const x=new Date(d.getTime()-i*86400000);const s=x.toISOString().slice(0,10);if(s>today)continue;const label=new Intl.DateTimeFormat('en-NG',{day:'numeric',month:'short'}).format(x);links+=`<a href="?date=${s}">${label}</a>`;}
+if(selected!==today) links+=`<a class="today" href="?date=${today}">Today</a>`;
+archive.innerHTML=links;
+flyer.addEventListener('pointermove',e=>{const r=flyer.getBoundingClientRect();flyer.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');flyer.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%')});
+async function downloadFlyer(){const canvas=await html2canvas(flyer,{scale:3,useCORS:true,backgroundColor:'#020907'});const a=document.createElement('a');a.download='HABSCO-Airtime-Flyer-'+selected+'.png';a.href=canvas.toDataURL('image/png');a.click()}
+async function shareFlyer(){const title='HABSCO Airtime Flyer — '+formatted;const text='Stay connected with HABSCO — Airtime Made Easy. '+formatted;if(navigator.share){try{await navigator.share({title,text,url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)}
+</script>
 <footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body></html>
