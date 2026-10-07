@@ -753,8 +753,23 @@ archive.innerHTML=links;
 if(new URLSearchParams(location.search).get('download')==='1'){setTimeout(()=>downloadFlyer(),500)}
 async function downloadFlyer(){
   const btn=document.activeElement&&document.activeElement.tagName==='BUTTON'?document.activeElement:null;
+  const illustration=document.getElementById('realLifePhoto');
+  const previous={
+    left:illustration?illustration.style.left:'',
+    top:illustration?illustration.style.top:'',
+    transform:illustration?illustration.style.transform:'',
+    width:illustration?illustration.style.width:'',
+    height:illustration?illustration.style.height:''
+  };
   if(btn){btn.disabled=true;btn.textContent='⏳ CREATING PNG...'}
   try{
+    if(illustration){
+      illustration.style.left='50%';
+      illustration.style.top='55%';
+      illustration.style.transform='translate(-50%,-50%)';
+      illustration.style.width='clamp(250px,36vw,380px)';
+      illustration.style.height='clamp(215px,31vw,330px)';
+    }
     if(!window.html2canvas) throw new Error('PNG engine is not loaded. Refresh and try again.');
     const canvas=await html2canvas(flyer,{scale:Math.min(3,Math.max(2,window.devicePixelRatio||2)),useCORS:true,backgroundColor:'#020907',logging:false,removeContainer:true});
     canvas.toBlob(blob=>{
@@ -764,7 +779,16 @@ async function downloadFlyer(){
       document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000);
     },'image/png');
   }catch(err){console.error('PNG export:',err);alert('PNG creation failed: '+(err&&err.message?err.message:'Please try again.'))}
-  finally{if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD PNG FLYER'}}
+  finally{
+    if(illustration){
+      illustration.style.left=previous.left;
+      illustration.style.top=previous.top;
+      illustration.style.transform=previous.transform;
+      illustration.style.width=previous.width;
+      illustration.style.height=previous.height;
+    }
+    if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD PNG FLYER'}
+  }
 }
 async function shareFlyer(){
   const title='HABSCO '+svc.label+' Flyer — '+formatted;
