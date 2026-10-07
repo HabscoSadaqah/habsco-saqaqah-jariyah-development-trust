@@ -7,7 +7,10 @@ const configs={
  receive:["Receive Fund","Approved funding and member transfers are credited server-side."],
  "virtual-account":["Fund Wallet via Virtual Account","Use your dedicated Squad virtual account to fund your HABSCO wallet automatically."],
  electricity:["Electricity","Select the distribution company, verify the meter customer name, then pay."],
- airtime:["Airtime","Select the mobile network, verify the phone number, then pay."]
+ airtime:["Airtime","Select the mobile network, verify the phone number, then pay."],
+ data:["Mobile Data","Select the network, choose a data package, verify the number, then pay."],
+ tv:["TV Subscription","Select the TV provider, choose a package, verify the subscriber, then pay."],
+ education:["Education","Select the education provider, choose a package, verify the candidate/account, then pay."]
 };
 const [title,subtitle]=configs[action]||configs[effectiveAction]||configs.send;
 function msg(t,ok=true){const e=$("msg");e.textContent=t;e.style.background=ok?"#eef8f2":"#fff1f1";e.style.color=ok?"#087443":"#a52a2a";e.classList.add("show")}
@@ -172,6 +175,38 @@ function showHabscoFailedModal(info={}){
   modal.addEventListener("click",e=>{if(e.target===modal)close()});
 }
 
+
+async function setupSubscriptionUtility(){
+ const service=effectiveAction;
+ const meta={
+  data:{icon:"📶",title:"Mobile Data",providerAction:"data-providers",packageAction:"data-packages",validateAction:"data-validate",receiverLabel:"Phone Number",receiverPlaceholder:"08012345678"},
+  tv:{icon:"📺",title:"TV Subscription",providerAction:"tv-providers",packageAction:"tv-packages",validateAction:"tv-validate",receiverLabel:"Smartcard / IUC Number",receiverPlaceholder:"Enter smartcard or IUC number"},
+  education:{icon:"🎓",title:"Education",providerAction:"education-providers",packageAction:"education-packages",validateAction:"education-validate",receiverLabel:"Candidate / Account Number",receiverPlaceholder:"Enter candidate or account number"}
+ }[service];
+ form('<div class="utility-section"><div class="utility-section-title">'+meta.icon+' '+meta.title+' service details</div><div class="utility-grid"><label>Provider<select id="utilityProvider" required><option value="">Loading providers...</option></select></label><label>Package<select id="utilityPackage" required disabled><option value="">Select provider first</option></select></label></div><div class="utility-grid"><label>'+meta.receiverLabel+'<input id="utilityReceiver" inputmode="text" maxlength="40" placeholder="'+meta.receiverPlaceholder+'" required></label><label>Phone Number<input id="utilityPhone" inputmode="tel" maxlength="16" placeholder="08012345678" required></label></div><div class="utility-help">Provider and package availability is supplied directly by the HABSCO utility gateway.</div><button id="verifyUtility" class="btn" type="button" style="margin-top:10px">VERIFY CUSTOMER</button><div id="utilityVerifyResult" class="utility-help" style="display:none;margin-top:10px"></div></div><div class="utility-section"><div class="utility-section-title">🔐 Secure payment</div>'+pinField()+'</div>');
+ const provider=$("utilityProvider"),pkg=$("utilityPackage"),receiver=$("utilityReceiver"),phone=$("utilityPhone"),verify=$("verifyUtility"),result=$("utilityVerifyResult"),submit=$("actionSubmit");
+ submit.textContent="PAY";submit.disabled=true;
+ window.__habscoUtilityVerifiedKey="";window.__habscoUtilityValidationReference="";
+ try{await loadProviderSelect("utilityProvider",meta.providerAction,"Select provider")}catch(e){msg(e.message||"Unable to load providers.",false);return}
+ const invalidate=()=>{window.__habscoUtilityVerifiedKey="";window.__habscoUtilityValidationReference="";submit.disabled=true;result.style.display="none"};
+ provider.onchange=async()=>{invalidate();pkg.innerHTML='<option value="">Loading packages...</option>';try{await loadPackages(meta.packageAction,provider.value.trim(),"utilityPackage")}catch(e){msg(e.message||"Unable to load packages.",false)}};
+ pkg.onchange=invalidate;receiver.oninput=invalidate;phone.oninput=invalidate;
+ verify.onclick=async()=>{
+  const p=provider.value.trim(),code=pkg.value.trim(),rc=receiver.value.trim(),ph=phone.value.trim(),selected=pkg.options[pkg.selectedIndex],amount=Number(selected?.dataset?.amount||0);
+  if(!p||!code||!rc||!ph){msg("Select a provider and package, then enter the customer and phone details.",false);return}
+  if(!Number.isFinite(amount)||amount<=0){msg("The selected utility package has no valid amount.",false);return}
+  verify.disabled=true;verify.textContent="VERIFYING...";
+  try{
+   const r=await callProvider({action:meta.validateAction,provider:p,code,package:code,receiver,phone_number:ph,email:session.user.email||""}),v=r?.data?.data||r?.data||r,vr=String(r?.validation_reference||v?.validation_reference||"").trim();
+   if(!vr)throw Error(r?.error||"Provider verification failed.");
+   window.__habscoUtilityValidationReference=vr;window.__habscoUtilityVerifiedKey=[p,code,rc,ph,String(amount)].join("|");
+   result.style.display="block";result.style.color="#087443";const customer=v?.customer_name||v?.customer_info?.customer_name||v?.customer?.name||"Customer";result.textContent="Verified successfully"+(customer&&customer!=="Customer"?": "+customer:"")+". You can now pay.";submit.disabled=false;msg("Customer verified successfully.",true);
+  }catch(e){invalidate();result.style.display="block";result.style.color="#a52a2a";result.textContent=e.message||"Verification failed.";msg(e.message||"Verification failed.",false)}
+  finally{verify.disabled=false;verify.textContent="VERIFY CUSTOMER"}
+ };
+ submit.getSubscriptionVerifiedKey=()=>window.__habscoUtilityVerifiedKey||"";
+ submit.getSubscriptionValidationReference=()=>window.__habscoUtilityValidationReference||"";
+}
 
 async function setupUtility(){
  if(effectiveAction==="electricity"){
@@ -349,6 +384,19 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
  else if(effectiveAction==="save")r=await supabaseClient.rpc("member_contribute_to_account",{p_account_type:$("account").value,p_amount:Number($("amount").value),p_description:$("note").value.trim()||null,p_transaction_pin:$("transactionPin").value.trim()});
  else if(effectiveAction==="qard"||effectiveAction==="request-qard")r=await supabaseClient.rpc("member_submit_qard_request",{p_amount:Number($("amount").value),p_repayment_plan:$("plan").value,purpose:$("purpose").value.trim()});
  else if(effectiveAction==="repay-qard")r=await supabaseClient.rpc("member_submit_qard_repayment",{p_qard_request_id:$("qard").value,p_amount:Number($("amount").value),p_paid_date:$("date").value,p_payment_reference:$("ref").value.trim(),p_note:$("note").value.trim()});
+ else if(["data","tv","education"].includes(effectiveAction)){
+   const service=effectiveAction,provider=$("utilityProvider").value.trim(),code=$("utilityPackage").value.trim(),receiver=$("utilityReceiver").value.trim(),phone=$("utilityPhone").value.trim(),selected=$("utilityPackage").options[$("utilityPackage").selectedIndex],purchaseAmount=Number(selected?.dataset?.amount||0),key=[provider,code,receiver,phone,String(purchaseAmount)].join("|"),verifiedKey=String(window.__habscoUtilityVerifiedKey||"");
+   if(verifiedKey!==key)throw Error("Please verify the customer before payment.");
+   if(!Number.isFinite(purchaseAmount)||purchaseAmount<=0)throw Error("The selected utility package has no valid amount.");
+   const validation_reference=String(window.__habscoUtilityValidationReference||"");
+   if(!validation_reference)throw Error("Customer verification has expired. Please verify again.");
+   const utilityFeeStatus=await getUtilityFeeStatus();if(!await confirmUtilityFee(purchaseAmount,service==="data"?"Data":service==="tv"?"TV Subscription":"Education",utilityFeeStatus))return;
+   setProcessing(b,"PROCESSING "+service.toUpperCase()+" PAYMENT…",35);
+   const providerResult=await callProvider({action:service,provider,code,package:code,receiver,phone_number:phone,email:session.user.email||"",transaction_pin:$("transactionPin").value.trim(),validation_reference});
+   setProcessing(b,"COMPLETING "+service.toUpperCase()+" PURCHASE…",75);r={data:providerResult};
+   const raw=providerResult?.provider||providerResult?.data?.provider||provider,network=typeof raw==="object"?String(raw?.name||raw?.provider||raw?.network||provider):String(raw||provider),receipt=providerResult?.reference||providerResult?.provider?.reference||providerResult?.data?.reference||"";
+   showHabscoSuccessModal({service:service==="data"?"Mobile Data Purchase":service==="tv"?"TV Subscription":"Education Purchase",network,recipient:receiver,amount:purchaseAmount,reference:receipt,message:"Your "+(service==="data"?"data purchase":service==="tv"?"TV subscription":"education payment")+" was completed successfully."});b.innerHTML="PAYMENT SUCCESSFUL";b.disabled=true;
+ }
  else if(effectiveAction==="airtime"){
    const purchaseAmount=Number($("airtimeAmount").value),provider=$("airtimeProvider").value.trim(),phone=$("airtimePhone").value.trim(),key=[provider,phone,String(purchaseAmount)].join("|");
    const verifiedKey=String(window.__habscoAirtimeVerifiedKey||b?.getAirtimeVerifiedKey?.()||"");
