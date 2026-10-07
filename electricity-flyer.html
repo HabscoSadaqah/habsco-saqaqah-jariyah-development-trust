@@ -1,6 +1,6 @@
 <!doctype html><html lang="en-NG"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#03150d">
-<title>HABSCO | Electricity Made Easy</title><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>\n<script src="https://cdn.jsdelivr.net/npm/mediabunny@1.61.3/dist/bundles/mediabunny.cjs"></script>
+<title>HABSCO | Electricity Made Easy</title><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>\n
 <style>
 :root{--g:#0b5d31;--d:#03150d;--gold:#f2c94c}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#e9eee9;color:#fff}body{display:flex;justify-content:center}.stage{width:100%;min-height:100vh;padding:22px 14px 36px}.flyer{position:relative;width:min(794px,100%);aspect-ratio:210/297;margin:auto;overflow:hidden;border-radius:20px;background:radial-gradient(circle at 50% 42%,#2f8a5b 0,#17633f 24%,#0b3d27 52%,#062719 78%,#03150d 100%);box-shadow:0 22px 65px rgba(0,0,0,.32);isolation:isolate}.flyer:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 48%,rgba(242,201,76,.10),transparent 28%),linear-gradient(135deg,rgba(255,255,255,.06),transparent 30%,rgba(0,0,0,.10));pointer-events:none;z-index:1}.flyer:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.16);pointer-events:none;z-index:50}
 .stars,.stars:before,.stars:after{position:absolute;inset:-12%;content:"";pointer-events:none}.stars{opacity:.38;background-image:radial-gradient(circle,rgba(255,255,255,.8) 0 .8px,transparent 1.4px),radial-gradient(circle,rgba(255,255,255,.42) 0 .6px,transparent 1.2px),radial-gradient(circle,rgba(242,201,76,.5) 0 .7px,transparent 1.3px);background-size:137px 149px,73px 81px,191px 203px;background-position:17px 23px,31px 11px,67px 91px;animation:stars 52s linear infinite}.stars:before{background:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.12),rgba(242,201,76,.08) 20%,transparent 58%);animation:glow 14s ease-in-out infinite alternate}.stars:after{background-image:radial-gradient(circle,rgba(255,255,255,.9) 0 1.3px,transparent 2.4px);background-size:257px 271px;background-position:73px 41px;opacity:.28;animation:bright 32s linear infinite}@keyframes stars{to{background-position:117px 143px,91px 101px,167px 191px}}@keyframes bright{to{background-position:173px 151px}}@keyframes glow{to{transform:scale(1.07);opacity:1}}
@@ -97,6 +97,7 @@
 <div class="cta"><span>KEEP YOUR POWER ON WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable electricity bill payment services for our members</span></div><div class="web-address">habscosadaqah.org</div></div>
 </section><a class="back-dashboard" href="member.html">← BACK TO DASHBOARD</a><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD ANIMATED FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button><button class="back" onclick="window.print()">🖨 PRINT / PDF</button></div></div>
 <script>
+let MediabunnyPromise=import('https://cdn.jsdelivr.net/npm/mediabunny@1.61.3/dist/index.min.js');
 const flyer=document.getElementById('flyer');
 const tz='Africa/Lagos';
 function lagosDate(){
@@ -142,7 +143,7 @@ async function downloadFlyer(){
   const btn=document.activeElement&&document.activeElement.tagName==='BUTTON'?document.activeElement:null;
   if(btn){btn.disabled=true;btn.textContent='⏳ CREATING MP4...'}
   try{
-    if(!window.Mediabunny) throw new Error('MP4 engine is still loading. Refresh once and try again.');
+    const Mediabunny=await MediabunnyPromise;
     const duration=4000,fps=8,totalFrames=duration/1000*fps,frames=[];
     for(let i=0;i<totalFrames;i++){
       const t=i/fps;
@@ -157,7 +158,7 @@ async function downloadFlyer(){
       if(btn)btn.textContent='⏳ FRAMES '+Math.round((i+1)/totalFrames*100)+'%';
     }
     if(btn)btn.textContent='⏳ ENCODING MP4...';
-    const {Output,Mp4OutputFormat,BufferTarget,CanvasSource,Quality}=window.Mediabunny;
+    const {Output,Mp4OutputFormat,BufferTarget,CanvasSource,Quality}=Mediabunny;
     if(!Output||!Mp4OutputFormat||!BufferTarget||!CanvasSource) throw new Error('MP4 engine loaded incorrectly.');
     if(!('VideoEncoder' in window)) throw new Error('This Android browser does not support MP4 video encoding.');
     const canvas=document.createElement('canvas');
@@ -184,7 +185,7 @@ async function downloadFlyer(){
   }catch(err){console.error('MP4 export:',err);alert('MP4 creation failed: '+(err&&err.message?err.message:'Please try again.'))}
   finally{
     ['--export-a','--export-b','--export-core-angle','--export-core-scale','--export-phone-y','--export-phone-r','--export-node-y'].forEach(x=>flyer.style.removeProperty(x));
-    if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD MP4 ANIMATED FLYER'}
+    if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD ANIMATED FLYER'}
   }
 }
 async function shareFlyer(){const title='HABSCO Electricity Flyer — '+formatted;const text='Keep your power on with HABSCO — Electricity Made Easy. '+formatted;if(navigator.share){try{await navigator.share({title,text,url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)}
