@@ -413,12 +413,56 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   }
 }
 </style>
+<style id="web-address-below-cta-final">
+/* Website address sits below the final CTA border as the true bottom footer. */
+.flyer .footer{
+  position:absolute!important;
+  left:5%!important;
+  right:5%!important;
+  bottom:.75%!important;
+  width:auto!important;
+  min-height:0!important;
+  display:block!important;
+  padding:0!important;
+  margin:0!important;
+  text-align:center!important;
+  z-index:30!important;
+}
+.flyer .footer>div:first-child{display:none!important}
+.flyer .footer .web-address{
+  display:block!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+  margin:0 auto!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  color:#fff!important;
+  text-align:center!important;
+  font-size:clamp(14px,2vw,22px)!important;
+  line-height:1!important;
+  font-weight:950!important;
+  letter-spacing:clamp(1px,.22vw,2.8px)!important;
+  text-decoration:none!important;
+  text-shadow:0 2px 9px rgba(0,0,0,.55)!important;
+  white-space:nowrap!important;
+}
+@media(max-width:600px){
+  .flyer .footer{left:5%!important;right:5%!important;bottom:.55%!important}
+  .flyer .footer .web-address{
+    font-size:clamp(10px,3.2vw,15px)!important;
+    letter-spacing:clamp(.6px,.16vw,1.6px)!important;
+  }
+}
+</style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
 <div class="benefits"><div class="benefit"><b id="benefit1">FAST</b><span id="benefitText1">Simple access</span></div><div class="benefit"><b id="benefit2">SECURE</b><span id="benefitText2">Protected transactions</span></div><div class="benefit"><b id="benefit3">EASY</b><span id="benefitText3">Built for members</span></div></div>
-<div class="cta"><span id="serviceCta">POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div><div class="web-address">habscosadaqah.org</div></div>
+<div class="cta"><span id="serviceCta">POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div><div class="web-address">www.habscosadaqah.org</div></div>
 </section><div id="dailyFlyerRailMount"></div>
 <a class="back-dashboard" href="member.html">← BACK TO DASHBOARD</a><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD PNG FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button></div></div>
 <script>
