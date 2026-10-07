@@ -689,13 +689,12 @@ document.getElementById('dailyMeta').textContent=(selected===today?'TODAY • ':
 const rail=document.getElementById('dailyFlyerRailMount');
 if(rail){
   const cards=Object.entries(services).map(([key,s])=>`<a class="daily-flyer-card ${key}" href="?service=${key}&date=${selected}&download=1"><b>${s.icon}</b><strong>${s.label}</strong><span>${s.kicker}</span><em>DOWNLOAD PNG</em></a>`).join('');
-  rail.innerHTML=`<section class="daily-flyer-rail" aria-label="Today's HABSCO flyers"><div class="daily-flyer-rail-head"><div><span>TODAY'S FLYERS</span><h2>7 premium flyers. One day.</h2></div><p>Swipe horizontally to open and download each service flyer for today.</p></div><div class="daily-flyer-scroller">${cards}</div></section>`;
+  rail.innerHTML=`<section class="daily-flyer-rail" aria-label="All HABSCO subject flyers"><div class="daily-flyer-rail-head"><div><span>SELECT SUBJECT FLYER</span><h2>All subject flyers.</h2></div><p>Choose any subject below to open and download its PNG flyer for the selected day.</p></div><div class="daily-flyer-scroller">${cards}</div></section>`;
 }
 const formatted=new Intl.DateTimeFormat('en-NG',{timeZone:tz,day:'numeric',month:'long',year:'numeric'}).format(d);
 const archive=document.getElementById('archive');
-let links='<div class="archive-label">Previous daily flyers — tap a date to view, download or share</div>';
-for(let i=1;i<=7;i++){const x=new Date(d.getTime()-i*86400000);const s=x.toISOString().slice(0,10);if(s>today)continue;const label=new Intl.DateTimeFormat('en-NG',{day:'numeric',month:'short'}).format(x);links+=`<a href="?service=${encodeURIComponent(serviceKey)}&date=${s}">${label}</a>`;}
-if(selected!==today) links+=`<a class="today" href="?service=${encodeURIComponent(serviceKey)}&date=${today}">Today</a>`;
+let links='<div class="archive-label">SELECT DAY TO DOWNLOAD — choose a date, then choose any subject flyer below</div>';
+for(let i=0;i<=7;i++){const x=new Date(new Date(today+'T00:00:00Z').getTime()-i*86400000);const s=x.toISOString().slice(0,10);const label=i===0?'TODAY':new Intl.DateTimeFormat('en-NG',{day:'numeric',month:'short'}).format(x);links+=`<a class="${s===selected?'today':''}" href="?service=${encodeURIComponent(serviceKey)}&date=${s}">${label}</a>`;}
 archive.innerHTML=links;
 
 if(new URLSearchParams(location.search).get('download')==='1'){setTimeout(()=>downloadFlyer(),500)}
