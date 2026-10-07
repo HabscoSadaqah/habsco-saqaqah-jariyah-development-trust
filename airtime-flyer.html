@@ -85,47 +85,51 @@ archive.innerHTML=links;
 flyer.addEventListener('pointermove',e=>{const r=flyer.getBoundingClientRect();flyer.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');flyer.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%')});
 async function downloadFlyer(){
   const btn=document.activeElement&&document.activeElement.tagName==='BUTTON'?document.activeElement:null;
-  if(btn){btn.disabled=true;btn.textContent='⏳ CREATING ANIMATED FLYER...'}
-  flyer.classList.add('exporting');
+  if(btn){btn.disabled=true;btn.textContent='⏳ CREATING MP4...'}
   try{
-    if(!HTMLCanvasElement.prototype.captureStream||!window.MediaRecorder) throw new Error('ANIMATION_UNSUPPORTED');
-    const scale=1;
-    const width=Math.round(flyer.clientWidth*scale),height=Math.round(flyer.clientHeight*scale);
-    const out=document.createElement('canvas');out.width=width;out.height=height;
-    const ctx=out.getContext('2d');
-    const stream=out.captureStream(12);
-    const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';
-    const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3000000});
-    const chunks=[];recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
-    const stopped=new Promise(resolve=>recorder.onstop=resolve);
-    recorder.start();
-    const startTime=performance.now(),duration=5000;
-    while(performance.now()-startTime<duration){
-      const t=(performance.now()-startTime)/1000;
-      flyer.style.setProperty('--export-a',((t*21)%360).toFixed(2)+'deg');
-      flyer.style.setProperty('--export-b',((-t*15)%360).toFixed(2)+'deg');
-      flyer.style.setProperty('--export-core-angle',((t*8)+(flyer.classList.contains('daily-alt')?45:0)).toFixed(2)+'deg');
-      flyer.style.setProperty('--export-core-scale',(1+0.035*Math.sin(t*2.2)).toFixed(4));
-      flyer.style.setProperty('--export-phone-y',(Math.sin(t*2.0)*5).toFixed(2)+'px');
-      flyer.style.setProperty('--export-phone-r',(Math.sin(t*1.9)*4).toFixed(2)+'deg');
-      flyer.style.setProperty('--export-node-y',(Math.sin(t*1.6)*7).toFixed(2)+'px');
-      const frame=await html2canvas(flyer,{scale:1,useCORS:true,backgroundColor:'#020907',logging:false,foreignObjectRendering:false});
-      ctx.clearRect(0,0,width,height);ctx.drawImage(frame,0,0,width,height);
-      await new Promise(r=>setTimeout(r,84));
+    const duration=5000,fps=8,totalFrames=duration/1000*fps,frames=[];
+    const width=flyer.clientWidth,height=flyer.clientHeight;
+    for(let i=0;i<totalFrames;i++){
+      const t=i/fps;
+      flyer.style.setProperty('--export-a',((t*21)%360)+'deg');
+      flyer.style.setProperty('--export-b',((-t*15)%360)+'deg');
+      flyer.style.setProperty('--export-core-angle',(t*8+(flyer.classList.contains('daily-alt')?45:0))+'deg');
+      flyer.style.setProperty('--export-core-scale',(1+.035*Math.sin(t*2.2)).toFixed(4));
+      flyer.style.setProperty('--export-phone-y',(Math.sin(t*2)*5)+'px');
+      flyer.style.setProperty('--export-phone-r',(Math.sin(t*1.9)*4)+'deg');
+      flyer.style.setProperty('--export-node-y',(Math.sin(t*1.6)*7)+'px');
+      frames.push(await html2canvas(flyer,{scale:1,useCORS:true,backgroundColor:'#020907',logging:false,foreignObjectRendering:false}));
+      if(btn)btn.textContent='⏳ MP4 '+Math.round((i+1)/totalFrames*100)+'%';
     }
-    recorder.stop();await stopped;
-    const blob=new Blob(chunks,{type:'video/webm'});
+    const data=await encodeMP4(frames,fps);
+    const blob=new Blob([data],{type:'video/mp4'});
     const url=URL.createObjectURL(blob),a=document.createElement('a');
-    a.download='HABSCO-Airtime-Flyer-'+selected+'.webm';a.href=url;a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),5000);
-  }catch(err){
-    console.error(err);
-    alert(err.message==='ANIMATION_UNSUPPORTED'?'Please use Chrome on Android for animated flyer downloads.':'Unable to create the animated flyer. Please try again.');
-  }finally{
-    flyer.classList.remove('exporting');
+    a.download='HABSCO-Airtime-Flyer-'+selected+'.mp4';a.href=url;a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),10000);
+  }catch(err){console.error(err);alert('MP4 creation failed. Please try again in Chrome.');}
+  finally{
     flyer.style.removeProperty('--export-a');flyer.style.removeProperty('--export-b');flyer.style.removeProperty('--export-core-angle');flyer.style.removeProperty('--export-core-scale');flyer.style.removeProperty('--export-phone-y');flyer.style.removeProperty('--export-phone-r');flyer.style.removeProperty('--export-node-y');
-    if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD ANIMATED FLYER'}
+    if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD MP4 ANIMATED FLYER'}
   }
+}
+async function encodeMP4(frames,fps){
+  if(!window.FFmpeg) await loadFFmpeg();
+  const ffmpeg=new window.FFmpeg.FFmpeg();
+  const fetchFile=window.FFmpeg.fetchFile;
+  await ffmpeg.load({coreURL:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.js',wasmURL:'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/umd/ffmpeg-core.wasm'});
+  for(let i=0;i<frames.length;i++){
+    const blob=await new Promise(resolve=>frames[i].toBlob(resolve,'image/jpeg',.88));
+    await ffmpeg.writeFile('f'+String(i).padStart(3,'0')+'.jpg',await fetchFile(blob));
+  }
+  await ffmpeg.exec(['-framerate',String(fps),'-i','f%03d.jpg','-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart','-crf','23','output.mp4']);
+  return await ffmpeg.readFile('output.mp4');
+}
+async function loadFFmpeg(){
+  await new Promise((resolve,reject)=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js';
+    s.onload=resolve;s.onerror=reject;document.head.appendChild(s);
+  });
 }
 async function shareFlyer(){const title='HABSCO Airtime Flyer — '+formatted;const text='Stay connected with HABSCO — Airtime Made Easy. '+formatted;if(navigator.share){try{await navigator.share({title,text,url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)}
 </script>
