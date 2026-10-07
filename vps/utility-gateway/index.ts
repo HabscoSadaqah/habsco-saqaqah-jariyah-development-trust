@@ -24,7 +24,7 @@ Deno.serve(async req=>{
  const su=Deno.env.get("SUPABASE_URL"),sr=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY"),pk=Deno.env.get("ACCELERATE_API_PUBLIC_KEY"),sk=Deno.env.get("ACCELERATE_API_PRIVATE_KEY");
  if(!su||!sr)return J({error:"Supabase server configuration is incomplete."},500);
  if(!pk||!sk)return J({error:"Accelerate API keys are not configured in Supabase secrets."},503);
- const normalizeNGPhone=(v:any)=>{let p=String(v??"").trim().replace(/[^0-9+]/g,"");if(p.startsWith("+234"))p=p.slice(4);else if(p.startsWith("234"))p=p.slice(3);else if(p.startsWith("0"))p=p.slice(1);if(/^[7-9][0-9]{9}$/.test(p))return "0"+p;return ""};
+ const normalizeNGPhone=(v:any)=>{let p=String(v??"").trim().replace(/[^0-9+]/g,"");if(p.startsWith("00"))p="+"+p.slice(2);if(p.startsWith("+234"))p=p.slice(4);else if(p.startsWith("234"))p=p.slice(3);if(p.startsWith("0"))p=p.slice(1);if(/^[7-9][0-9]{9}$/.test(p))return "0"+p;return ""};
  const au=req.headers.get("Authorization")||"";if(!au.startsWith("Bearer "))return J({error:"Authentication required."},401);
  const uc=createClient(su,sr,{global:{headers:{Authorization:au}}}),db=createClient(su,sr);
  const {data:{user},error:ue}=await uc.auth.getUser();if(ue||!user)return J({error:"Invalid session."},401);
