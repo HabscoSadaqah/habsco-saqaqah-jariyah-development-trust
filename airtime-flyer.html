@@ -253,6 +253,25 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 .flyer[data-service="education"]{background:linear-gradient(145deg,#032b29,#08756c 55%,#021716)!important}
 .flyer[data-service="savings"]{background:linear-gradient(145deg,#092b18,#4d873d 55%,#06160c)!important}
 .flyer[data-service="loan"]{background:linear-gradient(145deg,#071b3b,#2c64a7 55%,#040d1d)!important}
+</style><style id="download-border-refinement">
+/* Fine premium borders for the three downloadable benefit cards. */
+.flyer .benefits > *,
+.flyer .benefits .benefit,
+.flyer .benefits .benefit-card,
+.flyer .benefits article,
+.flyer .benefits li{
+  border-width:1px!important;
+  border-style:solid!important;
+  border-color:rgba(255,255,255,.22)!important;
+  box-shadow:0 4px 14px rgba(0,0,0,.10)!important;
+}
+@media print{
+  .flyer .benefits > *,
+  .flyer .benefits .benefit,
+  .flyer .benefits .benefit-card,
+  .flyer .benefits article,
+  .flyer .benefits li{border-width:1px!important}
+}
 </style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
