@@ -556,6 +556,78 @@ const dailyStyles=[
 ['forest','✧','◎','↗','HABSCO in your corner.','Simple. Clear. Member-focused.']
 ];
 const style=dailyStyles[(day-1)%dailyStyles.length];
+
+/* Daily copy rotation: the large headline and smaller supporting write-up change by day.
+   Each service has seven distinct copy sets, so a new day does not repeat the same wording. */
+const dailyCopy={
+  electricity:[
+    ['Power<br>For Everyday Life.','Keep your home or business running with convenient electricity service through HABSCO.'],
+    ['Keep The<br>Lights On.','Manage your electricity needs with a simple, dependable HABSCO experience.'],
+    ['Power Your<br>Next Move.','Stay prepared for the day ahead with convenient electricity payments through HABSCO.'],
+    ['Energy<br>Made Easier.','A straightforward way to handle electricity service when you need it.'],
+    ['Stay Powered.<br>Stay Ready.','Keep essential power within reach with a clear and convenient HABSCO service.'],
+    ['Your Power.<br>Your Day.','Take care of electricity needs with an experience designed for everyday life.'],
+    ['Reliable Power,<br>Simpler Access.','Make electricity service part of an easier, more convenient routine with HABSCO.']
+  ],
+  airtime:[
+    ['Stay In Touch.<br>Stay Moving.','Top up your line conveniently and keep the conversations, calls and messages going.'],
+    ['Your Connection.<br>Always Within Reach.','Recharge your mobile line through a simple HABSCO experience built for everyday use.'],
+    ['Talk More.<br>Keep Connected.','Get the airtime you need with convenient access designed around your daily routine.'],
+    ['Recharge<br>Without The Stress.','Make your next airtime top-up simple, clear and convenient with HABSCO.'],
+    ['Keep Every<br>Conversation Going.','Stay ready for important calls and messages with easy mobile recharge access.'],
+    ['Airtime<br>When You Need It.','A convenient way to keep your mobile connection active throughout the day.'],
+    ['Connect With<br>Confidence.','Recharge with a smooth member experience that keeps everyday communication moving.']
+  ],
+  data:[
+    ['More Data.<br>More Possibilities.','Stay online for work, study, business and life with convenient data access through HABSCO.'],
+    ['Keep Your<br>World Online.','Choose the connectivity you need and keep moving through your day with ease.'],
+    ['Stay Connected.<br>Go Further.','Get mobile data conveniently for the moments, tasks and people that matter.'],
+    ['Your Data.<br>Your Freedom.','Keep browsing, learning and working with a simple HABSCO data experience.'],
+    ['Online<br>When It Matters.','Make everyday connectivity easier with convenient data service through HABSCO.'],
+    ['Browse More.<br>Do More.','Stay ready for digital work, learning, entertainment and communication wherever you are.'],
+    ['Connection That<br>Keeps Up.','Access mobile data with a clear, convenient experience made for everyday life.']
+  ],
+  tv:[
+    ['More To Watch.<br>More To Enjoy.','Keep your favourite entertainment active with convenient subscription payments through HABSCO.'],
+    ['Your Screen.<br>Your Stories.','Renew your TV service simply and get back to the programmes and moments you enjoy.'],
+    ['Never Miss<br>The Next Moment.','Keep your entertainment subscription active with an easy HABSCO experience.'],
+    ['Entertainment<br>Made Simple.','A convenient way to handle TV subscription payments and keep watching.'],
+    ['Keep Watching.<br>Keep Enjoying.','Stay connected to the entertainment you love with straightforward service through HABSCO.'],
+    ['Your Favourite<br>Shows, Ready.','Renew your subscription conveniently and keep the viewing experience going.'],
+    ['Switch On<br>The Good Times.','Make TV subscription payments easier and spend more time enjoying what you love.']
+  ],
+  education:[
+    ['Learn Today.<br>Lead Tomorrow.','Support education services conveniently and keep the next step in learning within reach.'],
+    ['Every Lesson<br>Opens A Door.','Make education-related payments easier with a simple HABSCO experience.'],
+    ['Invest In<br>Better Possibilities.','Support learning, growth and opportunity through convenient education services.'],
+    ['Keep Learning.<br>Keep Growing.','Handle education services with a clear and dependable experience designed for everyday needs.'],
+    ['Knowledge<br>Moves Us Forward.','Make the journey through education easier with convenient access through HABSCO.'],
+    ['Build Skills.<br>Build Futures.','Support learning goals with a straightforward service designed around progress.'],
+    ['A Better Future<br>Starts With Learning.','Keep education within reach with convenient service access through HABSCO.']
+  ],
+  savings:[
+    ['Save With Purpose.<br>Grow With Time.','Build disciplined savings and strengthen your financial journey with HABSCO.'],
+    ['Small Steps.<br>Lasting Progress.','Turn consistent saving into meaningful progress with a member-focused experience.'],
+    ['Build Today.<br>Own Tomorrow.','Grow your savings and participate in HABSCO shares with purpose and discipline.'],
+    ['Your Future<br>Deserves A Plan.','Create stronger financial habits through structured savings and member ownership.'],
+    ['Save More.<br>Plan Better.','Give your goals direction with a simple, purposeful approach to savings and shares.'],
+    ['Grow Something<br>You Can Keep.','Make steady progress toward your goals through disciplined saving and ownership.'],
+    ['A Stronger Future<br>Starts Now.','Take a practical step toward financial progress with savings and shares at HABSCO.']
+  ],
+  loan:[
+    ['Support When<br>You Need It.','Explore responsible interest-free loan support designed around genuine member needs.'],
+    ['A Helping Hand<br>For Your Next Step.','Move toward a practical goal with purpose-led, interest-free member support.'],
+    ['Turn A Need<br>Into A Plan.','Consider responsible interest-free financing built around clear member processes.'],
+    ['Move Forward<br>With Purpose.','Access interest-free loan support designed to help members pursue meaningful needs responsibly.'],
+    ['Your Goal.<br>A Clearer Path.','HABSCO support can help eligible members approach important needs with responsibility.'],
+    ['Build. Improve.<br>Move Ahead.','Explore member-focused interest-free support for responsible personal and business needs.'],
+    ['Progress Starts<br>With A Plan.','Take the next step with responsible, purpose-led interest-free loan support from HABSCO.']
+  ]
+};
+const copySet=dailyCopy[serviceKey]||dailyCopy.airtime;
+const dailyCopyPair=copySet[(day-1)%copySet.length];
+document.getElementById('serviceHeadline').innerHTML=dailyCopyPair[0];
+document.getElementById('serviceLead').textContent=dailyCopyPair[1];
 flyer.dataset.theme=style[0];
 document.getElementById('dailyIcon').textContent=svc.icon;
 document.getElementById('dailyNode1').textContent=svc.nodes[0];
