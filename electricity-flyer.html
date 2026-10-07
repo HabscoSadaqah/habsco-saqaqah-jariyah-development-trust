@@ -34,6 +34,61 @@
 .flyer.exporting .core{animation:none!important;transform:translate(-50%,-50%) rotate(var(--export-core-angle)) scale(var(--export-core-scale))!important}
 .flyer.exporting .phone{animation:none!important;transform:translate(-50%,calc(-50% + var(--export-phone-y))) rotate(var(--export-phone-r))!important}
 .flyer.exporting .node{animation:none!important;margin-top:var(--export-node-y)!important}
+</style><style id="responsive-flyer-layout">
+/* Responsive A4 layout: keep every element inside the flyer on phones, tablets and desktop */
+.flyer{min-width:0}
+.brand-logo{max-width:100%;white-space:nowrap}
+.hero{overflow:visible}
+.hero h1{overflow-wrap:anywhere}
+.lead{padding-inline:4px}
+.universe{max-width:100%;max-height:100%;overflow:visible}
+.benefits{min-width:0}
+.benefit{min-width:0;overflow:hidden}
+.benefit b,.benefit span{overflow-wrap:anywhere}
+.cta span{max-width:100%;white-space:normal;text-align:center;line-height:1.25}
+.footer{min-width:0}
+.footer>div:first-child{min-width:0;flex:1 1 auto}
+.footer strong{overflow-wrap:anywhere}
+.service-text{overflow-wrap:anywhere}
+@media (max-width:480px){
+  .stage{padding:4px 4px 18px}
+  .flyer{width:100%;border-radius:12px}
+  .brand{top:3.2%;width:92%}
+  .brand-logo{font-size:clamp(24px,9vw,38px);letter-spacing:3px}
+  .badge{margin-top:7px;padding:4px 8px;letter-spacing:1.2px}
+  .hero{top:15.5%;left:6%;right:6%}
+  .kicker{font-size:clamp(7px,2.2vw,10px);letter-spacing:1.8px}
+  h1{margin:7px 0 6px;font-size:clamp(30px,9.4vw,43px);line-height:.92;letter-spacing:-1.8px}
+  .lead{font-size:clamp(8px,2.45vw,11px);line-height:1.35;max-width:95%}
+  .universe{width:64%;top:49.5%}
+  .node{width:clamp(31px,10vw,42px);height:clamp(31px,10vw,42px);font-size:clamp(13px,4vw,18px)}
+  .n1{transform:translate(-50%,-50%) translate(28vw,-3vw)}
+  .n2{transform:translate(-50%,-50%) translate(-28vw,3vw)}
+  .n3{transform:translate(-50%,-50%) translate(19vw,10vw)}
+  .phone{font-size:clamp(34px,10vw,48px)}
+  .benefits{left:6%;right:6%;bottom:19%;gap:4px}
+  .benefit{padding:7px 3px;border-radius:10px}
+  .benefit b{font-size:clamp(7px,2.15vw,10px);letter-spacing:.7px}
+  .benefit span{margin-top:2px;font-size:clamp(6px,1.85vw,8.5px);line-height:1.2}
+  .cta{left:6%;right:6%;bottom:11%}
+  .cta span{width:100%;min-width:0;padding:8px 9px;font-size:clamp(7px,2vw,10px);letter-spacing:.65px}
+  .footer{left:5%;right:5%;bottom:1.7%;gap:4px;align-items:center}
+  .footer strong{font-size:clamp(6.5px,1.75vw,9px);line-height:1.15;letter-spacing:.2px}
+  .footer .service-text{font-size:clamp(6px,1.6vw,8px);line-height:1.15}
+  .web-address{font-size:clamp(7px,1.9vw,10px);padding:4px 5px;letter-spacing:0}
+  .daily-meta{font-size:6.5px;padding:3px 5px}
+}
+@media (min-width:481px) and (max-width:700px){
+  .hero{left:7%;right:7%}
+  h1{font-size:clamp(36px,7.5vw,55px)}
+  .universe{width:62%}
+  .footer strong{font-size:clamp(8px,1.8vw,11px)}
+  .web-address{font-size:clamp(8px,2vw,12px)}
+}
+@media (max-height:700px) and (orientation:landscape){
+  .stage{padding:8px}
+  .flyer{width:min(50vw,794px)}
+}
 </style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay powered</div><h1>Electricity<br>Made Easy.</h1><div class="lead">Pay your electricity bill conveniently through HABSCO — a simple, secure experience for keeping your home and business powered.</div></div>
