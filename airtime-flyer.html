@@ -272,6 +272,48 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   .flyer .benefits article,
   .flyer .benefits li{border-width:1px!important}
 }
+</style><style id="single-glassy-center-icon">
+/* One premium glass sphere only: center the existing main service icon and suppress duplicate decorative icons. */
+.flyer .hero .visual,
+.flyer .hero .hero-visual,
+.flyer .hero .service-visual{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border-radius:50%!important;
+  background:linear-gradient(145deg,rgba(255,255,255,.24),rgba(255,255,255,.07))!important;
+  border:1px solid rgba(255,255,255,.42)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.48),inset 0 -18px 35px rgba(0,0,0,.10),0 18px 45px rgba(0,0,0,.22)!important;
+  backdrop-filter:blur(16px)!important;
+  -webkit-backdrop-filter:blur(16px)!important;
+  overflow:hidden!important;
+}
+.flyer .hero .visual::before,
+.flyer .hero .hero-visual::before,
+.flyer .hero .service-visual::before{
+  content:""!important;
+  position:absolute!important;
+  width:42%!important;
+  height:22%!important;
+  top:13%!important;
+  left:19%!important;
+  border-radius:50%!important;
+  background:rgba(255,255,255,.24)!important;
+  transform:rotate(-25deg)!important;
+  filter:blur(5px)!important;
+  pointer-events:none!important;
+}
+.flyer .hero .visual > *,
+.flyer .hero .hero-visual > *,
+.flyer .hero .service-visual > *{position:relative!important;z-index:2!important}
+/* Remove repeated icon/decorative service marks inside the hero; keep the central icon only. */
+.flyer .hero .visual .icon:not(:first-child),
+.flyer .hero .hero-visual .icon:not(:first-child),
+.flyer .hero .service-visual .icon:not(:first-child){display:none!important}
+.flyer .hero .visual [data-icon]:not(:first-child),
+.flyer .hero .hero-visual [data-icon]:not(:first-child),
+.flyer .hero .service-visual [data-icon]:not(:first-child){display:none!important}
 </style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-symbol" aria-hidden="true">📶</div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
