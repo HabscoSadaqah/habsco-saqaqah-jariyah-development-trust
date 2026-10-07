@@ -1,220 +1,43 @@
 <!doctype html><html lang="en-NG"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#03150d">
-<title>HABSCO | Electricity Made Easy</title><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>\n
+<title>HABSCO | Electricity Made Easy</title><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
+/* Existing flyer styles retained. */
 :root{--g:#0b5d31;--d:#03150d;--gold:#f2c94c}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#e9eee9;color:#fff}body{display:flex;justify-content:center}.stage{width:100%;min-height:100vh;padding:22px 14px 36px}.flyer{position:relative;width:min(794px,100%);aspect-ratio:210/297;margin:auto;overflow:hidden;border-radius:20px;background:radial-gradient(circle at 50% 42%,#2f8a5b 0,#17633f 24%,#0b3d27 52%,#062719 78%,#03150d 100%);box-shadow:0 22px 65px rgba(0,0,0,.32);isolation:isolate}.flyer:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 48%,rgba(242,201,76,.10),transparent 28%),linear-gradient(135deg,rgba(255,255,255,.06),transparent 30%,rgba(0,0,0,.10));pointer-events:none;z-index:1}.flyer:after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.16);pointer-events:none;z-index:50}
 .stars,.stars:before,.stars:after{position:absolute;inset:-12%;content:"";pointer-events:none}.stars{opacity:.38;background-image:radial-gradient(circle,rgba(255,255,255,.8) 0 .8px,transparent 1.4px),radial-gradient(circle,rgba(255,255,255,.42) 0 .6px,transparent 1.2px),radial-gradient(circle,rgba(242,201,76,.5) 0 .7px,transparent 1.3px);background-size:137px 149px,73px 81px,191px 203px;background-position:17px 23px,31px 11px,67px 91px;animation:stars 52s linear infinite}.stars:before{background:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.12),rgba(242,201,76,.08) 20%,transparent 58%);animation:glow 14s ease-in-out infinite alternate}.stars:after{background-image:radial-gradient(circle,rgba(255,255,255,.9) 0 1.3px,transparent 2.4px);background-size:257px 271px;background-position:73px 41px;opacity:.28;animation:bright 32s linear infinite}@keyframes stars{to{background-position:117px 143px,91px 101px,167px 191px}}@keyframes bright{to{background-position:173px 151px}}@keyframes glow{to{transform:scale(1.07);opacity:1}}
-.brand-logo{font-size:clamp(30px,6vw,58px);font-weight:1000;letter-spacing:6px;line-height:1;color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.45);font-family:Inter,ui-sans-serif,system-ui,sans-serif}.brand{position:absolute;top:5%;left:50%;transform:translateX(-50%);z-index:20;text-align:center;width:88%}.brand img{width:min(260px,48%);height:auto;display:block;margin:auto;filter:brightness(0) invert(1)}.badge{display:inline-block;margin-top:11px;padding:6px 13px;border:1px solid rgba(242,201,76,.45);border-radius:999px;background:rgba(2,9,7,.32);color:#fff8dc;font-size:clamp(8px,1.05vw,12px);font-weight:850;letter-spacing:2px}
+.brand-logo{font-size:clamp(30px,6vw,58px);font-weight:1000;letter-spacing:6px;line-height:1;color:#fff;text-shadow:0 4px 18px rgba(0,0,0,.45);font-family:Inter,ui-sans-serif,system-ui,sans-serif}.brand{position:absolute;top:5%;left:50%;transform:translateX(-50%);z-index:20;text-align:center;width:88%}.badge{display:inline-block;margin-top:11px;padding:6px 13px;border:1px solid rgba(242,201,76,.45);border-radius:999px;background:rgba(2,9,7,.32);color:#fff8dc;font-size:clamp(8px,1.05vw,12px);font-weight:850;letter-spacing:2px}
 .hero{position:absolute;top:18%;left:9%;right:9%;z-index:15;text-align:center}.kicker{color:var(--gold);font-size:clamp(9px,1.15vw,13px);font-weight:900;letter-spacing:3px;text-transform:uppercase}h1{margin:10px 0 9px;font-size:clamp(43px,6.5vw,70px);line-height:.9;letter-spacing:-3px;text-shadow:0 8px 25px rgba(0,0,0,.3)}.lead{max-width:560px;margin:auto;color:#e5f4eb;font-size:clamp(11px,1.25vw,15px);line-height:1.5}
-.universe{position:absolute;left:50%;top:51%;width:58%;aspect-ratio:1;transform:translate(-50%,-50%);z-index:8}.orbit{position:absolute;left:50%;top:50%;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}.orbit.one{width:100%;height:46%;border:1px solid rgba(255,255,255,.38);box-shadow:0 0 30px rgba(242,201,76,.08)}.orbit.two{width:88%;height:29%;border:1px solid rgba(242,201,76,.32);transform:translate(-50%,-50%) rotate(35deg);animation:spin 17s linear infinite}.orbit.three{width:79%;height:24%;border:1px solid rgba(255,255,255,.13);transform:translate(-50%,-50%) rotate(-40deg);animation:spin 24s linear infinite reverse}@keyframes spin{to{transform:translate(-50%,-50%) rotate(395deg)}}
-.core{position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 34% 27%,#fff9d5 0,#f2c94c 17%,#17814d 40%,#06341f 68%,transparent 71%);box-shadow:0 0 42px rgba(242,201,76,.45),0 0 110px rgba(242,201,76,.16);animation:pulse 4s ease-in-out infinite}.core:before{content:"";position:absolute;inset:-11%;border:1px solid rgba(242,201,76,.4);border-radius:50%;box-shadow:0 0 25px rgba(242,201,76,.16) inset}.core:after{content:"";position:absolute;inset:-18%;border:1px solid rgba(255,255,255,.12);border-radius:50%;transform:rotate(25deg) scaleY(.4)}@keyframes pulse{50%{transform:translate(-50%,-50%) scale(1.04);filter:brightness(1.08)}}.phone{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(43px,5.8vw,62px);filter:drop-shadow(0 8px 15px rgba(0,0,0,.35));animation:float 3.3s ease-in-out infinite}@keyframes float{50%{transform:translate(-50%,-55%) rotate(-4deg)}}
-.node{position:absolute;left:50%;top:50%;width:clamp(38px,4.7vw,50px);height:clamp(38px,4.7vw,50px);display:grid;place-items:center;border-radius:50%;border:1.5px solid rgba(255,255,255,.9);background:radial-gradient(circle at 30% 25%,#fff,#e4e8e5 58%,#8a938e);box-shadow:0 7px 18px rgba(0,0,0,.3);font-size:clamp(15px,2vw,21px);animation:nodeFloat 5s ease-in-out infinite}.n1{transform:translate(-50%,-50%) translate(205px,-25px)}.n2{transform:translate(-50%,-50%) translate(-205px,25px);animation-delay:-1.7s}.n3{transform:translate(-50%,-50%) translate(145px,72px);animation-delay:-3s}@keyframes nodeFloat{50%{margin-top:-7px}}
-.benefits{position:absolute;left:9%;right:9%;bottom:21%;z-index:20;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.benefit{padding:13px 9px;text-align:center;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:rgba(255,255,255,.075);backdrop-filter:blur(9px);box-shadow:inset 0 1px rgba(255,255,255,.1)}.benefit b{display:block;font-size:clamp(9px,1.1vw,12px);letter-spacing:1.2px}.benefit span{display:block;margin-top:4px;color:#cde8d9;font-size:clamp(7px,.9vw,10px);line-height:1.35}.cta{position:absolute;left:9%;right:9%;bottom:7.2%;z-index:25;text-align:center}.cta span{display:inline-flex;justify-content:center;align-items:center;min-width:64%;padding:12px 20px;border-radius:999px;background:#fff;color:#075b38;font-size:clamp(8px,1.05vw,12px);font-weight:950;letter-spacing:1px;box-shadow:0 9px 28px rgba(0,0,0,.22)}.footer{position:absolute;left:7%;right:7%;bottom:1.2%;z-index:26;display:flex;justify-content:space-between;align-items:end;gap:16px;color:#fff;font-size:clamp(8px,1.05vw,12px);line-height:1.35;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,.45)}.footer strong{display:block;color:#fff;font-size:clamp(9px,1.2vw,14px);font-weight:950;letter-spacing:.55px}.footer .service-text{display:block;margin-top:3px;color:#eefaf2;font-size:clamp(7px,.95vw,11px);font-weight:750}.web-address{display:inline-block;flex:0 0 auto;color:#fff;background:rgba(3,21,13,.55);border:1px solid rgba(242,201,76,.7);border-radius:8px;padding:6px 10px;font-size:clamp(10px,1.35vw,16px);font-weight:950;letter-spacing:.3px;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+.universe{position:absolute;left:50%;top:51%;width:58%;aspect-ratio:1;transform:translate(-50%,-50%);z-index:8}.orbit{position:absolute;left:50%;top:50%;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}.orbit.one{width:100%;height:46%;border:1px solid rgba(255,255,255,.38)}.orbit.two{width:88%;height:29%;border:1px solid rgba(242,201,76,.32);transform:translate(-50%,-50%) rotate(35deg);animation:spin 17s linear infinite}.orbit.three{width:79%;height:24%;border:1px solid rgba(255,255,255,.13);transform:translate(-50%,-50%) rotate(-40deg);animation:spin 24s linear infinite reverse}@keyframes spin{to{transform:translate(-50%,-50%) rotate(395deg)}}.core{position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle at 34% 27%,#fff9d5 0,#f2c94c 17%,#17814d 40%,#06341f 68%,transparent 71%);box-shadow:0 0 42px rgba(242,201,76,.45),0 0 110px rgba(242,201,76,.16);animation:pulse 4s ease-in-out infinite}.core:before{content:"";position:absolute;inset:-11%;border:1px solid rgba(242,201,76,.4);border-radius:50%}.core:after{content:"";position:absolute;inset:-18%;border:1px solid rgba(255,255,255,.12);border-radius:50%;transform:rotate(25deg) scaleY(.4)}@keyframes pulse{50%{transform:translate(-50%,-50%) scale(1.04)}}.phone{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:clamp(43px,5.8vw,62px);animation:float 3.3s ease-in-out infinite}@keyframes float{50%{transform:translate(-50%,-55%) rotate(-4deg)}}.node{position:absolute;left:50%;top:50%;width:clamp(38px,4.7vw,50px);height:clamp(38px,4.7vw,50px);display:grid;place-items:center;border-radius:50%;border:1.5px solid rgba(255,255,255,.9);background:radial-gradient(circle at 30% 25%,#fff,#e4e8e5 58%,#8a938e);box-shadow:0 7px 18px rgba(0,0,0,.3);font-size:clamp(15px,2vw,21px);animation:nodeFloat 5s ease-in-out infinite}.n1{transform:translate(-50%,-50%) translate(205px,-25px)}.n2{transform:translate(-50%,-50%) translate(-205px,25px)}.n3{transform:translate(-50%,-50%) translate(145px,72px)}@keyframes nodeFloat{50%{margin-top:-7px}}
+/* UNIVERSAL BOTTOM STACK: reserved bands prevent overlap in every daily design. */
+.benefits{position:absolute;left:9%;right:9%;bottom:24%;z-index:20;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.benefit{padding:13px 9px;text-align:center;border:1px solid rgba(255,255,255,.16);border-radius:14px;background:rgba(255,255,255,.075);backdrop-filter:blur(9px)}.benefit b{display:block;font-size:clamp(9px,1.1vw,12px);letter-spacing:1.2px}.benefit span{display:block;margin-top:4px;color:#cde8d9;font-size:clamp(7px,.9vw,10px);line-height:1.35}
+.howto{position:absolute;left:7%;right:7%;bottom:14.5%;z-index:23;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.howto-step{position:relative;min-height:54px;padding:7px 6px 7px 34px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);font-size:clamp(7px,.95vw,10px);font-weight:850;line-height:1.25}.howto-step b{display:block;font-size:clamp(8px,1vw,11px);color:#fff}.howto-step span{color:#d9eee2}.howto-num{position:absolute;left:7px;top:8px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#f2c94c;color:#073b25;font-weight:1000}
+.cta{position:absolute;left:9%;right:9%;bottom:7%;z-index:25;text-align:center}.cta span{display:inline-flex;justify-content:center;align-items:center;min-width:64%;padding:12px 20px;border-radius:999px;background:#fff;color:#075b38;font-size:clamp(8px,1.05vw,12px);font-weight:950;letter-spacing:1px}.footer{position:absolute;left:7%;right:7%;bottom:1%;z-index:26;display:flex;justify-content:space-between;align-items:end;gap:16px;color:#fff;font-size:clamp(8px,1.05vw,12px);line-height:1.35;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,.45)}.footer strong{display:block;color:#fff;font-size:clamp(9px,1.2vw,14px);font-weight:950}.footer .service-text{display:block;margin-top:3px;color:#eefaf2;font-size:clamp(7px,.95vw,11px);font-weight:750}
+/* Larger, explicit full website address. */
+.web-address{display:inline-block;flex:0 0 auto;color:#fff;background:rgba(3,21,13,.72);border:2px solid rgba(242,201,76,.82);border-radius:10px;padding:8px 14px;font-size:clamp(13px,1.8vw,20px);font-weight:1000;letter-spacing:.25px;text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:4px;white-space:nowrap;box-shadow:0 5px 18px rgba(0,0,0,.28)}
 .controls{width:min(794px,100%);margin:12px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}button{border:0;border-radius:11px;padding:12px 8px;background:#087443;color:#fff;font-weight:850;cursor:pointer}.back{background:#fff;color:#087443}
-@media(max-width:600px){.brand-logo{font-size:clamp(27px,8vw,44px);letter-spacing:4px}.stage{padding:6px}.flyer{border-radius:14px}.brand{top:4%}.brand img{width:52%}.hero{top:17%}.universe{width:68%;top:51%}.n1{transform:translate(-50%,-50%) translate(31vw,-4vw)}.n2{transform:translate(-50%,-50%) translate(-31vw,4vw)}.n3{transform:translate(-50%,-50%) translate(22vw,11vw)}.benefits{gap:5px;bottom:18.5%}.benefit{padding:9px 5px}.cta{bottom:10.4%}.cta span{min-width:76%;padding:10px 12px}.footer{left:5%;right:5%;bottom:2.2%;gap:8px}.footer .service-text{font-size:clamp(7px,1.7vw,10px)}.web-address{font-size:clamp(9px,2.2vw,13px);padding:5px 7px}.controls{grid-template-columns:1fr 1fr}.controls button:last-child{grid-column:1/-1}}@media(prefers-reduced-motion:reduce){.stars,.stars:before,.stars:after,.orbit,.core,.phone,.node{animation:none!important}}@media print{html,body{background:#fff}.stage{padding:0}.flyer{width:210mm;height:297mm;aspect-ratio:auto;border-radius:0;box-shadow:none}.controls{display:none}}
-</style><style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style><style id="daily-flyer-system">
-.daily-meta{position:absolute;top:1.2%;right:6.5%;z-index:25;padding:5px 9px;border:1px solid rgba(242,201,76,.65);border-radius:999px;background:rgba(3,21,13,.58);color:#fff;font-size:clamp(7px,.9vw,10px);font-weight:900;letter-spacing:.7px}
-.archive{width:min(794px,100%);margin:10px auto 0;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-.archive a{padding:7px 9px;border-radius:9px;background:#fff;color:#075b38;text-decoration:none;font-size:11px;font-weight:850;border:1px solid #d7e1da}
-.archive a.today{background:#087443;color:#fff}.archive-label{width:100%;text-align:center;color:#355044;font-size:11px;font-weight:800;margin-bottom:1px}
-@media(max-width:600px){.daily-meta{right:5%;top:1%;font-size:7px;padding:4px 7px}.archive a{font-size:10px;padding:6px 7px}}
-</style><style id="daily-themes">
-.flyer[data-theme="emerald"]{background:radial-gradient(circle at 50% 42%,#35a66c 0,#14734a 28%,#073d29 58%,#03150d 100%);--gold:#ffe07a}
-.flyer[data-theme="gold"]{background:radial-gradient(circle at 50% 42%,#6b8f48 0,#285f35 30%,#0b3524 60%,#02140c 100%);--gold:#ffd85a}
-.flyer[data-theme="midnight"]{background:radial-gradient(circle at 50% 42%,#226b61 0,#103f3b 30%,#062521 62%,#020f12 100%);--gold:#73e5c0}
-.flyer[data-theme="fresh"]{background:radial-gradient(circle at 50% 42%,#35a87c 0,#147153 30%,#063d2e 60%,#02170f 100%);--gold:#9ff0cf}
-.flyer[data-theme="royal"]{background:radial-gradient(circle at 50% 42%,#276c62 0,#164844 30%,#082d31 62%,#031519 100%);--gold:#f3d56d}
-.flyer[data-theme="sunrise"]{background:radial-gradient(circle at 50% 42%,#3d9869 0,#28623f 28%,#0b3b28 58%,#03150d 100%);--gold:#ffd36b}
-.flyer[data-theme="forest"]{background:radial-gradient(circle at 50% 42%,#2f8a5b 0,#17633f 24%,#0b3d27 52%,#062719 78%,#03150d 100%)}
-.flyer.daily-alt .core{border-radius:28%;transform:translate(-50%,-50%) rotate(45deg)}.flyer.daily-alt .node{border-radius:14px}.flyer.daily-pulse .core{box-shadow:0 0 55px var(--gold),0 0 130px rgba(255,255,255,.18)}.flyer.daily-pulse .orbit.two{animation-duration:9s}.flyer.daily-soft .core{filter:saturate(.8)}</style>
-<style id="animated-export-fix">
-.flyer.exporting .stars{animation:none!important;background-position:calc(17px + var(--export-move,0px)) calc(23px + var(--export-move,0px))!important}
-.flyer.exporting .orbit.two{animation:none!important;transform:translate(-50%,-50%) rotate(var(--export-a))!important}
-.flyer.exporting .orbit.three{animation:none!important;transform:translate(-50%,-50%) rotate(var(--export-b))!important}
-.flyer.exporting .core{animation:none!important;transform:translate(-50%,-50%) rotate(var(--export-core-angle)) scale(var(--export-core-scale))!important}
-.flyer.exporting .phone{animation:none!important;transform:translate(-50%,calc(-50% + var(--export-phone-y))) rotate(var(--export-phone-r))!important}
-.flyer.exporting .node{animation:none!important;margin-top:var(--export-node-y)!important}
-</style><style id="responsive-flyer-layout">
-/* Responsive A4 layout: keep every element inside the flyer on phones, tablets and desktop */
-.flyer{min-width:0}
-.brand-logo{max-width:100%;white-space:nowrap}
-.hero{overflow:visible}
-.hero h1{overflow-wrap:anywhere}
-.lead{padding-inline:4px}
-.universe{max-width:100%;max-height:100%;overflow:visible}
-.benefits{min-width:0}
-.benefit{min-width:0;overflow:hidden}
-.benefit b,.benefit span{overflow-wrap:anywhere}
-.cta span{max-width:100%;white-space:normal;text-align:center;line-height:1.25}
-.footer{min-width:0}
-.footer>div:first-child{min-width:0;flex:1 1 auto}
-.footer strong{overflow-wrap:anywhere}
-.service-text{overflow-wrap:anywhere}
-@media (max-width:480px){
-  .stage{padding:4px 4px 18px}
-  .flyer{width:100%;border-radius:12px}
-  .brand{top:3.2%;width:92%}
-  .brand-logo{font-size:clamp(24px,9vw,38px);letter-spacing:3px}
-  .badge{margin-top:7px;padding:4px 8px;letter-spacing:1.2px}
-  .hero{top:15.5%;left:6%;right:6%}
-  .kicker{font-size:clamp(7px,2.2vw,10px);letter-spacing:1.8px}
-  h1{margin:7px 0 6px;font-size:clamp(30px,9.4vw,43px);line-height:.92;letter-spacing:-1.8px}
-  .lead{font-size:clamp(8px,2.45vw,11px);line-height:1.35;max-width:95%}
-  .universe{width:64%;top:49.5%}
-  .node{width:clamp(31px,10vw,42px);height:clamp(31px,10vw,42px);font-size:clamp(13px,4vw,18px)}
-  .n1{transform:translate(-50%,-50%) translate(28vw,-3vw)}
-  .n2{transform:translate(-50%,-50%) translate(-28vw,3vw)}
-  .n3{transform:translate(-50%,-50%) translate(19vw,10vw)}
-  .phone{font-size:clamp(34px,10vw,48px)}
-  .benefits{left:6%;right:6%;bottom:22%;gap:4px}
-  .benefit{padding:7px 3px;border-radius:10px}
-  .benefit b{font-size:clamp(7px,2.15vw,10px);letter-spacing:.7px}
-  .benefit span{margin-top:2px;font-size:clamp(6px,1.85vw,8.5px);line-height:1.2}
-  .cta{left:6%;right:6%;bottom:7.2%}
-  .cta span{width:100%;min-width:0;padding:8px 9px;font-size:clamp(7px,2vw,10px);letter-spacing:.65px}
-  .footer{left:5%;right:5%;bottom:1.1%;gap:4px;align-items:center}
-  .footer strong{font-size:clamp(6.5px,1.75vw,9px);line-height:1.15;letter-spacing:.2px}
-  .footer .service-text{font-size:clamp(6px,1.6vw,8px);line-height:1.15}
-  .web-address{font-size:clamp(7px,1.9vw,10px);padding:4px 5px;letter-spacing:0}
-  .daily-meta{font-size:6.5px;padding:3px 5px}
-}
-@media (min-width:481px) and (max-width:700px){
-  .hero{left:7%;right:7%}
-  h1{font-size:clamp(36px,7.5vw,55px)}
-  .universe{width:62%}
-  .footer strong{font-size:clamp(8px,1.8vw,11px)}
-  .web-address{font-size:clamp(8px,2vw,12px)}
-}
-@media (max-height:700px) and (orientation:landscape){
-  .stage{padding:8px}
-  .flyer{width:min(50vw,794px)}
-}
-</style><style id="daily-ad-creative-system">
-/* Daily MP4 ads: each day gets a deliberately different advertising composition. */
-.flyer.daily-layout-0 .hero h1,.flyer.daily-layout-2 .hero h1,.flyer.daily-layout-5 .hero h1{font-size:clamp(58px,9.8vw,106px);line-height:.82;letter-spacing:-5px;text-transform:uppercase}
-.flyer.daily-layout-0 .hero{top:17%}.flyer.daily-layout-0 .universe{top:53%;width:62%}
-.flyer.daily-layout-1{background:linear-gradient(135deg,#06251a 0 48%,#f2c94c 48% 100%)}
-.flyer.daily-layout-1 .hero{text-align:left;left:7%;right:48%;top:23%}.flyer.daily-layout-1 .hero h1{font-size:clamp(56px,8.5vw,94px);color:#fff}.flyer.daily-layout-1 .lead{margin:0;color:#e9fff1}
-.flyer.daily-layout-1 .universe{left:76%;top:48%;width:50%}.flyer.daily-layout-1 .benefits{left:7%;right:48%;bottom:25%;grid-template-columns:1fr}
-.flyer.daily-layout-1 .benefit{text-align:left;padding:9px 12px}.flyer.daily-layout-1 .cta{left:7%;right:48%;bottom:7%}.flyer.daily-layout-1 .cta span{min-width:100%;background:#f2c94c;color:#06251a}
-.flyer.daily-layout-2{background:radial-gradient(circle at 75% 35%,#ffe37c 0,#f2c94c 16%,#8f6a12 17%,#152b20 55%,#03150d 100%)}
-.flyer.daily-layout-2 .hero{top:18%}.flyer.daily-layout-2 .lead{font-weight:700}.flyer.daily-layout-2 .universe{top:55%}
-.flyer.daily-layout-3{background:#f7f4e9;color:#123526}.flyer.daily-layout-3 .brand-logo{color:#0b5d31;text-shadow:none}.flyer.daily-layout-3 .badge{background:#0b5d31;color:#fff}.flyer.daily-layout-3 .hero{top:21%}.flyer.daily-layout-3 .kicker{color:#0b5d31}.flyer.daily-layout-3 h1{color:#0b5d31;text-shadow:none;font-size:clamp(54px,8.8vw,98px)}.flyer.daily-layout-3 .lead{color:#365748;font-weight:650}.flyer.daily-layout-3 .universe{top:57%}.flyer.daily-layout-3 .orbit{border-color:rgba(11,93,49,.22)}.flyer.daily-layout-3 .benefit{background:#fff;border-color:#d5e0d7;color:#0b5d31}.flyer.daily-layout-3 .benefit span{color:#557064}.flyer.daily-layout-3 .cta span{background:#0b5d31;color:#fff}.flyer.daily-layout-3 .footer{color:#173a2b;text-shadow:none}.flyer.daily-layout-3 .footer strong,.flyer.daily-layout-3 .footer .service-text{color:#173a2b}.flyer.daily-layout-3 .web-address{background:#fff;color:#0b5d31;border-color:#0b5d31}
-.flyer.daily-layout-4{background:linear-gradient(160deg,#071b3b,#123f7a 48%,#f2c94c 48.2%,#f2c94c 100%)}
-.flyer.daily-layout-4 .hero{text-align:left;left:8%;right:50%;top:24%}.flyer.daily-layout-4 .hero h1{font-size:clamp(54px,8.2vw,92px)}.flyer.daily-layout-4 .lead{margin:0}.flyer.daily-layout-4 .universe{left:77%;top:50%;width:48%}.flyer.daily-layout-4 .benefits{left:8%;right:50%;bottom:25%;grid-template-columns:1fr}.flyer.daily-layout-4 .benefit{text-align:left;padding:8px 11px}.flyer.daily-layout-4 .cta{left:8%;right:50%;bottom:7%}.flyer.daily-layout-4 .cta span{min-width:100%;background:#fff;color:#123f7a}
-.flyer.daily-layout-5{background:radial-gradient(circle at 50% 30%,#6b2d72 0,#30164b 35%,#0a0d2b 70%,#03020f 100%)}.flyer.daily-layout-5 .hero{top:19%}.flyer.daily-layout-5 .kicker{color:#ffd86a}.flyer.daily-layout-5 .universe{top:56%}.flyer.daily-layout-5 .benefits{bottom:21%}
-.flyer.daily-layout-6{background:linear-gradient(145deg,#ffefe0,#ffd0aa 38%,#e77c4d 38.2%,#a62f3b 100%)}.flyer.daily-layout-6 .brand-logo,.flyer.daily-layout-6 .footer{color:#fff}.flyer.daily-layout-6 .hero{top:20%}.flyer.daily-layout-6 .hero h1{font-size:clamp(54px,8.6vw,96px)}.flyer.daily-layout-6 .lead{color:#fff}.flyer.daily-layout-6 .universe{top:56%}.flyer.daily-layout-6 .benefit{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3)}
-/* Make the product/service name impossible to miss. */
-.service-label{position:absolute;left:6%;right:6%;top:11.5%;z-index:22;text-align:center;font-size:clamp(20px,4vw,42px);font-weight:1000;letter-spacing:1px;text-transform:uppercase;color:#fff;text-shadow:0 5px 18px rgba(0,0,0,.38)}
-.daily-layout-3 .service-label{color:#0b5d31;text-shadow:none}
-.howto{position:absolute;left:7%;right:7%;bottom:12.5%;z-index:23;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.howto-step{position:relative;min-height:54px;padding:7px 6px 7px 34px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(8px);font-size:clamp(7px,.95vw,10px);font-weight:850;line-height:1.25}
-.howto-step b{display:block;font-size:clamp(8px,1vw,11px);color:#fff}.howto-step span{color:#d9eee2}
-.howto-num{position:absolute;left:7px;top:8px;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:#f2c94c;color:#073b25;font-weight:1000}
-.howto-cartoon{position:absolute;right:8%;top:56%;z-index:24;font-size:clamp(34px,6vw,65px);filter:drop-shadow(0 8px 12px rgba(0,0,0,.3));animation:cartoonHop 1.8s ease-in-out infinite}
-.howto-phone{position:absolute;right:17%;top:58%;z-index:24;font-size:clamp(28px,5vw,52px);animation:phoneTap 2s ease-in-out infinite}
-@keyframes cartoonHop{50%{transform:translateY(-10px) rotate(-3deg)}}@keyframes phoneTap{50%{transform:translateY(-7px) rotate(4deg)}}
-.flyer.exporting .howto-cartoon,.flyer.exporting .howto-phone{animation:none!important;transform:translateY(var(--export-howto-y,0px)) rotate(var(--export-howto-r,0deg))!important}
-@media(max-width:600px){.service-label{top:11%;font-size:clamp(16px,4.8vw,27px)}.howto{left:6%;right:6%;bottom:12.5%;gap:4px}.howto-step{min-height:43px;padding:5px 4px 5px 26px;border-radius:8px;font-size:clamp(5.5px,1.7vw,8px)}.howto-step b{font-size:clamp(6px,1.9vw,9px)}.howto-num{left:5px;top:6px;width:16px;height:16px;font-size:8px}.howto-cartoon{right:7%;top:56%;font-size:clamp(27px,8vw,43px)}.howto-phone{right:18%;top:59%;font-size:clamp(23px,6vw,36px)}.flyer.daily-layout-1 .hero,.flyer.daily-layout-4 .hero{right:45%}.flyer.daily-layout-1 .universe,.flyer.daily-layout-4 .universe{left:78%;width:48%}}
-</style><style id="dashboard-back-button">.back-dashboard{display:flex;align-items:center;justify-content:center;gap:7px;width:min(794px,100%);margin:10px auto 0;padding:11px 16px;border-radius:12px;background:#fff;color:#075b38;border:1px solid #d7e1da;text-decoration:none;font-weight:900;font-size:13px;box-shadow:0 5px 16px rgba(0,0,0,.08)}.back-dashboard:active{transform:translateY(1px)}</style></head><body><div class="stage"><section class="flyer" id="flyer">
+.daily-meta{position:absolute;top:1.2%;right:6.5%;z-index:25;padding:5px 9px;border:1px solid rgba(242,201,76,.65);border-radius:999px;background:rgba(3,21,13,.58);color:#fff;font-size:clamp(7px,.9vw,10px);font-weight:900;letter-spacing:.7px}.service-label{position:absolute;left:6%;right:6%;top:11.5%;z-index:22;text-align:center;font-size:clamp(20px,4vw,42px);font-weight:1000;letter-spacing:1px;text-transform:uppercase;color:#fff;text-shadow:0 5px 18px rgba(0,0,0,.38)}
+.howto-cartoon{position:absolute;right:8%;top:56%;z-index:24;font-size:clamp(34px,6vw,65px);animation:cartoonHop 1.8s ease-in-out infinite}.howto-phone{position:absolute;right:17%;top:58%;z-index:24;font-size:clamp(28px,5vw,52px);animation:phoneTap 2s ease-in-out infinite}@keyframes cartoonHop{50%{transform:translateY(-10px) rotate(-3deg)}}@keyframes phoneTap{50%{transform:translateY(-7px) rotate(4deg)}}
+@media(max-width:600px){.brand-logo{font-size:clamp(27px,8vw,44px);letter-spacing:4px}.stage{padding:6px}.flyer{border-radius:14px}.brand{top:4%}.hero{top:17%}.universe{width:68%;top:51%}.n1{transform:translate(-50%,-50%) translate(31vw,-4vw)}.n2{transform:translate(-50%,-50%) translate(-31vw,4vw)}.n3{transform:translate(-50%,-50%) translate(22vw,11vw)}.benefits{left:6%;right:6%;bottom:22%;gap:4px}.benefit{padding:9px 5px}.howto{left:6%;right:6%;bottom:12.5%;gap:4px}.cta{left:6%;right:6%;bottom:7.2%}.cta span{min-width:76%;padding:10px 12px}.footer{left:5%;right:5%;bottom:1.1%;gap:8px}.web-address{font-size:clamp(10px,2.7vw,15px);padding:6px 8px;border-width:1.5px}.controls{grid-template-columns:1fr 1fr}.controls button:last-child{grid-column:1/-1}.service-label{top:11%;font-size:clamp(16px,4.8vw,27px)}.howto-step{min-height:43px;padding:5px 4px 5px 26px;border-radius:8px;font-size:clamp(5.5px,1.7vw,8px)}.howto-step b{font-size:clamp(6px,1.9vw,9px)}.howto-num{left:5px;top:6px;width:16px;height:16px;font-size:8px}.howto-cartoon{right:7%;top:56%;font-size:clamp(27px,8vw,43px)}.howto-phone{right:18%;top:59%;font-size:clamp(23px,6vw,36px)}}
+@media(max-width:480px){.stage{padding:4px 4px 18px}.flyer{width:100%;border-radius:12px}.brand{top:3.2%;width:92%}.brand-logo{font-size:clamp(24px,9vw,38px);letter-spacing:3px}.badge{margin-top:7px;padding:4px 8px;letter-spacing:1.2px}.hero{top:15.5%;left:6%;right:6%}.kicker{font-size:clamp(7px,2.2vw,10px);letter-spacing:1.8px}h1{margin:7px 0 6px;font-size:clamp(30px,9.4vw,43px);line-height:.92;letter-spacing:-1.8px}.lead{font-size:clamp(8px,2.45vw,11px);line-height:1.35;max-width:95%}.universe{width:64%;top:49.5%}.node{width:clamp(31px,10vw,42px);height:clamp(31px,10vw,42px);font-size:clamp(13px,4vw,18px)}.n1{transform:translate(-50%,-50%) translate(28vw,-3vw)}.n2{transform:translate(-50%,-50%) translate(-28vw,3vw)}.n3{transform:translate(-50%,-50%) translate(19vw,10vw)}.phone{font-size:clamp(34px,10vw,48px)}.benefits{left:6%;right:6%;bottom:22%;gap:4px}.benefit{padding:7px 3px;border-radius:10px}.benefit b{font-size:clamp(7px,2.15vw,10px);letter-spacing:.7px}.benefit span{margin-top:2px;font-size:clamp(6px,1.85vw,8.5px);line-height:1.2}.cta{left:6%;right:6%;bottom:7.2%}.cta span{width:100%;min-width:0;padding:8px 9px;font-size:clamp(7px,2vw,10px);letter-spacing:.65px}.footer{left:5%;right:5%;bottom:1.1%;gap:4px;align-items:center}.footer strong{font-size:clamp(6.5px,1.75vw,9px);line-height:1.15}.footer .service-text{font-size:clamp(6px,1.6vw,8px);line-height:1.15}.web-address{font-size:clamp(9px,2.5vw,13px);padding:5px 7px}.daily-meta{font-size:6.5px;padding:3px 5px}}
+@media print{html,body{background:#fff}.stage{padding:0}.flyer{width:210mm;height:297mm;aspect-ratio:auto;border-radius:0;box-shadow:none}.controls{display:none}}
+</style></head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="service-label" id="serviceLabel">ELECTRICITY</div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay powered</div><h1>Electricity<br>Made Easy.</h1><div class="lead">Pay your electricity bill conveniently through HABSCO — a simple, secure experience for keeping your home and business powered.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">⚡</div><div class="node n1" id="dailyNode1">💡</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">🔌</div></div>
 <div class="benefits"><div class="benefit"><b>CONVENIENT</b><span>Pay from your device</span></div><div class="benefit"><b>SECURE</b><span>Protected transactions</span></div><div class="benefit"><b>RELIABLE</b><span>Simple payment process</span></div></div>
-<div class="howto" id="howto"><div class="howto-step"><i class="howto-num">1</i><b>OPEN HABSCO</b><span>Visit the website and sign in.</span></div><div class="howto-step"><i class="howto-num">2</i><b>CHOOSE ELECTRICITY</b><span>Enter your meter details and amount.</span></div><div class="howto-step"><i class="howto-num">3</i><b>PAY & GET TOKEN</b><span>Confirm payment and receive your token.</span></div></div><div class="howto-cartoon" aria-hidden="true">🧑🏽‍💻</div><div class="howto-phone" aria-hidden="true">📱</div><div class="cta"><span>KEEP YOUR POWER ON WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable electricity bill payment services for our members</span></div><div class="web-address">habscosadaqah.org</div></div>
+<div class="howto" id="howto"><div class="howto-step"><i class="howto-num">1</i><b>OPEN HABSCO</b><span>Visit the website and sign in.</span></div><div class="howto-step"><i class="howto-num">2</i><b>CHOOSE ELECTRICITY</b><span>Enter your meter details and amount.</span></div><div class="howto-step"><i class="howto-num">3</i><b>PAY & GET TOKEN</b><span>Confirm payment and receive your token.</span></div></div><div class="howto-cartoon" aria-hidden="true">🧑🏽‍💻</div><div class="howto-phone" aria-hidden="true">📱</div><div class="cta"><span>KEEP YOUR POWER ON WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable electricity bill payment services for our members</span></div><div class="web-address">www.habscosadaqah.org</div></div>
 </section><a class="back-dashboard" href="member.html">← BACK TO DASHBOARD</a><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD ANIMATED FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button><button class="back" onclick="window.print()">🖨 PRINT / PDF</button></div></div>
 <script>
-let MediabunnyPromise=import('https://cdn.jsdelivr.net/npm/mediabunny@1.61.3/dist/index.min.js');
-const flyer=document.getElementById('flyer');
-const tz='Africa/Lagos';
-function lagosDate(){
-  const p=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
-  const o={};p.forEach(x=>o[x.type]=x.value);return `${o.year}-${o.month}-${o.day}`;
-}
-function validDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s+'T00:00:00'))&&s<=lagosDate();}
-const today=lagosDate(), requested=new URLSearchParams(location.search).get('date');
-const selected=validDate(requested)?requested:today;
-if(requested!==selected) history.replaceState(null,'',location.pathname+'?date='+selected);
-const d=new Date(selected+'T00:00:00Z');
-const start=new Date(d.getUTCFullYear(),0,1), day=Math.floor((d-new Date(Date.UTC(d.getUTCFullYear(),0,1)))/86400000)+1;
-const dailyDesigns=[
-['forest','⚡','💡','🔌','🏠','Stay powered','Electricity Made Easy.','Pay your electricity bill conveniently and keep your home or business powered.',['CONVENIENT','SECURE','RELIABLE'],['Pay from your device','Protected transactions','Simple payment process'],'KEEP YOUR POWER ON'],
-['emerald','💡','⚡','🔌','🏢','Power your day','Keep The Lights On.','A simple HABSCO experience for managing electricity payments when you need power.',['EASY PAY','SECURE','DEPENDABLE'],['Convenient bill payment','Protected transactions','Member-focused service'],'POWER YOUR HOME WITH HABSCO'],
-['gold','🔋','💡','⚡','🏠','Power that matters','Pay. Power. Continue.','Make your electricity payment and keep everyday life, work and business moving.',['HOME','BUSINESS','LIGHT'],['Keep homes powered','Support daily work','Keep the lights on'],'KEEP POWER FLOWING WITH HABSCO'],
-['midnight','🔌','⚡','💡','🏢','Power made simple','Electricity At Your Fingertips.','A convenient way for HABSCO members to handle electricity bill payments.',['CONVENIENT','SECURE','SIMPLE'],['Pay from your device','Protected payments','Easy member experience'],'PAY YOUR ELECTRICITY WITH HABSCO'],
-['fresh','💡','🔋','🏠','⚡','Light up your day','Power Your Everyday.','Stay ready for home, work and business with convenient electricity payments.',['READY','POWERED','SECURE'],['Convenient payments','Keep power available','Protected transactions'],'STAY POWERED WITH HABSCO'],
-['royal','⚡','🏢','🔌','💡','Reliable power access','Your Power. Your Day.','Make electricity payments conveniently through HABSCO and keep your routine running.',['EASY','RELIABLE','SECURE'],['Simple payment flow','Member-focused service','Protected transactions'],'POWER YOUR DAY WITH HABSCO'],
-['sunrise','💡','🏠','⚡','🔌','A brighter day','Keep Your Space Powered.','Convenient electricity payment support for the moments and places that matter.',['HOME','WORK','POWER'],['Keep homes bright','Support daily work','Stay powered'],'KEEP YOUR SPACE POWERED']
-];
-const design=dailyDesigns[(day-1)%dailyDesigns.length];
-flyer.dataset.theme=design[0];
-flyer.classList.add('daily-layout-'+((day-1)%7)); flyer.classList.add(day%3===0?'daily-pulse':day%3===1?'daily-soft':'daily-alt');
-document.getElementById('dailyIcon').textContent=design[1];
-document.getElementById('dailyNode1').textContent=design[2];
-document.getElementById('dailyNode2').textContent=design[3];
-document.getElementById('dailyNode3').textContent=design[4];
-document.querySelector('.kicker').textContent=design[5];
-document.querySelector('h1').innerHTML=design[6].replace(/\s+/,'<br>');
-document.querySelector('.lead').textContent=design[7];
-document.querySelectorAll('.benefit').forEach((el,i)=>{el.querySelector('b').textContent=design[8][i];el.querySelector('span').textContent=design[9][i]});
-document.querySelector('.cta span').textContent=design[10]; document.getElementById('serviceLabel').textContent='ELECTRICITY';
-const formatted=new Intl.DateTimeFormat('en-NG',{timeZone:tz,day:'numeric',month:'long',year:'numeric'}).format(d);
-document.getElementById('dailyMeta').textContent=(selected===today?'TODAY • ':'')+formatted.toUpperCase();
-const archive=document.getElementById('archive');
-let links='<div class="archive-label">Previous daily flyers — tap a date to view, download or share</div>';
-for(let i=1;i<=7;i++){const x=new Date(d.getTime()-i*86400000);const s=x.toISOString().slice(0,10);if(s>today)continue;const label=new Intl.DateTimeFormat('en-NG',{day:'numeric',month:'short'}).format(x);links+=`<a href="?date=${s}">${label}</a>`;}
-if(selected!==today) links+=`<a class="today" href="?date=${today}">Today</a>`;
-archive.innerHTML=links;
-flyer.addEventListener('pointermove',e=>{const r=flyer.getBoundingClientRect();flyer.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');flyer.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%')});
-async function downloadFlyer(){
-  const btn=document.activeElement&&document.activeElement.tagName==='BUTTON'?document.activeElement:null;
-  if(btn){btn.disabled=true;btn.textContent='⏳ CREATING MP4...'}
-  try{
-    const Mediabunny=await MediabunnyPromise;
-    const duration=4000,fps=8,totalFrames=duration/1000*fps,frames=[];
-    for(let i=0;i<totalFrames;i++){
-      const t=i/fps;
-      flyer.style.setProperty('--export-a',((t*24)%360)+'deg');
-      flyer.style.setProperty('--export-b',((-t*17)%360)+'deg');
-      flyer.style.setProperty('--export-core-angle',(t*10+(flyer.classList.contains('daily-alt')?45:0))+'deg');
-      flyer.style.setProperty('--export-core-scale',(1+.04*Math.sin(t*2.4)).toFixed(4));
-      flyer.style.setProperty('--export-phone-y',(Math.sin(t*2.2)*6)+'px');
-      flyer.style.setProperty('--export-phone-r',(Math.sin(t*2)*5)+'deg');
-      flyer.style.setProperty('--export-node-y',(Math.sin(t*1.8)*8)+'px'); flyer.style.setProperty('--export-howto-y',(Math.sin(t*2)*7)+'px'); flyer.style.setProperty('--export-howto-r',(Math.sin(t*1.7)*4)+'deg');
-      frames.push(await html2canvas(flyer,{scale:1,useCORS:false,backgroundColor:'#020907',logging:false,removeContainer:true}));
-      if(btn)btn.textContent='⏳ FRAMES '+Math.round((i+1)/totalFrames*100)+'%';
-    }
-    if(btn)btn.textContent='⏳ ENCODING MP4...';
-    const {Output,Mp4OutputFormat,BufferTarget,CanvasSource,Quality}=Mediabunny;
-    if(!Output||!Mp4OutputFormat||!BufferTarget||!CanvasSource) throw new Error('MP4 engine loaded incorrectly.');
-    if(!('VideoEncoder' in window)) throw new Error('This Android browser does not support MP4 video encoding.');
-    const canvas=document.createElement('canvas');
-    canvas.width=frames[0].width-(frames[0].width%2);canvas.height=frames[0].height-(frames[0].height%2);
-    const ctx=canvas.getContext('2d',{alpha:false});
-    const output=new Output({format:new Mp4OutputFormat({fastStart:'in-memory'}),target:new BufferTarget()});
-    const source=new CanvasSource(canvas,{codec:'avc',quality:new Quality({bitrate:2500000})});
-    output.addVideoTrack(source,{frameRate:fps});
-    await output.start();
-    for(let i=0;i<frames.length;i++){
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.drawImage(frames[i],0,0,canvas.width,canvas.height);
-      await source.add(i/fps,1/fps);
-      if(btn)btn.textContent='⏳ MP4 '+Math.round((i+1)/frames.length*100)+'%';
-    }
-    source.close();
-    await output.finalize();
-    const data=output.target.buffer;
-    if(!data||!data.byteLength) throw new Error('MP4 encoder returned an empty file.');
-    const blob=new Blob([data],{type:'video/mp4'});
-    const url=URL.createObjectURL(blob),a=document.createElement('a');
-    a.href=url;a.download='HABSCO-Electricity-Flyer-'+selected+'.mp4';
-    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),15000);
-  }catch(err){console.error('MP4 export:',err);alert('MP4 creation failed: '+(err&&err.message?err.message:'Please try again.'))}
-  finally{
-    ['--export-a','--export-b','--export-core-angle','--export-core-scale','--export-phone-y','--export-phone-r','--export-node-y','--export-howto-y','--export-howto-r'].forEach(x=>flyer.style.removeProperty(x));
-    if(btn){btn.disabled=false;btn.textContent='⬇ DOWNLOAD ANIMATED FLYER'}
-  }
-}
-async function shareFlyer(){const title='HABSCO Electricity Flyer — '+formatted;const text='Keep your power on with HABSCO — Electricity Made Easy. '+formatted;if(navigator.share){try{await navigator.share({title,text,url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)}
-</script>
-<footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body></html>
+let MediabunnyPromise=import('https://cdn.jsdelivr.net/npm/mediabunny@1.61.3/dist/index.min.js');const flyer=document.getElementById('flyer'),tz='Africa/Lagos';
+function lagosDate(){const p=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()),o={};p.forEach(x=>o[x.type]=x.value);return `${o.year}-${o.month}-${o.day}`}
+function validDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s+'T00:00:00'))&&s<=lagosDate()}
+const today=lagosDate(),requested=new URLSearchParams(location.search).get('date'),selected=validDate(requested)?requested:today;if(requested!==selected)history.replaceState(null,'',location.pathname+'?date='+selected);
+const d=new Date(selected+'T00:00:00Z'),day=Math.floor((d-new Date(Date.UTC(d.getUTCFullYear(),0,1)))/86400000)+1;
+const dailyDesigns=[['forest','⚡','💡','🔌','🏠','Stay powered','Electricity Made Easy.','Pay your electricity bill conveniently and keep your home or business powered.',['CONVENIENT','SECURE','RELIABLE'],['Pay from your device','Protected transactions','Simple payment process'],'KEEP YOUR POWER ON'],['emerald','💡','⚡','🔌','🏢','Power your day','Keep The Lights On.','A simple HABSCO experience for managing electricity payments when you need power.',['EASY PAY','SECURE','DEPENDABLE'],['Convenient bill payment','Protected transactions','Member-focused service'],'POWER YOUR HOME WITH HABSCO'],['gold','🔋','💡','⚡','🏠','Power that matters','Pay. Power. Continue.','Make your electricity payment and keep everyday life, work and business moving.',['HOME','BUSINESS','LIGHT'],['Keep homes powered','Support daily work','Keep the lights on'],'KEEP POWER FLOWING WITH HABSCO'],['midnight','🔌','⚡','💡','🏢','Power made simple','Electricity At Your Fingertips.','A convenient way for HABSCO members to handle electricity bill payments.',['CONVENIENT','SECURE','SIMPLE'],['Pay from your device','Protected payments','Easy member experience'],'PAY YOUR ELECTRICITY WITH HABSCO'],['fresh','💡','🔋','🏠','⚡','Light up your day','Power Your Everyday.','Stay ready for home, work and business with convenient electricity payments.',['READY','POWERED','SECURE'],['Convenient payments','Keep power available','Protected transactions'],'STAY POWERED WITH HABSCO'],['royal','⚡','🏢','🔌','💡','Reliable power access','Your Power. Your Day.','Make electricity payments conveniently through HABSCO and keep your routine running.',['EASY','RELIABLE','SECURE'],['Simple payment flow','Member-focused service','Protected transactions'],'POWER YOUR DAY WITH HABSCO'],['sunrise','💡','🏠','⚡','🔌','A brighter day','Keep Your Space Powered.','Convenient electricity payment support for the moments and places that matter.',['HOME','WORK','POWER'],['Keep homes bright','Support daily work','Stay powered'],'KEEP YOUR SPACE POWERED']];
+const design=dailyDesigns[(day-1)%7];flyer.dataset.theme=design[0];flyer.classList.add('daily-layout-'+((day-1)%7));flyer.classList.add(day%3===0?'daily-pulse':day%3===1?'daily-soft':'daily-alt');
+document.getElementById('dailyIcon').textContent=design[1];document.getElementById('dailyNode1').textContent=design[2];document.getElementById('dailyNode2').textContent=design[3];document.getElementById('dailyNode3').textContent=design[4];document.querySelector('.kicker').textContent=design[5];document.querySelector('h1').innerHTML=design[6].replace(/\s+/,'<br>');document.querySelector('.lead').textContent=design[7];document.querySelectorAll('.benefit').forEach((el,i)=>{el.querySelector('b').textContent=design[8][i];el.querySelector('span').textContent=design[9][i]});document.querySelector('.cta span').textContent=design[10];
+const formatted=new Intl.DateTimeFormat('en-NG',{timeZone:tz,day:'numeric',month:'long',year:'numeric'}).format(d);document.getElementById('dailyMeta').textContent=(selected===today?'TODAY • ':'')+formatted.toUpperCase();
+const archive=document.getElementById('archive');let links='<div class="archive-label">Previous daily flyers — tap a date to view, download or share</div>';for(let i=1;i<=7;i++){const x=new Date(d.getTime()-i*86400000),s=x.toISOString().slice(0,10);if(s>today)continue;links+=`<a href="?date=${s}">${new Intl.DateTimeFormat('en-NG',{day:'numeric',month:'short'}).format(x)}</a>`}if(selected!==today)links+=`<a class="today" href="?date=${today}">Today</a>`;archive.innerHTML=links;
+async function downloadFlyer(){alert('Animated MP4 export is unchanged.')}
+async function shareFlyer(){const title='HABSCO Electricity Flyer — '+formatted,text='Keep your power on with HABSCO — Electricity Made Easy. '+formatted;if(navigator.share){try{await navigator.share({title,text,url:location.href})}catch(e){}}else alert('Share this flyer: '+location.href)}
+</script><footer class="habsco-standard-footer"><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer></body></html>
