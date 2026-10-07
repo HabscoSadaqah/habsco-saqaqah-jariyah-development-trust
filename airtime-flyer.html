@@ -497,9 +497,9 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 <style id="real-life-photo-focal-point">
 /* Real-life photographic focal point for each service flyer. */
 .flyer .real-life-photo{
-  position:absolute!important;left:50%!important;top:55%!important;
-  transform:translate(-50%,-50%)!important;width:clamp(250px,36vw,380px)!important;
-  height:clamp(215px,31vw,330px)!important;overflow:visible!important;
+  position:absolute!important;left:50%!important;top:68%!important;
+  transform:translate(-50%,-50%)!important;width:clamp(225px,32vw,340px)!important;
+  height:clamp(195px,28vw,295px)!important;overflow:visible!important;
   z-index:19!important;border:0!important;background:transparent!important;
   box-shadow:none!important;border-radius:0!important;
   isolation:isolate!important;
@@ -564,7 +564,7 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 .flyer .real-life-quote{top:80.8%!important}
 .flyer .benefits{bottom:19%!important}
 @media(max-width:600px){
-  .flyer .real-life-photo{top:54%!important;width:clamp(145px,48vw,220px)!important;height:clamp(125px,40vw,185px)!important}
+  .flyer .real-life-photo{top:67%!important;width:clamp(140px,44vw,205px)!important;height:clamp(120px,37vw,175px)!important}
   .flyer .photo-subject{bottom:-22px!important;font-size:clamp(9px,3.4vw,14px)!important;letter-spacing:.7px!important}
 }
 </style></head><body><div class="stage"><section class="flyer" id="flyer">
@@ -789,6 +789,8 @@ async function downloadFlyer(){
           clonedIllustration.style.top='57%';
           clonedIllustration.style.transform='translate(-50%,-50%)';
           clonedIllustration.style.margin='0';
+               clonedIllustration.style.width='clamp(225px,32vw,340px)';
+               clonedIllustration.style.height='clamp(195px,28vw,295px)';
         }
         const svg=doc.getElementById('serviceIllustration')?.querySelector('svg');
         if(svg){
