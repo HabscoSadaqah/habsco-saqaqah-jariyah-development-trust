@@ -740,74 +740,7 @@ async function downloadFlyer(){
   if(btn){btn.disabled=true;btn.textContent='⏳ CREATING PNG...'}
   try{
     if(!window.html2canvas) throw new Error('PNG engine is not loaded. Refresh and try again.');
-
-    /* Lock the focal illustration to its exact preview coordinates before cloning.
-       This prevents html2canvas from recalculating percentage/clamp positions on export. */
-    const flyerRect=flyer.getBoundingClientRect();
-    const photoEl=document.getElementById('realLifePhoto');
-    const labelEl=document.getElementById('servicePhotoLabel');
-    const photoRect=photoEl?photoEl.getBoundingClientRect():null;
-    const labelRect=labelEl?labelEl.getBoundingClientRect():null;
-    const lock={
-      left:photoRect?photoRect.left-flyerRect.left:flyerRect.width/2,
-      top:photoRect?photoRect.top-flyerRect.top:flyerRect.height*.55:flyerRect.height*.55,
-      width:photoRect?photoRect.width:300,
-      height:photoRect?photoRect.height:250,
-      labelLeft:labelRect?labelRect.left-flyerRect.left:0,
-      labelTop:labelRect?labelRect.top-flyerRect.top:0,
-      labelWidth:labelRect?labelRect.width:flyerRect.width:0,
-      labelHeight:labelRect?labelRect.height:0
-    };
-
-    const canvas=await html2canvas(flyer,{
-      scale:Math.min(3,Math.max(2,window.devicePixelRatio||2)),
-      useCORS:true,
-      backgroundColor:'#020907',
-      logging:false,
-      removeContainer:true,
-      onclone:(doc)=>{
-        const f=doc.getElementById('flyer');
-        if(!f)return;
-        const p=doc.getElementById('realLifePhoto');
-        const i=doc.getElementById('serviceIllustration');
-        const s=doc.getElementById('servicePhotoLabel');
-        if(p){
-          p.style.left=lock.left+'px';
-          p.style.top=lock.top+'px';
-          p.style.width=lock.width+'px';
-          p.style.height=lock.height+'px';
-          p.style.transform='none';
-          p.style.margin='0';
-          p.style.right='auto';
-          p.style.bottom='auto';
-        }
-        if(i){
-          i.style.position='absolute';
-          i.style.left='0';
-          i.style.top='0';
-          i.style.right='auto';
-          i.style.bottom='auto';
-          i.style.width='100%';
-          i.style.height='100%';
-          i.style.margin='0';
-          i.style.transform='none';
-          i.style.display='flex';
-          i.style.alignItems='center';
-          i.style.justifyContent='center';
-        }
-        if(s){
-          s.style.left=(lock.labelLeft-lock.left)+'px';
-          s.style.top=(lock.labelTop-lock.top)+'px';
-          s.style.width=lock.labelWidth+'px';
-          s.style.height=lock.labelHeight+'px';
-          s.style.bottom='auto';
-          s.style.right='auto';
-          s.style.transform='none';
-          s.style.margin='0';
-          s.style.textAlign='center';
-        }
-      }
-    });
+    const canvas=await html2canvas(flyer,{scale:Math.min(3,Math.max(2,window.devicePixelRatio||2)),useCORS:true,backgroundColor:'#020907',logging:false,removeContainer:true});
     canvas.toBlob(blob=>{
       if(!blob) throw new Error('PNG creation returned an empty file.');
       const url=URL.createObjectURL(blob),a=document.createElement('a');
