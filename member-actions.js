@@ -388,7 +388,10 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
   const fundAmount=Number($("amount").value);
   if(!Number.isFinite(fundAmount)||fundAmount<100)throw Error("Enter at least ₦100.");
   setProcessing(b,"CREATING SECURE PAYMENT LINK…",35);
+  const fundSession=await auth();
+  if(!fundSession?.access_token)throw Error("Your login session has expired. Please sign in again.");
   const {data:fundResult,error:fundError}=await supabaseClient.functions.invoke("accelerate-wallet-funding",{
+    headers:{Authorization:"Bearer "+fundSession.access_token},
     body:{action:"create_payment_link",amount:fundAmount}
   });
   if(fundError){
