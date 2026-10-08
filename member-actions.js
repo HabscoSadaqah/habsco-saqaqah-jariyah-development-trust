@@ -1,11 +1,12 @@
-const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY),$=id=>document.getElementById(id),p=new URLSearchParams(location.search),action=p.get("action")||"send",effectiveAction=action==="request-loan"?"request-qard":action==="transfer"?"send":action;
+const SUPABASE_URL="https://ythnoeyxovapydbmymdo.supabase.co",SUPABASE_PUBLISHABLE_KEY="sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN",supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY),$=id=>document.getElementById(id),p=new URLSearchParams(location.search),action=p.get("action")||"send",effectiveAction=action==="request-loan"?"request-qard":action==="transfer"?"send":action==="receive-money"?"virtual-account":action==="transfer-money"?"squad-transfer":action;
 
 const configs={
  send:["Inter-Wallet Transfer","Transfer funds securely to another active Habsco Cooperative member."],
  fund:["Fund Wallet","Submit a wallet funding payment for verification."],save:["Save in Cooperative","Move money into a cooperative account."],
  qard:["Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"request-qard":["Request Interest-Free Loan","Submit an interest-free loan request for cooperative review."],"repay-qard":["Repay Interest-Free Loan","Submit repayment details for a disbursed loan."],
  receive:["Receive Fund","Approved funding and member transfers are credited server-side."],
- "virtual-account":["Fund Wallet via Virtual Account","Use your dedicated Squad virtual account to fund your HABSCO wallet automatically."],
+ "virtual-account":["Receive Money","Use your dedicated Squad virtual account to receive money. Confirmed payments credit your HABSCO wallet automatically."],
+ "squad-transfer":["Transfer Money","Transfer money from your HABSCO wallet to any supported Nigerian bank account."],
  electricity:["Electricity","Select the distribution company, verify the meter customer name, then pay."],
  airtime:["Airtime","Select the mobile network, verify the phone number, then pay."],
  data:["Mobile Data","Select the network, choose a data package, verify the number, then pay."],
@@ -328,6 +329,13 @@ async function init(){
  if(effectiveAction==="electricity"){await setupUtility();return}
  if(effectiveAction==="airtime"){await setupAirtime();return}
  if(["data","tv","education"].includes(effectiveAction)){await setupUtility();return}
+ if(effectiveAction==="squad-transfer"){
+  const banks=[["058","GTBank"],["044","Access Bank"],["033","UBA"],["057","Zenith Bank"],["011","First Bank"],["070","Fidelity Bank"],["035","Wema Bank"],["032","Union Bank"],["221","Stanbic IBTC"],["232","Sterling Bank"],["082","Keystone Bank"],["050","Ecobank"],["214","FCMB"],["030","Heritage Bank"],["215","Unity Bank"],["566","VFD Bank"],["00103","Globus Bank"],["105","Premium Trust Bank"],["303","LOTUS Bank"],["50211","Kuda MFB"]];
+  form('<div class="api-note">Enter the beneficiary account, verify the account name, then transfer securely from your HABSCO Wallet.</div><label>Bank<select id="squadBank" required><option value="">Select bank</option>'+banks.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join("")+'<option value="custom">Other bank — enter code</option></select></label><div id="squadCustomBankWrap" style="display:none"><label>Bank Code<input id="squadCustomBank" inputmode="numeric" maxlength="6" placeholder="Enter NIP bank code"></label></div><label>Account Number<input id="squadAccountNumber" inputmode="numeric" maxlength="10" required placeholder="10-digit account number"></label><button type="button" id="squadResolve" class="btn" style="margin-top:8px">VERIFY ACCOUNT</button><div id="squadResolved" class="api-note" style="display:none"></div><label>Amount (NGN)<input id="amount" type="number" min="1" step="0.01" required></label>'+pinField());
+  $("squadBank").addEventListener("change",()=>{ $("squadCustomBankWrap").style.display=$("squadBank").value==="custom"?"block":"none"; $("squadResolved").style.display="none";});
+  $("squadResolve").addEventListener("click",async()=>{const bank=$("squadBank").value==="custom"?$("squadCustomBank").value.trim():$("squadBank").value,num=$("squadAccountNumber").value.trim(),out=$("squadResolved");if(!bank||!/^[0-9]{3,6}$/.test(bank)||!/^[0-9]{10}$/.test(num)){msg("Select a bank and enter a valid 10-digit account number.",false);return}const q=await supabaseClient.functions.invoke("squad-bank-transfer",{body:{action:"resolve",bank_code:bank,account_number:num}});if(q.error||q.data?.error){msg(q.data?.error||q.error?.message||"Unable to verify account.",false);return}out.innerHTML="<strong>Verified account</strong><br>"+esc(q.data.account_name||"")+"<br><span>Account: "+esc(num)+"</span>";out.style.display="block";out.dataset.bank=bank;out.dataset.name=q.data.account_name||"";out.dataset.number=num;msg("Bank account verified successfully.",true);});
+  return;
+ }
  if(effectiveAction==="virtual-account"){
   const {data:va,error:vae}=await supabaseClient.functions.invoke("squad-virtual-account",{body:{action:"get"}});
   if(vae)throw vae;
@@ -375,7 +383,18 @@ function confirmUtilityFee(amount,serviceLabel,status){
  });
 }
 $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")return;e.preventDefault();const b=e.submitter||$("actionSubmit");b.disabled=true;try{const bio=window.__hfBioAuthorizationToken||null;let r;
- if(effectiveAction==="virtual-account"){
+ if(effectiveAction==="squad-transfer"){
+   const resolved=$("squadResolved"),bank=String(resolved?.dataset?.bank||""),num=String(resolved?.dataset?.number||""),name=String(resolved?.dataset?.name||""),amount=Number($("amount").value),pin=$("transactionPin").value.trim();
+   if(!bank||!num||!name)throw Error("Please verify the beneficiary account first.");
+   if(!Number.isFinite(amount)||amount<=0)throw Error("Enter a valid transfer amount.");
+   setProcessing(b,"PROCESSING BANK TRANSFER…",35);
+   const q=await supabaseClient.functions.invoke("squad-bank-transfer",{body:{action:"transfer",bank_code:bank,account_number:num,account_name:name,amount,service_fee:0,transaction_pin:pin}});
+   if(q.error){let m=q.error.message||"Unable to transfer money.";try{const ctx=q.error.context;if(ctx&&typeof ctx.json==="function"){const x=await ctx.json();m=x?.error||m}}catch{}throw Error(m)}
+   if(q.data?.error)throw Error(q.data.error);
+   const status=String(q.data?.status||"processing");
+   b.innerHTML=status==="successful"?"TRANSFER SUCCESSFUL":"TRANSFER PROCESSING";
+   msg(status==="successful"?"Transfer successful.":"Transfer submitted and is processing.",true);return;
+ } else if(effectiveAction==="virtual-account"){
    const dob=$("vaDob").value;
    const profileData={first_name:$("vaFirst").value.trim(),last_name:$("vaLast").value.trim(),mobile_num:$("vaMobile").value.trim(),dob:dob?dob.split("-").slice(1).concat(dob.split("-")[0]).join("/"):"",bvn:$("vaBvn").value.trim(),gender:$("vaGender").value,address:$("vaAddress").value.trim(),email:session.user.email||""};
    const {data,error}=await supabaseClient.functions.invoke("squad-virtual-account",{body:{action:"create",profile:profileData}});
