@@ -900,6 +900,37 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   line-height:1.45!important;
 }
 </style>
+
+<style id="adobe-premium-larger-service-illustration">
+/* Adobe-inspired focal hierarchy: make the service artwork larger, crisp and visually dominant without adding a container. */
+#flyer .real-life-photo{
+  width:clamp(300px,42vw,450px)!important;
+  height:clamp(250px,36vw,380px)!important;
+  overflow:visible!important;
+}
+#flyer #serviceIllustration{
+  width:100%!important;
+  height:100%!important;
+}
+#flyer #serviceIllustration svg{
+  width:100%!important;
+  height:100%!important;
+  overflow:visible!important;
+  transform:scale(1.08)!important;
+  transform-origin:center center!important;
+}
+@media(max-width:600px){
+  #flyer .real-life-photo{
+    left:65%!important;
+    width:clamp(175px,55vw,260px)!important;
+    height:clamp(150px,46vw,220px)!important;
+  }
+  #flyer #serviceIllustration svg{
+    transform:scale(1.07)!important;
+  }
+}
+</style>
+
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FINANCE • BUSINESS • CHARITY</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
