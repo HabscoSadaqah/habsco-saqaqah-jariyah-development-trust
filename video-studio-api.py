@@ -39,10 +39,44 @@ def save_upload(fs, target, allowed):
         raise ValueError("An uploaded media file was empty.")
     return target
 
-async def make_tts(text, path):
-    # edge-tts returns genuine synthesized speech audio; no browser-only speech preview.
-    communicate = edge_tts.Communicate(text, VOICE, rate="+0%")
-    await communicate.save(str(path))
+async def make_tts(text, path, workdir):
+    # Split long scripts into manageable sections because hosted TTS endpoints limit request size.
+    # The resulting parts are concatenated into one continuous spoken narration track.
+    import re
+    sentences = re.split(r"(?<=[.!?])\\s+", text)
+    chunks, current = [], ""
+    for sentence in sentences:
+        sentence = sentence.strip()
+        if not sentence:
+            continue
+        if len(sentence) > 2600:
+            for start in range(0, len(sentence), 2400):
+                part = sentence[start:start + 2400]
+                if current:
+                    chunks.append(current)
+                    current = ""
+                chunks.append(part)
+            continue
+        if len(current) + len(sentence) + 1 > 2600:
+            chunks.append(current)
+            current = sentence
+        else:
+            current = (current + " " + sentence).strip()
+    if current:
+        chunks.append(current)
+    if not chunks:
+        raise RuntimeError("The narration script is empty.")
+    files = []
+    for index, chunk in enumerate(chunks, 1):
+        part = workdir / f"voice-part-{index:03d}.mp3"
+        communicate = edge_tts.Communicate(chunk, VOICE, rate="+0%")
+        await communicate.save(str(part))
+        if not part.exists() or part.stat().st_size < 100:
+            raise RuntimeError(f"Speech synthesis failed at narration part {index}.")
+        files.append(part)
+    listing = workdir / "voice-parts.txt"
+    listing.write_text("\\n".join("file '" + str(p) + "'" for p in files) + "\\n", encoding="utf-8")
+    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(listing), "-c:a", "libmp3lame", "-q:a", "3", str(path)])
 
 def worker(job_id, title, script, clips, music, workdir):
     try:
@@ -50,7 +84,7 @@ def worker(job_id, title, script, clips, music, workdir):
             jobs[job_id]["status"] = "processing"
             jobs[job_id]["message"] = "Preparing narration and real footage…"
         narration = workdir / "narration.mp3"
-        asyncio.run(make_tts(script, narration))
+        asyncio.run(make_tts(script, narration, workdir))
         if not narration.exists() or narration.stat().st_size < 1000:
             raise RuntimeError("Narration audio could not be generated. Check the server's internet connection and TTS service.")
         normalized = []
