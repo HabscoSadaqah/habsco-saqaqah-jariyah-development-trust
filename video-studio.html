@@ -80,7 +80,7 @@ async function poll(id,token){
   if(d.status==="complete"){
    const box=$("progress");box.className="progress good";box.replaceChildren();
    const p=document.createElement("p");p.textContent="Finished: "+(d.title||"HABSCO video")+". File size: "+(d.bytes?((d.bytes/1024/1024).toFixed(1)+" MB"):"ready")+".";
-   const a=document.createElement("a");a.href=api+"/api/download/"+id+".mp4";a.textContent="Download finished MP4 ↓";a.setAttribute("download","HABSCO-video.mp4");a.addEventListener("click",async ev=>{ev.preventDefault();try{const res=await fetch(a.href,{headers:{"X-Habsco-Video-Token":token}});if(!res.ok)throw new Error("Download failed.");const blob=await res.blob();const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download="HABSCO-video.mp4";link.click();setTimeout(()=>URL.revokeObjectURL(url),60000)}catch(err){show(err.message,"progress error")}});
+   const a=document.createElement("a");a.href=api+"/api/download/"+id+".mp4?key="+encodeURIComponent(d.download_key||"");a.textContent="Download finished MP4 ↓";a.setAttribute("download","HABSCO-video.mp4");
    box.append(p,a);return;
   }
   show((d.message||"Rendering…")+"\nStatus: "+d.status+". The page checks again every 10 seconds.");
