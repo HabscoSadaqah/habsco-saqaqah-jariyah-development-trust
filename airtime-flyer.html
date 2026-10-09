@@ -965,12 +965,35 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 }
 </style>
 
+
+<style id="adobe-premium-visible-website-address">
+/* High-contrast, visitor-friendly website address: legible in the live flyer and PNG export. */
+.flyer .footer{z-index:80!important;justify-content:center!important;align-items:center!important}
+.flyer .web-address{
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  width:auto!important;max-width:94%!important;min-height:36px!important;
+  padding:8px 18px!important;border:2px solid #f4c95d!important;border-radius:999px!important;
+  background:#fff8df!important;color:#06452b!important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif!important;
+  font-size:clamp(12px,1.65vw,17px)!important;font-weight:950!important;
+  letter-spacing:.15px!important;line-height:1.15!important;text-align:center!important;
+  text-decoration:none!important;white-space:nowrap!important;
+  box-shadow:0 6px 18px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.9)!important;
+  overflow:visible!important;
+}
+.flyer .web-address:after{content:" ↗";margin-left:5px;color:#0b5d31;font-weight:1000}
+.flyer .web-address:focus-visible{outline:3px solid #fff!important;outline-offset:3px!important}
+@media(max-width:480px){
+ .flyer .web-address{max-width:96%!important;min-height:30px!important;padding:6px 10px!important;font-size:clamp(10px,2.8vw,13px)!important;letter-spacing:0!important}
+}
+</style>
+
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FINANCE • BUSINESS • CHARITY</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
 
-<div class="cta"><span id="serviceCta">www.habscosadaqah.org</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable HABSCO services for everyday progress</span></div><div class="web-address">www.habscosadaqah.org</div></div>
+<div class="cta"><span id="serviceCta">www.habscosadaqah.org</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable HABSCO services for everyday progress</span></div><a class="web-address" href="https://www.habscosadaqah.org" target="_blank" rel="noopener noreferrer" aria-label="Visit the HABSCO website">www.habscosadaqah.org</a></div>
 </section><div id="dailyFlyerRailMount"></div>
 <a class="back-dashboard" href="member.html">← BACK TO DASHBOARD</a><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD PNG FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button></div></div>
 <script>
