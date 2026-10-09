@@ -861,7 +861,7 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 }
 </style>
 <style id="centered-left-aligned-flyer-copy">
-/* Keep the three-line text block centered in its hero area, with each line left-aligned. */
+/* Align kicker and supporting copy to the exact left edge of the large subject headline. */
 #flyer .hero{
   justify-items:center!important;
 }
@@ -870,27 +870,31 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 #flyer .hero #serviceLead{
   text-align:left!important;
   justify-self:center!important;
-  width:max-content!important;
+  width:auto!important;
   max-width:100%!important;
-  margin-left:auto!important;
-  margin-right:auto!important;
+  margin-left:0!important;
+  margin-right:0!important;
   transform:none!important;
 }
+#flyer .hero .kicker,
+#flyer .hero #serviceLead{
+  width:100%!important;
+}
 #flyer .hero #serviceHeadline{
+  width:max-content!important;
+  max-width:100%!important;
   text-wrap:balance!important;
   overflow-wrap:normal!important;
 }
+#flyer .hero .kicker,
 #flyer .hero #serviceLead{
-  width:min(100%, 34ch)!important;
+  justify-self:stretch!important;
+}
+#flyer .hero #serviceLead{
   text-wrap:pretty!important;
 }
 @media(max-width:600px){
-  #flyer .hero .kicker,
-  #flyer .hero #serviceHeadline,
-  #flyer .hero #serviceLead{
-    max-width:100%!important;
-  }
-  #flyer .hero #serviceLead{width:min(100%,32ch)!important}
+  #flyer .hero #serviceHeadline{width:max-content!important;max-width:100%!important}
 }
 </style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
