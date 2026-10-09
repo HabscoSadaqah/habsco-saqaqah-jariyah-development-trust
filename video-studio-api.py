@@ -43,7 +43,7 @@ async def make_tts(text, path, workdir):
     # Split long scripts into manageable sections because hosted TTS endpoints limit request size.
     # The resulting parts are concatenated into one continuous spoken narration track.
     import re
-    sentences = re.split(r"(?<=[.!?])\\s+", text)
+    sentences = re.split(r"(?<=[.!?])\s+", text)
     chunks, current = [], ""
     for sentence in sentences:
         sentence = sentence.strip()
