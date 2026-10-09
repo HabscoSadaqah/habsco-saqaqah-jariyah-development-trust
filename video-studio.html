@@ -135,8 +135,8 @@ $("generate").addEventListener("click",async()=>{
   const series=$("series").value.trim()||"HABSCO Story Series";const episode=Math.max(1,parseInt($("episode").value||"1",10));
   const form=new FormData();form.append("title",$("title").value.trim()||("HABSCO Story — Episode "+episode));form.append("script",script);form.append("series",series);form.append("episode",String(episode));form.append("continuity",$("continuity").value.trim());
   const response=await fetch(api+"/api/generate",{method:"POST",headers:{"X-Habsco-Video-Token":token},body:form});
-  const data=await response.json().catch(()=>({error:"The server returned an unreadable response."}));
-  if(!response.ok)throw new Error(data.error||"Could not start the render.");
+  const rawResponse=await response.text();let data={};try{data=rawResponse?JSON.parse(rawResponse):{};}catch(parseError){const excerpt=rawResponse.replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().slice(0,260);throw new Error("Video server returned a non-JSON response (HTTP "+response.status+" "+response.statusText+"). "+(excerpt||"The response body was empty.")+" Check the video service and Nginx proxy.");}
+  if(!response.ok)throw new Error(data.error||("Video request failed with HTTP "+response.status+" "+response.statusText+"."));
   show("Job queued. Preparing real footage and spoken narration…");await poll(data.job_id,token);
  }catch(e){show(e.message||"The video service could not be reached. It may not be installed or configured on the server yet.","progress error")}
  finally{btn.disabled=false}
@@ -145,8 +145,8 @@ async function poll(id,token){
  for(let i=0;i<360;i++){
   await new Promise(r=>setTimeout(r,10000));
   const r=await fetch(api+"/api/jobs/"+encodeURIComponent(id),{headers:{"X-Habsco-Video-Token":token}});
-  const d=await r.json().catch(()=>({error:"Unable to read job status."}));
-  if(!r.ok)throw new Error(d.error||"Unable to check render status.");
+  const rawStatus=await r.text();let d={};try{d=rawStatus?JSON.parse(rawStatus):{};}catch(parseError){const excerpt=rawStatus.replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().slice(0,220);throw new Error("Video status check returned non-JSON (HTTP "+r.status+"). "+(excerpt||"Empty response body."));}
+  if(!r.ok)throw new Error(d.error||("Unable to check render status (HTTP "+r.status+")."));
   if(d.status==="failed")throw new Error("Rendering failed: "+d.message);
   if(d.status==="complete"){
    const box=$("progress");box.className="progress good";box.replaceChildren();
