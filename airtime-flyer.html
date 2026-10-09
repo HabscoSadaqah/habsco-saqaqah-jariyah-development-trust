@@ -861,7 +861,7 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 }
 </style>
 <style id="centered-left-aligned-flyer-copy">
-/* Lock the kicker, headline, and supporting sentence to one identical left edge. */
+/* Keep all three text rows flush-left without stretching letters or justifying word spacing. */
 #flyer .hero{
   display:block!important;
   left:9%!important;
@@ -879,16 +879,25 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   margin-right:0!important;
   padding-left:0!important;
   padding-right:0!important;
-  justify-self:stretch!important;
   text-align:left!important;
+  text-align-last:left!important;
+  text-justify:auto!important;
+  word-spacing:normal!important;
   transform:none!important;
+}
+#flyer .hero .kicker{
+  letter-spacing:3px!important;
 }
 #flyer .hero #serviceHeadline{
   text-wrap:balance!important;
   overflow-wrap:normal!important;
+  word-break:normal!important;
+  letter-spacing:clamp(-3px,-.18vw,-.5px)!important;
 }
 #flyer .hero #serviceLead{
   text-wrap:pretty!important;
+  letter-spacing:normal!important;
+  line-height:1.45!important;
 }
 </style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
