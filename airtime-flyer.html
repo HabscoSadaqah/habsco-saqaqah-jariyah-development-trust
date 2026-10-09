@@ -1007,6 +1007,76 @@ const dailyKicker={
   loan:['A STEP TOWARD PROGRESS','SUPPORT WITH PURPOSE','MOVE FORWARD WISELY','PLANS NEED A START','RESPONSIBLE SUPPORT','YOUR NEXT CHAPTER','PROGRESS, WITH CARE']
 };
 document.querySelector('.kicker').textContent=(dailyKicker[serviceKey]||dailyKicker.airtime)[(day-1)%7];
+/* Daily quote and second line beneath the illustration; seven unique pairs per service. */
+const dailyQuotes={
+  electricity:[
+    ['Reliable power gives everyday plans room to grow.','A THOUGHT FOR TODAY • HABSCO'],
+    ['A brighter home begins with dependable energy.','POWERING EVERYDAY LIFE'],
+    ['Keep the lights on and possibilities open.','ENERGY FOR PROGRESS'],
+    ['Small comforts can make a big difference.','MADE FOR YOUR DAY'],
+    ['Good days run smoother when essentials are in place.','EVERYDAY CONFIDENCE'],
+    ['Let every room be ready for what matters.','POWER YOUR POSSIBILITIES'],
+    ['Steady power helps great ideas take shape.','BUILT AROUND YOUR NEEDS']
+  ],
+  airtime:[
+    ['One call can bring hearts a little closer.','A THOUGHT FOR TODAY • HABSCO'],
+    ['The right message can brighten someone’s day.','STAY CLOSE TO WHAT MATTERS'],
+    ['Every conversation starts with connection.','KEEP YOUR PEOPLE CLOSE'],
+    ['Reach someone. Share a moment. Make it count.','CONNECTION FOR EVERY DAY'],
+    ['A little airtime can carry a lot of meaning.','MAKE THE MOMENT MATTER'],
+    ['Good news travels better when you stay connected.','HERE FOR YOUR EVERYDAY'],
+    ['Across every distance, connection matters.','KEEP THE CONVERSATION GOING']
+  ],
+  data:[
+    ['Every connection can open a new possibility.','A THOUGHT FOR TODAY • HABSCO'],
+    ['Learn, create and move forward one click at a time.','YOUR DIGITAL DAY'],
+    ['Big ideas need room to connect.','MADE FOR WHAT’S NEXT'],
+    ['Stay curious. Stay connected. Keep growing.','CONNECT TO POSSIBILITY'],
+    ['The next opportunity may be one search away.','KEEP EXPLORING'],
+    ['Bring your plans online and give them momentum.','READY FOR YOUR DAY'],
+    ['A connected mind can go a long way.','BROWSE WITH PURPOSE']
+  ],
+  tv:[
+    ['The best moments are even better when shared.','A THOUGHT FOR TODAY • HABSCO'],
+    ['Make time for stories that bring you joy.','YOUR TIME TO UNWIND'],
+    ['A good show can turn an ordinary evening special.','MORE MOMENTS TO ENJOY'],
+    ['Gather around the stories you love.','ENTERTAINMENT BRINGS US TOGETHER'],
+    ['Relax, press play and enjoy the moment.','YOUR EVENING, YOUR WAY'],
+    ['Every great story deserves another episode.','KEEP THE GOOD TIMES GOING'],
+    ['Shared laughter is always worth watching.','MAKE ROOM FOR JOY']
+  ],
+  education:[
+    ['Every new thing you learn creates another possibility.','A THOUGHT FOR TODAY • HABSCO'],
+    ['Knowledge grows when curiosity leads the way.','KEEP LEARNING'],
+    ['One lesson today can shape tomorrow.','INVEST IN YOUR GROWTH'],
+    ['Dreams get stronger when learning keeps moving.','SMALL STEPS, BRIGHT FUTURES'],
+    ['Ask questions. Discover answers. Keep growing.','LET CURIOSITY LEAD'],
+    ['Education helps turn potential into progress.','OPENING DOORS THROUGH LEARNING'],
+    ['The effort you make today can inspire tomorrow.','YOUR FUTURE IS WORTH IT']
+  ],
+  savings:[
+    ['A little saved consistently can support a bigger dream.','A THOUGHT FOR TODAY • HABSCO'],
+    ['Build tomorrow with the choices you make today.','GROW WITH PURPOSE'],
+    ['Progress begins with a plan and a steady habit.','ONE STEP AT A TIME'],
+    ['Give every saving goal a clear direction.','PLAN. SAVE. PROGRESS.'],
+    ['Consistency can turn small steps into meaningful gains.','KEEP BUILDING'],
+    ['A thoughtful plan gives your future a stronger start.','YOUR GOALS MATTER'],
+    ['Save with patience and let discipline do its work.','A FUTURE IN PROGRESS']
+  ],
+  loan:[
+    ['The right support can help a responsible plan move forward.','A THOUGHT FOR TODAY • HABSCO'],
+    ['Take the next step with care and a clear purpose.','PROGRESS WITH RESPONSIBILITY'],
+    ['Strong plans begin with thoughtful decisions.','SUPPORT FOR YOUR NEXT STEP'],
+    ['A practical solution can make a meaningful difference.','PURPOSE BEFORE PROGRESS'],
+    ['Build forward with a plan that fits your needs.','MOVE FORWARD WISELY'],
+    ['Responsible support starts with understanding the goal.','CLEAR STEPS. REAL PURPOSE.'],
+    ['Every new chapter begins with one considered step.','HERE FOR MEMBER PROGRESS']
+  ]
+};
+const quoteSet=dailyQuotes[serviceKey]||dailyQuotes.airtime;
+const dailyQuotePair=quoteSet[(day-1)%quoteSet.length];
+document.getElementById('serviceQuote').textContent=dailyQuotePair[0];
+document.getElementById('serviceQuoteBy').textContent=dailyQuotePair[1];
 const copySet=dailyCopy[serviceKey]||dailyCopy.airtime;
 const dailyCopyPair=copySet[(day-1)%copySet.length];
 document.getElementById('serviceHeadline').innerHTML=dailyCopyPair[0];
