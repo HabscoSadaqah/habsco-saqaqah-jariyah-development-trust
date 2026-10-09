@@ -804,6 +804,46 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   }
 }
 </style>
+<style id="premium-centered-flyer-type">
+/* Premium typography alignment: center the small kicker, large headline, and supporting copy,
+   so long service names remain balanced and readable across every flyer size. */
+#flyer .hero,
+#flyer .hero .kicker,
+#flyer .hero #serviceHeadline,
+#flyer .hero #serviceLead{
+  text-align:center!important;
+}
+#flyer .hero{
+  justify-items:center!important;
+}
+#flyer .hero .kicker,
+#flyer .hero #serviceHeadline,
+#flyer .hero #serviceLead{
+  grid-column:1 / -1!important;
+  justify-self:stretch!important;
+  width:100%!important;
+  max-width:100%!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+#flyer .hero #serviceHeadline{
+  overflow-wrap:normal!important;
+  word-break:normal!important;
+  text-wrap:balance;
+  line-height:.96!important;
+  letter-spacing:clamp(-2px,-.18vw,-.5px)!important;
+}
+#flyer .hero #serviceLead{
+  padding-inline:clamp(5px,2vw,22px)!important;
+  line-height:1.45!important;
+  text-wrap:pretty;
+}
+@media(max-width:600px){
+  #flyer .hero .kicker{letter-spacing:clamp(1px,.35vw,2px)!important}
+  #flyer .hero #serviceHeadline{line-height:1!important;letter-spacing:-1px!important}
+  #flyer .hero #serviceLead{padding-inline:4px!important;line-height:1.4!important}
+}
+</style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
