@@ -717,12 +717,59 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   #flyer #serviceLead{font-size:clamp(9px,2.7vw,13px)!important}
 }
 </style>
+
+<style id="premium-website-address-pill">
+/* Premium website-address pill replaces the promotional phrase at the bottom of every service flyer. */
+#flyer .cta{
+  left:8%!important;
+  right:8%!important;
+  bottom:2.4%!important;
+  z-index:35!important;
+  text-align:center!important;
+}
+#flyer .cta span{
+  display:flex!important;
+  justify-content:center!important;
+  align-items:center!important;
+  width:min(100%,560px)!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+  margin:0 auto!important;
+  padding:clamp(11px,1.3vw,16px) clamp(18px,3vw,30px)!important;
+  border:1px solid rgba(210,174,91,.82)!important;
+  border-radius:999px!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.99),rgba(241,248,243,.97))!important;
+  color:#07543a!important;
+  font-family:Inter,"Segoe UI",Arial,sans-serif!important;
+  font-size:clamp(12px,1.6vw,18px)!important;
+  font-weight:900!important;
+  letter-spacing:clamp(.25px,.08vw,1px)!important;
+  line-height:1.15!important;
+  text-align:center!important;
+  text-decoration:none!important;
+  white-space:nowrap!important;
+  box-shadow:0 10px 26px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.98)!important;
+  text-shadow:0 1px 0 rgba(255,255,255,.75)!important;
+}
+#flyer .footer{display:none!important}
+@media(max-width:600px){
+  #flyer .cta{left:6%!important;right:6%!important;bottom:2%!important}
+  #flyer .cta span{
+    padding:10px 12px!important;
+    font-size:clamp(10px,3.3vw,15px)!important;
+    letter-spacing:.15px!important;
+  }
+}
+@media(max-width:360px){
+  #flyer .cta span{font-size:10px!important;padding:9px 8px!important}
+}
+</style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
 
-<div class="cta"><span id="serviceCta">POWER YOUR CONNECTION WITH HABSCO</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable airtime services for staying connected</span></div><div class="web-address">www.habscosadaqah.org</div></div>
+<div class="cta"><span id="serviceCta">www.habscosadaqah.org</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable HABSCO services for everyday progress</span></div><div class="web-address">www.habscosadaqah.org</div></div>
 </section><div id="dailyFlyerRailMount"></div>
 <a class="back-dashboard" href="member.html">← BACK TO DASHBOARD</a><div class="archive" id="archive"></div><div class="controls"><button onclick="downloadFlyer()">⬇ DOWNLOAD PNG FLYER</button><button onclick="shareFlyer()">↗ SHARE FLYER</button></div></div>
 <script>
@@ -769,7 +816,7 @@ document.getElementById('dailyNode3').textContent=svc.nodes[2];
 document.querySelector('.kicker').textContent=svc.kicker;
 document.getElementById('serviceHeadline').innerHTML=svc.headline;
 document.getElementById('serviceLead').textContent=svc.lead;
-document.getElementById('serviceCta').textContent=svc.cta;
+document.getElementById('serviceCta').textContent='www.habscosadaqah.org';
 document.getElementById('serviceQuote').textContent=svc.quote;
 document.getElementById('serviceQuoteBy').textContent='HABSCO • '+svc.label.toUpperCase();
 document.title='HABSCO | '+svc.label+' Flyer';
