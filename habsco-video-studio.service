@@ -16,7 +16,7 @@ NoNewPrivileges=true
 PrivateTmp=true
 ProtectHome=true
 ProtectSystem=full
-ReadWritePaths=/var/lib/habsco-video-studio /var/www/habsco-site/generated-videos
+ReadWritePaths=/var/lib/habsco-video-studio
 
 [Install]
 WantedBy=multi-user.target
