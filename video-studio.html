@@ -23,9 +23,9 @@
 <div class="panel">
 <h2>1 · Video story and voice</h2>
 <label class="field"><span>Video title</span><input id="title" maxlength="120" value="The Tortoise and the Hare — A HABSCO Story" autocomplete="off"></label>
-<label class="field"><span>Full narration script</span><textarea id="script" placeholder="Paste the complete story or educational narration here. For a 30-minute spoken story, prepare at least 3,600 words. Write natural dialogue and scene descriptions where useful."></textarea><small>Use a complete original script. A short script will not be stretched or repeated to pretend it is 30 minutes of narration.</small></label>
-<div class="count"><span>Script length</span><strong id="wordCount">0 words · 30-minute minimum: 3,600 words</strong></div>
-<label class="field"><span>Admin rendering token</span><input id="token" type="password" autocomplete="off" placeholder="Enter the server admin token"><small>Keep this private. It is sent to the HABSCO video service for authenticated requests and saved only in this tab's session.</small></label>
+<label class="field"><span>Full narration script</span><textarea id="script" placeholder="Paste the complete story or educational narration here. For a 30-minute spoken story, prepare at least 4,500 words. Write natural dialogue and scene descriptions where useful."></textarea><small>Use a complete original script. A short script will not be stretched or repeated to pretend it is 30 minutes of narration.</small></label>
+<div class="count"><span>Script length</span><strong id="wordCount">0 words · 30-minute minimum: 4,500 words</strong></div>
+<label class="field"><span>Admin rendering token</span><input id="token" type="password" autocomplete="off" placeholder="Enter the server admin token"><small>Keep this private. It is sent to the HABSCO video service for authenticated requests and held only in this page while it remains open.</small></label>
 <div class="actions"><button class="btn" id="generate">Generate 30-minute MP4</button><button class="btn secondary" id="clear">Clear form</button></div>
 <div id="progress" class="progress" role="status" aria-live="polite"></div>
 </div>
@@ -35,7 +35,7 @@
 <label class="field"><span>Background music or ambience</span><input id="music" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/aac,audio/ogg,.mp3,.wav,.m4a,.aac,.ogg"><small>Required so the finished video has a full-length audio bed. Use a track you have the rights to publish; it is mixed quietly beneath the voice.</small></label>
 <div class="facts">
 <div class="fact"><strong>Natural-sounding narration</strong><p>Server-side speech synthesis creates an actual audio track and mixes it with your chosen soundtrack.</p></div>
-<div class="fact"><strong>Minimum 30 minutes</strong><p>The MP4 is rendered at 1,800 seconds. The script must contain at least 3,600 words, and the video uses real uploaded footage.</p></div>
+<div class="fact"><strong>Minimum 30 minutes</strong><p>The MP4 is rendered at 1,800 seconds. The script must contain at least 4,500 words, and the video uses real uploaded footage.</p></div>
 <div class="fact"><strong>HABSCO-ready MP4</strong><p>720p H.264 video with AAC audio, optimized for common mobile players and sharing.</p></div>
 </div>
 <p class="statusline">Rendering can take a while. Keep this page open until the job finishes. The current server setup holds job status in memory, so don't restart the service during rendering.</p>
@@ -46,14 +46,14 @@
 <script>
 const $=id=>document.getElementById(id);
 const words=()=>($("script").value.trim().match(/\b[\w’'-]+\b/g)||[]).length;
-$("script").addEventListener("input",()=>{$("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 3,600 words";$("wordCount").style.color=words()>=3600?"#075c36":"#68786e"});
-$("clear").addEventListener("click",()=>{if(!confirm("Clear the script and media selections?"))return;$("script").value="";$("footage").value="";$("music").value="";$("progress").className="progress";$("progress").textContent="";$("wordCount").textContent="0 words · 30-minute minimum: 3,600 words"});
+$("script").addEventListener("input",()=>{$("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 4,500 words";$("wordCount").style.color=words()>=4500?"#075c36":"#68786e"});
+$("clear").addEventListener("click",()=>{if(!confirm("Clear the script and media selections?"))return;$("script").value="";$("footage").value="";$("music").value="";$("progress").className="progress";$("progress").textContent="";$("wordCount").textContent="0 words · 30-minute minimum: 4,500 words"});
 const show=(msg,cls="progress")=>{$("progress").className=cls;$("progress").textContent=msg;$("progress").style.display="block"};
 const api="/api/video-studio";
 $("generate").addEventListener("click",async()=>{
  const token=$("token").value.trim(), script=$("script").value.trim(), footage=[...$("footage").files], music=$("music").files[0];
  if(!token)return show("Enter the private admin token configured on the server.","progress error");
- if(words()<3600)return show("Please provide at least 3,600 words of original narration for the 30-minute video.","progress error");
+ if(words()<4500)return show("Please provide at least 4,500 words of original narration for the 30-minute video.","progress error");
  if(!footage.length)return show("Upload at least one real video clip that you have permission to publish.","progress error");
  if(!music)return show("Upload a licensed background music or ambience track.","progress error");
  const size=[...footage,music].reduce((n,f)=>n+f.size,0);
