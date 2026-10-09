@@ -593,6 +593,30 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   .flyer .real-life-photo{left:72%!important;top:54%!important;width:clamp(145px,48vw,220px)!important;height:clamp(125px,40vw,185px)!important}
   .flyer .photo-subject{bottom:-22px!important;font-size:clamp(9px,3.4vw,14px)!important;letter-spacing:.7px!important}
 }
+</style><style id="remove-illustration-container-ball">
+/* Show the service illustration cleanly with no surrounding circle, ball, glow-disc, or glass container. */
+.flyer .real-life-photo,
+.flyer .real-life-photo:before,
+.flyer .real-life-photo:after,
+.flyer #serviceIllustration,
+.flyer .service-symbol{
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+  -webkit-backdrop-filter:none!important;
+}
+.flyer .real-life-photo:before,
+.flyer .real-life-photo:after{display:none!important;content:none!important}
+.flyer .real-life-photo img{
+  clip-path:none!important;
+  -webkit-mask-image:none!important;
+  mask-image:none!important;
+  filter:drop-shadow(0 5px 10px rgba(0,0,0,.12))!important;
+}
+.flyer #serviceIllustration{filter:none!important}
+.flyer .service-symbol{width:auto!important;height:auto!important;padding:0!important}
 </style><style id="illustration-name-right">.flyer .photo-subject{left:102%!important;transform:translateX(-50%)!important;text-align:center!important}</style><style id="move-illustration-down">/* Keep the illustration lower and remove the duplicate subject label beneath/beside it. */.flyer .real-life-photo{top:81%!important}.flyer .photo-subject{display:none!important}</style>
 <style id="habsco-adobe-premium-airtime-title">
 /* Premium poster-inspired subject typography: bold, oversized, clean hierarchy. */
