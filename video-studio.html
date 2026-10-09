@@ -3,107 +3,87 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#075c36">
-<title>HABSCO Video Studio</title>
-<meta name="description" content="Create and download branded HABSCO videos with professional typography, motion and messaging.">
+<title>HABSCO Real Video Studio</title>
+<meta name="description" content="Create long-form HABSCO MP4 videos from real footage with spoken narration and soundtrack.">
 <style>
-:root{--green:#075c36;--deep:#062f22;--gold:#edc85f;--ink:#18271f;--muted:#68786e;--line:#dfe8e2;--paper:#fff}
+:root{--green:#075c36;--deep:#062f22;--gold:#edc85f;--ink:#18271f;--muted:#68786e;--line:#dfe8e2;--paper:#fff;--red:#a52b2b}
 *{box-sizing:border-box}body{margin:0;background:#f3f7f4;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
-.wrap{width:min(100%,960px);margin:auto;padding:16px 14px 34px}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}.brand{font-weight:950;letter-spacing:.1em;color:var(--green);font-size:13px}.link{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 12px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--green);text-decoration:none;font-size:11px;font-weight:850}
-.hero{padding:24px;border-radius:22px;color:#fff;background:linear-gradient(130deg,#052e20,#087344 68%,#0c5235);box-shadow:0 12px 32px #063b271b}.eyebrow{color:#f2d87f;font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(29px,6vw,44px);letter-spacing:-.045em;line-height:1.02;margin:10px 0}.hero p{font-size:13px;line-height:1.65;max-width:610px;color:#e0eee6;margin:0}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;margin-top:15px}.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;min-width:0}.panel h2{font-size:16px;margin:0 0 13px;letter-spacing:-.02em}.field{display:block;margin:0 0 12px}.field span{display:block;font-size:10px;font-weight:850;margin-bottom:6px}.field input,.field textarea,.field select{width:100%;font:inherit;font-size:13px;color:var(--ink);background:#fbfdfb;border:1px solid #dce6df;border-radius:10px;padding:11px;outline-color:#0a8050}.field textarea{min-height:88px;resize:vertical}.hint{font-size:10px;line-height:1.55;color:var(--muted);margin:-2px 0 12px}.preview{background:#eaf0ec;border-radius:14px;padding:10px}.preview canvas{display:block;width:100%;height:auto;border-radius:9px;background:#063c28}.preview-label{display:flex;justify-content:space-between;gap:8px;font-size:9px;font-weight:850;color:var(--muted);padding:9px 2px 0}.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:13px}.btn{border:1px solid var(--line);border-radius:10px;min-height:42px;padding:0 13px;font-size:11px;font-weight:900;cursor:pointer;background:#fff;color:var(--green)}.btn.primary{background:var(--green);border-color:var(--green);color:#fff}.btn:disabled{opacity:.5;cursor:not-allowed}.status{margin-top:11px;font-size:11px;line-height:1.5;color:var(--muted);min-height:17px}.status.good{color:#087344;font-weight:800}.note{margin-top:14px;padding:13px;border:1px solid #eee2b9;background:#fffaf0;border-radius:13px;color:#65572e;font-size:10px;line-height:1.65}.foot{text-align:center;font-size:10px;color:#89948d;margin-top:22px}
-@media(max-width:700px){.layout{grid-template-columns:1fr}.hero{padding:21px}.wrap{padding:12px 11px 28px}.panel{padding:14px}}
-</style><style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style></head>
-<body><main class="wrap">
-<header class="top"><div class="brand">HABSCO <span style="color:#a88728">• VIDEO STUDIO</span></div><a class="link" href="videos.html">← Videos</a></header>
-<section class="hero"><div class="eyebrow">Create • Brand • Download</div><h1>Your message.<br>HABSCO quality.</h1><p>Choose a ready-made short story or create your own message. The studio adds HABSCO identity, animated scenes, polished captions and an end card, then downloads the video directly to your device.</p></section>
-<div class="layout">
-<section class="panel"><h2>1. Build your video</h2>
-<label class="field"><span>Video category</span><select id="category"><option>Story Video</option><option>Motivation</option><option>HABSCO Tutorial</option><option>Business & Education</option><option>Sadaqah Jariyah & Charity</option><option>HABSCO Announcement</option><option>News Explainer</option></select></label>
-<label class="field"><span>Headline</span><input id="headline" maxlength="90" value="Small steps create meaningful progress"></label>
-<label class="field"><span>Supporting message</span><textarea id="message" maxlength="260">Keep learning, keep helping others and take one positive step forward today.</textarea></label>
-<label class="field"><span>Duration</span><select id="duration"><option value="12">12 seconds</option><option value="18" selected>18 seconds</option><option value="24">24 seconds</option></select></label>
-<p class="hint">Ready-made fables use illustrated emoji-style characters and scene captions. This is an original animated story format, not a copied film or AI-generated cinematic footage.</p>
-<div class="btnrow"><button class="btn" id="refresh" type="button">Refresh preview</button><button class="btn primary" id="generate" type="button">Generate & download video</button></div>
-<div class="status" id="status" role="status" aria-live="polite">Ready. Press Generate & download video to render your story and save it to your phone.</div>
+.wrap{width:min(100%,980px);margin:auto;padding:16px 14px 36px}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}.brand{font-weight:950;letter-spacing:.1em;color:var(--green);font-size:13px}.link{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 13px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--green);text-decoration:none;font-size:11px;font-weight:850}
+.hero{padding:25px;border-radius:22px;color:#fff;background:linear-gradient(130deg,#052e20,#087344 68%,#0c5235);box-shadow:0 12px 32px #063b271b}.eyebrow{color:#f2d87f;font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(29px,6vw,44px);letter-spacing:-.045em;line-height:1.02;margin:10px 0}.hero p{font-size:13px;line-height:1.7;max-width:720px;color:#e0eee6;margin:0}
+.notice{margin:14px 0;padding:13px 14px;border:1px solid #f0d99a;border-radius:13px;background:#fff9e8;color:#6b4b08;font-size:12px;line-height:1.6}.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:14px;margin-top:14px}.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;min-width:0}.panel h2{font-size:16px;margin:0 0 13px;letter-spacing:-.02em}.field{display:block;margin:0 0 14px}.field span{display:block;font-size:11px;font-weight:850;margin-bottom:6px}.field small{display:block;margin-top:5px;color:var(--muted);font-size:10px;line-height:1.5}.field input,.field textarea{width:100%;font:inherit;font-size:13px;color:var(--ink);background:#fbfdfb;border:1px solid #dce6df;border-radius:10px;padding:11px;outline-color:#0a8050}.field textarea{min-height:320px;resize:vertical;line-height:1.65}.field input[type=file]{font-size:11px;padding:9px}.field input[type=file]::file-selector-button{border:0;border-radius:7px;background:#e7f2eb;color:var(--green);padding:8px 10px;font-weight:800;margin-right:9px}.count{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted);margin:-5px 0 13px}.count strong{color:var(--green)}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:0;border-radius:11px;background:var(--green);color:#fff;font-size:12px;font-weight:900;cursor:pointer}.btn:disabled{opacity:.55;cursor:wait}.btn.secondary{background:#edf5ef;color:var(--green);border:1px solid var(--line)}.actions{display:flex;flex-wrap:wrap;gap:9px}.progress{display:none;margin-top:13px;padding:14px;border-radius:12px;background:#f0f7f2;border:1px solid #d8e8dd;font-size:12px;line-height:1.65;overflow-wrap:anywhere}.progress.error{display:block;background:#fff1f1;border-color:#f2cece;color:#8e2424}.progress.good{display:block}.progress a{display:inline-flex;margin-top:10px;color:var(--green);font-weight:900}.facts{display:grid;gap:10px}.fact{padding:12px;border:1px solid var(--line);border-radius:12px;background:#fbfdfb}.fact strong{display:block;font-size:12px;margin-bottom:4px}.fact p{margin:0;color:var(--muted);font-size:11px;line-height:1.6}.statusline{font-size:11px;color:var(--muted);line-height:1.6;margin:12px 0 0}.footer{text-align:center;color:var(--muted);font-size:10px;margin-top:20px}.footer a{color:var(--green);font-weight:800;text-decoration:none}
+@media(max-width:720px){.layout{grid-template-columns:1fr}.hero{padding:21px}.field textarea{min-height:250px}.wrap{padding:12px 11px 28px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="top"><div class="brand">HABSCO · VIDEO STUDIO</div><a class="link" href="videos.html">← Videos</a></header>
+<section class="hero"><div class="eyebrow">REAL FOOTAGE · REAL AUDIO · MP4</div><h1>Make a proper<br>long-form video.</h1><p>Create a minimum 30-minute video using actual footage you have rights to use, a generated spoken narration track, and your chosen soundtrack. The final output is a downloadable MP4—not a short emoji animation.</p></section>
+<div class="notice"><strong>Server setup required:</strong> this studio uses the HABSCO rendering service. It will work after the server API is installed and its private admin token is configured. Use only footage and music you own or are licensed to publish. Clips repeat if their combined length is shorter than 30 minutes, so upload varied footage for a professional result.</div>
+<section class="layout">
+<div class="panel">
+<h2>1 · Video story and voice</h2>
+<label class="field"><span>Video title</span><input id="title" maxlength="120" value="The Tortoise and the Hare — A HABSCO Story" autocomplete="off"></label>
+<label class="field"><span>Full narration script</span><textarea id="script" placeholder="Paste the complete story or educational narration here. For a 30-minute spoken story, prepare at least 3,600 words. Write natural dialogue and scene descriptions where useful."></textarea><small>Use a complete original script. A short script will not be stretched or repeated to pretend it is 30 minutes of narration.</small></label>
+<div class="count"><span>Script length</span><strong id="wordCount">0 words · 30-minute minimum: 3,600 words</strong></div>
+<label class="field"><span>Admin rendering token</span><input id="token" type="password" autocomplete="off" placeholder="Enter the server admin token"><small>Keep this private. It is sent to the HABSCO video service for authenticated requests and saved only in this tab's session.</small></label>
+<div class="actions"><button class="btn" id="generate">Generate 30-minute MP4</button><button class="btn secondary" id="clear">Clear form</button></div>
+<div id="progress" class="progress" role="status" aria-live="polite"></div>
+</div>
+<aside class="panel">
+<h2>2 · Add your media</h2>
+<label class="field"><span>Real video footage (one or more clips)</span><input id="footage" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-matroska" multiple><small>MP4, MOV, WebM or MKV. Prefer several varied clips with permission for public use. Large uploads may take time on mobile data.</small></label>
+<label class="field"><span>Background music or ambience</span><input id="music" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/aac,audio/ogg,.mp3,.wav,.m4a,.aac,.ogg"><small>Required so the finished video has a full-length audio bed. Use a track you have the rights to publish; it is mixed quietly beneath the voice.</small></label>
+<div class="facts">
+<div class="fact"><strong>Natural-sounding narration</strong><p>Server-side speech synthesis creates an actual audio track and mixes it with your chosen soundtrack.</p></div>
+<div class="fact"><strong>Minimum 30 minutes</strong><p>The MP4 is rendered at 1,800 seconds. The script must contain at least 3,600 words, and the video uses real uploaded footage.</p></div>
+<div class="fact"><strong>HABSCO-ready MP4</strong><p>720p H.264 video with AAC audio, optimized for common mobile players and sharing.</p></div>
+</div>
+<p class="statusline">Rendering can take a while. Keep this page open until the job finishes. The current server setup holds job status in memory, so don't restart the service during rendering.</p>
+</aside>
 </section>
-<section class="panel"><h2>2. Preview your HABSCO video</h2><div class="preview"><canvas id="canvas" width="720" height="1280" aria-label="Video preview canvas"></canvas><div class="preview-label"><span>VERTICAL • 9:16</span><span>HABSCO BRAND TEMPLATE</span></div></div>
-<div class="note"><strong>Format note:</strong> The studio uses the video format supported by your browser. Android Chrome commonly downloads WebM; browsers that support MP4 recording can save MP4. This page does not require an Adobe subscription or an external AI service.</div>
-</section></div>
-<footer class="foot">HABSCO Sadaqah Jariyah Development Trust · www.habscosadaqah.org<div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer>
+<footer class="footer">HABSCO Sadaqah Jariyah Development Trust · <a href="https://www.habscosadaqah.org">www.habscosadaqah.org</a></footer>
 </main>
 <script>
-(function(){
-const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
-const defaults=[
-['Start with purpose.','Small, consistent actions can make a meaningful difference. Choose one good step and take it today.'],
-['Learn something useful today.','Build your confidence one skill at a time, and share what helps you grow.'],
-['Let progress be your focus.','You do not need to do everything at once. Keep moving forward with patience and purpose.'],
-['Knowledge creates opportunity.','Explore a new idea, learn a practical skill and put it to use.'],
-['Make today count.','Use your time well, support others and keep working towards your goals.'],
-['Good habits build momentum.','A little discipline repeated daily can lead to meaningful progress.'],
-['Stay curious. Stay informed.','Learn, reflect and make thoughtful choices with the information available to you.']
-];
-const today=new Date(new Date().toLocaleString('en-US',{timeZone:'Africa/Lagos'}));
-const day=Math.floor(Date.UTC(today.getFullYear(),today.getMonth(),today.getDate())/86400000);
-const daily=defaults[((day%defaults.length)+defaults.length)%defaults.length];
-const storyKey=new URLSearchParams(location.search).get('story')||'';
-const stories={
- tortoise:{title:'The Tortoise and the Hare',icon:'🐢 🐇',category:'Story Video',scenes:['The hare laughed at the tortoise for being slow.','The race began. The hare ran far ahead.','Feeling too confident, the hare stopped to rest.','The tortoise kept moving, step by step.','The hare woke up too late. The tortoise won!','Moral: steady effort beats careless pride.']},
- lion:{title:'The Lion and the Mouse',icon:'🦁 🐭',category:'Story Video',scenes:['A lion spared a tiny mouse instead of harming it.','Later, the lion was caught in a hunter’s net.','The mouse heard the lion and hurried to help.','With sharp teeth, the mouse gnawed through the ropes.','The lion was free—and grateful for the little friend.','Moral: kindness is never wasted.']},
- ant:{title:'The Ant and the Grasshopper',icon:'🐜 🦗',category:'Story Video',scenes:['The ant worked hard to store food for later.','The grasshopper sang and played through the warm days.','Then the weather changed and food became scarce.','The grasshopper realised he should have prepared.','He learned to balance enjoyment with responsibility.','Moral: prepare today for tomorrow.']},
- kindness:{title:'One Small Good Deed',icon:'🤝 ⭐',category:'Story Video',scenes:['A neighbour struggled to carry groceries home.','A young person stopped and offered a helping hand.','The neighbour felt seen, respected and grateful.','Inspired, she helped another person the next day.','One small act grew into a whole chain of kindness.','Moral: good deeds can travel further than we know.']}
-};
-const activeStory=stories[storyKey]||null;
-$('headline').value=activeStory?activeStory.title:daily[0];$('message').value=activeStory?activeStory.scenes.join(' '):daily[1];
-if(activeStory)$('category').value=activeStory.category;
-function roundedRect(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
-function wrapText(text,maxWidth){const words=text.trim().split(/\s+/);const lines=[];let line='';for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word;}else line=test;}if(line)lines.push(line);return lines;}
-function draw(time=0){
- const w=canvas.width,h=canvas.height;const grad=ctx.createLinearGradient(0,0,w,h);grad.addColorStop(0,'#052f21');grad.addColorStop(.55,'#087344');grad.addColorStop(1,'#062f22');ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
- for(let i=0;i<8;i++){const x=((i*137+Math.sin(time*.7+i)*24)%w+w)%w;const y=((i*211-time*(8+i%3))%(h+180)+h+180)%(h+180)-90;ctx.beginPath();ctx.arc(x,y,16+(i%4)*12,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+(.025+(i%3)*.012)+')';ctx.fill();}
- ctx.fillStyle='#edc85f';ctx.fillRect(54,72,78,5);ctx.fillStyle='#f4d980';ctx.font='800 22px Arial,sans-serif';ctx.letterSpacing='4px';ctx.fillText('HABSCO',54,120);ctx.letterSpacing='1px';
- ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='700 16px Arial,sans-serif';ctx.fillText(($('category').value||'HABSCO').toUpperCase().slice(0,34),56,174);
- if(activeStory){
-  const n=activeStory.scenes.length,seconds=Number($('duration').value)||18;const idx=Math.min(n-1,Math.floor(Math.max(0,time)/seconds*n));const scene=activeStory.scenes[idx];
-  ctx.fillStyle='#fff';ctx.font='900 43px Arial,sans-serif';wrapText(activeStory.title,610).slice(0,2).forEach((line,i)=>ctx.fillText(line,55,245+i*52));
-  ctx.font='150px Arial,sans-serif';ctx.textAlign='center';ctx.fillText(activeStory.icon,360,660);ctx.textAlign='left';
-  roundedRect(42,750,636,205,24);ctx.fillStyle='#fff';ctx.font='700 31px Arial,sans-serif';const cap=wrapText(scene,560);cap.slice(0,5).forEach((line,i)=>ctx.fillText(line,76,810+i*43));
-  ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillRect(56,1000,608,5);ctx.fillStyle='#edc85f';ctx.fillRect(56,1000,608*((idx+1)/n),5);
-  ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='700 18px Arial,sans-serif';ctx.fillText('SCENE '+(idx+1)+' OF '+n,56,1035);
- }else{
-  const title=$('headline').value.trim()||'A message from HABSCO';ctx.fillStyle='#fff';ctx.font='900 61px Arial,sans-serif';let lines=wrapText(title,600);if(lines.length>4)lines=lines.slice(0,4);let yy=350;lines.forEach(line=>{ctx.fillText(line,55,yy);yy+=76;});
-  ctx.fillStyle='#edc85f';ctx.fillRect(56,yy+2,105,5);yy+=62;
-  ctx.fillStyle='rgba(255,255,255,.86)';ctx.font='400 29px Arial,sans-serif';let body=wrapText($('message').value.trim()||'Learn, grow and move forward with HABSCO.',590);if(body.length>6)body=body.slice(0,6);body.forEach(line=>{ctx.fillText(line,57,yy);yy+=43;});
- }
- roundedRect(54,1054,612,112,20);ctx.fillStyle='#fff';ctx.font='800 22px Arial,sans-serif';ctx.fillText('MOVE FORWARD WITH HABSCO',78,1100);ctx.fillStyle='#d9b847';ctx.font='600 17px Arial,sans-serif';ctx.fillText('www.habscosadaqah.org',78,1137);
- ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='700 15px Arial,sans-serif';ctx.fillText('LEARN  •  BUILD  •  SERVE',56,1224);
-}
-function renderAt(t){draw(t);}
-function refresh(){draw(0);}
-['category','headline','message'].forEach(id=>$(id).addEventListener('input',refresh));$('refresh').addEventListener('click',refresh);
-$('generate').addEventListener('click',async()=>{
- const btn=$('generate'),status=$('status');if(!canvas.captureStream||!window.MediaRecorder){status.textContent='Video recording is not supported in this browser. Try the latest Chrome browser on Android.';return;}
- let mime='';for(const type of ['video/mp4;codecs=h264','video/mp4','video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm']){if(MediaRecorder.isTypeSupported(type)){mime=type;break;}}
- if(!mime){status.textContent='This browser does not offer a supported video recording format.';return;}
- btn.disabled=true;status.className='status';status.textContent='Generating your branded video. Keep this page open…';
- const seconds=Number($('duration').value)||18;const stream=canvas.captureStream(24);let recorder;
- try{recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3500000});}catch(e){stream.getTracks().forEach(t=>t.stop());btn.disabled=false;status.textContent='Could not start video recording on this browser.';return;}
- const chunks=[];recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
- recorder.onerror=()=>{stream.getTracks().forEach(t=>t.stop());btn.disabled=false;status.textContent='Video recording failed. Please try again.';};
- recorder.onstop=()=>{
-  stream.getTracks().forEach(t=>t.stop());btn.disabled=false;
-  if(!chunks.length){status.textContent='No video data was created. Please try again.';return;}
-  const blob=new Blob(chunks,{type:mime});const ext=mime.includes('mp4')?'mp4':'webm';const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;
-  const safe=($('headline').value.trim()||'habsco-video').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)||'habsco-video';
-  a.download='HABSCO-'+safe+'.'+ext;document.body.appendChild(a);a.click();a.remove();
-  status.className='status good';status.textContent='Your HABSCO video is ready. Download started ('+ext.toUpperCase()+').';
-  setTimeout(()=>URL.revokeObjectURL(url),60000);
- };
- recorder.start(250);const start=performance.now();
- function tick(now){const elapsed=(now-start)/1000;draw(elapsed);if(elapsed<seconds){requestAnimationFrame(tick);}else{draw(seconds);setTimeout(()=>{if(recorder.state!=='inactive')recorder.stop();},150);}}
- requestAnimationFrame(tick);
+const words=()=>($("script").value.trim().match(/\b[\w’'-]+\b/g)||[]).length;
+$("script").addEventListener("input",()=>{$("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 3,600 words";$("wordCount").style.color=words()>=3600?"#075c36":"#68786e"});
+$("clear").addEventListener("click",()=>{if(!confirm("Clear the script and media selections?"))return;$("script").value="";$("footage").value="";$("music").value="";$("progress").className="progress";$("progress").textContent="";$("wordCount").textContent="0 words · 30-minute minimum: 3,600 words"});
+const show=(msg,cls="progress")=>{$("progress").className=cls;$("progress").textContent=msg;$("progress").style.display="block"};
+const api="/api/video-studio";
+$("generate").addEventListener("click",async()=>{
+ const token=$("token").value.trim(), script=$("script").value.trim(), footage=[...$("footage").files], music=$("music").files[0];
+ if(!token)return show("Enter the private admin token configured on the server.","progress error");
+ if(words()<3600)return show("Please provide at least 3,600 words of original narration for the 30-minute video.","progress error");
+ if(!footage.length)return show("Upload at least one real video clip that you have permission to publish.","progress error");
+ if(!music)return show("Upload a licensed background music or ambience track.","progress error");
+ const size=[...footage,music].reduce((n,f)=>n+f.size,0);
+ if(size>2*1024*1024*1024)return show("Your selected files exceed the 2 GB total upload limit. Reduce or split the media and try again.","progress error");
+ const btn=$("generate");btn.disabled=true;show("Uploading media and submitting the render job. Large files may take several minutes…");
+ try{
+  const form=new FormData();form.append("title",$("title").value.trim()||"HABSCO Story");form.append("script",script);footage.forEach(f=>form.append("footage",f,f.name));form.append("music",music,music.name);
+  const response=await fetch(api+"/api/generate",{method:"POST",headers:{"X-Habsco-Video-Token":token},body:form});
+  const data=await response.json().catch(()=>({error:"The server returned an unreadable response."}));
+  if(!response.ok)throw new Error(data.error||"Could not start the render.");
+  show("Job queued. Preparing real footage and spoken narration…");await poll(data.job_id,token);
+ }catch(e){show(e.message||"The video service could not be reached. It may not be installed or configured on the server yet.","progress error")}
+ finally{btn.disabled=false}
 });
-draw(0);
-})();
-</script></body></html>
+async function poll(id,token){
+ for(let i=0;i<360;i++){
+  await new Promise(r=>setTimeout(r,10000));
+  const r=await fetch(api+"/api/jobs/"+encodeURIComponent(id),{headers:{"X-Habsco-Video-Token":token}});
+  const d=await r.json().catch(()=>({error:"Unable to read job status."}));
+  if(!r.ok)throw new Error(d.error||"Unable to check render status.");
+  if(d.status==="failed")throw new Error("Rendering failed: "+d.message);
+  if(d.status==="complete"){
+   const box=$("progress");box.className="progress good";box.replaceChildren();
+   const p=document.createElement("p");p.textContent="Finished: "+(d.title||"HABSCO video")+". File size: "+(d.bytes?((d.bytes/1024/1024).toFixed(1)+" MB"):"ready")+".";
+   const a=document.createElement("a");a.href=api+"/api/download/"+id+".mp4";a.textContent="Download finished MP4 ↓";a.setAttribute("download","HABSCO-video.mp4");a.addEventListener("click",async ev=>{ev.preventDefault();try{const res=await fetch(a.href,{headers:{"X-Habsco-Video-Token":token}});if(!res.ok)throw new Error("Download failed.");const blob=await res.blob();const url=URL.createObjectURL(blob);const link=document.createElement("a");link.href=url;link.download="HABSCO-video.mp4";link.click();setTimeout(()=>URL.revokeObjectURL(url),60000)}catch(err){show(err.message,"progress error")}});
+   box.append(p,a);return;
+  }
+  show((d.message||"Rendering…")+"\nStatus: "+d.status+". The page checks again every 10 seconds.");
+ }
+ throw new Error("This page stopped checking after one hour. The render may still be running; refresh and contact the site administrator to check server logs.");
+}
+</script>
+</body></html>
