@@ -17,7 +17,7 @@
 <body>
 <main class="wrap">
 <header class="top"><div class="brand">HABSCO · VIDEO STUDIO</div><a class="link" href="videos.html">← Videos</a></header>
-<section class="hero"><div class="eyebrow">REAL FOOTAGE · REAL AUDIO · MP4</div><h1>Make a proper<br>long-form video.</h1><p>Create a minimum 30-minute video from real footage you provide. Build a narration draft and ambient audio bed without stock-media APIs or paid API keys.</p></section>
+<section class="hero"><div class="eyebrow">REAL FOOTAGE · REAL AUDIO · MP4</div><h1>Make a proper<br>long-form video.</h1><p>Create a minimum 30-minute video automatically: build a narration draft, source built-in open-licensed volunteer footage, generate ambient audio, synthesize narration, and render an MP4. No stock-media API or API key is required.</p></section>
 <div class="notice"><strong>Server setup required:</strong> the HABSCO rendering service must be installed on the server and its private admin token configured. No external stock-footage or stock-music API is used. You must still upload at least one real video clip you own or are licensed to publish; clips repeat to fill 30 minutes, so several varied clips look better.</div>
 <section class="layout">
 <div class="panel">
@@ -33,7 +33,7 @@
 </div>
 <aside class="panel">
 <h2>2 · Add your media</h2>
-<label class="field"><span>Real video footage (one or more clips)</span><input id="footage" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-matroska" multiple><small>MP4, MOV, WebM or MKV. Prefer several varied clips with permission for public use. Large uploads may take time on mobile data.</small></label>
+<label class="field"><span>Real video footage (optional)</span><input id="footage" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-matroska" multiple><small>Leave this empty to let the server download its built-in open-licensed community/volunteer clips directly from Wikimedia Commons (no API or key). They are cached after first use. Upload your own clips if you want footage specific to your topic.</small></label>
 <label class="field"><span>Background music (optional)</span><input id="music" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/aac,audio/ogg,.mp3,.wav,.m4a,.aac,.ogg"><small>No music file? The server creates a quiet synthetic ambience locally with FFmpeg. No stock-music API or API key is required. Upload your own licensed music for a richer result.</small></label>
 <div class="facts">
 <div class="fact"><strong>Natural-sounding narration</strong><p>Server-side speech synthesis creates a spoken audio track. No stock-media API key is needed.</p></div>
@@ -83,11 +83,11 @@ const api="/api/video-studio";
 $("generate").addEventListener("click",async()=>{
  const token=$("token").value.trim(), script=$("script").value.trim(), footage=[...$("footage").files], music=$("music").files[0];
  if(!token)return show("Enter the private admin token configured on the server.","progress error");
- if(words()<4500)return show("Please provide at least 4,500 words of original narration for the 30-minute video.","progress error");
- if(!footage.length)return show("Upload at least one real video clip that you have permission to publish.","progress error");
+ if(words()<4500){$("buildScript").click();}
+ if(words()<4500)return show("The automatic draft is still under 4,500 words. Add more narration and try again.","progress error");
  const size=[...footage,...(music?[music]:[])].reduce((n,f)=>n+f.size,0);
  if(size>2*1024*1024*1024)return show("Your selected files exceed the 2 GB total upload limit. Reduce or split the media and try again.","progress error");
- const btn=$("generate");btn.disabled=true;show("Uploading media and submitting the render job. Large files may take several minutes…");
+ const btn=$("generate");btn.disabled=true;show(footage.length?"Uploading your footage and submitting the render job…":"Submitting your job. The server will source its built-in footage automatically (first run downloads may take a little longer)…");
  try{
   const form=new FormData();form.append("title",$("title").value.trim()||"HABSCO Story");form.append("script",script);footage.forEach(f=>form.append("footage",f,f.name));if(music)form.append("music",music,music.name);
   const response=await fetch(api+"/api/generate",{method:"POST",headers:{"X-Habsco-Video-Token":token},body:form});
