@@ -4,13 +4,17 @@ This replaces the browser-only short animation with server-side MP4 rendering fr
 
 ## 1. Copy files to the VPS
 
-From an SSH shell on the HABSCO Ubuntu 24.04 VPS, run these commands. They deploy only the video-studio files; do not pull or reset the whole website repository.
+From an SSH shell on the HABSCO Ubuntu 24.04 VPS, run these commands. They fetch GitHub's main branch and deploy only the named video-studio files. They do not merge, reset, or replace the rest of your live website.
 
 ```bash
+cd /var/www/habsco-site
+git fetch origin main
 install -d -m 0755 /opt/habsco-video-studio /var/lib/habsco-video-studio /var/lib/habsco-video-studio/output /etc/habsco
-cp /var/www/habsco-site/video-studio-api.py /opt/habsco-video-studio/video-studio-api.py
-cp /var/www/habsco-site/video-studio-requirements.txt /opt/habsco-video-studio/requirements.txt
-cp /var/www/habsco-site/habsco-video-studio.service /etc/systemd/system/habsco-video-studio.service
+git show origin/main:video-studio.html > /var/www/habsco-site/video-studio.html
+git show origin/main:videos.html > /var/www/habsco-site/videos.html
+git show origin/main:video-studio-api.py > /opt/habsco-video-studio/video-studio-api.py
+git show origin/main:video-studio-requirements.txt > /opt/habsco-video-studio/requirements.txt
+git show origin/main:habsco-video-studio.service > /etc/systemd/system/habsco-video-studio.service
 apt-get update
 apt-get install -y ffmpeg python3-venv python3-pip
 python3 -m venv /opt/habsco-video-studio/venv
