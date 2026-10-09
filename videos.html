@@ -22,15 +22,16 @@
 <body><main class="wrap">
 <header class="top"><div class="brand">HABSCO <span style="color:#a88728">• DAILY MEDIA</span></div><a class="back" href="member.html">← Dashboard</a></header>
 <section class="hero"><div class="eyebrow">Watch • Learn • Share</div><h1 id="dailyTitle">A little inspiration for today.</h1><p id="dailySub">Long-form stories and learning videos with real footage, spoken narration and proper audio.</p><span class="date" id="todayDate"></span></section>
-<div class="studio-cta" style="margin:16px 0;padding:16px;border-radius:16px;background:#fff;border:1px solid #dfe8e2;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap"><div><strong style="display:block;color:#075c36;font-size:14px;margin-bottom:5px">Create a real HABSCO video</strong><span style="font-size:11px;line-height:1.5;color:#6e7d74">Build a minimum 30-minute MP4 from real footage, a full narration script and licensed soundtrack.</span></div><a href="video-studio.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border-radius:10px;background:#075c36;color:#fff;text-decoration:none;font-size:11px;font-weight:900">Open Video Studio ↗</a></div>
-<div class="section-head"><h2>Story ideas for full-length videos</h2><span>Add footage, script and soundtrack</span></div>
-<section class="grid" id="videoGrid">
-<article class="card"><div class="icon">🐢</div><div class="tag">Classic fable</div><h3>The Tortoise and the Hare</h3><p>Expand this classic fable into a full-length story. Upload real footage and provide a complete narration script.</p><div class="actions"><a class="btn primary" href="video-studio.html?story=tortoise">Open Studio ↓</a><button class="btn share" type="button">Share</button></div></article>
-<article class="card"><div class="icon">🦁</div><div class="tag">Kindness</div><h3>The Lion and the Mouse</h3><p>Turn this tale into a full-length narration about compassion, gratitude and helping others.</p><div class="actions"><a class="btn primary" href="video-studio.html?story=lion">Create & download ↓</a><button class="btn share" type="button">Share</button></div></article>
-<article class="card"><div class="icon">🐜</div><div class="tag">Preparation</div><h3>The Ant and the Grasshopper</h3><p>Build a longer lesson about preparation, discipline and thinking ahead.</p><div class="actions"><a class="btn primary" href="video-studio.html?story=ant">Create & download ↓</a><button class="btn share" type="button">Share</button></div></article>
-<article class="card"><div class="icon">⭐</div><div class="tag">HABSCO inspiration</div><h3>One Small Good Deed</h3><p>An original short story about helping a neighbour and starting a chain of kindness.</p><div class="actions"><a class="btn primary" href="video-studio.html?story=kindness">Create & download ↓</a><button class="btn share" type="button">Share</button></div></article>
+<section class="panel" style="margin:16px 0;padding:20px;border-radius:18px;background:#fff;border:1px solid #dfe8e2;box-shadow:0 8px 24px rgba(18,48,31,.04)">
+<div class="section-head" style="margin:0 0 8px"><h2>Create a full-length video</h2><span>Title in · video out</span></div>
+<p style="margin:0 0 15px;color:#6e7d74;font-size:12px;line-height:1.65">Enter any video title. HABSCO Video Studio will prepare the narration draft, source its available footage, create background ambience, generate the voice and render a 30-minute MP4 automatically. No media uploads needed.</p>
+<form id="quickCreate" style="display:grid;gap:10px">
+<label for="quickTitle" style="font-size:11px;font-weight:850">What should your video be called?</label>
+<input id="quickTitle" maxlength="120" required placeholder="e.g. The Power of Kindness" style="width:100%;min-height:46px;padding:12px;border:1px solid #dfe8e2;border-radius:11px;font:inherit;font-size:14px;outline-color:#087443">
+<button class="btn primary" type="submit" style="min-height:44px;font-size:12px">Generate my video →</button>
+</form>
+<div style="margin-top:11px;color:#8a7660;font-size:10px;line-height:1.6">The video service must be configured on the server. A private admin token may be required in the studio before rendering.</div>
 </section>
-<div class="note"><strong>Ready to watch:</strong> Choose a story to open the HABSCO video maker. It renders an illustrated, HABSCO-branded story video on your device and downloads it. Keep the page open until rendering finishes. These are original illustrated story versions, not downloaded third-party films.</div>
 <footer class="foot">© 2026 HABSCO • www.habscosadaqah.org<div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer>
 </main>
 <script>
@@ -50,6 +51,13 @@
  document.getElementById('dailyTitle').textContent=m[0];
  document.getElementById('dailySub').textContent=m[1];
  document.getElementById('todayDate').textContent=d.toLocaleDateString('en-NG',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+ const quickForm=document.getElementById('quickCreate');
+ quickForm.addEventListener('submit',(e)=>{
+  e.preventDefault();
+  const title=document.getElementById('quickTitle').value.trim();
+  if(!title)return;
+  location.href='video-studio.html?title='+encodeURIComponent(title);
+ });
  document.querySelectorAll('.share').forEach((b)=>{
   b.addEventListener('click',async()=>{
    const card=b.closest('.card');const title=card.querySelector('h3').textContent;
