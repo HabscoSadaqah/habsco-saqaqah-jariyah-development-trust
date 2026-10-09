@@ -861,9 +861,12 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 }
 </style>
 <style id="centered-left-aligned-flyer-copy">
-/* Give the small kicker, large headline, and supporting text one shared left starting edge. */
+/* Lock the kicker, headline, and supporting sentence to one identical left edge. */
 #flyer .hero{
-  justify-items:stretch!important;
+  display:block!important;
+  left:9%!important;
+  right:9%!important;
+  text-align:left!important;
 }
 #flyer .hero .kicker,
 #flyer .hero #serviceHeadline,
@@ -874,6 +877,8 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   max-width:100%!important;
   margin-left:0!important;
   margin-right:0!important;
+  padding-left:0!important;
+  padding-right:0!important;
   justify-self:stretch!important;
   text-align:left!important;
   transform:none!important;
