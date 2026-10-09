@@ -68,14 +68,14 @@ $("buildScript").addEventListener("click",()=>{
   ["Closing lesson","Bring the main ideas together: understand the issue, listen carefully, act responsibly, learn from results, and continue improving. Encourage viewers to share the lesson respectfully with someone who may benefit, while avoiding pressure or exaggerated claims. Thank them for spending time with the subject and invite them to put one useful idea into practice."]
  ];
  const out=[];
- for(let i=0;i<30;i++){
+ for(let i=0;i<45;i++){
   const section=themes[i%themes.length];
   out.push("Chapter "+(i+1)+": "+section[0]+" — "+title+"\n"+section[1]+"\n"+section[1]+" Consider another angle: how might this lesson apply when circumstances are different? What would a thoughtful person ask before acting? Take a moment to weigh the options, consider the people affected, and choose a response that is kind, careful, and practical. The details will vary from one situation to another, so use judgement and seek trustworthy guidance whenever the subject requires expertise.\n");
  }
  $("script").value=out.join("\n");
  $("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 4,500 words";
  $("wordCount").style.color=words()>=4500?"#075c36":"#68786e";
- show("Offline draft created. Review and edit it for accuracy and repetition before publishing.");
+ show("Offline draft created. Check the word count; if it is under 4,500, expand it or add your own material. Review carefully for repetition and accuracy before publishing.");
 });
 
 const show=(msg,cls="progress")=>{$("progress").className=cls;$("progress").textContent=msg;$("progress").style.display="block"};
