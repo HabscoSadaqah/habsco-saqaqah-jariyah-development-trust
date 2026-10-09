@@ -7,7 +7,7 @@ This replaces the browser-only short animation with server-side MP4 rendering fr
 From an SSH shell on the HABSCO Ubuntu 24.04 VPS, run these commands. They deploy only the video-studio files; do not pull or reset the whole website repository.
 
 ```bash
-install -d -m 0755 /opt/habsco-video-studio /var/lib/habsco-video-studio /var/www/habsco-site/generated-videos /etc/habsco
+install -d -m 0755 /opt/habsco-video-studio /var/lib/habsco-video-studio /var/lib/habsco-video-studio/output /etc/habsco
 cp /var/www/habsco-site/video-studio-api.py /opt/habsco-video-studio/video-studio-api.py
 cp /var/www/habsco-site/video-studio-requirements.txt /opt/habsco-video-studio/requirements.txt
 cp /var/www/habsco-site/habsco-video-studio.service /etc/systemd/system/habsco-video-studio.service
@@ -27,9 +27,9 @@ TOKEN="$(openssl rand -hex 32)"
 printf 'HABSCO_VIDEO_TOKEN=%s\nHABSCO_VIDEO_PORT=8790\nHABSCO_VIDEO_VOICE=en-NG-AbeoNeural\n' "$TOKEN" > /etc/habsco/video-studio.env
 chmod 600 /etc/habsco/video-studio.env
 chown root:root /etc/habsco/video-studio.env
-chown -R www-data:www-data /var/lib/habsco-video-studio /var/www/habsco-site/generated-videos
+chown -R www-data:www-data /var/lib/habsco-video-studio
 chmod 750 /var/lib/habsco-video-studio
-chmod 750 /var/www/habsco-site/generated-videos
+chmod 750 /var/lib/habsco-video-studio/output
 systemctl daemon-reload
 systemctl enable --now habsco-video-studio
 systemctl status habsco-video-studio --no-pager
@@ -80,5 +80,5 @@ journalctl -u habsco-video-studio -n 80 --no-pager
 - The service uses external speech synthesis and needs outbound internet access. A voice or service outage will cause a visible failure instead of a silent/fake narration.
 - A 30-minute render consumes CPU, disk, bandwidth and time. Start with a modest number of source clips and monitor `journalctl -u habsco-video-studio -f` and free disk space.
 - The current implementation keeps job status in memory, so a service restart loses status for active jobs. Do not restart during a render.
-- Generated MP4s are saved under `/var/www/habsco-site/generated-videos/`. Set a retention policy and periodically remove old files to protect disk space.
+- Generated MP4s are saved privately under `/var/lib/habsco-video-studio/output/` and are served through the authenticated download endpoint. Set a retention policy and periodically remove old files to protect disk space.
 - The API is protected by the admin token; do not expose port 8790 publicly. Nginx must proxy it only over localhost.
