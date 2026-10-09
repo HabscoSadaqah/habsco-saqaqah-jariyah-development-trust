@@ -844,6 +844,22 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   #flyer .hero #serviceLead{padding-inline:4px!important;line-height:1.4!important}
 }
 </style>
+<style id="move-centered-flyer-copy-down">
+/* Lower the centered kicker, headline, and supporting line together while preserving alignment. */
+#flyer .hero .kicker,
+#flyer .hero #serviceHeadline,
+#flyer .hero #serviceLead{
+  position:relative!important;
+  top:clamp(20px,2.8vw,36px)!important;
+}
+@media(max-width:600px){
+  #flyer .hero .kicker,
+  #flyer .hero #serviceHeadline,
+  #flyer .hero #serviceLead{
+    top:20px!important;
+  }
+}
+</style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FAST • SIMPLE • SECURE</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
