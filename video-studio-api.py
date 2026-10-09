@@ -165,7 +165,7 @@ def generate():
             clips.append(save_upload(fs, workdir / f"source-{n:03d}{Path(fs.filename or '').suffix.lower()}", ALLOWED_VIDEO))
         music = save_upload(request.files["music"], workdir / ("music" + Path(request.files["music"].filename or "").suffix.lower()), ALLOWED_AUDIO)
         with lock:
-            jobs[job_id] = {"status": "queued", "message": "Queued for rendering.", "title": title, "words": len(words)}
+            jobs[job_id] = {"status": "queued", "message": "Queued for rendering.", "title": title, "words": len(words), "download_key": uuid.uuid4().hex}
         thread = threading.Thread(target=worker, args=(job_id, title, script, clips, music, workdir), daemon=True)
         thread.start()
         return jsonify({"job_id": job_id, "status": "queued", "words": len(words)}), 202
@@ -185,9 +185,16 @@ def job_status(job_id):
 
 @app.get("/api/download/<filename>")
 def download(filename):
-    if not authorized():
-        abort(401)
     if not re.fullmatch(r"[a-f0-9]{32}\.mp4", filename):
+        abort(404)
+    job_id = filename[:-4]
+    with lock:
+        item = jobs.get(job_id)
+    key = request.args.get("key", "")
+    keyed_download = bool(item and key and key == item.get("download_key") and item.get("status") == "complete")
+    if not authorized() and not keyed_download:
+        abort(401)
+    if not (OUTPUT / filename).is_file():
         abort(404)
     return send_from_directory(OUTPUT, filename, as_attachment=True, download_name="HABSCO-video-" + filename)
 
