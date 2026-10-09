@@ -1,0 +1,22 @@
+[Unit]
+Description=HABSCO Long-Form Video Studio API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/habsco-video-studio
+EnvironmentFile=/etc/habsco/video-studio.env
+ExecStart=/opt/habsco-video-studio/venv/bin/python /opt/habsco-video-studio/video-studio-api.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/lib/habsco-video-studio /var/www/habsco-site/generated-videos
+
+[Install]
+WantedBy=multi-user.target
