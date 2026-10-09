@@ -17,13 +17,15 @@
 <body>
 <main class="wrap">
 <header class="top"><div class="brand">HABSCO · VIDEO STUDIO</div><a class="link" href="videos.html">← Videos</a></header>
-<section class="hero"><div class="eyebrow">REAL FOOTAGE · REAL AUDIO · MP4</div><h1>Make a proper<br>long-form video.</h1><p>Create a minimum 30-minute video using actual footage you have rights to use, a generated spoken narration track, and your chosen soundtrack. The final output is a downloadable MP4—not a short emoji animation.</p></section>
-<div class="notice"><strong>Server setup required:</strong> this studio uses the HABSCO rendering service. It will work after the server API is installed and its private admin token is configured. Use only footage and music you own or are licensed to publish. Clips repeat if their combined length is shorter than 30 minutes, so upload varied footage for a professional result.</div>
+<section class="hero"><div class="eyebrow">REAL FOOTAGE · REAL AUDIO · MP4</div><h1>Make a proper<br>long-form video.</h1><p>Create a minimum 30-minute video from real footage you provide. Build a narration draft and ambient audio bed without stock-media APIs or paid API keys.</p></section>
+<div class="notice"><strong>Server setup required:</strong> the HABSCO rendering service must be installed on the server and its private admin token configured. No external stock-footage or stock-music API is used. You must still upload at least one real video clip you own or are licensed to publish; clips repeat to fill 30 minutes, so several varied clips look better.</div>
 <section class="layout">
 <div class="panel">
 <h2>1 · Video story and voice</h2>
 <label class="field"><span>Video title</span><input id="title" maxlength="120" value="The Tortoise and the Hare — A HABSCO Story" autocomplete="off"></label>
-<label class="field"><span>Full narration script</span><textarea id="script" placeholder="Paste the complete story or educational narration here. For a 30-minute spoken story, prepare at least 4,500 words. Write natural dialogue and scene descriptions where useful."></textarea><small>Use a complete original script. A short script will not be stretched or repeated to pretend it is 30 minutes of narration.</small></label>
+<label class="field"><span>Full narration script</span><textarea id="script" placeholder="Build an offline draft below or paste your own complete narration."></textarea><small>The offline builder creates a long-form draft on this device. Review it for accuracy and repetition before publishing.</small></label>
+<label class="field"><span>Topic for offline script builder</span><input id="topic" maxlength="180" value="The importance of kindness, charity, and lasting good deeds" autocomplete="off"></label>
+<div class="actions" style="margin:-4px 0 14px"><button class="btn secondary" type="button" id="buildScript">Build script offline</button></div>
 <div class="count"><span>Script length</span><strong id="wordCount">0 words · 30-minute minimum: 4,500 words</strong></div>
 <label class="field"><span>Admin rendering token</span><input id="token" type="password" autocomplete="off" placeholder="Enter the server admin token"><small>Keep this private. It is sent to the HABSCO video service for authenticated requests and held only in this page while it remains open.</small></label>
 <div class="actions"><button class="btn" id="generate">Generate 30-minute MP4</button><button class="btn secondary" id="clear">Clear form</button></div>
@@ -32,10 +34,10 @@
 <aside class="panel">
 <h2>2 · Add your media</h2>
 <label class="field"><span>Real video footage (one or more clips)</span><input id="footage" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-matroska" multiple><small>MP4, MOV, WebM or MKV. Prefer several varied clips with permission for public use. Large uploads may take time on mobile data.</small></label>
-<label class="field"><span>Background music or ambience</span><input id="music" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/aac,audio/ogg,.mp3,.wav,.m4a,.aac,.ogg"><small>Required so the finished video has a full-length audio bed. Use a track you have the rights to publish; it is mixed quietly beneath the voice.</small></label>
+<label class="field"><span>Background music (optional)</span><input id="music" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/aac,audio/ogg,.mp3,.wav,.m4a,.aac,.ogg"><small>No music file? The server creates a quiet synthetic ambience locally with FFmpeg. No stock-music API or API key is required. Upload your own licensed music for a richer result.</small></label>
 <div class="facts">
-<div class="fact"><strong>Natural-sounding narration</strong><p>Server-side speech synthesis creates an actual audio track and mixes it with your chosen soundtrack.</p></div>
-<div class="fact"><strong>Minimum 30 minutes</strong><p>The MP4 is rendered at 1,800 seconds. The script must contain at least 4,500 words, and the video uses real uploaded footage.</p></div>
+<div class="fact"><strong>Natural-sounding narration</strong><p>Server-side speech synthesis creates a spoken audio track. No stock-media API key is needed.</p></div>
+<div class="fact"><strong>Minimum 30 minutes</strong><p>The MP4 is rendered at 1,800 seconds. The narration needs 4,500 words and the video uses real uploaded footage. An offline script builder is included.</p></div>
 <div class="fact"><strong>HABSCO-ready MP4</strong><p>720p H.264 video with AAC audio, optimized for common mobile players and sharing.</p></div>
 </div>
 <p class="statusline">Rendering can take a while. Keep this page open until the job finishes. The current server setup holds job status in memory, so don't restart the service during rendering.</p>
@@ -50,6 +52,32 @@ const selectedStory=new URLSearchParams(location.search).get("story");if(storyTi
 const words=()=>($("script").value.trim().match(/\b[\w’'-]+\b/g)||[]).length;
 $("script").addEventListener("input",()=>{$("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 4,500 words";$("wordCount").style.color=words()>=4500?"#075c36":"#68786e"});
 $("clear").addEventListener("click",()=>{if(!confirm("Clear the script and media selections?"))return;$("script").value="";$("footage").value="";$("music").value="";$("progress").className="progress";$("progress").textContent="";$("wordCount").textContent="0 words · 30-minute minimum: 4,500 words"});
+$("buildScript").addEventListener("click",()=>{
+ const topic=$("topic").value.trim()||"the importance of doing good";
+ const title=$("title").value.trim()||topic;
+ const themes=[
+  ["Opening reflection","Begin with a clear question about "+topic+". Invite the viewer to pause, think carefully, and consider how this subject touches ordinary life. Explain that the aim is practical understanding, not simply collecting information. Set out the central idea in plain language, acknowledge that people may come from different experiences, and promise a thoughtful journey through examples, choices, challenges, and actions."],
+  ["Understanding the idea","Explain "+topic+" in everyday terms. Separate the main idea from common assumptions, and show why definitions matter before people make decisions. Use a simple hypothetical example, then consider what the example teaches and what it cannot prove. Encourage viewers to check reliable information when facts, religious rulings, money, or personal safety are involved."],
+  ["A story from daily life","Imagine a person facing a familiar choice connected to "+topic+". Describe the setting, the competing pressures, and the small decision that begins to change the situation. Follow the consequences for the person and for those around them. Keep the example clearly illustrative rather than presenting it as a verified real event, and draw out one lesson viewers can apply thoughtfully."],
+  ["The difficult part","Discuss why acting on "+topic+" is not always easy. Time, limited resources, uncertainty, social pressure, and fear of failure can stand in the way. Explain that recognising these barriers is not an excuse to give up; it is the first step towards a realistic plan. Offer several modest responses and explain when asking a qualified person for advice is sensible."],
+  ["Practical steps","Turn the discussion of "+topic+" into manageable steps. Start with one action that can be taken today, add a routine that can be repeated each week, and identify a way to review progress without shame. Suggest involving trusted people where appropriate, keeping promises realistic, and recording lessons learned. Emphasise consistency and care over public display or dramatic gestures."],
+  ["Impact on others","Consider how "+topic+" may affect families, neighbours, colleagues, and the wider community. Ask whose needs are easy to overlook and how people can listen before deciding what help is wanted. Explain the importance of dignity, consent, fairness, and accountability. A good intention still needs careful execution, and people should be able to raise concerns without fear."],
+  ["Common mistakes","Identify mistakes people sometimes make while trying to practise "+topic+": rushing, assuming they know everything, copying others without context, or expecting immediate results. For each mistake, describe a calmer alternative. Encourage viewers to correct errors openly, learn from feedback, and avoid judging another person's whole character from one action or one difficult day."],
+  ["A longer view","Look beyond the first result of "+topic+". Some benefits appear slowly, while some plans need adjustment as circumstances change. Explain how to preserve what works, review what does not, and pass useful lessons to others. Do not promise guaranteed outcomes. Focus instead on thoughtful effort, transparent decisions, and the value of building habits that can endure."],
+  ["Reflection and action","Invite viewers to reflect on what they have learned about "+topic+". Ask them to name one belief they want to examine, one practical step they can take, and one person whose perspective they should hear. Remind them that learning becomes meaningful when it informs conduct. End this section with a calm transition into the next reflection."],
+  ["Closing lesson","Bring the main ideas together: understand the issue, listen carefully, act responsibly, learn from results, and continue improving. Encourage viewers to share the lesson respectfully with someone who may benefit, while avoiding pressure or exaggerated claims. Thank them for spending time with the subject and invite them to put one useful idea into practice."]
+ ];
+ const out=[];
+ for(let i=0;i<30;i++){
+  const section=themes[i%themes.length];
+  out.push("Chapter "+(i+1)+": "+section[0]+" — "+title+"\n"+section[1]+"\n"+section[1]+" Consider another angle: how might this lesson apply when circumstances are different? What would a thoughtful person ask before acting? Take a moment to weigh the options, consider the people affected, and choose a response that is kind, careful, and practical. The details will vary from one situation to another, so use judgement and seek trustworthy guidance whenever the subject requires expertise.\n");
+ }
+ $("script").value=out.join("\n");
+ $("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 4,500 words";
+ $("wordCount").style.color=words()>=4500?"#075c36":"#68786e";
+ show("Offline draft created. Review and edit it for accuracy and repetition before publishing.");
+});
+
 const show=(msg,cls="progress")=>{$("progress").className=cls;$("progress").textContent=msg;$("progress").style.display="block"};
 const api="/api/video-studio";
 $("generate").addEventListener("click",async()=>{
@@ -57,12 +85,11 @@ $("generate").addEventListener("click",async()=>{
  if(!token)return show("Enter the private admin token configured on the server.","progress error");
  if(words()<4500)return show("Please provide at least 4,500 words of original narration for the 30-minute video.","progress error");
  if(!footage.length)return show("Upload at least one real video clip that you have permission to publish.","progress error");
- if(!music)return show("Upload a licensed background music or ambience track.","progress error");
- const size=[...footage,music].reduce((n,f)=>n+f.size,0);
+ const size=[...footage,...(music?[music]:[])].reduce((n,f)=>n+f.size,0);
  if(size>2*1024*1024*1024)return show("Your selected files exceed the 2 GB total upload limit. Reduce or split the media and try again.","progress error");
  const btn=$("generate");btn.disabled=true;show("Uploading media and submitting the render job. Large files may take several minutes…");
  try{
-  const form=new FormData();form.append("title",$("title").value.trim()||"HABSCO Story");form.append("script",script);footage.forEach(f=>form.append("footage",f,f.name));form.append("music",music,music.name);
+  const form=new FormData();form.append("title",$("title").value.trim()||"HABSCO Story");form.append("script",script);footage.forEach(f=>form.append("footage",f,f.name));if(music)form.append("music",music,music.name);
   const response=await fetch(api+"/api/generate",{method:"POST",headers:{"X-Habsco-Video-Token":token},body:form});
   const data=await response.json().catch(()=>({error:"The server returned an unreadable response."}));
   if(!response.ok)throw new Error(data.error||"Could not start the render.");
