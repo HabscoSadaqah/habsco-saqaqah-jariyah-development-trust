@@ -861,40 +861,29 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 }
 </style>
 <style id="centered-left-aligned-flyer-copy">
-/* Align kicker and supporting copy to the exact left edge of the large subject headline. */
+/* Give the small kicker, large headline, and supporting text one shared left starting edge. */
 #flyer .hero{
-  justify-items:center!important;
+  justify-items:stretch!important;
 }
 #flyer .hero .kicker,
 #flyer .hero #serviceHeadline,
 #flyer .hero #serviceLead{
-  text-align:left!important;
-  justify-self:center!important;
-  width:auto!important;
+  display:block!important;
+  box-sizing:border-box!important;
+  width:100%!important;
   max-width:100%!important;
   margin-left:0!important;
   margin-right:0!important;
+  justify-self:stretch!important;
+  text-align:left!important;
   transform:none!important;
 }
-#flyer .hero .kicker,
-#flyer .hero #serviceLead{
-  width:100%!important;
-}
 #flyer .hero #serviceHeadline{
-  width:max-content!important;
-  max-width:100%!important;
   text-wrap:balance!important;
   overflow-wrap:normal!important;
 }
-#flyer .hero .kicker,
-#flyer .hero #serviceLead{
-  justify-self:stretch!important;
-}
 #flyer .hero #serviceLead{
   text-wrap:pretty!important;
-}
-@media(max-width:600px){
-  #flyer .hero #serviceHeadline{width:max-content!important;max-width:100%!important}
 }
 </style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
