@@ -668,7 +668,14 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   text-shadow:0 4px 0 rgba(0,0,0,.16),0 14px 34px rgba(0,0,0,.28)!important;
 }
 #flyer #serviceHeadline br{display:block!important;content:""!important;margin-bottom:.08em!important}
-#flyer .hero .kicker{font-weight:900!important;letter-spacing:.24em!important}
+/* Match the visibly heavy Airtime "STAY CONNECTED" kicker across every subject. */
+#flyer .hero .kicker{
+  font-family:Inter,"Segoe UI",Arial,sans-serif!important;
+  font-weight:1000!important;
+  -webkit-text-stroke:.45px currentColor!important;
+  letter-spacing:.24em!important;
+  text-shadow:0 2px 8px rgba(0,0,0,.22)!important;
+}
 /* Apply the reference airtime flyer's bold two-line quote treatment to every subject. */
 #flyer .real-life-quote q{
   display:block!important;
