@@ -48,7 +48,7 @@ In the active HTTPS server block for `www.habscosadaqah.org` (and the main domai
 
 ```nginx
 location /api/video-studio/ {
-    proxy_pass http://127.0.0.1:8790/api/;
+    proxy_pass http://127.0.0.1:8790/;
     proxy_http_version 1.1;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
