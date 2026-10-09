@@ -15,16 +15,16 @@
 </style><style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style></head>
 <body><main class="wrap">
 <header class="top"><div class="brand">HABSCO <span style="color:#a88728">• VIDEO STUDIO</span></div><a class="link" href="videos.html">← Videos</a></header>
-<section class="hero"><div class="eyebrow">Create • Brand • Download</div><h1>Your message.<br>HABSCO quality.</h1><p>Create a short, branded video from your own message or a daily inspiration. The studio adds HABSCO identity, animated backgrounds, polished typography and an end card, then lets you download the result directly on your device.</p></section>
+<section class="hero"><div class="eyebrow">Create • Brand • Download</div><h1>Your message.<br>HABSCO quality.</h1><p>Choose a ready-made short story or create your own message. The studio adds HABSCO identity, animated scenes, polished captions and an end card, then downloads the video directly to your device.</p></section>
 <div class="layout">
 <section class="panel"><h2>1. Build your video</h2>
-<label class="field"><span>Video category</span><select id="category"><option>Motivation</option><option>HABSCO Tutorial</option><option>Business & Education</option><option>Sadaqah Jariyah & Charity</option><option>HABSCO Announcement</option><option>News Explainer</option></select></label>
+<label class="field"><span>Video category</span><select id="category"><option>Story Video</option><option>Motivation</option><option>HABSCO Tutorial</option><option>Business & Education</option><option>Sadaqah Jariyah & Charity</option><option>HABSCO Announcement</option><option>News Explainer</option></select></label>
 <label class="field"><span>Headline</span><input id="headline" maxlength="90" value="Small steps create meaningful progress"></label>
 <label class="field"><span>Supporting message</span><textarea id="message" maxlength="260">Keep learning, keep helping others and take one positive step forward today.</textarea></label>
 <label class="field"><span>Duration</span><select id="duration"><option value="12">12 seconds</option><option value="18" selected>18 seconds</option><option value="24">24 seconds</option></select></label>
-<p class="hint">Use your own wording. For a news explainer, verify facts and dates before publishing. This first version creates branded motion-graphics videos; it does not invent footage or generate cinematic AI scenes.</p>
+<p class="hint">Ready-made fables use illustrated emoji-style characters and scene captions. This is an original animated story format, not a copied film or AI-generated cinematic footage.</p>
 <div class="btnrow"><button class="btn" id="refresh" type="button">Refresh preview</button><button class="btn primary" id="generate" type="button">Generate & download video</button></div>
-<div class="status" id="status" role="status" aria-live="polite">Ready. Press Generate & download video when you are happy with the message.</div>
+<div class="status" id="status" role="status" aria-live="polite">Ready. Press Generate & download video to render your story and save it to your phone.</div>
 </section>
 <section class="panel"><h2>2. Preview your HABSCO video</h2><div class="preview"><canvas id="canvas" width="720" height="1280" aria-label="Video preview canvas"></canvas><div class="preview-label"><span>VERTICAL • 9:16</span><span>HABSCO BRAND TEMPLATE</span></div></div>
 <div class="note"><strong>Format note:</strong> The studio uses the video format supported by your browser. Android Chrome commonly downloads WebM; browsers that support MP4 recording can save MP4. This page does not require an Adobe subscription or an external AI service.</div>
@@ -47,7 +47,16 @@ const defaults=[
 const today=new Date(new Date().toLocaleString('en-US',{timeZone:'Africa/Lagos'}));
 const day=Math.floor(Date.UTC(today.getFullYear(),today.getMonth(),today.getDate())/86400000);
 const daily=defaults[((day%defaults.length)+defaults.length)%defaults.length];
-$('headline').value=daily[0];$('message').value=daily[1];
+const storyKey=new URLSearchParams(location.search).get('story')||'';
+const stories={
+ tortoise:{title:'The Tortoise and the Hare',icon:'🐢 🐇',category:'Story Video',scenes:['The hare laughed at the tortoise for being slow.','The race began. The hare ran far ahead.','Feeling too confident, the hare stopped to rest.','The tortoise kept moving, step by step.','The hare woke up too late. The tortoise won!','Moral: steady effort beats careless pride.']},
+ lion:{title:'The Lion and the Mouse',icon:'🦁 🐭',category:'Story Video',scenes:['A lion spared a tiny mouse instead of harming it.','Later, the lion was caught in a hunter’s net.','The mouse heard the lion and hurried to help.','With sharp teeth, the mouse gnawed through the ropes.','The lion was free—and grateful for the little friend.','Moral: kindness is never wasted.']},
+ ant:{title:'The Ant and the Grasshopper',icon:'🐜 🦗',category:'Story Video',scenes:['The ant worked hard to store food for later.','The grasshopper sang and played through the warm days.','Then the weather changed and food became scarce.','The grasshopper realised he should have prepared.','He learned to balance enjoyment with responsibility.','Moral: prepare today for tomorrow.']},
+ kindness:{title:'One Small Good Deed',icon:'🤝 ⭐',category:'Story Video',scenes:['A neighbour struggled to carry groceries home.','A young person stopped and offered a helping hand.','The neighbour felt seen, respected and grateful.','Inspired, she helped another person the next day.','One small act grew into a whole chain of kindness.','Moral: good deeds can travel further than we know.']}
+};
+const activeStory=stories[storyKey]||null;
+$('headline').value=activeStory?activeStory.title:daily[0];$('message').value=activeStory?activeStory.scenes.join(' '):daily[1];
+if(activeStory)$('category').value=activeStory.category;
 function roundedRect(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill();}
 function wrapText(text,maxWidth){const words=text.trim().split(/\s+/);const lines=[];let line='';for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word;}else line=test;}if(line)lines.push(line);return lines;}
 function draw(time=0){
@@ -55,9 +64,18 @@ function draw(time=0){
  for(let i=0;i<8;i++){const x=((i*137+Math.sin(time*.7+i)*24)%w+w)%w;const y=((i*211-time*(8+i%3))%(h+180)+h+180)%(h+180)-90;ctx.beginPath();ctx.arc(x,y,16+(i%4)*12,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,'+(.025+(i%3)*.012)+')';ctx.fill();}
  ctx.fillStyle='#edc85f';ctx.fillRect(54,72,78,5);ctx.fillStyle='#f4d980';ctx.font='800 22px Arial,sans-serif';ctx.letterSpacing='4px';ctx.fillText('HABSCO',54,120);ctx.letterSpacing='1px';
  ctx.fillStyle='rgba(255,255,255,.65)';ctx.font='700 16px Arial,sans-serif';ctx.fillText(($('category').value||'HABSCO').toUpperCase().slice(0,34),56,174);
- const title=$('headline').value.trim()||'A message from HABSCO';ctx.fillStyle='#fff';ctx.font='900 61px Arial,sans-serif';let lines=wrapText(title,600);if(lines.length>4)lines=lines.slice(0,4);let yy=350;lines.forEach(line=>{ctx.fillText(line,55,yy);yy+=76;});
- ctx.fillStyle='#edc85f';ctx.fillRect(56,yy+2,105,5);yy+=62;
- ctx.fillStyle='rgba(255,255,255,.86)';ctx.font='400 29px Arial,sans-serif';let body=wrapText($('message').value.trim()||'Learn, grow and move forward with HABSCO.',590);if(body.length>6)body=body.slice(0,6);body.forEach(line=>{ctx.fillText(line,57,yy);yy+=43;});
+ if(activeStory){
+  const n=activeStory.scenes.length,seconds=Number($('duration').value)||18;const idx=Math.min(n-1,Math.floor(Math.max(0,time)/seconds*n));const scene=activeStory.scenes[idx];
+  ctx.fillStyle='#fff';ctx.font='900 43px Arial,sans-serif';wrapText(activeStory.title,610).slice(0,2).forEach((line,i)=>ctx.fillText(line,55,245+i*52));
+  ctx.font='150px Arial,sans-serif';ctx.textAlign='center';ctx.fillText(activeStory.icon,360,660);ctx.textAlign='left';
+  roundedRect(42,750,636,205,24);ctx.fillStyle='#fff';ctx.font='700 31px Arial,sans-serif';const cap=wrapText(scene,560);cap.slice(0,5).forEach((line,i)=>ctx.fillText(line,76,810+i*43));
+  ctx.fillStyle='rgba(255,255,255,.5)';ctx.fillRect(56,1000,608,5);ctx.fillStyle='#edc85f';ctx.fillRect(56,1000,608*((idx+1)/n),5);
+  ctx.fillStyle='rgba(255,255,255,.85)';ctx.font='700 18px Arial,sans-serif';ctx.fillText('SCENE '+(idx+1)+' OF '+n,56,1035);
+ }else{
+  const title=$('headline').value.trim()||'A message from HABSCO';ctx.fillStyle='#fff';ctx.font='900 61px Arial,sans-serif';let lines=wrapText(title,600);if(lines.length>4)lines=lines.slice(0,4);let yy=350;lines.forEach(line=>{ctx.fillText(line,55,yy);yy+=76;});
+  ctx.fillStyle='#edc85f';ctx.fillRect(56,yy+2,105,5);yy+=62;
+  ctx.fillStyle='rgba(255,255,255,.86)';ctx.font='400 29px Arial,sans-serif';let body=wrapText($('message').value.trim()||'Learn, grow and move forward with HABSCO.',590);if(body.length>6)body=body.slice(0,6);body.forEach(line=>{ctx.fillText(line,57,yy);yy+=43;});
+ }
  roundedRect(54,1054,612,112,20);ctx.fillStyle='#fff';ctx.font='800 22px Arial,sans-serif';ctx.fillText('MOVE FORWARD WITH HABSCO',78,1100);ctx.fillStyle='#d9b847';ctx.font='600 17px Arial,sans-serif';ctx.fillText('www.habscosadaqah.org',78,1137);
  ctx.fillStyle='rgba(255,255,255,.6)';ctx.font='700 15px Arial,sans-serif';ctx.fillText('LEARN  •  BUILD  •  SERVE',56,1224);
 }
