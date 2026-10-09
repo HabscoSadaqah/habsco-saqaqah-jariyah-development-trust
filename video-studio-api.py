@@ -75,7 +75,7 @@ async def make_tts(text, path, workdir):
             raise RuntimeError(f"Speech synthesis failed at narration part {index}.")
         files.append(part)
     listing = workdir / "voice-parts.txt"
-    listing.write_text("\\n".join("file '" + str(p) + "'" for p in files) + "\\n", encoding="utf-8")
+    listing.write_text("\n".join("file '" + str(p) + "'" for p in files) + "\n", encoding="utf-8")
     run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(listing), "-c:a", "libmp3lame", "-q:a", "3", str(path)])
 
 def worker(job_id, title, script, clips, music, workdir):
