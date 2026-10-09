@@ -18,14 +18,17 @@
 <main class="wrap">
 <header class="top"><div class="brand">HABSCO · VIDEO STUDIO</div><a class="link" href="videos.html">← Videos</a></header>
 <section class="hero"><div class="eyebrow">REAL FOOTAGE · REAL AUDIO · MP4</div><h1>Make a proper<br>long-form video.</h1><p>Create a minimum 30-minute video automatically: build a narration draft, source built-in open-licensed volunteer footage, generate ambient audio, synthesize narration, and render an MP4. No stock-media API or API key is required.</p></section>
-<div class="notice"><strong>Server setup required:</strong> the HABSCO rendering service must be installed on the server and its private admin token configured. No external stock-footage or stock-music API is used. You must still upload at least one real video clip you own or are licensed to publish; clips repeat to fill 30 minutes, so several varied clips look better.</div>
+<div class="notice"><strong>Series continuity:</strong> enter your series name once, then use <em>Continue series · build next episode</em> for each new instalment. The episode number, script and previous ending are saved in this browser on this device. The server still needs to be installed and configured before rendering works.</div>
 <section class="layout">
 <div class="panel">
 <h2>1 · Video story and voice</h2>
-<label class="field"><span>Video title</span><input id="title" maxlength="120" value="The Tortoise and the Hare — A HABSCO Story" autocomplete="off"></label>
+<label class="field"><span>Series name</span><input id="series" maxlength="120" value="The HABSCO Story Series" autocomplete="off" placeholder="Name of your continuing story"></label>
+<label class="field"><span>Episode number</span><input id="episode" type="number" min="1" max="9999" value="1" inputmode="numeric"></label>
+<label class="field"><span>Video title</span><input id="title" maxlength="120" value="The HABSCO Story Series — Episode 1" autocomplete="off"></label>
+<label class="field"><span>Previous episode recap / where the story stopped</span><textarea id="continuity" style="min-height:100px" placeholder="For episode 1, leave this blank. Later episodes automatically save the previous episode ending here. You can edit it to guide the continuation."></textarea><small>The studio remembers your series on this device. After an episode finishes, it saves the episode number and ending so the next request can continue from there.</small></label>
 <label class="field"><span>Full narration script</span><textarea id="script" placeholder="Build an offline draft below or paste your own complete narration."></textarea><small>The offline builder creates a long-form draft on this device. Review it for accuracy and repetition before publishing.</small></label>
 <label class="field"><span>Topic for offline script builder</span><input id="topic" maxlength="180" value="The importance of kindness, charity, and lasting good deeds" autocomplete="off"></label>
-<div class="actions" style="margin:-4px 0 14px"><button class="btn secondary" type="button" id="buildScript">Build script offline</button></div>
+<div class="actions" style="margin:-4px 0 14px"><button class="btn secondary" type="button" id="buildScript">Continue series · build next episode</button></div>
 <div class="count"><span>Script length</span><strong id="wordCount">0 words · 30-minute minimum: 4,500 words</strong></div>
 <label class="field"><span>Admin rendering token</span><input id="token" type="password" autocomplete="off" placeholder="Enter the server admin token"><small>Keep this private. It is sent to the HABSCO video service for authenticated requests and held only in this page while it remains open.</small></label>
 <div class="actions"><button class="btn" id="generate">Generate 30-minute MP4</button><button class="btn secondary" id="clear">Clear form</button></div>
@@ -37,7 +40,7 @@
 <label class="field"><span>Background music (optional)</span><input id="music" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/aac,audio/ogg,.mp3,.wav,.m4a,.aac,.ogg"><small>No music file? The server creates a quiet synthetic ambience locally with FFmpeg. No stock-music API or API key is required. Upload your own licensed music for a richer result.</small></label>
 <div class="facts">
 <div class="fact"><strong>Natural-sounding narration</strong><p>Server-side speech synthesis creates a spoken audio track. No stock-media API key is needed.</p></div>
-<div class="fact"><strong>Minimum 30 minutes</strong><p>The MP4 is rendered at 1,800 seconds. The narration needs 4,500 words and the video uses real uploaded footage. An offline script builder is included.</p></div>
+<div class="fact"><strong>Minimum 30 minutes</strong><p>The MP4 is rendered at 1,800 seconds. The narration needs 4,500 words. Built-in open-licensed footage is sourced automatically if no clips are uploaded. Each completed episode saves series continuity on this device.</p></div>
 <div class="fact"><strong>HABSCO-ready MP4</strong><p>720p H.264 video with AAC audio, optimized for common mobile players and sharing.</p></div>
 </div>
 <p class="statusline">Rendering can take a while. Keep this page open until the job finishes. The current server setup holds job status in memory, so don't restart the service during rendering.</p>
@@ -49,12 +52,23 @@
 const $=id=>document.getElementById(id);
 const storyTitles={tortoise:"The Tortoise and the Hare — A HABSCO Story",lion:"The Lion and the Mouse — A HABSCO Story",ant:"The Ant and the Grasshopper — A HABSCO Story",kindness:"One Small Good Deed — A HABSCO Story"};
 const selectedStory=new URLSearchParams(location.search).get("story");if(storyTitles[selectedStory])$("title").value=storyTitles[selectedStory];
+const SERIES_KEY="habsco-video-series-v1";
+function saveSeriesState(){try{localStorage.setItem(SERIES_KEY,JSON.stringify({series:$("series").value,episode:$("episode").value,title:$("title").value,topic:$("topic").value,continuity:$("continuity").value,script:$("script").value}))}catch(e){}}
+function loadSeriesState(){try{const x=JSON.parse(localStorage.getItem(SERIES_KEY)||"null");if(!x)return;for(const k of ["series","episode","title","topic","continuity","script"])if(x[k]!==undefined&&$(k))$(k).value=x[k]}catch(e){}}
+loadSeriesState();
+["series","episode","title","topic","continuity","script"].forEach(id=>$(id).addEventListener("input",saveSeriesState));
+function updateEpisodeTitle(){const n=Math.max(1,parseInt($("episode").value||"1",10));$("episode").value=n;const series=$("series").value.trim()||"HABSCO Story Series";$("title").value=series+" — Episode "+n;saveSeriesState()}
 const words=()=>($("script").value.trim().match(/\b[\w’'-]+\b/g)||[]).length;
 $("script").addEventListener("input",()=>{$("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 4,500 words";$("wordCount").style.color=words()>=4500?"#075c36":"#68786e"});
 $("clear").addEventListener("click",()=>{if(!confirm("Clear the script and media selections?"))return;$("script").value="";$("footage").value="";$("music").value="";$("progress").className="progress";$("progress").textContent="";$("wordCount").textContent="0 words · 30-minute minimum: 4,500 words"});
 $("buildScript").addEventListener("click",()=>{
  const topic=$("topic").value.trim()||"the importance of doing good";
- const title=$("title").value.trim()||topic;
+ const series=$("series").value.trim()||"HABSCO Story Series";
+ const episode=Math.max(1,parseInt($("episode").value||"1",10));
+ $("episode").value=episode;
+ const previous=$("continuity").value.trim();
+ const title=series+" — Episode "+episode;
+ $("title").value=title;
  const themes=[
   ["Opening reflection","Begin with a clear question about "+topic+". Invite the viewer to pause, think carefully, and consider how this subject touches ordinary life. Explain that the aim is practical understanding, not simply collecting information. Set out the central idea in plain language, acknowledge that people may come from different experiences, and promise a thoughtful journey through examples, choices, challenges, and actions."],
   ["Understanding the idea","Explain "+topic+" in everyday terms. Separate the main idea from common assumptions, and show why definitions matter before people make decisions. Use a simple hypothetical example, then consider what the example teaches and what it cannot prove. Encourage viewers to check reliable information when facts, religious rulings, money, or personal safety are involved."],
@@ -68,14 +82,40 @@ $("buildScript").addEventListener("click",()=>{
   ["Closing lesson","Bring the main ideas together: understand the issue, listen carefully, act responsibly, learn from results, and continue improving. Encourage viewers to share the lesson respectfully with someone who may benefit, while avoiding pressure or exaggerated claims. Thank them for spending time with the subject and invite them to put one useful idea into practice."]
  ];
  const out=[];
+ const opening=episode===1
+  ? "Welcome to "+series+", Episode 1. This is the beginning of a continuing story about "+topic+". Establish the characters, the setting, what each person wants, and the challenge that will drive this episode. Make the details vivid and the choices believable. Do not assume the audience has seen anything before this episode."
+  : "Welcome back to "+series+", Episode "+episode+". Continue directly from the previous instalment rather than restarting the whole story. Continuity note from the last episode: "+(previous||"Carry forward the established characters, relationships, unresolved questions, and consequences from the previous instalment.")+". Briefly remind viewers of only the details they need, then move the story forward with a new event, a new decision, and consequences that change the situation.";
+ out.push("SERIES: "+series+"\nEPISODE: "+episode+"\nTOPIC: "+topic+"\n\n"+opening+"\n");
+ const episodeAngles=[
+  "introduce a new character whose goals complicate the situation",
+  "reveal an overlooked clue and make the main character reconsider an assumption",
+  "force a difficult choice between two things the character values",
+  "show the consequences of an earlier promise",
+  "bring a misunderstanding into the open and explore how trust can be repaired",
+  "raise the stakes through a setback that requires patience and teamwork",
+  "let a quiet act of kindness change someone's decision",
+  "test whether the characters can admit a mistake and make amends",
+  "reveal that a helpful opportunity also carries a responsibility",
+  "resolve one question while opening a meaningful new question for the next episode"
+ ];
+ const angle=episodeAngles[(episode-1)%episodeAngles.length];
+ const chapterNames=["A new morning","The first sign","An unexpected meeting","A choice to make","The cost of a promise","A hidden difficulty","Listening carefully","A change of heart","The plan is tested","A new clue","The difficult conversation","A small act of courage","The community responds","A mistake is discovered","Finding a better way","An offer of help","A test of trust","The truth comes closer","A plan takes shape","A setback","The second attempt","Learning from others","A promise renewed","A surprising decision","The consequences","A moment of doubt","The turning point","A new understanding","Making things right","The final challenge","A choice with consequences","A door opens","The missing piece","A lesson put into action","The cost of doing right","A conversation after the storm","A new responsibility","The last obstacle","What really matters","The next step","The community changes","A question remains","A quiet reflection","The decision","The next chapter begins"];
  for(let i=0;i<45;i++){
-  const section=themes[i%themes.length];
-  out.push("Chapter "+(i+1)+": "+section[0]+" — "+title+"\n"+section[1]+"\n"+section[1]+" Consider another angle: how might this lesson apply when circumstances are different? What would a thoughtful person ask before acting? Take a moment to weigh the options, consider the people affected, and choose a response that is kind, careful, and practical. The details will vary from one situation to another, so use judgement and seek trustworthy guidance whenever the subject requires expertise.\n");
+  const section=themes[(i+episode-1)%themes.length];
+  const scene=chapterNames[i];
+  const progressLine=i===0
+   ? "Move the continuing plot forward through "+angle+". Give the scene a clear purpose, specific action, and dialogue that sounds natural when spoken aloud."
+   : i===44
+    ? "Bring this episode's central problem to a satisfying partial resolution, but leave one unanswered question or fresh development that naturally leads into Episode "+(episode+1)+". End on a strong, specific story hook rather than a generic goodbye."
+    : "Advance the episode through a distinct scene. Change what a character knows, wants, fears, or decides. Include concrete actions, believable dialogue, sensory details, and consequences. Avoid repeating the same lesson or restating the previous chapter.";
+  out.push("Chapter "+(i+1)+": "+scene+" — "+section[0]+"\n"+section[1]+"\n"+progressLine+" Keep the scene grounded in the established characters and the continuing events of "+series+". Make this chapter add new information or a new emotional beat. Where a practical lesson arises, let it emerge from what the characters do and what follows, rather than repeating a lecture. Use clear, narration-friendly sentences and transitions that help listeners follow the action.\n");
  }
  $("script").value=out.join("\n");
+ saveSeriesState();
  $("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 4,500 words";
  $("wordCount").style.color=words()>=4500?"#075c36":"#68786e";
- show("Offline draft created. Check the word count; if it is under 4,500, expand it or add your own material. Review carefully for repetition and accuracy before publishing.");
+ saveSeriesState();
+ show("Episode "+episode+" draft built for "+series+". Review the continuity, facts, dialogue and repetition before publishing. The next episode number will be saved after this render completes.");
 });
 
 const show=(msg,cls="progress")=>{$("progress").className=cls;$("progress").textContent=msg;$("progress").style.display="block"};
@@ -89,7 +129,8 @@ $("generate").addEventListener("click",async()=>{
  if(size>2*1024*1024*1024)return show("Your selected files exceed the 2 GB total upload limit. Reduce or split the media and try again.","progress error");
  const btn=$("generate");btn.disabled=true;show(footage.length?"Uploading your footage and submitting the render job…":"Submitting your job. The server will source its built-in footage automatically (first run downloads may take a little longer)…");
  try{
-  const form=new FormData();form.append("title",$("title").value.trim()||"HABSCO Story");form.append("script",script);footage.forEach(f=>form.append("footage",f,f.name));if(music)form.append("music",music,music.name);
+  const series=$("series").value.trim()||"HABSCO Story Series";const episode=Math.max(1,parseInt($("episode").value||"1",10));
+  const form=new FormData();form.append("title",$("title").value.trim()||("HABSCO Story — Episode "+episode));form.append("script",script);form.append("series",series);form.append("episode",String(episode));form.append("continuity",$("continuity").value.trim());footage.forEach(f=>form.append("footage",f,f.name));if(music)form.append("music",music,music.name);
   const response=await fetch(api+"/api/generate",{method:"POST",headers:{"X-Habsco-Video-Token":token},body:form});
   const data=await response.json().catch(()=>({error:"The server returned an unreadable response."}));
   if(!response.ok)throw new Error(data.error||"Could not start the render.");
@@ -107,8 +148,14 @@ async function poll(id,token){
   if(d.status==="complete"){
    const box=$("progress");box.className="progress good";box.replaceChildren();
    const p=document.createElement("p");p.textContent="Finished: "+(d.title||"HABSCO video")+". File size: "+(d.bytes?((d.bytes/1024/1024).toFixed(1)+" MB"):"ready")+".";
-   const a=document.createElement("a");a.href=api+"/api/download/"+id+".mp4?key="+encodeURIComponent(d.download_key||"");a.textContent="Download finished MP4 ↓";a.setAttribute("download","HABSCO-video.mp4");
-   box.append(p,a);return;
+   const a=document.createElement("a");a.href=api+"/api/download/"+id+".mp4?key="+encodeURIComponent(d.download_key||"");a.textContent="Download finished MP4 ↓";a.setAttribute("download","HABSCO-video-episode-"+$("episode").value+".mp4");
+   box.append(p,a);
+   const doneEpisode=Math.max(1,parseInt($("episode").value||"1",10));
+   const oldScript=$("script").value.trim();
+   $("continuity").value="Episode "+doneEpisode+" ended with these final events: "+oldScript.slice(-1800);
+   $("episode").value=String(doneEpisode+1);
+   updateEpisodeTitle();saveSeriesState();
+   const next=document.createElement("p");next.textContent="Series progress saved. The next episode is Episode "+$("episode").value+". Tap “Continue series · build next episode” when you are ready.";box.append(next);return;
   }
   show((d.message||"Rendering…")+"\nStatus: "+d.status+". The page checks again every 10 seconds.");
  }
