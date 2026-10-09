@@ -12,6 +12,9 @@
 .hero{padding:25px;border-radius:22px;color:#fff;background:linear-gradient(130deg,#052e20,#087344 68%,#0c5235);box-shadow:0 12px 32px #063b271b}.eyebrow{color:#f2d87f;font-size:9px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}.hero h1{font-size:clamp(29px,6vw,44px);letter-spacing:-.045em;line-height:1.02;margin:10px 0}.hero p{font-size:13px;line-height:1.7;max-width:720px;color:#e0eee6;margin:0}
 .notice{margin:14px 0;padding:13px 14px;border:1px solid #f0d99a;border-radius:13px;background:#fff9e8;color:#6b4b08;font-size:12px;line-height:1.6}.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:14px;margin-top:14px}.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;min-width:0}.panel h2{font-size:16px;margin:0 0 13px;letter-spacing:-.02em}.field{display:block;margin:0 0 14px}.field span{display:block;font-size:11px;font-weight:850;margin-bottom:6px}.field small{display:block;margin-top:5px;color:var(--muted);font-size:10px;line-height:1.5}.field input,.field textarea{width:100%;font:inherit;font-size:13px;color:var(--ink);background:#fbfdfb;border:1px solid #dce6df;border-radius:10px;padding:11px;outline-color:#0a8050}.field textarea{min-height:320px;resize:vertical;line-height:1.65}.field input[type=file]{font-size:11px;padding:9px}.field input[type=file]::file-selector-button{border:0;border-radius:7px;background:#e7f2eb;color:var(--green);padding:8px 10px;font-weight:800;margin-right:9px}.count{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--muted);margin:-5px 0 13px}.count strong{color:var(--green)}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:0;border-radius:11px;background:var(--green);color:#fff;font-size:12px;font-weight:900;cursor:pointer}.btn:disabled{opacity:.55;cursor:wait}.btn.secondary{background:#edf5ef;color:var(--green);border:1px solid var(--line)}.actions{display:flex;flex-wrap:wrap;gap:9px}.progress{display:none;margin-top:13px;padding:14px;border-radius:12px;background:#f0f7f2;border:1px solid #d8e8dd;font-size:12px;line-height:1.65;overflow-wrap:anywhere}.progress.error{display:block;background:#fff1f1;border-color:#f2cece;color:#8e2424}.progress.good{display:block}.progress a{display:inline-flex;margin-top:10px;color:var(--green);font-weight:900}.facts{display:grid;gap:10px}.fact{padding:12px;border:1px solid var(--line);border-radius:12px;background:#fbfdfb}.fact strong{display:block;font-size:12px;margin-bottom:4px}.fact p{margin:0;color:var(--muted);font-size:11px;line-height:1.6}.statusline{font-size:11px;color:var(--muted);line-height:1.6;margin:12px 0 0}.footer{text-align:center;color:var(--muted);font-size:10px;margin-top:20px}.footer a{color:var(--green);font-weight:800;text-decoration:none}
 @media(max-width:720px){.layout{grid-template-columns:1fr}.hero{padding:21px}.field textarea{min-height:250px}.wrap{padding:12px 11px 28px}}
+
+/* Title-first workflow: keep advanced story fields internal and out of the user's way. */
+label.field:has(#series),label.field:has(#episode),label.field:has(#continuity),label.field:has(#script),label.field:has(#topic),#buildScript,#wordCount{display:none!important}
 </style>
 <style data-habsco-footer-style>footer .copyright,footer .habsco-copyright{background:transparent!important;color:#8a928d!important;border-top:0!important;text-shadow:none!important;font-size:10px!important;line-height:1.4!important;font-weight:500!important;padding:10px 12px!important;text-align:center!important;letter-spacing:.01em!important}</style></head>
 <body>
@@ -21,17 +24,17 @@
 <div class="notice"><strong>Series continuity:</strong> enter your series name once, then use <em>Continue series · build next episode</em> for each new instalment. The episode number, script and previous ending are saved in this browser on this device. The server still needs to be installed and configured before rendering works.</div>
 <section class="layout">
 <div class="panel">
-<h2>1 · Video story and voice</h2>
+<h2>Make your video</h2>
 <label class="field"><span>Series name</span><input id="series" maxlength="120" value="The HABSCO Story Series" autocomplete="off" placeholder="Name of your continuing story"></label>
 <label class="field"><span>Episode number</span><input id="episode" type="number" min="1" max="9999" value="1" inputmode="numeric"></label>
-<label class="field"><span>Video title</span><input id="title" maxlength="120" value="The HABSCO Story Series — Episode 1" autocomplete="off"></label>
+<label class="field"><span>Video title</span><input id="title" maxlength="120" value="" autocomplete="off" placeholder="Enter any video title" required><small>Enter a title and tap Generate. The studio prepares the narration draft and handles available media automatically.</small></label>
 <label class="field"><span>Previous episode recap / where the story stopped</span><textarea id="continuity" style="min-height:100px" placeholder="For episode 1, leave this blank. Later episodes automatically save the previous episode ending here. You can edit it to guide the continuation."></textarea><small>The studio remembers your series on this device. After an episode finishes, it saves the episode number and ending so the next request can continue from there.</small></label>
 <label class="field"><span>Full narration script</span><textarea id="script" placeholder="Build an offline draft below or paste your own complete narration."></textarea><small>The offline builder creates a long-form draft on this device. Review it for accuracy and repetition before publishing.</small></label>
 <label class="field"><span>Topic for offline script builder</span><input id="topic" maxlength="180" value="The importance of kindness, charity, and lasting good deeds" autocomplete="off"></label>
 <div class="actions" style="margin:-4px 0 14px"><button class="btn secondary" type="button" id="buildScript">Continue series · build next episode</button></div>
 <div class="count"><span>Script length</span><strong id="wordCount">0 words · 30-minute minimum: 4,500 words</strong></div>
 <label class="field"><span>Admin rendering token</span><input id="token" type="password" autocomplete="off" placeholder="Enter the server admin token"><small>Keep this private. It is sent to the HABSCO video service for authenticated requests and held only in this page while it remains open.</small></label>
-<div class="actions"><button class="btn" id="generate">Generate 30-minute MP4</button><button class="btn secondary" id="clear">Clear form</button></div>
+<div class="actions"><button class="btn" id="generate">Generate video automatically</button><button class="btn secondary" id="clear">Clear title</button></div>
 <div id="progress" class="progress" role="status" aria-live="polite"></div>
 </div>
 <aside class="panel">
@@ -50,17 +53,18 @@
 </main>
 <script>
 const $=id=>document.getElementById(id);
-const storyTitles={tortoise:"The Tortoise and the Hare — A HABSCO Story",lion:"The Lion and the Mouse — A HABSCO Story",ant:"The Ant and the Grasshopper — A HABSCO Story",kindness:"One Small Good Deed — A HABSCO Story"};
-const selectedStory=new URLSearchParams(location.search).get("story");if(storyTitles[selectedStory])$("title").value=storyTitles[selectedStory];
+const queryParams=new URLSearchParams(location.search);
+const requestedTitle=queryParams.get("title")||"";
 const SERIES_KEY="habsco-video-series-v1";
 function saveSeriesState(){try{localStorage.setItem(SERIES_KEY,JSON.stringify({series:$("series").value,episode:$("episode").value,title:$("title").value,topic:$("topic").value,continuity:$("continuity").value,script:$("script").value}))}catch(e){}}
 function loadSeriesState(){try{const x=JSON.parse(localStorage.getItem(SERIES_KEY)||"null");if(!x)return;for(const k of ["series","episode","title","topic","continuity","script"])if(x[k]!==undefined&&$(k))$(k).value=x[k]}catch(e){}}
 loadSeriesState();
+if(requestedTitle){$("title").value=requestedTitle.slice(0,120);$("topic").value=requestedTitle.slice(0,180);}
 ["series","episode","title","topic","continuity","script"].forEach(id=>$(id).addEventListener("input",saveSeriesState));
 function updateEpisodeTitle(){const n=Math.max(1,parseInt($("episode").value||"1",10));$("episode").value=n;const series=$("series").value.trim()||"HABSCO Story Series";$("title").value=series+" — Episode "+n;saveSeriesState()}
 const words=()=>($("script").value.trim().match(/\b[\w’'-]+\b/g)||[]).length;
 $("script").addEventListener("input",()=>{$("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 4,500 words";$("wordCount").style.color=words()>=4500?"#075c36":"#68786e"});
-$("clear").addEventListener("click",()=>{if(!confirm("Clear the script and media selections?"))return;$("script").value="";$("progress").className="progress";$("progress").textContent="";$("wordCount").textContent="0 words · 30-minute minimum: 4,500 words"});
+$("clear").addEventListener("click",()=>{if(!confirm("Clear the video title?"))return;$("title").value="";$("script").value="";$("topic").value="";$("progress").className="progress";$("progress").textContent="";$("wordCount").textContent="0 words · 30-minute minimum: 4,500 words";saveSeriesState()});
 $("buildScript").addEventListener("click",()=>{
  const topic=$("topic").value.trim()||"the importance of doing good";
  const series=$("series").value.trim()||"HABSCO Story Series";
