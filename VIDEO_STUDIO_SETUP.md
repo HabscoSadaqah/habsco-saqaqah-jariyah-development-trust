@@ -12,7 +12,7 @@ git fetch origin main
 install -d -m 0755 /opt/habsco-video-studio /var/lib/habsco-video-studio /var/lib/habsco-video-studio/output /etc/habsco
 git show origin/main:video-studio.html > /var/www/habsco-site/video-studio.html
 git show origin/main:videos.html > /var/www/habsco-site/videos.html
-git show origin/main:video-studio-api.py > /opt/habsco-video-studio/video-studio-api.py
+git show origin/main:video_studio_api.py > /opt/habsco-video-studio/video_studio_api.py
 git show origin/main:video-studio-requirements.txt > /opt/habsco-video-studio/requirements.txt
 git show origin/main:habsco-video-studio.service > /etc/systemd/system/habsco-video-studio.service
 apt-get update
