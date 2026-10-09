@@ -6,7 +6,7 @@ from flask import Flask, request, jsonify, send_from_directory, abort
 import edge_tts
 
 BASE = Path(os.environ.get("HABSCO_VIDEO_HOME", "/var/lib/habsco-video-studio"))
-OUTPUT = Path(os.environ.get("HABSCO_VIDEO_OUTPUT", "/var/www/habsco-site/generated-videos"))
+OUTPUT = Path(os.environ.get("HABSCO_VIDEO_OUTPUT", "/var/lib/habsco-video-studio/output"))
 TOKEN = os.environ.get("HABSCO_VIDEO_TOKEN", "")
 VOICE = os.environ.get("HABSCO_VIDEO_VOICE", "en-NG-AbeoNeural")
 MIN_SECONDS = 1800
