@@ -966,6 +966,50 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 </style>
 
 
+
+<style id="compact-three-benefit-cards">
+/* Tighten the three aligned benefit cards so the downloaded PNG has balanced, compact spacing. */
+#flyer .benefits{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:6px!important;
+  margin:0 7% 10px!important;
+}
+#flyer .benefits > *,
+#flyer .benefits .benefit,
+#flyer .benefits .benefit-card,
+#flyer .benefits article,
+#flyer .benefits li{
+  min-height:0!important;
+  height:auto!important;
+  padding:8px 7px!important;
+  gap:2px!important;
+  border-radius:10px!important;
+}
+#flyer .benefits strong,
+#flyer .benefits b,
+#flyer .benefits h3,
+#flyer .benefits .title{
+  min-height:0!important;
+  margin:0 0 3px!important;
+  line-height:1.12!important;
+  letter-spacing:.45px!important;
+  font-size:clamp(8px,1vw,11px)!important;
+}
+#flyer .benefits span,
+#flyer .benefits p,
+#flyer .benefits .text{
+  margin:0!important;
+  line-height:1.22!important;
+  font-size:clamp(7px,.82vw,10px)!important;
+}
+#flyer .benefits svg,#flyer .benefits img,#flyer .benefits .icon{margin:0 0 4px!important}
+@media(max-width:600px){
+  #flyer .benefits{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:4px!important;margin:0 5% 7px!important}
+  #flyer .benefits > *,#flyer .benefits .benefit,#flyer .benefits .benefit-card,#flyer .benefits article,#flyer .benefits li{padding:6px 4px!important;min-height:0!important}
+  #flyer .benefits strong,#flyer .benefits b,#flyer .benefits h3,#flyer .benefits .title{font-size:clamp(7px,2vw,9px)!important;letter-spacing:.2px!important;margin-bottom:2px!important}
+  #flyer .benefits span,#flyer .benefits p,#flyer .benefits .text{font-size:clamp(6px,1.7vw,8px)!important;line-height:1.18!important}
+}
+</style>
 <style id="adobe-premium-visible-website-address">
 /* High-contrast, visitor-friendly website address: legible in the live flyer and PNG export. */
 .flyer .footer{z-index:80!important;justify-content:center!important;align-items:center!important}
