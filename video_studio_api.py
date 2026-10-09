@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """HABSCO Video Studio API: real uploaded footage + generated narration + licensed music."""
-import asyncio, json, os, re, shutil, subprocess, threading, uuid
+import asyncio, json, os, re, shutil, subprocess, threading, uuid, urllib.request
 from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory, abort
 import edge_tts
@@ -13,10 +13,19 @@ MIN_SECONDS = 1800
 MAX_UPLOAD = 2 * 1024 * 1024 * 1024
 ALLOWED_VIDEO = {".mp4", ".mov", ".m4v", ".webm", ".mkv"}
 ALLOWED_AUDIO = {".mp3", ".wav", ".m4a", ".aac", ".ogg"}
+LIBRARY = BASE / "media-library"
+# Public-domain US government community/volunteer footage hosted on Wikimedia Commons.
+# Direct file redirects only; no media API, scraping, login, or API key.
+BUILTIN_CLIPS = [
+    ("garden-volunteers.webm", "https://commons.wikimedia.org/wiki/Special:Redirect/file/People%27s_Garden_Volunteers_%2820220922-FPAC-LSC-0104%29.webm"),
+    ("thrift-store-volunteer.webm", "https://commons.wikimedia.org/wiki/Special:Redirect/file/NBU-7_Thrift_Store_Volunteer_%28961653%29.webm"),
+    ("community-volunteers.webm", "https://commons.wikimedia.org/wiki/Special:Redirect/file/NPASE_Japan_Volunteers_with_the_Local_Community_%28966478%29.webm"),
+]
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD
 BASE.mkdir(parents=True, exist_ok=True)
 OUTPUT.mkdir(parents=True, exist_ok=True)
+LIBRARY.mkdir(parents=True, exist_ok=True)
 jobs = {}
 lock = threading.Lock()
 
@@ -38,6 +47,28 @@ def save_upload(fs, target, allowed):
     if target.stat().st_size == 0:
         raise ValueError("An uploaded media file was empty.")
     return target
+
+def builtin_footage(workdir):
+    # Cache open-licensed real clips after the first successful download.
+    found = []
+    for filename, url in BUILTIN_CLIPS:
+        cached = LIBRARY / filename
+        if not cached.exists() or cached.stat().st_size < 100_000:
+            temp = cached.with_suffix(cached.suffix + ".part")
+            try:
+                req = urllib.request.Request(url, headers={"User-Agent": "HABSCO-Video-Studio/1.0 (media downloader)"})
+                with urllib.request.urlopen(req, timeout=90) as response, open(temp, "wb") as out:
+                    shutil.copyfileobj(response, out)
+                if temp.stat().st_size < 100_000:
+                    raise RuntimeError("Downloaded stock clip was unexpectedly small.")
+                temp.replace(cached)
+            finally:
+                if temp.exists():
+                    temp.unlink()
+        target = workdir / filename
+        shutil.copy2(cached, target)
+        found.append(target)
+    return found
 
 async def make_tts(text, path, workdir):
     # Split long scripts into manageable sections because hosted TTS endpoints limit request size.
@@ -103,6 +134,10 @@ def worker(job_id, title, script, clips, music, workdir):
         speech_seconds = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", str(narration)]).strip() or "0")
         if speech_seconds < 1740:
             raise RuntimeError(f"The generated narration is only {int(speech_seconds // 60)} minutes long. Add more script text until the voice track reaches at least 29 minutes, then render again.")
+        if not clips:
+            with lock:
+                jobs[job_id]["message"] = "Downloading the built-in open-licensed volunteer footage (first run only)…"
+            clips = builtin_footage(workdir)
         normalized = []
         for idx, clip in enumerate(clips, 1):
             out = workdir / f"clip-{idx:03d}.mp4"
@@ -165,15 +200,14 @@ def generate():
     if len(words) < 4500:
         return jsonify({"error": f"The narration needs at least 4,500 words for a full-length spoken story. Current count: {len(words)}."}), 400
     videos = request.files.getlist("footage")
-    if not videos:
-        return jsonify({"error": "Upload at least one real, licensed video clip."}), 400
     job_id = uuid.uuid4().hex
     workdir = BASE / job_id
     workdir.mkdir(parents=True, exist_ok=False)
     try:
         clips = []
         for n, fs in enumerate(videos, 1):
-            clips.append(save_upload(fs, workdir / f"source-{n:03d}{Path(fs.filename or '').suffix.lower()}", ALLOWED_VIDEO))
+            if fs and fs.filename:
+                clips.append(save_upload(fs, workdir / f"source-{n:03d}{Path(fs.filename or '').suffix.lower()}", ALLOWED_VIDEO))
         music = None
         music_file = request.files.get("music")
         if music_file and music_file.filename:
