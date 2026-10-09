@@ -87,6 +87,9 @@ def worker(job_id, title, script, clips, music, workdir):
         asyncio.run(make_tts(script, narration, workdir))
         if not narration.exists() or narration.stat().st_size < 1000:
             raise RuntimeError("Narration audio could not be generated. Check the server's internet connection and TTS service.")
+        speech_seconds = float(run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", str(narration)]).strip() or "0")
+        if speech_seconds < 1740:
+            raise RuntimeError(f"The generated narration is only {int(speech_seconds // 60)} minutes long. Add more script text until the voice track reaches at least 29 minutes, then render again.")
         normalized = []
         for idx, clip in enumerate(clips, 1):
             out = workdir / f"clip-{idx:03d}.mp4"
@@ -146,8 +149,8 @@ def generate():
     title = (request.form.get("title") or "HABSCO Story").strip()[:120]
     script = (request.form.get("script") or "").strip()
     words = re.findall(r"\b[\w’'-]+\b", script)
-    if len(words) < 3600:
-        return jsonify({"error": f"The narration needs at least 3,600 words for a full-length spoken story. Current count: {len(words)}."}), 400
+    if len(words) < 4500:
+        return jsonify({"error": f"The narration needs at least 4,500 words for a full-length spoken story. Current count: {len(words)}."}), 400
     videos = request.files.getlist("footage")
     if not videos:
         return jsonify({"error": "Upload at least one real, licensed video clip."}), 400
