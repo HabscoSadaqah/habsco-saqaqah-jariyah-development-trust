@@ -35,15 +35,15 @@
 <div id="progress" class="progress" role="status" aria-live="polite"></div>
 </div>
 <aside class="panel">
-<h2>2 · Add your media</h2>
-<label class="field"><span>Real video footage (optional)</span><input id="footage" type="file" accept="video/mp4,video/quicktime,video/webm,video/x-matroska" multiple><small>Leave this empty to let the server download its built-in open-licensed community/volunteer clips directly from Wikimedia Commons (no API or key). They are cached after first use. Upload your own clips if you want footage specific to your topic.</small></label>
-<label class="field"><span>Background music (optional)</span><input id="music" type="file" accept="audio/mpeg,audio/wav,audio/mp4,audio/aac,audio/ogg,.mp3,.wav,.m4a,.aac,.ogg"><small>No music file? The server creates a quiet synthetic ambience locally with FFmpeg. No stock-music API or API key is required. Upload your own licensed music for a richer result.</small></label>
+<h2>2 · Media handled automatically</h2>
 <div class="facts">
-<div class="fact"><strong>Natural-sounding narration</strong><p>Server-side speech synthesis creates a spoken audio track. No stock-media API key is needed.</p></div>
-<div class="fact"><strong>Minimum 30 minutes</strong><p>The MP4 is rendered at 1,800 seconds. The narration needs 4,500 words. Built-in open-licensed footage is sourced automatically if no clips are uploaded. Each completed episode saves series continuity on this device.</p></div>
-<div class="fact"><strong>HABSCO-ready MP4</strong><p>720p H.264 video with AAC audio, optimized for common mobile players and sharing.</p></div>
+<div class="fact"><strong>🎬 Real video footage</strong><p>No upload needed. The server automatically downloads its built-in open-licensed community and volunteer footage from Wikimedia Commons, caches it, and loops footage as needed to make the 30-minute video. For topic-specific visuals, the administrator can add licensed clips to the server library later.</p></div>
+<div class="fact"><strong>🎵 Background ambience</strong><p>No music upload needed. If no soundtrack is supplied by the server, FFmpeg generates a quiet synthetic ambience locally and mixes it beneath the narration.</p></div>
+<div class="fact"><strong>🎙️ Natural-sounding narration</strong><p>The server automatically synthesizes the narration from your script. No stock-media API key is needed. Speech synthesis requires an internet connection.</p></div>
+<div class="fact"><strong>⏱️ Minimum 30 minutes</strong><p>The output is 1,800 seconds, rendered at 720p using H.264 video and AAC audio. The narration must be at least 4,500 words and long enough for the required spoken duration.</p></div>
+<div class="fact"><strong>📱 HABSCO-ready MP4</strong><p>The finished MP4 is prepared for common mobile players and sharing, with a download link shown when rendering completes.</p></div>
 </div>
-<p class="statusline">Rendering can take a while. Keep this page open until the job finishes. The current server setup holds job status in memory, so don't restart the service during rendering.</p>
+<p class="statusline">You only need to prepare/review the story in Section 1, enter the private admin rendering token, and tap Generate 30-minute MP4. Keep this page open while the job runs. Do not restart the rendering service during a job.</p>
 </aside>
 </section>
 <footer class="footer">HABSCO Sadaqah Jariyah Development Trust · <a href="https://www.habscosadaqah.org">www.habscosadaqah.org</a><div class="copyright habsco-copyright">© 2026 Habsco. All Rights Reserved.</div></footer>
@@ -60,7 +60,7 @@ loadSeriesState();
 function updateEpisodeTitle(){const n=Math.max(1,parseInt($("episode").value||"1",10));$("episode").value=n;const series=$("series").value.trim()||"HABSCO Story Series";$("title").value=series+" — Episode "+n;saveSeriesState()}
 const words=()=>($("script").value.trim().match(/\b[\w’'-]+\b/g)||[]).length;
 $("script").addEventListener("input",()=>{$("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 4,500 words";$("wordCount").style.color=words()>=4500?"#075c36":"#68786e"});
-$("clear").addEventListener("click",()=>{if(!confirm("Clear the script and media selections?"))return;$("script").value="";$("footage").value="";$("music").value="";$("progress").className="progress";$("progress").textContent="";$("wordCount").textContent="0 words · 30-minute minimum: 4,500 words"});
+$("clear").addEventListener("click",()=>{if(!confirm("Clear the script and media selections?"))return;$("script").value="";$("progress").className="progress";$("progress").textContent="";$("wordCount").textContent="0 words · 30-minute minimum: 4,500 words"});
 $("buildScript").addEventListener("click",()=>{
  const topic=$("topic").value.trim()||"the importance of doing good";
  const series=$("series").value.trim()||"HABSCO Story Series";
@@ -121,16 +121,15 @@ $("buildScript").addEventListener("click",()=>{
 const show=(msg,cls="progress")=>{$("progress").className=cls;$("progress").textContent=msg;$("progress").style.display="block"};
 const api="/api/video-studio";
 $("generate").addEventListener("click",async()=>{
- const token=$("token").value.trim(), script=$("script").value.trim(), footage=[...$("footage").files], music=$("music").files[0];
+ const token=$("token").value.trim(), script=$("script").value.trim(), footage=[], music=null;
  if(!token)return show("Enter the private admin token configured on the server.","progress error");
  if(words()<4500){$("buildScript").click();}
  if(words()<4500)return show("The automatic draft is still under 4,500 words. Add more narration and try again.","progress error");
- const size=[...footage,...(music?[music]:[])].reduce((n,f)=>n+f.size,0);
- if(size>2*1024*1024*1024)return show("Your selected files exceed the 2 GB total upload limit. Reduce or split the media and try again.","progress error");
- const btn=$("generate");btn.disabled=true;show(footage.length?"Uploading your footage and submitting the render job…":"Submitting your job. The server will source its built-in footage automatically (first run downloads may take a little longer)…");
+ 
+ const btn=$("generate");btn.disabled=true;show("Submitting your job. The server will automatically source footage, create ambience, synthesize narration, and render the MP4. The first footage download may take longer…");
  try{
   const series=$("series").value.trim()||"HABSCO Story Series";const episode=Math.max(1,parseInt($("episode").value||"1",10));
-  const form=new FormData();form.append("title",$("title").value.trim()||("HABSCO Story — Episode "+episode));form.append("script",script);form.append("series",series);form.append("episode",String(episode));form.append("continuity",$("continuity").value.trim());footage.forEach(f=>form.append("footage",f,f.name));if(music)form.append("music",music,music.name);
+  const form=new FormData();form.append("title",$("title").value.trim()||("HABSCO Story — Episode "+episode));form.append("script",script);form.append("series",series);form.append("episode",String(episode));form.append("continuity",$("continuity").value.trim());
   const response=await fetch(api+"/api/generate",{method:"POST",headers:{"X-Habsco-Video-Token":token},body:form});
   const data=await response.json().catch(()=>({error:"The server returned an unreadable response."}));
   if(!response.ok)throw new Error(data.error||"Could not start the render.");
