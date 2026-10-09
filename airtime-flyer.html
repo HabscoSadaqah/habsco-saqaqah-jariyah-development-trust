@@ -996,6 +996,17 @@ const dailyCopy={
     ['A Clearer Path<br>To Progress.','Take a responsible step toward your goals with HABSCO interest-free support.']
   ]
 };
+/* Rotate the small highlighted phrase between the decorative lines every Lagos calendar day. */
+const dailyKicker={
+  electricity:['POWER WITH PURPOSE','BRIGHTER DAYS AHEAD','ENERGY FOR EVERYDAY','KEEP LIFE MOVING','POWER YOUR PLANS','LIGHT UP TODAY','READY WHEN YOU ARE'],
+  airtime:['MAKE EVERY CALL COUNT','YOUR PEOPLE, CLOSER','REACH OUT TODAY','KEEP THE CHAT GOING','CONNECTION THAT MATTERS','TALK MORE, WORRY LESS','STAY IN THE MOMENT'],
+  data:['YOUR WORLD, ONLINE','BROWSE WITHOUT PAUSE','IDEAS NEED CONNECTION','GO FURTHER DIGITALLY','WORK. LEARN. CONNECT.','THE DAY IS ONLINE','MAKE EVERY MB COUNT'],
+  tv:['MAKE ROOM FOR JOY','YOUR NEXT FAVOURITE','MORE TO WATCH','LET THE GOOD TIMES PLAY','SCREEN TIME, ELEVATED','STORIES START HERE','ENTERTAINMENT AWAITS'],
+  education:['GROW ONE DAY AT A TIME','KNOWLEDGE OPENS DOORS','LEARNING MOVES YOU','A FUTURE IN PROGRESS','MAKE ROOM TO LEARN','SMALL STEPS, BIG DREAMS','INVEST IN YOUR GROWTH'],
+  savings:['LITTLE BY LITTLE','BUILD WITH INTENTION','YOUR FUTURE STARTS NOW','MAKE PROGRESS COUNT','SAVE WITH A PURPOSE','GROW AT YOUR PACE','TOMORROW TAKES PLANNING'],
+  loan:['A STEP TOWARD PROGRESS','SUPPORT WITH PURPOSE','MOVE FORWARD WISELY','PLANS NEED A START','RESPONSIBLE SUPPORT','YOUR NEXT CHAPTER','PROGRESS, WITH CARE']
+};
+document.querySelector('.kicker').textContent=(dailyKicker[serviceKey]||dailyKicker.airtime)[(day-1)%7];
 const copySet=dailyCopy[serviceKey]||dailyCopy.airtime;
 const dailyCopyPair=copySet[(day-1)%copySet.length];
 document.getElementById('serviceHeadline').innerHTML=dailyCopyPair[0];
