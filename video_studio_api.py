@@ -78,12 +78,25 @@ async def make_tts(text, path, workdir):
     listing.write_text("\n".join("file '" + str(p) + "'" for p in files) + "\n", encoding="utf-8")
     run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(listing), "-c:a", "libmp3lame", "-q:a", "3", str(path)])
 
+def make_ambient_bed(path):
+    # Generate a gentle, synthetic ambience locally with FFmpeg; no stock-music API.
+    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+         "-f", "lavfi", "-i",
+         "anoisesrc=color=pink:sample_rate=44100:amplitude=0.025:duration=1800",
+         "-af", "lowpass=f=650,highpass=f=100,volume=0.28,afade=t=in:st=0:d=4",
+         "-c:a", "aac", "-b:a", "96k", str(path)])
+
 def worker(job_id, title, script, clips, music, workdir):
     try:
         with lock:
             jobs[job_id]["status"] = "processing"
             jobs[job_id]["message"] = "Preparing narration and real footage…"
         narration = workdir / "narration.mp3"
+        if music is None:
+            with lock:
+                jobs[job_id]["message"] = "Creating a quiet ambient audio bed locally…"
+            music = workdir / "generated-ambient.m4a"
+            make_ambient_bed(music)
         asyncio.run(make_tts(script, narration, workdir))
         if not narration.exists() or narration.stat().st_size < 1000:
             raise RuntimeError("Narration audio could not be generated. Check the server's internet connection and TTS service.")
@@ -154,8 +167,6 @@ def generate():
     videos = request.files.getlist("footage")
     if not videos:
         return jsonify({"error": "Upload at least one real, licensed video clip."}), 400
-    if "music" not in request.files:
-        return jsonify({"error": "Upload a soundtrack or ambience track you have permission to use."}), 400
     job_id = uuid.uuid4().hex
     workdir = BASE / job_id
     workdir.mkdir(parents=True, exist_ok=False)
@@ -163,7 +174,10 @@ def generate():
         clips = []
         for n, fs in enumerate(videos, 1):
             clips.append(save_upload(fs, workdir / f"source-{n:03d}{Path(fs.filename or '').suffix.lower()}", ALLOWED_VIDEO))
-        music = save_upload(request.files["music"], workdir / ("music" + Path(request.files["music"].filename or "").suffix.lower()), ALLOWED_AUDIO)
+        music = None
+        music_file = request.files.get("music")
+        if music_file and music_file.filename:
+            music = save_upload(music_file, workdir / ("music" + Path(music_file.filename or "").suffix.lower()), ALLOWED_AUDIO)
         with lock:
             jobs[job_id] = {"status": "queued", "message": "Queued for rendering.", "title": title, "words": len(words), "download_key": uuid.uuid4().hex}
         thread = threading.Thread(target=worker, args=(job_id, title, script, clips, music, workdir), daemon=True)
