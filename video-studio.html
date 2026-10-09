@@ -45,6 +45,8 @@
 </main>
 <script>
 const $=id=>document.getElementById(id);
+const storyTitles={tortoise:"The Tortoise and the Hare — A HABSCO Story",lion:"The Lion and the Mouse — A HABSCO Story",ant:"The Ant and the Grasshopper — A HABSCO Story",kindness:"One Small Good Deed — A HABSCO Story"};
+const selectedStory=new URLSearchParams(location.search).get("story");if(storyTitles[selectedStory])$("title").value=storyTitles[selectedStory];
 const words=()=>($("script").value.trim().match(/\b[\w’'-]+\b/g)||[]).length;
 $("script").addEventListener("input",()=>{$("wordCount").textContent=words().toLocaleString()+" words · 30-minute minimum: 4,500 words";$("wordCount").style.color=words()>=4500?"#075c36":"#68786e"});
 $("clear").addEventListener("click",()=>{if(!confirm("Clear the script and media selections?"))return;$("script").value="";$("footage").value="";$("music").value="";$("progress").className="progress";$("progress").textContent="";$("wordCount").textContent="0 words · 30-minute minimum: 4,500 words"});
