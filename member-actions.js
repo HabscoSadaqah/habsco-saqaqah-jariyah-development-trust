@@ -493,7 +493,8 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
    if(!validation_reference)throw Error("Customer verification has expired. Please verify again.");
    const utilityFeeStatus=await getUtilityFeeStatus();if(!await confirmUtilityFee(purchaseAmount,service==="data"?"Data":service==="tv"?"TV Subscription":"Education",utilityFeeStatus))return;
    setProcessing(b,"PROCESSING "+service.toUpperCase()+" PAYMENT…",35);
-   const currentSession=await auth(); if(!currentSession)throw Error("Your login session has expired. Please sign in again.");\n   const providerResult=await callProvider({action:service,provider,code,package:code,receiver,phone_number:phone,email:currentSession.user?.email||"",transaction_pin:$("transactionPin").value.trim(),validation_reference});
+   const currentSession=await auth(); if(!currentSession)throw Error("Your login session has expired. Please sign in again.");
+   const providerResult=await callProvider({action:service,provider,code,package:code,receiver,phone_number:phone,email:currentSession.user?.email||"",transaction_pin:$("transactionPin").value.trim(),validation_reference});
    setProcessing(b,"COMPLETING "+service.toUpperCase()+" PURCHASE…",75);r={data:providerResult};
    const raw=providerResult?.provider||providerResult?.data?.provider||provider,network=typeof raw==="object"?String(raw?.name||raw?.provider||raw?.network||provider):String(raw||provider),receipt=providerResult?.reference||providerResult?.provider?.reference||providerResult?.data?.reference||"";
    const outcome=showUtilityOutcome(providerResult,{service:service==="data"?"Mobile Data Purchase":service==="tv"?"TV Subscription":"Education Purchase",network,recipient:receiver,amount:purchaseAmount,reference:receipt,button:b});
