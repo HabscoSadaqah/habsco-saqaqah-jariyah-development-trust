@@ -23,19 +23,11 @@ async function callProvider(body){
   const functionName=effectiveAction==="electricity"?"electricity-vps-proxy":"utility-vps-proxy-v2";
   const {data,error}=await supabaseClient.functions.invoke(functionName,{body});
   if(error){
-    let message=error.message||"Utility service request failed.";
-    try{
-      const ctx=error.context;
-      if(ctx&&typeof ctx.json==="function"){
-        const x=await ctx.json();
-        message=typeof x?.error==="string"?x.error:(x?.error?.message||message);
-      }
-    }catch{}
-    throw new Error(message);
+    let message=error.message||"Utility service request failed.",payload=null;
+    try{const ctx=error.context;if(ctx&&typeof ctx.json==="function"){const x=await ctx.json();payload=x;message=typeof x?.error==="string"?x.error:(x?.error?.message||x?.message||message)}}catch{}
+    const failure=new Error(message);failure.utilityResult=payload;throw failure;
   }
-  if(data?.error){
-    throw new Error(typeof data.error==="string"?data.error:(data.error?.message||"Utility service request failed."));
-  }
+  if(data?.error){const failure=new Error(typeof data.error==="string"?data.error:(data.error?.message||"Utility service request failed."));failure.utilityResult=data;throw failure;}
   return data||{};
 }
 async function callAirtimeProvider(body){
@@ -43,17 +35,11 @@ async function callAirtimeProvider(body){
   if(!session)throw new Error("Authentication required.");
   const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy-v2",{body});
   if(error){
-    let message=error.message||"Airtime service request failed.";
-    try{
-      const ctx=error.context;
-      if(ctx&&typeof ctx.json==="function"){
-        const x=await ctx.json();
-        message=typeof x?.error==="string"?x.error:(x?.error?.message||message);
-      }
-    }catch{}
-    throw new Error(message);
+    let message=error.message||"Airtime service request failed.",payload=null;
+    try{const ctx=error.context;if(ctx&&typeof ctx.json==="function"){const x=await ctx.json();payload=x;message=typeof x?.error==="string"?x.error:(x?.error?.message||x?.message||message)}}catch{}
+    const failure=new Error(message);failure.utilityResult=payload;throw failure;
   }
-  if(data?.error)throw new Error(typeof data.error==="string"?data.error:(data.error?.message||"Airtime service request failed."));
+  if(data?.error){const failure=new Error(typeof data.error==="string"?data.error:(data.error?.message||"Airtime service request failed."));failure.utilityResult=data;throw failure;}
   return data||{};
 }
 function esc(v){return String(v??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
@@ -174,6 +160,86 @@ function showHabscoFailedModal(info={}){
   const close=()=>{modal.style.opacity="0";modal.style.transition="opacity .18s ease";setTimeout(()=>{style.remove();modal.remove()},180)};
   modal.querySelector("#habscoTransactionClose").onclick=close;
   modal.addEventListener("click",e=>{if(e.target===modal)close()});
+}
+
+
+function normalizeUtilityOutcome(response){
+  const raw=String(response?.status||response?.provider_status||response?.provider?.status||response?.data?.status||"").trim().toLowerCase().replace(/[\s-]+/g,"_");
+  if(response?.pending===true||["pending","processing","queued","in_progress","accepted"].includes(raw))return "pending";
+  if(["rejected","declined"].includes(raw))return "rejected";
+  if(["failed","failure","failed_transaction","cancelled","canceled"].includes(raw))return "failed";
+  if(response?.success===false)return raw==="rejected"||raw==="declined"?"rejected":"failed";
+  if(response?.success===true||["approved","success","successful","completed","complete","delivered","fulfilled","ok"].includes(raw))return "approved";
+  return "pending";
+}
+function showHabscoStatusModal(kind,info={}){
+  const old=$("habscoTransactionModal");if(old)old.remove();
+  const pending=kind==="pending";
+  const modal=document.createElement("div");modal.id="habscoTransactionModal";modal.className=kind;
+  const style=document.createElement("style");
+  style.textContent=`
+    #habscoTransactionModal.pending,#habscoTransactionModal.rejected{position:fixed;inset:0;z-index:1000001;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(20,29,25,.76);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+    #habscoTransactionModal.pending .hts-card,#habscoTransactionModal.rejected .hts-card{width:min(460px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:25px;padding:23px;box-shadow:0 28px 80px #0005;text-align:center}
+    #habscoTransactionModal.pending .hts-icon,#habscoTransactionModal.rejected .hts-icon{width:82px;height:82px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px;font-size:42px;font-weight:900}
+    #habscoTransactionModal.pending .hts-icon{background:#fff4d8;color:#a36b00;border:7px solid #fffaed}
+    #habscoTransactionModal.rejected .hts-icon{background:#ffe2e2;color:#a52a2a;border:7px solid #fff5f5}
+    #habscoTransactionModal.pending .hts-kicker{color:#a36b00}#habscoTransactionModal.rejected .hts-kicker{color:#a52a2a}
+    #habscoTransactionModal .hts-kicker{font-size:10px;font-weight:950;letter-spacing:1.5px;margin:0 0 5px}
+    #habscoTransactionModal .hts-title{font-size:23px;line-height:1.2;font-weight:950;margin:0}
+    #habscoTransactionModal.pending .hts-title{color:#684600}#habscoTransactionModal.rejected .hts-title{color:#7e2020}
+    #habscoTransactionModal .hts-message{font-size:12px;line-height:1.55;color:#65736b;margin:9px auto 14px;max-width:350px}
+    #habscoTransactionModal .hts-details{border:1px solid #e1e9e4;border-radius:14px;text-align:left;overflow:hidden;margin:12px 0 15px}
+    #habscoTransactionModal .hts-row{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-bottom:1px solid #edf1ee;font-size:11px}
+    #habscoTransactionModal .hts-row:last-child{border-bottom:0}
+    #habscoTransactionModal .hts-row span{color:#718079}#habscoTransactionModal .hts-row strong{text-align:right;overflow-wrap:anywhere;color:#213d30}
+    #habscoTransactionModal .hts-actions{display:grid;gap:9px}
+    #habscoTransactionModal .hts-button{width:100%;min-height:46px;border:0;border-radius:12px;font-weight:900;cursor:pointer}
+    #habscoTransactionModal.pending .hts-primary{background:#b57900;color:#fff}
+    #habscoTransactionModal.rejected .hts-primary{background:#a52a2a;color:#fff}
+    #habscoTransactionModal .hts-secondary{background:#eef3ef;color:#35463d}
+    #habscoTransactionModal .hts-footer{border-top:1px solid #edf1ee;padding-top:11px;margin-top:13px;font-size:9px;font-weight:800;letter-spacing:.5px;color:#829087}
+    @media(max-width:520px){#habscoTransactionModal .hts-card{padding:18px;border-radius:21px}#habscoTransactionModal .hts-title{font-size:21px}}
+  `;
+  document.head.appendChild(style);
+  const rows=[];
+  if(info.service)rows.push(["Service",info.service]);
+  if(info.network)rows.push(["Provider",info.network]);
+  if(info.recipient)rows.push(["Recipient",info.recipient]);
+  if(info.meter)rows.push(["Meter",info.meter]);
+  if(Number.isFinite(Number(info.amount))&&Number(info.amount)>0)rows.push(["Amount","₦"+Number(info.amount).toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2})]);
+  if(info.reference)rows.push(["Reference",info.reference]);
+  modal.innerHTML='<div class="hts-card"><div class="hts-icon" aria-hidden="true">'+(pending?"◷":"×")+'</div><div class="hts-kicker">HABSCO UTILITY PAYMENT</div><h3 class="hts-title">'+(pending?"Payment Pending":"Payment Rejected")+'</h3><p class="hts-message">'+esc(info.message||(pending?"The provider has not confirmed the final result. Your funds remain reserved. Check the status before trying again.":"The provider rejected this transaction. A reversal will appear as a separate credit in your statement."))+'</p><div class="hts-details">'+rows.map(x=>'<div class="hts-row"><span>'+esc(x[0])+'</span><strong>'+esc(x[1])+'</strong></div>').join("")+'</div><div class="hts-actions">'+(pending&&info.reference?'<button type="button" id="htsRequery" class="hts-button hts-primary">CHECK PAYMENT STATUS</button>':"")+'<button type="button" id="htsClose" class="hts-button hts-secondary">CLOSE</button></div><div class="hts-footer">www.habscosadaqah.org</div></div>';
+  document.body.appendChild(modal);
+  const close=()=>{style.remove();modal.remove()};
+  modal.querySelector("#htsClose").onclick=close;
+  modal.addEventListener("click",e=>{if(e.target===modal)close()});
+  const check=modal.querySelector("#htsRequery");
+  if(check)check.onclick=async()=>{
+    check.disabled=true;check.textContent="CHECKING WITH PROVIDER…";
+    try{
+      const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy-v2",{body:{action:"requery",transaction_reference:String(info.reference)}});
+      if(error)throw error;
+      if(data?.error)throw new Error(typeof data.error==="string"?data.error:(data.error.message||"Unable to check payment status."));
+      const outcome=normalizeUtilityOutcome(data);
+      if(outcome==="pending"){close();showHabscoPendingModal({...info,message:data?.message||"The provider still reports this payment as pending. Check again later."});return;}
+      close();
+      if(info.button){info.button.disabled=false;info.button.innerHTML=outcome==="approved"?"PAYMENT SUCCESSFUL":"TRY AGAIN";}
+      const finalInfo={...info,reference:data?.reference||info.reference,token:powerToken(data)||info.token||"",message:outcome==="approved"?"Your utility payment was confirmed successfully.":outcome==="rejected"?"The provider rejected the payment. The wallet debit has been reversed as a separate credit entry.":"The provider confirmed that this payment failed. The wallet debit has been reversed as a separate credit entry."};
+      if(outcome==="approved")showHabscoSuccessModal(finalInfo);
+      else if(outcome==="rejected")showHabscoRejectedModal(finalInfo);
+      else showHabscoFailedModal(finalInfo);
+    }catch(e){close();showHabscoPendingModal({...info,message:"We could not confirm the final result yet. Your transaction remains pending; please check again shortly."})}
+  };
+}
+function showHabscoPendingModal(info={}){showHabscoStatusModal("pending",info)}
+function showHabscoRejectedModal(info={}){showHabscoStatusModal("rejected",info)}
+function showUtilityOutcome(response,info={}){
+  const outcome=normalizeUtilityOutcome(response);
+  if(outcome==="pending")showHabscoPendingModal({...info,reference:response?.reference||info.reference,message:response?.message||info.message});
+  else if(outcome==="rejected")showHabscoRejectedModal({...info,reference:response?.reference||info.reference,message:info.message||"The provider rejected this payment. A separate credit reversal is recorded in your statement."});
+  else if(outcome==="failed")showHabscoFailedModal({...info,reference:response?.reference||info.reference,message:info.message||"The provider confirmed that this payment failed. A separate credit reversal is recorded in your statement."});
+  else showHabscoSuccessModal({...info,reference:response?.reference||info.reference,token:powerToken(response)||info.token});
+  return outcome;
 }
 
 
@@ -392,7 +458,7 @@ function confirmUtilityFee(amount,serviceLabel,status){
   modal.querySelector("#habscoUtilityFeeConfirmBtn").onclick=()=>done(true);
  });
 }
-$("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")return;e.preventDefault();const b=e.submitter||$("actionSubmit");b.disabled=true;try{const bio=window.__hfBioAuthorizationToken||null;let r;
+$("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")return;e.preventDefault();const b=e.submitter||$("actionSubmit");b.disabled=true;let keepUtilityButtonDisabled=false;try{const bio=window.__hfBioAuthorizationToken||null;let r;
  if(effectiveAction==="squad-transfer"){
    const resolved=$("squadResolved"),bank=String(resolved?.dataset?.bank||""),num=String(resolved?.dataset?.number||""),name=String(resolved?.dataset?.name||""),amount=Number($("amount").value),pin=$("transactionPin").value.trim();
    if(!bank||!num||!name)throw Error("Please verify the beneficiary account first.");
@@ -430,7 +496,9 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
    const currentSession=await auth(); if(!currentSession)throw Error("Your login session has expired. Please sign in again.");\n   const providerResult=await callProvider({action:service,provider,code,package:code,receiver,phone_number:phone,email:currentSession.user?.email||"",transaction_pin:$("transactionPin").value.trim(),validation_reference});
    setProcessing(b,"COMPLETING "+service.toUpperCase()+" PURCHASE…",75);r={data:providerResult};
    const raw=providerResult?.provider||providerResult?.data?.provider||provider,network=typeof raw==="object"?String(raw?.name||raw?.provider||raw?.network||provider):String(raw||provider),receipt=providerResult?.reference||providerResult?.provider?.reference||providerResult?.data?.reference||"";
-   showHabscoSuccessModal({service:service==="data"?"Mobile Data Purchase":service==="tv"?"TV Subscription":"Education Purchase",network,recipient:receiver,amount:purchaseAmount,reference:receipt,message:"Your "+(service==="data"?"data purchase":service==="tv"?"TV subscription":"education payment")+" was completed successfully."});b.innerHTML="PAYMENT SUCCESSFUL";b.disabled=true;
+   const outcome=showUtilityOutcome(providerResult,{service:service==="data"?"Mobile Data Purchase":service==="tv"?"TV Subscription":"Education Purchase",network,recipient:receiver,amount:purchaseAmount,reference:receipt,button:b});
+   b.innerHTML=outcome==="approved"?"PAYMENT SUCCESSFUL":outcome==="pending"?"PAYMENT PENDING":outcome==="rejected"?"PAYMENT REJECTED":"PAYMENT FAILED";
+   if(outcome==="pending"){keepUtilityButtonDisabled=true;return;}if(outcome!=="approved")return;
  }
  else if(effectiveAction==="airtime"){
    const purchaseAmount=Number($("airtimeAmount").value),provider=$("airtimeProvider").value.trim(),phone=$("airtimePhone").value.trim(),key=[provider,phone,String(purchaseAmount)].join("|");
@@ -443,20 +511,12 @@ $("formArea").addEventListener("submit",async e=>{if(e.target.id!=="actionForm")
    const providerResult=await callAirtimeProvider({action:"airtime",provider,receiver:phone,amount:purchaseAmount,transaction_pin:$("transactionPin").value.trim(),validation_reference});
    setProcessing(b,"COMPLETING AIRTIME PURCHASE…",75);
    r={data:providerResult};
-   b.innerHTML="PAYMENT SUCCESSFUL";b.disabled=true;
    const rawProvider=providerResult?.provider||providerResult?.data?.provider||provider;
-const pr=typeof rawProvider==="object"
-  ? String(rawProvider?.name||rawProvider?.network||rawProvider?.provider||rawProvider?.label||provider)
-  : String(rawProvider||provider);
+   const pr=typeof rawProvider==="object"?String(rawProvider?.name||rawProvider?.network||rawProvider?.provider||rawProvider?.label||provider):String(rawProvider||provider);
    const receipt=providerResult?.provider?.reference||providerResult?.reference||providerResult?.data?.reference||"";
-   showHabscoSuccessModal({
-     service:"Airtime Purchase",
-     network:pr,
-     recipient:phone,
-     amount:purchaseAmount,
-     reference:receipt,
-     message:"Your airtime purchase was completed successfully."
-   });
+   const outcome=showUtilityOutcome(providerResult,{service:"Airtime Purchase",network:pr,recipient:phone,amount:purchaseAmount,reference:receipt,button:b});
+   b.innerHTML=outcome==="approved"?"PAYMENT SUCCESSFUL":outcome==="pending"?"PAYMENT PENDING":outcome==="rejected"?"PAYMENT REJECTED":"PAYMENT FAILED";
+   if(outcome==="pending"){keepUtilityButtonDisabled=true;return;}if(outcome!=="approved")return;
  }
  else if(effectiveAction==="electricity"){
    const actionSubmit=$("actionSubmit"),purchaseAmount=Number($("amount").value),key=[$("disco").value.trim(),$("meter_number").value.trim(),$("meter_type").value,String(purchaseAmount)].join("|");
@@ -466,27 +526,17 @@ const pr=typeof rawProvider==="object"
    const providerResult=await callProvider({action:"power",provider:$("disco").value.trim(),receiver:$("meter_number").value.trim(),meter_number:$("meter_number").value.trim(),meter_type:$("meter_type").value,amount:purchaseAmount,phone_number:$("phone").value.trim(),email:$("email").value.trim(),transaction_pin:$("transactionPin").value.trim()});
    setProcessing(actionSubmit,"COMPLETING ELECTRICITY VEND…",75);r={data:providerResult};
    const token=powerToken(providerResult);
-   showPowerResult(providerResult);
-   if(token){
-     const receipt=$("meterResult");
-     receipt.dataset.electricityToken=token;
-     try{window.dispatchEvent(new CustomEvent("habsco:electricity-token",{detail:{token,response:providerResult}}))}catch{}
-   }
    const electricityReference=providerResult?.provider?.reference||providerResult?.reference||providerResult?.data?.reference||"";
-   showHabscoSuccessModal({
-     service:"Electricity Payment",
-     network:$("disco").value.trim(),
-     meter:$("meter_number").value.trim(),
-     amount:purchaseAmount,
-     token:token,
-     reference:electricityReference,
-     message:"Your electricity payment was completed successfully."
-   });
-   actionSubmit.innerHTML="PAYMENT SUCCESSFUL";actionSubmit.disabled=true;
+   const outcome=showUtilityOutcome(providerResult,{service:"Electricity Payment",network:$("disco").value.trim(),meter:$("meter_number").value.trim(),amount:purchaseAmount,token,reference:electricityReference,button:actionSubmit});
+   actionSubmit.innerHTML=outcome==="approved"?"PAYMENT SUCCESSFUL":outcome==="pending"?"PAYMENT PENDING":outcome==="rejected"?"PAYMENT REJECTED":"PAYMENT FAILED";
+   if(outcome==="pending"){keepUtilityButtonDisabled=true;const el=$("meterResult");if(el){el.textContent="Payment is pending provider confirmation. Use Check Payment Status in the modal.";el.style.color="#a36b00";}return;}
+   if(outcome!=="approved"){const el=$("meterResult");if(el){el.textContent=outcome==="rejected"?"The provider rejected the payment. A reversal is recorded in your statement.":"The provider confirmed that the payment failed. A reversal is recorded in your statement.";el.style.color="#a52a2a";}return;}
+   showPowerResult(providerResult);
+   if(token){const receiptEl=$("meterResult");receiptEl.dataset.electricityToken=token;try{window.dispatchEvent(new CustomEvent("habsco:electricity-token",{detail:{token,response:providerResult}}))}catch{}}
  }
  if(r?.error)throw Error(r.error.message||r.error);
  if(effectiveAction==="electricity"){const token=powerToken(r);msg(token?"Electricity payment successful. Token is displayed above and attached to the receipt.":"Electricity payment successful. The provider response did not include a token.",true)}
  else msg(effectiveAction==="dividend"?"Dividend withdrawn to Available to Spend. Reference: "+String(r?.data||""):(r?.data?.pending?"Transaction submitted and is pending provider confirmation.":"Request submitted successfully."),true);
  if(effectiveAction!=="electricity")e.target.reset();
-}catch(err){const failedMessage=err.message||"Unable to complete this action.";msg(failedMessage,false);showHabscoFailedModal({service:effectiveAction==="airtime"?"Airtime Purchase":effectiveAction==="electricity"?"Electricity Payment":title,message:failedMessage,amount:Number($("amount")?.value||$("airtimeAmount")?.value||0),recipient:$("airtimePhone")?.value||$("recipient")?.value||$("meter_number")?.value||"",network:$("airtimeProvider")?.value||$("disco")?.value||""});}finally{b.disabled=false}});
+}catch(err){const failedMessage=err.message||"Unable to complete this action.";msg(failedMessage,false);const result=err.utilityResult||err.data||null;const info={service:effectiveAction==="airtime"?"Airtime Purchase":effectiveAction==="electricity"?"Electricity Payment":title,message:failedMessage,amount:Number($("amount")?.value||$("airtimeAmount")?.value||0),recipient:$("airtimePhone")?.value||$("recipient")?.value||$("meter_number")?.value||"",meter:$("meter_number")?.value||"",network:$("airtimeProvider")?.value||$("disco")?.value||"",reference:result?.reference||"",button:b};if(result?.pending){keepUtilityButtonDisabled=true;showHabscoPendingModal(info)}else if(result&&normalizeUtilityOutcome(result)==="rejected")showHabscoRejectedModal(info);else showHabscoFailedModal(info);}finally{b.disabled=keepUtilityButtonDisabled}});
 init().catch(e=>msg(e.message||"Unable to load this form.",false));
