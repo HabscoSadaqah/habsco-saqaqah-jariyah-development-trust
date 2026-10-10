@@ -13,6 +13,21 @@ function inRange(date,from,to){
   const d=new Date(date);
   return (!from||d>=new Date(from+"T00:00:00"))&&(!to||d<=new Date(to+"T23:59:59.999"));
 }
+function showUtilityRequeryStatusModal(kind,tx,data={}){
+  const old=document.getElementById("utilityRequeryStatusModal");if(old)old.remove();
+  const cfg={
+    approved:{icon:"✓",title:"Payment Successful",tone:"#087443",soft:"#eaf8ef",message:"The provider confirmed that your utility payment was successful."},
+    failed:{icon:"!",title:"Payment Failed",tone:"#a52a2a",soft:"#fff0f0",message:"The provider confirmed that this utility payment failed. A separate credit reversal has been recorded."},
+    rejected:{icon:"×",title:"Payment Rejected",tone:"#a52a2a",soft:"#fff0f0",message:"The provider rejected this utility payment. A separate credit reversal has been recorded."},
+    pending:{icon:"◷",title:"Payment Still Pending",tone:"#9a6700",soft:"#fff7e4",message:"The provider has not confirmed the final result yet. Your funds remain reserved; check again later."}
+  };
+  const c=cfg[kind]||cfg.pending;
+  const modal=document.createElement("div");modal.id="utilityRequeryStatusModal";
+  modal.innerHTML='<div class="urs-backdrop"></div><section class="urs-card" role="dialog" aria-modal="true"><div class="urs-icon">'+c.icon+'</div><div class="urs-kicker">HABSCO UTILITY STATUS</div><h3>'+c.title+'</h3><p>'+escapeHtml(data?.message||c.message)+'</p><div class="urs-details"><div><span>Service reference</span><strong>'+escapeHtml(tx?.reference||data?.reference||"—")+'</strong></div><div><span>Result</span><strong>'+escapeHtml(String(data?.status||kind).replace(/_/g," "))+'</strong></div>'+(data?.reversal_reference?'<div><span>Reversal reference</span><strong>'+escapeHtml(data.reversal_reference)+'</strong></div>':"")+'</div><button type="button" class="urs-close">CLOSE</button><small>www.habscosadaqah.org</small></section>';
+  const style=document.createElement("style");style.textContent='#utilityRequeryStatusModal{position:fixed;inset:0;z-index:300000;background:rgba(13,30,21,.68);display:flex;align-items:center;justify-content:center;padding:14px;font-family:Inter,system-ui,Arial,sans-serif}#utilityRequeryStatusModal .urs-backdrop{position:absolute;inset:0}#utilityRequeryStatusModal .urs-card{position:relative;width:min(420px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:22px;padding:22px;text-align:center;box-shadow:0 25px 70px #0004;border:1px solid '+c.tone+'22}#utilityRequeryStatusModal .urs-icon{width:72px;height:72px;border-radius:50%;display:grid;place-items:center;margin:0 auto 12px;background:'+c.soft+';color:'+c.tone+';font-size:38px;font-weight:950}#utilityRequeryStatusModal .urs-kicker{font-size:9px;letter-spacing:1.4px;font-weight:950;color:'+c.tone+'}#utilityRequeryStatusModal h3{font-size:22px;color:'+c.tone+';margin:7px 0}#utilityRequeryStatusModal p{font-size:12px;line-height:1.5;color:#65736b;margin:8px auto 14px}#utilityRequeryStatusModal .urs-details{border:1px solid #e2eae5;border-radius:12px;text-align:left;margin:12px 0;overflow:hidden}#utilityRequeryStatusModal .urs-details>div{padding:10px 12px;border-bottom:1px solid #edf1ee;display:flex;justify-content:space-between;gap:12px;font-size:10px}#utilityRequeryStatusModal .urs-details>div:last-child{border-bottom:0}#utilityRequeryStatusModal .urs-details span{color:#718079}#utilityRequeryStatusModal .urs-details strong{text-align:right;overflow-wrap:anywhere;color:#183b2b}#utilityRequeryStatusModal .urs-close{width:100%;min-height:44px;border:0;border-radius:11px;background:'+c.tone+';color:#fff;font-weight:900;margin-top:4px}#utilityRequeryStatusModal small{display:block;color:#829087;font-size:9px;margin-top:12px}';
+  document.head.appendChild(style);document.body.appendChild(modal);
+  const close=()=>{modal.remove();style.remove()};modal.querySelector(".urs-close").onclick=close;modal.querySelector(".urs-backdrop").onclick=close;
+}
 async function requeryUtility(t,button){
   if(!t?.reference||String(t.type||"").toLowerCase()!=="utility")return;
   if(button?.disabled)return;
@@ -24,16 +39,21 @@ async function requeryUtility(t,button){
     if(data?.error)throw new Error(typeof data.error==="string"?data.error:(data.error.message||"Unable to requery transaction."));
     if(data?.pending){
       if(button)button.textContent="Still Pending";
-      alert("This utility transaction is still pending with the provider. Please try Requery again later.");
+      showUtilityRequeryStatusModal("pending",t,data);
+      await load();
     }else if(data?.status){
+      const status=String(data.status).toLowerCase();
+      const kind=["approved","success","successful","completed"].includes(status)?"approved":status==="rejected"||status==="declined"?"rejected":["failed","failure","cancelled","canceled"].includes(status)?"failed":"pending";
       if(button)button.textContent=String(data.status).replace(/_/g," ").replace(/\b\w/g,m=>m.toUpperCase());
+      showUtilityRequeryStatusModal(kind,t,data);
       await load();
     }else{
+      showUtilityRequeryStatusModal("pending",t,{message:"The provider returned no final status. No additional debit was made."});
       await load();
     }
   }catch(e){
     console.error("Utility requery failed:",e);
-    alert(e?.message||"Unable to requery this utility transaction. Please try again.");
+    showUtilityRequeryStatusModal("pending",t,{message:e?.message||"Unable to confirm the final status. Please try again later."});
   }finally{
     if(button&&!button.isConnected===false){button.disabled=false;if(button.textContent==="Requerying…")button.textContent=original;button.classList.remove("is-loading")}
   }
