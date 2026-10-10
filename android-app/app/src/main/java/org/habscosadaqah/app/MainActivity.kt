@@ -12,6 +12,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.Menu
+import android.view.MenuItem
+import android.view.ViewGroup
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
 import android.webkit.DownloadListener
@@ -48,9 +50,9 @@ class MainActivity : AppCompatActivity() {
         webView.isFocusableInTouchMode = true
         refresh.addView(
             webView,
-            SwipeRefreshLayout.LayoutParams(
-                SwipeRefreshLayout.LayoutParams.MATCH_PARENT,
-                SwipeRefreshLayout.LayoutParams.MATCH_PARENT
+            ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
             )
         )
         refresh.setOnRefreshListener { webView.reload() }
