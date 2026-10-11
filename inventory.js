@@ -115,7 +115,7 @@ const fee=Math.max(0,Number($("serviceFee")?.value||0)),providerFee=Math.max(0,N
 if(!source||!dest||(isThirdParty&&!provider)||(isThirdParty&&!accountNumber)||(isThirdParty&&!accountName)||(!isThirdParty&&dest===source)||(!Number.isFinite(fee))||(!Number.isFinite(providerFee))||(fee>amount))return setTransferStatus(fee>amount?"Service Charge cannot be greater than the customer amount.":isThirdParty?"Complete the 3rd-party details and enter valid amount, provider fee and service charge.":"Choose different wallet items and fill BOTH wallet amounts.");
 let directionText="";
 if(walletMode){
-  const profit=toAmount-fromAmount;
+  const profit=walletDirection==="credit"?fromAmount-toAmount:toAmount-fromAmount;
   directionText=walletDirection==="credit"?"Credit "+money(fromAmount)+" to "+($("transferSource")?.selectedOptions[0]?.textContent||"From wallet")+" and debit "+money(toAmount)+" from "+($("transferDestination")?.selectedOptions[0]?.textContent||"To wallet")+" · "+(profit>=0?"Profit ":"Loss ")+money(Math.abs(profit)):"Debit "+money(fromAmount)+" from "+($("transferSource")?.selectedOptions[0]?.textContent||"From wallet")+" and credit "+money(toAmount)+" to "+($("transferDestination")?.selectedOptions[0]?.textContent||"To wallet")+" · "+(profit>=0?"Profit ":"Loss ")+money(Math.abs(profit));
 }else{
   directionText=isUtility?"Record Utility/Deposit to CASH of "+money(Math.max(0,amount-fee)):"Record 3rd-party transfer to "+provider+" / "+accountNumber;
