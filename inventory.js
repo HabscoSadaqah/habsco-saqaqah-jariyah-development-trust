@@ -74,6 +74,7 @@ function setWalletDirection(direction){
 function recalc(){
 
 const destination=$("transferDestination")?.value||"",source=$("transferSource")?.value||"",isThirdParty=destination==="__third_party__"||destination==="__third_party_utility__",walletMode=!!source&&!isThirdParty;
+const quickRow=document.querySelector(".quick-finance-row");if(quickRow)quickRow.classList.toggle("wallet-mode",walletMode);
 if(walletMode){
   const fromAmount=Math.max(0,Number($("transferFromAmount")?.value||0)),toAmount=Math.max(0,Number($("transferToAmount")?.value||0)),creditAmount=walletDirection==="credit"?fromAmount:toAmount,debitAmount=walletDirection==="credit"?toAmount:fromAmount,profit=creditAmount-debitAmount;
   if($("feeAmount"))$("feeAmount").textContent=money(toAmount);
@@ -87,7 +88,6 @@ if(walletMode){
   if(pnlLabel)pnlLabel.textContent=profit>0?"PROFIT":profit<0?"LOSS":"PROFIT / LOSS";
   if(pnlValue)pnlValue.textContent=profit<0?"−"+money(Math.abs(profit)):profit>0?"+"+money(profit):money(0);
   if(pnlBox)pnlBox.classList.toggle("loss",profit<0);
-  const quickRow=document.querySelector(".quick-finance-row");if(quickRow)quickRow.classList.toggle("wallet-mode",walletMode);
 }else{
   const amount=Math.max(0,Number($("transferAmount")?.value||0)),f=Math.max(0,Number($("serviceFee")?.value||0)),providerFee=Math.max(0,Number((isThirdParty?$("thirdPartyProviderFee"):null)?.value||0)),discountPct=Math.max(0,Number((isThirdParty?$("thirdPartyProviderDiscount"):null)?.value||0)),total=Math.max(0,amount-f),providerDiscount=total*discountPct/100,margin=f-providerFee+providerDiscount;
   if($("feeAmount"))$("feeAmount").textContent=money(total);
@@ -143,6 +143,7 @@ function denominationModeForTransfer(isThirdParty,walletMode){return false;}
 function toggleThirdPartyFields(){
 const source=$("transferSource")?.value||"",destination=$("transferDestination")?.value||"",third=destination==="__third_party__"||destination==="__third_party_utility__",utility=destination==="__third_party_utility__",walletMode=!!source&&!third,box=$("thirdPartyFields");
 if(box)box.classList.toggle("hidden",!third);
+const walletAmountRoute=document.querySelector(".wallet-amount-route");if(walletAmountRoute)walletAmountRoute.classList.toggle("hidden",!walletMode);
 const title=$("thirdPartyTitle");if(title)title.textContent=utility?"Utility/Deposit to CASH details":"3rd-party transfer details";
 const fee=$("serviceFee"),thirdFee=$("thirdPartyServiceFee"),providerFee=$("thirdPartyProviderFee"),providerDiscount=$("thirdPartyProviderDiscount"),amount=$("transferAmount");
 if(fee)fee.closest("label").style.display="";
