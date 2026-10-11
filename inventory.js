@@ -72,16 +72,22 @@ function setWalletDirection(direction){
   recalc();
 }
 function recalc(){
+
 const destination=$("transferDestination")?.value||"",source=$("transferSource")?.value||"",isThirdParty=destination==="__third_party__"||destination==="__third_party_utility__",walletMode=!!source&&!isThirdParty;
 if(walletMode){
-  const fromAmount=Math.max(0,Number($("transferFromAmount")?.value||0)),toAmount=Math.max(0,Number($("transferToAmount")?.value||0)),profit=toAmount-fromAmount;
+  const fromAmount=Math.max(0,Number($("transferFromAmount")?.value||0)),toAmount=Math.max(0,Number($("transferToAmount")?.value||0)),creditAmount=walletDirection==="credit"?fromAmount:toAmount,debitAmount=walletDirection==="credit"?toAmount:fromAmount,profit=creditAmount-debitAmount;
   if($("feeAmount"))$("feeAmount").textContent=money(toAmount);
   if($("providerFeeValue"))$("providerFeeValue").textContent=money(0);
   if($("providerDiscountValue"))$("providerDiscountValue").textContent=money(0);
   if($("feeValue"))$("feeValue").textContent=money(0);
-  if($("totalDebit"))$("totalDebit").textContent=money(fromAmount);
-  if($("marginLabel"))$("marginLabel").textContent=profit>=0?"Wallet Profit":"Wallet Loss";
-  if($("netServiceMargin"))$("netServiceMargin").textContent=money(profit);
+  if($("totalDebit"))$("totalDebit").textContent=money(debitAmount);
+  if($("marginLabel"))$("marginLabel").textContent=profit>0?"Profit":profit<0?"Loss":"Profit/Loss";
+  if($("netServiceMargin"))$("netServiceMargin").textContent=profit<0?"−"+money(Math.abs(profit)):profit>0?"+"+money(profit):money(0);
+  const pnlLabel=$("walletProfitLossLabel"),pnlValue=$("walletProfitLossValue"),pnlBox=pnlValue?.closest(".wallet-profit-loss");
+  if(pnlLabel)pnlLabel.textContent=profit>0?"PROFIT":profit<0?"LOSS":"PROFIT / LOSS";
+  if(pnlValue)pnlValue.textContent=profit<0?"−"+money(Math.abs(profit)):profit>0?"+"+money(profit):money(0);
+  if(pnlBox)pnlBox.classList.toggle("loss",profit<0);
+  const quickRow=document.querySelector(".quick-finance-row");if(quickRow)quickRow.classList.toggle("wallet-mode",walletMode);
 }else{
   const amount=Math.max(0,Number($("transferAmount")?.value||0)),f=Math.max(0,Number($("serviceFee")?.value||0)),providerFee=Math.max(0,Number((isThirdParty?$("thirdPartyProviderFee"):null)?.value||0)),discountPct=Math.max(0,Number((isThirdParty?$("thirdPartyProviderDiscount"):null)?.value||0)),total=Math.max(0,amount-f),providerDiscount=total*discountPct/100,margin=f-providerFee+providerDiscount;
   if($("feeAmount"))$("feeAmount").textContent=money(total);
@@ -110,7 +116,7 @@ if(!source||!dest||(isThirdParty&&!provider)||(isThirdParty&&!accountNumber)||(i
 let directionText="";
 if(walletMode){
   const profit=toAmount-fromAmount;
-  directionText="Debit "+money(fromAmount)+" from "+($("transferSource")?.selectedOptions[0]?.textContent||"From wallet")+" and credit "+money(toAmount)+" to "+($("transferDestination")?.selectedOptions[0]?.textContent||"To wallet")+" · "+(profit>=0?"Profit ":"Loss ")+money(Math.abs(profit));
+  directionText=walletDirection==="credit"?"Credit "+money(fromAmount)+" to "+($("transferSource")?.selectedOptions[0]?.textContent||"From wallet")+" and debit "+money(toAmount)+" from "+($("transferDestination")?.selectedOptions[0]?.textContent||"To wallet")+" · "+(profit>=0?"Profit ":"Loss ")+money(Math.abs(profit)):"Debit "+money(fromAmount)+" from "+($("transferSource")?.selectedOptions[0]?.textContent||"From wallet")+" and credit "+money(toAmount)+" to "+($("transferDestination")?.selectedOptions[0]?.textContent||"To wallet")+" · "+(profit>=0?"Profit ":"Loss ")+money(Math.abs(profit));
 }else{
   directionText=isUtility?"Record Utility/Deposit to CASH of "+money(Math.max(0,amount-fee)):"Record 3rd-party transfer to "+provider+" / "+accountNumber;
 }
@@ -324,7 +330,7 @@ async function loadHistory(){
       const paid=formatDenoms(x.paid_denominations);
       const change=formatDenoms(x.change_denominations);
       const account=x.account_amount!=null?money(x.account_amount):"—";
-      return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td><b>'+activity+'</b></td><td>'+esc(x.source_name||"—")+'</td><td>'+(isUtility?"CASH":esc(x.destination_name||"—"))+'</td><td>'+money(x.amount)+'</td><td>'+paid+'</td><td>'+change+'</td><td>'+account+'</td><td>'+esc(utilityInfo)+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>=0?"+":"")+money(m)+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+action+'</td></tr>';
+      return '<tr><td>'+new Date(x.created_at).toLocaleString("en-NG")+'</td><td><b>'+activity+'</b></td><td>'+esc(x.source_name||"—")+'</td><td>'+(isUtility?"CASH":esc(x.destination_name||"—"))+'</td><td>'+money(x.amount)+'</td><td>'+paid+'</td><td>'+change+'</td><td>'+account+'</td><td>'+esc(utilityInfo)+'</td><td>'+money(x.provider_fee)+'</td><td>'+money(x.service_fee)+'</td><td>'+money(x.total_debit)+'</td><td class="'+(m>=0?"history-profit":"history-loss")+'">'+(m>0?"+"+money(m):m<0?"−"+money(Math.abs(m)):money(0))+'</td><td>'+esc(x.status||"—")+'</td><td>'+esc(x.reference||"—")+'</td><td>'+action+'</td></tr>';
     }).join("");
     body.querySelectorAll("[data-edit-history]").forEach(btn=>btn.addEventListener("click",()=>editHistoryActivity(btn.dataset.editHistory)));body.querySelectorAll("[data-delete-history]").forEach(btn=>btn.addEventListener("click",()=>deleteHistoryActivity(btn.dataset.deleteHistory)));
   }catch(e){console.error("Wallet Board history:",e);body.innerHTML='<tr><td colspan="16" class="history-empty">Unable to load history.</td></tr>'}
