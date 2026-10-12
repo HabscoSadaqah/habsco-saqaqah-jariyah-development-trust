@@ -37,13 +37,25 @@ async function requeryUtility(t,button){
     const {data,error}=await supabaseClient.functions.invoke("utility-vps-proxy-v2",{body:{action:"requery",transaction_reference:String(t.reference)}});
     if(error)throw error;
     if(data?.error)throw new Error(typeof data.error==="string"?data.error:(data.error.message||"Unable to requery transaction."));
-    if(data?.pending){
+    const responseStatus=String(data?.status||"").toLowerCase().replace(/[ -]+/g,"_");
+    const refundConfirmed=data?.refunded===true||Boolean(data?.reversal_reference)||["refund_completed","refunded_to_wallet","reversed_to_wallet"].includes(responseStatus);
+    if(refundConfirmed){
+      if(button)button.textContent="Refund Confirmed";
+      showUtilityRequeryStatusModal("failed",t,{
+        ...data,
+        status:"refunded",
+        message:data?.message||"HABSCO confirmed the credit reversal. The refund reference is shown below."
+      });
+      await load();
+    }else if(data?.pending){
       if(button)button.textContent="Still Pending";
       showUtilityRequeryStatusModal("pending",t,data);
       await load();
     }else if(data?.status){
-      const status=String(data.status).toLowerCase();
-      const kind=["approved","success","successful","completed"].includes(status)?"approved":status==="rejected"||status==="declined"?"rejected":["failed","failure","cancelled","canceled"].includes(status)?"failed":"pending";
+      const status=responseStatus;
+      const kind=["approved","success","successful","completed","complete","delivered","fulfilled","ok"].includes(status)?"approved":
+        ["rejected","declined"].includes(status)?"rejected":
+        ["failed","failure","failed_transaction","cancelled","canceled","error"].includes(status)?"failed":"pending";
       if(button)button.textContent=String(data.status).replace(/_/g," ").replace(/\b\w/g,m=>m.toUpperCase());
       showUtilityRequeryStatusModal(kind,t,data);
       await load();
