@@ -1340,6 +1340,39 @@ document.getElementById('dailyNode2').textContent=svc.nodes[1];
 document.getElementById('dailyNode3').textContent=svc.nodes[2];
 document.getElementById('dailyMeta').textContent=(selected===today?'TODAY • ':'')+svc.label.toUpperCase()+' • '+new Intl.DateTimeFormat('en-NG',{timeZone:tz,day:'numeric',month:'long',year:'numeric'}).format(d).toUpperCase();
 
+/* Free archived daily content: one generated set per Lagos date, shared by all seven service flyers. */
+const FLYER_PUBLIC_KEY='sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN';
+const dailyContentServiceKey=({savings:'savings-shares',loan:'interest-free-loan'})[serviceKey]||serviceKey;
+let dailyContentReady=Promise.resolve();
+async function loadArchivedDailyContent(){
+  const endpoint='https://ythnoeyxovapydbmymdo.supabase.co/functions/v1/daily-flyer-content?service='+encodeURIComponent(dailyContentServiceKey)+'&date='+encodeURIComponent(selected);
+  try{
+    let response, payload;
+    for(let attempt=0;attempt<3;attempt++){
+      response=await fetch(endpoint,{method:'GET',headers:{apikey:FLYER_PUBLIC_KEY,Authorization:'Bearer '+FLYER_PUBLIC_KEY},cache:'no-store'});
+      payload=await response.json().catch(()=>({}));
+      if(response.status!==202)break;
+      await new Promise(resolve=>setTimeout(resolve,900));
+    }
+    if(!response||!response.ok||!payload||!payload.content)return false;
+    const item=payload.content;
+    if(item.headline)document.getElementById('serviceHeadline').textContent=item.headline;
+    if(item.supporting_text)document.getElementById('serviceLead').textContent=item.supporting_text;
+    if(item.kicker)document.querySelector('.kicker').textContent=item.kicker;
+    if(item.quote)document.getElementById('serviceQuote').textContent=item.quote;
+    if(item.attribution)document.getElementById('serviceQuoteBy').textContent=item.attribution;
+    if(item.illustration_svg)document.getElementById('serviceIllustration').innerHTML=item.illustration_svg;
+    if(item.service_name)document.title='HABSCO | '+item.service_name+' Flyer';
+    flyer.dataset.dailyContent='archived';
+    return true;
+  }catch(error){
+    console.warn('Daily flyer archive unavailable; showing built-in flyer content.',error);
+    return false;
+  }
+}
+dailyContentReady=loadArchivedDailyContent();
+
+
 const rail=document.getElementById('dailyFlyerRailMount');
 if(rail){
   const cards=Object.entries(services).map(([key,s])=>`<a class="daily-flyer-card ${key}" href="?service=${key}&date=${selected}&download=1"><b>${s.icon}</b><strong>${s.label}</strong><span>${s.kicker}</span><em>DOWNLOAD PNG</em></a>`).join('');
@@ -1351,8 +1384,9 @@ let links='<div class="archive-label">SELECT DAY TO DOWNLOAD — choose a date, 
 for(let i=0;i<=7;i++){const x=new Date(new Date(today+'T00:00:00Z').getTime()-i*86400000);const s=x.toISOString().slice(0,10);const label=i===0?'TODAY':new Intl.DateTimeFormat('en-NG',{day:'numeric',month:'short'}).format(x);links+=`<a class="${s===selected?'today':''}" href="?service=${encodeURIComponent(serviceKey)}&date=${s}">${label}</a>`;}
 archive.innerHTML=links;
 
-if(new URLSearchParams(location.search).get('download')==='1'){setTimeout(()=>downloadFlyer(),500)}
+if(new URLSearchParams(location.search).get('download')==='1'){dailyContentReady.finally(()=>setTimeout(()=>downloadFlyer(),250))}
 async function downloadFlyer(){
+  await dailyContentReady;
   const btn=document.activeElement&&document.activeElement.tagName==='BUTTON'?document.activeElement:null;
   if(btn){btn.disabled=true;btn.textContent='⏳ CREATING PNG...'}
   try{
