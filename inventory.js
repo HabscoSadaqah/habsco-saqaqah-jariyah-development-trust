@@ -89,7 +89,7 @@ if(walletMode){
   if(pnlValue)pnlValue.textContent=profit<0?"−"+money(Math.abs(profit)):profit>0?"+"+money(profit):money(0);
   if(pnlBox)pnlBox.classList.toggle("loss",profit<0);
 }else{
-  const amount=Math.max(0,Number($("transferAmount")?.value||0)),f=Math.max(0,Number($("serviceFee")?.value||0)),providerFee=Math.max(0,Number((isThirdParty?$("thirdPartyProviderFee"):null)?.value||0)),commissionPct=Math.max(0,Number((isThirdParty?$("thirdPartyProviderDiscount"):null)?.value||0)),providerDiscount=amount*commissionPct/100,accountAmount=Math.max(0,amount-providerFee+providerDiscount),margin=f+providerDiscount-providerFee;
+  const amount=Math.max(0,Number($("transferAmount")?.value||0)),f=Math.max(0,Number($("serviceFee")?.value||0)),providerFee=Math.max(0,Number((isThirdParty?$("thirdPartyProviderFee"):null)?.value||0)),commissionAmount=Math.max(0,Number((isThirdParty?$("thirdPartyProviderDiscount"):null)?.value||0)),providerDiscount=commissionAmount,accountAmount=Math.max(0,amount-providerFee+providerDiscount),margin=f+providerDiscount-providerFee;
   if($("feeAmount"))$("feeAmount").textContent=money(amount);
   if($("providerFeeValue"))$("providerFeeValue").textContent=money(providerFee);
   if($("providerDiscountValue"))$("providerDiscountValue").textContent=money(providerDiscount);
@@ -111,8 +111,8 @@ if(walletMode){
   amount=Math.max(0,Number($("transferAmount")?.value||0));
   if(!Number.isFinite(amount)||amount<=0)return setTransferStatus("Enter a valid Cost Price.");
 }
-const fee=Math.max(0,Number($("serviceFee")?.value||0)),providerFee=Math.max(0,Number((isThirdParty?$("thirdPartyProviderFee"):null)?.value||0)),commissionPct=Math.max(0,Number((isThirdParty?$("thirdPartyProviderDiscount"):null)?.value||0)),providerDiscount=amount*commissionPct/100,accountAmount=Math.max(0,amount-providerFee+providerDiscount),provider=$("thirdPartyItemName")?.value.trim()||"",accountNumber=$("thirdPartyAccountNumber")?.value.trim()||"",accountName=$("thirdPartyAccountName")?.value.trim()||"";
-if(!source||!dest||(isThirdParty&&!provider)||(isThirdParty&&!accountNumber)||(isThirdParty&&!accountName)||(!isThirdParty&&dest===source)||(!Number.isFinite(fee))||(!Number.isFinite(providerFee))||(!Number.isFinite(commissionPct))||commissionPct>100||(isThirdParty&&accountAmount<=0))return setTransferStatus(commissionPct>100?"Commission cannot exceed 100%.":(isThirdParty&&accountAmount<=0)?"FROM ACCOUNT must be greater than zero after applying Provider Fee and Commission.":isThirdParty?"Complete the 3rd-party details and enter valid amount, provider fee and service charge.":"Choose different wallet items and fill BOTH wallet amounts.");
+const fee=Math.max(0,Number($("serviceFee")?.value||0)),providerFee=Math.max(0,Number((isThirdParty?$("thirdPartyProviderFee"):null)?.value||0)),commissionAmount=Math.max(0,Number((isThirdParty?$("thirdPartyProviderDiscount"):null)?.value||0)),providerDiscount=commissionAmount,accountAmount=Math.max(0,amount-providerFee+providerDiscount),provider=$("thirdPartyItemName")?.value.trim()||"",accountNumber=$("thirdPartyAccountNumber")?.value.trim()||"",accountName=$("thirdPartyAccountName")?.value.trim()||"";
+if(!source||!dest||(isThirdParty&&!provider)||(isThirdParty&&!accountNumber)||(isThirdParty&&!accountName)||(!isThirdParty&&dest===source)||(!Number.isFinite(fee))||(!Number.isFinite(providerFee))||(!Number.isFinite(commissionAmount))||(isThirdParty&&accountAmount<=0))return setTransferStatus((isThirdParty&&accountAmount<=0)?"FROM ACCOUNT must be greater than zero after applying Provider Fee and Commission.":isThirdParty?"Complete the 3rd-party details and enter valid amount, provider fee and service charge.":"Choose different wallet items and fill BOTH wallet amounts.");
 let directionText="";
 if(walletMode){
   const profit=walletDirection==="credit"?fromAmount-toAmount:toAmount-fromAmount;
@@ -120,7 +120,7 @@ if(walletMode){
 }else{
   directionText=isUtility?"Record Utility/Deposit to CASH · FROM ACCOUNT "+money(accountAmount):"Record 3rd-party transfer to "+provider+" / "+accountNumber+" · FROM ACCOUNT "+money(accountAmount);
 }
-if(!confirm(directionText+(walletMode?"?":" · Cost Price "+money(amount)+" · Provider Fee "+money(providerFee)+" · Commission "+money(providerDiscount)+" ("+commissionPct+"%) · Service Charge "+money(fee)+" · FROM ACCOUNT "+money(isThirdParty?accountAmount:Math.max(0,amount-fee))+" · Profit/Loss "+money(fee+providerDiscount-providerFee)+"?")))return;
+if(!confirm(directionText+(walletMode?"?":" · Cost Price "+money(amount)+" · Provider Fee "+money(providerFee)+" · Commission "+money(providerDiscount)+" · Service Charge "+money(fee)+" · FROM ACCOUNT "+money(isThirdParty?accountAmount:Math.max(0,amount-fee))+" · Profit/Loss "+money(fee+providerDiscount-providerFee)+"?")))return;
 const btn=$("transferSubmit");btn.disabled=true;btn.textContent="PROCESSING…";
 try{
  let data,error;
