@@ -110,7 +110,7 @@ if(!["airtime","data","tv","education","power"].includes(action))return J({error
     const {data:finalized,error:fe}=await db.rpc("utility_finalize_transaction",{p_transaction_id:tx,p_success:false,p_provider_reference:ref(pd)||null,p_provider_status:s,p_provider_response:{provider_history:{validation:providerHistory(vd,provider,action,tr),vend:providerHistory(pd,provider,action,tr)},validation:val.data,vend:vend.data}});
     if(fe)return J({error:"Provider rejected the transaction but wallet reversal failed.",reference:tr},500);
     const status=String(finalized?.status||terminalFailureStatus(s));
-    return J({success:false,pending:false,reference:tr,status,provider:pd,amount:Number(started.amount||amount),purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),reversal_reference:finalized?.reversal_reference||null},200);
+    return J({success:false,pending:false,reference:ref(pd)||tr,internal_reference:tr,provider_reference:ref(pd)||null,status,provider:pd,amount:Number(started.amount||amount),purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),reversal_reference:finalized?.reversal_reference||null,refunded:finalized?.refunded===true},200);
   }
   if(!ok){
     const rq=action==="power"?await call(t,P()+"/merchant/requery?transaction_reference="+encodeURIComponent(tr),"GET",undefined,15000):await call(t,B()+"/merchants/requery?t_ref="+encodeURIComponent(tr),"GET",undefined,15000);
@@ -121,15 +121,15 @@ if(!["airtime","data","tv","education","power"].includes(action))return J({error
       finalProvider=rp;finalToken=action==="power"?utilityToken(rp):"";
       const {error:rfe}=await db.rpc("utility_finalize_transaction",{p_transaction_id:tx,p_success:true,p_provider_reference:ref(rp)||null,p_provider_status:rs||"fulfilled",p_provider_response:{provider_history:{validation:providerHistory(vd,provider,action,tr),vend:providerHistory(pd,provider,action,tr),requery:providerHistory(rp,provider,action,tr)},validation:val.data,vend:vend.data,requery:rq.data}});
       if(rfe)return J({error:"Provider completed the payment but wallet reconciliation failed.",reference:tr},500);
-      return J({success:true,pending:false,reference:tr,status:"approved",provider:finalProvider,token:finalToken||null,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount)},200);
+      return J({success:true,pending:false,reference:ref(finalProvider)||ref(pd)||tr,internal_reference:tr,provider_reference:ref(finalProvider)||ref(pd)||null,status:"approved",provider:finalProvider,token:finalToken||null,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount)},200);
     }
     if(rBad){
       const {data:finalized,error:rfe}=await db.rpc("utility_finalize_transaction",{p_transaction_id:tx,p_success:false,p_provider_reference:ref(rp)||null,p_provider_status:rs,p_provider_response:{provider_history:{validation:providerHistory(vd,provider,action,tr),vend:providerHistory(pd,provider,action,tr),requery:providerHistory(rp,provider,action,tr)},validation:val.data,vend:vend.data,requery:rq.data}});
       if(rfe)return J({error:"Provider rejected the transaction but wallet reversal failed.",reference:tr},500);
       const status=String(finalized?.status||terminalFailureStatus(rs));
-      return J({success:false,pending:false,reference:tr,status,provider:rp,amount:Number(started.amount||amount),purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),reversal_reference:finalized?.reversal_reference||null},200);
+      return J({success:false,pending:false,reference:ref(rp)||ref(pd)||tr,internal_reference:tr,provider_reference:ref(rp)||ref(pd)||null,status,provider:rp,amount:Number(started.amount||amount),purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),reversal_reference:finalized?.reversal_reference||null,refunded:finalized?.refunded===true},200);
     }
-    return J({success:true,pending:true,reference:tr,status:rs||s||"pending",provider:pd,requery:rp,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount),message:"The provider has not confirmed the final result. Your transaction remains pending; please requery later."},202);
+    return J({success:true,pending:true,reference:ref(rp)||ref(pd)||tr,internal_reference:tr,provider_reference:ref(rp)||ref(pd)||null,status:rs||s||"pending",provider:pd,requery:rp,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount),message:"The provider has not confirmed the final result. Your transaction remains pending; please requery later."},202);
   }
   if(ok&&action==="power"&&!finalToken){
     const rq2=await call(t,P()+"/merchant/requery?transaction_reference="+encodeURIComponent(tr),"GET",undefined,15000);
@@ -138,7 +138,7 @@ if(!["airtime","data","tv","education","power"].includes(action))return J({error
   }
   const {error:fe}=await db.rpc("utility_finalize_transaction",{p_transaction_id:tx,p_success:true,p_provider_reference:ref(finalProvider)||null,p_provider_status:s||"fulfilled",p_provider_response:{provider_history:{validation:providerHistory(vd,provider,action,tr),vend:providerHistory(pd,provider,action,tr),...(finalRequery?{requery:providerHistory(finalProvider,provider,action,tr)}:{})},validation:val.data,vend:vend.data,...(finalRequery?{requery:finalRequery}:{})}});
   if(fe)return J({error:"Provider response received but wallet reconciliation failed.",reference:tr},500);
-  return J({success:true,pending:false,reference:tr,status:"approved",provider:finalProvider,token:finalToken||null,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount)},200);
+  return J({success:true,pending:false,reference:ref(finalProvider)||ref(pd)||tr,internal_reference:tr,provider_reference:ref(finalProvider)||ref(pd)||null,status:"approved",provider:finalProvider,token:finalToken||null,purchase_amount:Number(started.purchase_amount||amount),service_charge:Number(started.service_charge||0),total_amount:Number(started.amount||amount)},200);
  }catch(e){
   // Unknown transport/runtime errors are not proof of failure. Leave the reservation pending
   // so a later requery can determine whether the provider completed the vend.
