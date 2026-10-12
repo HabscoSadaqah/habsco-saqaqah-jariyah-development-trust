@@ -109,10 +109,10 @@ if(walletMode){
   amount=fromAmount;
 }else{
   amount=Math.max(0,Number($("transferAmount")?.value||0));
-  if(!Number.isFinite(amount)||amount<=0)return setTransferStatus("Enter a valid customer amount.");
+  if(!Number.isFinite(amount)||amount<=0)return setTransferStatus("Enter a valid Cost Price.");
 }
 const fee=Math.max(0,Number($("serviceFee")?.value||0)),providerFee=Math.max(0,Number((isThirdParty?$("thirdPartyProviderFee"):null)?.value||0)),commissionPct=Math.max(0,Number((isThirdParty?$("thirdPartyProviderDiscount"):null)?.value||0)),providerDiscount=amount*commissionPct/100,accountAmount=Math.max(0,amount-providerFee+providerDiscount),provider=$("thirdPartyItemName")?.value.trim()||"",accountNumber=$("thirdPartyAccountNumber")?.value.trim()||"",accountName=$("thirdPartyAccountName")?.value.trim()||"";
-if(!source||!dest||(isThirdParty&&!provider)||(isThirdParty&&!accountNumber)||(isThirdParty&&!accountName)||(!isThirdParty&&dest===source)||(!Number.isFinite(fee))||(!Number.isFinite(providerFee))||(!Number.isFinite(commissionPct))||commissionPct>100)return setTransferStatus(commissionPct>100?"Commission cannot exceed 100%.":isThirdParty?"Complete the 3rd-party details and enter valid amount, provider fee and service charge.":"Choose different wallet items and fill BOTH wallet amounts.");
+if(!source||!dest||(isThirdParty&&!provider)||(isThirdParty&&!accountNumber)||(isThirdParty&&!accountName)||(!isThirdParty&&dest===source)||(!Number.isFinite(fee))||(!Number.isFinite(providerFee))||(!Number.isFinite(commissionPct))||commissionPct>100||(isThirdParty&&accountAmount<=0))return setTransferStatus(commissionPct>100?"Commission cannot exceed 100%.":(isThirdParty&&accountAmount<=0)?"FROM ACCOUNT must be greater than zero after applying Provider Fee and Commission.":isThirdParty?"Complete the 3rd-party details and enter valid amount, provider fee and service charge.":"Choose different wallet items and fill BOTH wallet amounts.");
 let directionText="";
 if(walletMode){
   const profit=walletDirection==="credit"?fromAmount-toAmount:toAmount-fromAmount;
