@@ -271,7 +271,7 @@ async function requeryPendingUtilityReceipt(t,button,wrap){
   if(body)body.prepend(msg);
   if(button){button.disabled=true;button.textContent='CHECKING PAYMENT STATUS…';}
   try{
-    const {data,error}=await supabaseClient.functions.invoke('utility-vps-proxy-v2',{body:{action:'requery',transaction_reference:String(t.reference)}});
+    const {data,error}=await supabaseClient.functions.invoke('accelerate-billvending',{body:{action:'requery',transaction_reference:String(t.reference)}});
     if(error)throw error;
     const status=String(data?.status||data?.provider_status||'').toLowerCase();
     const pending=Boolean(data?.pending)||status==='pending'||status==='processing'||status==='queued';
