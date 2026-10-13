@@ -1032,6 +1032,38 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 }
 </style>
 
+<style id="habsco-no-illustration-unique-copy">
+/* Premium typography-led daily flyer: no illustration, no empty visual column. */
+.flyer .real-life-photo,
+.flyer #serviceIllustration,
+.flyer .photo-subject { display:none!important; }
+.flyer .hero {
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:auto auto auto!important;
+  text-align:center!important;
+  align-items:center!important;
+}
+.flyer .hero .kicker {
+  grid-column:1!important;grid-row:1!important;
+  text-align:center!important;justify-self:center!important;
+}
+.flyer .hero h1 {
+  grid-column:1!important;grid-row:2!important;
+  text-align:center!important;justify-self:center!important;
+  max-width:100%!important;
+}
+.flyer .hero .lead {
+  grid-column:1!important;grid-row:3!important;
+  text-align:center!important;justify-self:center!important;
+  max-width:680px!important;
+}
+@media(max-width:700px){
+  .flyer .hero{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important}
+  .flyer .hero .kicker{grid-column:1!important;grid-row:1!important}
+  .flyer .hero h1{grid-column:1!important;grid-row:2!important}
+  .flyer .hero .lead{grid-column:1!important;grid-row:3!important}
+}
+</style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FINANCE • BUSINESS • CHARITY</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
