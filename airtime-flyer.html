@@ -1033,13 +1033,13 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 </style>
 
 <style id="habsco-no-illustration-unique-copy">
-/* Premium typography-led daily flyer: no illustration, no empty visual column. */
+/* Premium typography-led flyer with one colourful, subject-related daily emblem. */
 .flyer .real-life-photo,
 .flyer #serviceIllustration,
 .flyer .photo-subject { display:none!important; }
 .flyer .hero {
   grid-template-columns:minmax(0,1fr)!important;
-  grid-template-rows:auto auto auto!important;
+  grid-template-rows:auto auto auto auto!important;
   text-align:center!important;
   align-items:center!important;
 }
@@ -1047,26 +1047,57 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   grid-column:1!important;grid-row:1!important;
   text-align:center!important;justify-self:center!important;
 }
-.flyer .hero h1 {
+.flyer .subject-day-mark {
   grid-column:1!important;grid-row:2!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  justify-self:center!important;position:relative!important;
+  width:clamp(62px,9vw,88px)!important;height:clamp(62px,9vw,88px)!important;
+  margin:clamp(8px,1.4vw,14px) auto!important;border-radius:26px!important;
+  background:linear-gradient(145deg,
+    hsl(var(--mark-hue,145) 96% 68% / .96),
+    hsl(calc(var(--mark-hue,145) + 90deg) 94% 58% / .92),
+    hsl(calc(var(--mark-hue,145) + 190deg) 96% 64% / .94))!important;
+  border:1px solid rgba(255,255,255,.86)!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.9)!important;
+  isolation:isolate!important;
+}
+.flyer .subject-day-mark:before,
+.flyer .subject-day-mark:after {
+  content:"";position:absolute;z-index:-1;pointer-events:none;
+  border:2px solid rgba(255,255,255,.84);
+}
+.flyer .subject-day-mark:before {
+  inset:-8px;border-radius:30px;transform:rotate(12deg);
+}
+.flyer .subject-day-mark:after {
+  inset:7px;border-radius:18px;transform:rotate(-15deg);
+  border-color:rgba(255,255,255,.52);
+}
+.flyer .subject-day-symbol {
+  font-size:clamp(32px,5.2vw,48px)!important;line-height:1!important;
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.2))!important;
+}
+.flyer .hero h1 {
+  grid-column:1!important;grid-row:3!important;
   text-align:center!important;justify-self:center!important;
   max-width:100%!important;
 }
 .flyer .hero .lead {
-  grid-column:1!important;grid-row:3!important;
+  grid-column:1!important;grid-row:4!important;
   text-align:center!important;justify-self:center!important;
   max-width:680px!important;
 }
 @media(max-width:700px){
-  .flyer .hero{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto!important}
+  .flyer .hero{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto auto!important}
   .flyer .hero .kicker{grid-column:1!important;grid-row:1!important}
-  .flyer .hero h1{grid-column:1!important;grid-row:2!important}
-  .flyer .hero .lead{grid-column:1!important;grid-row:3!important}
+  .flyer .subject-day-mark{grid-column:1!important;grid-row:2!important}
+  .flyer .hero h1{grid-column:1!important;grid-row:3!important}
+  .flyer .hero .lead{grid-column:1!important;grid-row:4!important}
 }
 </style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FINANCE • BUSINESS • CHARITY</div></div>
-<div class="hero"><div class="kicker">Stay connected</div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
+<div class="hero"><div class="kicker">Stay connected</div><div class="subject-day-mark" id="subjectDayMark" aria-hidden="true"><span class="subject-day-symbol" id="subjectDaySymbol">📱</span></div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
 <div class="universe" aria-hidden="true"><div class="orbit one"></div><div class="orbit two"></div><div class="orbit three"></div><div class="core"></div><div class="phone" id="dailyIcon">📱</div><div class="node n1" id="dailyNode1">📶</div><div class="node n2" id="dailyNode2">🔒</div><div class="node n3" id="dailyNode3">☎️</div></div>
 
 <div class="cta"><span id="serviceCta">www.habscosadaqah.org</span></div><div class="footer"><div><strong>HABSCO SADAQAH JARIYAH DEVELOPMENT TRUST</strong><span class="service-text">Reliable HABSCO services for everyday progress</span></div><a class="web-address" href="https://www.habscosadaqah.org" target="_blank" rel="noopener noreferrer" aria-label="Visit the HABSCO website">www.habscosadaqah.org</a></div>
@@ -1110,6 +1141,23 @@ loan:'<svg viewBox="0 0 420 300" role="img" aria-label="Interest-free loan line 
 document.getElementById('serviceIllustration').innerHTML=lineArt[serviceKey]||lineArt.airtime;
 document.getElementById('servicePhotoLabel').textContent=photo.subject;
 document.getElementById('dailyIcon').textContent=svc.icon;
+/* Seven service-matched, colourful marks rotate by actual calendar date, not just day-of-month. */
+const dailySubjectMarks={
+  electricity:['⚡','🔌','💡','🔋','🌩️','✨','🔆'],
+  airtime:['📱','☎️','💬','📞','🗣️','📲','💌'],
+  data:['📶','🌐','💻','🛰️','🔗','☁️','📡'],
+  tv:['📺','🎬','▶️','🎞️','🍿','✨','🎥'],
+  education:['📚','🎓','✏️','🧠','📖','📝','🏆'],
+  savings:['💎','🪙','🐷','📈','🌱','🏦','💰'],
+  loan:['🤝','🫶','🌱','💼','🛟','🧩','✅']
+};
+const markDate= new Date(selected+'T00:00:00Z');
+const daySerial=Math.floor(markDate.getTime()/86400000);
+const serviceMarkList=dailySubjectMarks[serviceKey]||dailySubjectMarks.airtime;
+const markIndex=((daySerial%serviceMarkList.length)+serviceMarkList.length)%serviceMarkList.length;
+document.getElementById('subjectDaySymbol').textContent=serviceMarkList[markIndex];
+const markServiceIndex=Object.keys(dailySubjectMarks).indexOf(serviceKey);
+document.getElementById('subjectDayMark').style.setProperty('--mark-hue',String((daySerial*43+Math.max(0,markServiceIndex)*37+360)%360));
 document.getElementById('dailyNode1').textContent=svc.nodes[0];
 document.getElementById('dailyNode2').textContent=svc.nodes[1];
 document.getElementById('dailyNode3').textContent=svc.nodes[2];
