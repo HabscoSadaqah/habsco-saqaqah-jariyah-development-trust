@@ -163,7 +163,7 @@ $("transferSource")?.addEventListener("change",()=>{toggleThirdPartyFields();rec
 $("transferDestination")?.addEventListener("change",()=>{toggleThirdPartyFields();recalc()});
 [["fromWalletDebitToggle","debit"],["fromWalletCreditToggle","credit"],["toWalletDebitToggle","credit"],["toWalletCreditToggle","debit"]].forEach(([id,direction])=>$(id)?.addEventListener("click",()=>setWalletDirection(direction)));
 ["transferAmount","transferFromAmount","transferToAmount","serviceFee","thirdPartyServiceFee","thirdPartyProviderFee","thirdPartyProviderDiscount"].forEach(id=>$(id)?.addEventListener("input",recalc));
-$("transferForm")&&($("transferForm").onsubmit=submitTransfer);
+// The transfer submit handler is bound before other startup tasks; see startup below.
 toggleThirdPartyFields();
 recalc();
 }
@@ -346,8 +346,13 @@ function initSalesReports(){
  setPeriod("day");
 }
 bindAccessPlanControls();
-initSalesReports();
-initTransfer();
+const transferForm=$("transferForm");
+if(transferForm){
+  transferForm.noValidate=true;
+  transferForm.addEventListener("submit",submitTransfer);
+}
+try{initSalesReports()}catch(e){console.error("Sales reports initialization failed:",e)}
+try{initTransfer()}catch(e){console.error("Transfer initialization failed:",e);setTransferStatus("Transfer form could not initialize: "+(e?.message||"Please reload the page."))}
 initWheelControls();
 $("historyRefresh")?.addEventListener("click",loadHistory);
 $("renewBtn")?.addEventListener("click",openAccessModal);
