@@ -10,7 +10,7 @@ create or replace function public.wallet_board_credit_debit_transfer_with_denomi
 returns public.wallet_board_transfers
 language plpgsql
 security invoker
-set search_path = public, pg_temp
+set search_path = pg_catalog, public, pg_temp
 as $function$
 declare
   u uuid := auth.uid();
