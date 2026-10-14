@@ -131,7 +131,7 @@ const btn=$("transferSubmit");btn.disabled=true;btn.textContent="PROCESSING…";
 try{
  let data,error;
  if(walletMode){
-   ({data,error}=await db.rpc("wallet_board_credit_debit_transfer",{p_from_item_id:source,p_to_item_id:dest,p_from_direction:walletDirection,p_from_amount:fromAmount,p_to_amount:toAmount}));
+   ({data,error}=await db.rpc("wallet_board_credit_debit_transfer_with_denominations",{p_from_item_id:source,p_to_item_id:dest,p_from_direction:walletDirection,p_from_amount:fromAmount,p_to_amount:toAmount,p_from_paid_denominations:denominationData("paidDenomsWallet"),p_from_change_denominations:denominationData("changeDenomsWallet")}));
  }else{
    ({data,error}=await db.rpc("wallet_board_internal_transfer",{p_source_item_id:source,p_destination_item_id:isThirdParty?null:dest,p_amount:isThirdParty?accountAmount:Math.max(0,amount-fee),p_service_fee:fee,p_transfer_type:isUtility?"third_party_utility":(isThirdParty?"third_party":"internal"),p_provider_name:isThirdParty?provider:null,p_account_number:isThirdParty?accountNumber:null,p_account_name:isThirdParty?accountName:null,p_provider_fee:isThirdParty?providerFee:0,p_provider_discount:isThirdParty?providerDiscount:0}));
  }
