@@ -11,7 +11,8 @@ const configs={
  airtime:["Airtime","Select the mobile network, verify the phone number, then pay."],
  data:["Mobile Data","Select the network, choose a data package, verify the number, then pay."],
  tv:["TV Subscription","Select the TV provider, choose a package, verify the subscriber, then pay."],
- education:["Education","Select the education provider, choose a package, verify the candidate/account, then pay."]
+ education:["Education","Select the education provider, choose a package, verify the candidate/account, then pay."],
+ "money-services":["Money Services","Receive money into your HABSCO wallet or transfer funds to a supported Nigerian bank through Squad."]
 };
 const [title,subtitle]=configs[action]||configs[effectiveAction]||configs.send;
 function msg(t,ok=true){const e=$("msg");e.textContent=t;e.style.background=ok?"#eef8f2":"#fff1f1";e.style.color=ok?"#087443":"#a52a2a";e.classList.add("show")}
@@ -392,6 +393,10 @@ async function setupAirtime(){
 async function init(){
  const session=await auth();if(!session)return;
  if($("title"))$("title").textContent=title;if($("subtitle"))$("subtitle").textContent=subtitle;
+ if(effectiveAction==="money-services"){
+  $("formArea").innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px"><a href="member-actions.html?action=virtual-account" style="display:block;text-decoration:none;color:inherit;border:1px solid #cfe5d7;border-radius:16px;padding:16px;background:linear-gradient(145deg,#f0faf4,#fff)"><div style="font-size:25px;margin-bottom:9px">↙</div><strong style="display:block;color:#064f2e;font-size:14px">Receive Money</strong><p style="font-size:11px;line-height:1.5;color:#708078">View or create your dedicated Squad virtual account. Payments are credited to your HABSCO wallet only after the verified webhook confirms settlement.</p><span style="display:inline-flex;margin-top:7px;background:#087443;color:#fff;padding:9px 12px;border-radius:9px;font-size:10px;font-weight:900">OPEN RECEIVE MONEY →</span></a><a href="member-actions.html?action=squad-transfer" style="display:block;text-decoration:none;color:inherit;border:1px solid #dfe9e3;border-radius:16px;padding:16px;background:#fff"><div style="font-size:25px;margin-bottom:9px">↗</div><strong style="display:block;color:#064f2e;font-size:14px">Transfer to Bank</strong><p style="font-size:11px;line-height:1.5;color:#708078">Select a supported Nigerian bank, verify the beneficiary account name, enter the amount and transaction PIN, and submit a secure payout from your HABSCO wallet.</p><span style="display:inline-flex;margin-top:7px;background:#064f2e;color:#fff;padding:9px 12px;border-radius:9px;font-size:10px;font-weight:900">OPEN BANK TRANSFER →</span></a></div><div class="api-note"><strong>Security and status</strong><br>Never share your transaction PIN or OTP. Do not retry a transfer while its status is uncertain; contact HABSCO support so the transaction can be checked with Squad first.</div>';
+  return;
+ }
  if(effectiveAction==="electricity"){await setupUtility();return}
  if(effectiveAction==="airtime"){await setupAirtime();return}
  if(["data","tv","education"].includes(effectiveAction)){await setupUtility();return}
