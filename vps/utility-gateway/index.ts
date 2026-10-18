@@ -48,7 +48,7 @@ Deno.serve(async req=>{
   if(!["airtime","data","tv","education","power"].includes(s0))return J({error:"Unable to identify the utility service for this transaction."},400);
   const r=s0==="power"?await call(t,P()+"/merchant/requery?transaction_reference="+encodeURIComponent(tx.reference)):await call(t,B()+"/merchants/requery?t_ref="+encodeURIComponent(tx.reference));
   const pd=r.data?.data||r.data,s=st(pd);
-  const ok=r.ok&&(good.has(s)||(!s&&r.status===200)||(s0==="power"&&!!utilityToken(pd)))&&!bad.has(s);
+  const ok=r.ok&&(good.has(s)||(s0==="power"&&!!utilityToken(pd)))&&!bad.has(s);
   const confirmedBad=bad.has(s);
   if(!ok&&!confirmedBad)return J({success:true,pending:true,reference:tx.metadata?.provider_reference||tx.reference,internal_reference:tx.reference,provider_reference:tx.metadata?.provider_reference||null,status:s||"pending",provider:pd,provider_http_status:r.status,provider_error:r.data?.message||r.data?.error||"Provider status is not final yet. No refund was issued."},202);
   const {data:finalized,error:fe}=await db.rpc("utility_finalize_transaction",{
@@ -103,7 +103,7 @@ if(!["airtime","data","tv","education","power"].includes(action))return J({error
   const vb=action==="power"?{validation_reference:vd.validation_reference,transaction_reference:tr,phone_number:normalizeNGPhone(b?.phone_number)||undefined}:{validation_reference:vd.validation_reference,transaction_reference:tr};
   const vend=await call(t,(action==="power"?P():B())+"/merchant/"+action+"/vend","POST",vb,30000);
   const pd=vend.data?.data||vend.data,s=st(pd);
-  const ok=vend.ok&&(good.has(s)||(!s&&vend.status===200))&&!bad.has(s)&&!vend.timeout;
+  const ok=vend.ok&&(good.has(s)||(action==="power"&&!!utilityToken(pd)))&&!bad.has(s)&&!vend.timeout;
   const confirmedBad=bad.has(s);
   let finalProvider=pd,finalToken=action==="power"?utilityToken(pd):"",finalRequery:any=null;
   if(confirmedBad){
@@ -115,7 +115,7 @@ if(!["airtime","data","tv","education","power"].includes(action))return J({error
   if(!ok){
     const rq=action==="power"?await call(t,P()+"/merchant/requery?transaction_reference="+encodeURIComponent(tr),"GET",undefined,15000):await call(t,B()+"/merchants/requery?t_ref="+encodeURIComponent(tr),"GET",undefined,15000);
     const rp=rq.data?.data||rq.data,rs=st(rp);
-    const rOk=rq.ok&&(good.has(rs)||(!rs&&rq.status===200)||(action==="power"&&!!utilityToken(rp)))&&!bad.has(rs);
+    const rOk=rq.ok&&(good.has(rs)||(action==="power"&&!!utilityToken(rp)))&&!bad.has(rs);
     const rBad=bad.has(rs);
     if(rOk){
       finalProvider=rp;finalToken=action==="power"?utilityToken(rp):"";
