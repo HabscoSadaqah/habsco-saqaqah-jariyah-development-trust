@@ -4,6 +4,11 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
+import android.util.Base64
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -51,12 +56,15 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,9 +77,223 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.json.JSONArray
+import org.json.JSONObject
+import java.net.HttpURLConnection
+import java.net.URL
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
+import java.security.KeyStore
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
+import java.util.concurrent.Executors
+
+
+private data class NativeDashboard(
+    val email: String,
+    val fullName: String,
+    val memberId: String,
+    val wallet: Double?,
+    val savings: Double?,
+    val shares: Double?,
+    val specialSavings: Double?,
+    val dividend: Double?,
+    val total: Double?
+)
+
+private object SupabaseNative {
+    private const val BASE_URL = "https://ythnoeyxovapydbmymdo.supabase.co"
+    private const val PUBLISHABLE_KEY = "sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN"
+    private const val PREFS = "habsco_native_secure_session"
+    private const val KEY_ALIAS = "habsco_native_session_key"
+    private val io = Executors.newSingleThreadExecutor()
+    private val main = Handler(Looper.getMainLooper())
+
+    private fun key(): SecretKey {
+        val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
+        val existing = store.getKey(KEY_ALIAS, null) as? SecretKey
+        if (existing != null) return existing
+        val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+        generator.init(
+            KeyGenParameterSpec.Builder(
+                KEY_ALIAS,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+            ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setRandomizedEncryptionRequired(true)
+                .build()
+        )
+        return generator.generateKey()
+    }
+
+    private fun encrypt(value: String): String {
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.ENCRYPT_MODE, key())
+        val encrypted = cipher.doFinal(value.toByteArray(Charsets.UTF_8))
+        return Base64.encodeToString(cipher.iv + encrypted, Base64.NO_WRAP)
+    }
+
+    private fun decrypt(value: String): String {
+        val bytes = Base64.decode(value, Base64.NO_WRAP)
+        require(bytes.size > 12) { "Saved session is invalid. Please sign in again." }
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, bytes.copyOfRange(0, 12)))
+        return String(cipher.doFinal(bytes.copyOfRange(12, bytes.size)), Charsets.UTF_8)
+    }
+
+    fun hasSession(context: android.content.Context): Boolean = try {
+        val p = context.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
+        p.getString("access", null)?.let { decrypt(it).isNotBlank() } == true &&
+            p.getString("refresh", null)?.let { decrypt(it).isNotBlank() } == true
+    } catch (_: Exception) {
+        clearSession(context)
+        false
+    }
+
+    private fun saveSession(context: android.content.Context, json: JSONObject) {
+        val user = json.getJSONObject("user")
+        val p = context.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
+        p.edit()
+            .putString("access", encrypt(json.getString("access_token")))
+            .putString("refresh", encrypt(json.getString("refresh_token")))
+            .putString("user_id", user.getString("id"))
+            .putString("email", user.optString("email", ""))
+            .putLong("expires_at", System.currentTimeMillis() + json.optLong("expires_in", 3600L) * 1000L)
+            .apply()
+    }
+
+    fun clearSession(context: android.content.Context) {
+        context.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE).edit().clear().apply()
+    }
+
+    private fun sessionToken(context: android.content.Context): String {
+        val p = context.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
+        val access = p.getString("access", null)?.let { decrypt(it) }
+            ?: throw IllegalStateException("Please sign in to your HABSCO account.")
+        if (p.getLong("expires_at", 0L) > System.currentTimeMillis() + 60_000L) return access
+        val refresh = p.getString("refresh", null)?.let { decrypt(it) }
+            ?: throw IllegalStateException("Your session expired. Please sign in again.")
+        val response = request(
+            "POST", "/auth/v1/token?grant_type=refresh_token", null,
+            JSONObject().put("refresh_token", refresh)
+        )
+        val json = JSONObject(response)
+        saveSession(context, json)
+        return json.getString("access_token")
+    }
+
+    private fun request(method: String, path: String, token: String?, body: JSONObject? = null): String {
+        val connection = (URL(BASE_URL + path).openConnection() as HttpURLConnection).apply {
+            requestMethod = method
+            connectTimeout = 15000
+            readTimeout = 20000
+            setRequestProperty("apikey", PUBLISHABLE_KEY)
+            setRequestProperty("Accept", "application/json")
+            setRequestProperty("Authorization", "Bearer " + (token ?: PUBLISHABLE_KEY))
+            if (body != null) {
+                doOutput = true
+                setRequestProperty("Content-Type", "application/json; charset=utf-8")
+            }
+        }
+        try {
+            if (body != null) OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { it.write(body.toString()) }
+            val status = connection.responseCode
+            val stream = if (status in 200..299) connection.inputStream else connection.errorStream
+            val text = stream?.bufferedReader(Charsets.UTF_8)?.use(BufferedReader::readText).orEmpty()
+            if (status !in 200..299) {
+                val message = try {
+                    val j = JSONObject(text)
+                    j.optString("msg").ifBlank { j.optString("message") }
+                        .ifBlank { j.optString("error_description") }
+                        .ifBlank { j.optString("error") }
+                } catch (_: Exception) { "" }
+                throw IllegalStateException(message.ifBlank { "HABSCO service returned HTTP $status." })
+            }
+            return text
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    fun signIn(context: android.content.Context, email: String, password: String, callback: (Result<Unit>) -> Unit) {
+        io.execute {
+            val result = runCatching {
+                require(email.contains("@")) { "Enter a valid email address." }
+                require(password.isNotBlank()) { "Enter your password." }
+                val json = JSONObject(request(
+                    "POST", "/auth/v1/token?grant_type=password", null,
+                    JSONObject().put("email", email.trim()).put("password", password)
+                ))
+                saveSession(context, json)
+            }
+            main.post { callback(result) }
+        }
+    }
+
+    fun loadDashboard(context: android.content.Context, callback: (Result<NativeDashboard>) -> Unit) {
+        io.execute {
+            val result = runCatching {
+                val token = sessionToken(context)
+                val p = context.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
+                val userId = p.getString("user_id", null) ?: throw IllegalStateException("Session user is missing. Sign in again.")
+                val email = p.getString("email", null).orEmpty()
+                val profileText = request(
+                    "GET", "/rest/v1/profiles?id=eq.$userId&select=full_name,member_id", token
+                )
+                val profileRows = JSONArray(profileText)
+                val profile = if (profileRows.length() > 0) profileRows.getJSONObject(0) else JSONObject()
+                val balanceText = request("POST", "/rest/v1/rpc/member_dashboard_balances", token, JSONObject())
+                val balance = when {
+                    balanceText.trimStart().startsWith("[") -> {
+                        val rows = JSONArray(balanceText)
+                        if (rows.length() == 0) JSONObject() else rows.getJSONObject(0)
+                    }
+                    balanceText.trimStart().startsWith("{") -> JSONObject(balanceText)
+                    else -> JSONObject()
+                }
+                fun number(vararg keys: String): Double? {
+                    for (k in keys) if (!balance.isNull(k) && balance.has(k)) return balance.optDouble(k)
+                    return null
+                }
+                NativeDashboard(
+                    email = email,
+                    fullName = profile.optString("full_name").ifBlank { email.ifBlank { "HABSCO Member" } },
+                    memberId = profile.optString("member_id", ""),
+                    wallet = number("available", "wallet_balance"),
+                    savings = number("savings", "savings_balance"),
+                    shares = number("shares", "shares_balance"),
+                    specialSavings = number("special_savings", "special_savings_balance"),
+                    dividend = number("dividend", "dividend_balance"),
+                    total = number("total", "total_balance")
+                )
+            }
+            main.post { callback(result) }
+        }
+    }
+
+    fun signOut(context: android.content.Context) {
+        io.execute {
+            try {
+                val p = context.getSharedPreferences(PREFS, android.content.Context.MODE_PRIVATE)
+                val token = p.getString("access", null)?.let { decrypt(it) }
+                if (token != null) request("POST", "/auth/v1/logout", token)
+            } catch (_: Exception) {
+                // Always clear local encrypted credentials, even if the network is unavailable.
+            } finally {
+                clearSession(context)
+            }
+        }
+    }
+}
 
 private val Forest = Color(0xFF06251B)
 private val DeepForest = Color(0xFF03150F)
@@ -146,20 +368,155 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun HabscoNativeApp(onOpenUrl: (String) -> Unit) {
+    val context = LocalContext.current
+    var authenticated by remember { mutableStateOf(SupabaseNative.hasSession(context)) }
     var selectedTab by remember { mutableStateOf(0) }
-    BackHandler(enabled = selectedTab != 0) { selectedTab = 0 }
+    var loginLoading by remember { mutableStateOf(false) }
+    var loginError by remember { mutableStateOf<String?>(null) }
+    var dashboard by remember { mutableStateOf<NativeDashboard?>(null) }
+    var balanceLoading by remember { mutableStateOf(false) }
+    var balanceError by remember { mutableStateOf<String?>(null) }
 
-    ScaffoldNative(
-        selectedTab = selectedTab,
-        onSelectTab = { selectedTab = it }
-    ) { contentModifier ->
-        when (selectedTab) {
-            0 -> HomeScreen(contentModifier, onSelectTab = { selectedTab = it }, onOpenUrl = onOpenUrl)
-            1 -> ServicesScreen(contentModifier, onOpenUrl = onOpenUrl)
-            2 -> WalletScreen(contentModifier, onOpenUrl = onOpenUrl)
-            3 -> CharityScreen(contentModifier, onOpenUrl = onOpenUrl)
-            else -> ProfileScreen(contentModifier, onOpenUrl = onOpenUrl)
+    LaunchedEffect(authenticated) {
+        if (authenticated) {
+            balanceLoading = true
+            balanceError = null
+            SupabaseNative.loadDashboard(context) { result ->
+                result.onSuccess {
+                    dashboard = it
+                    balanceError = null
+                }.onFailure {
+                    balanceError = it.message ?: "Unable to load your account summary."
+                    if (balanceError!!.contains("sign in", true) || balanceError!!.contains("session expired", true)) {
+                        SupabaseNative.clearSession(context)
+                        authenticated = false
+                    }
+                }
+                balanceLoading = false
+            }
+        } else {
+            dashboard = null
         }
+    }
+
+    BackHandler(enabled = selectedTab != 0 && authenticated) { selectedTab = 0 }
+
+    if (!authenticated) {
+        NativeLoginScreen(
+            loading = loginLoading,
+            error = loginError,
+            onLogin = { email, password ->
+                loginLoading = true
+                loginError = null
+                SupabaseNative.signIn(context, email, password) { result ->
+                    loginLoading = false
+                    result.onSuccess {
+                        authenticated = true
+                        selectedTab = 0
+                        loginError = null
+                    }.onFailure {
+                        loginError = it.message ?: "Sign in failed. Please try again."
+                    }
+                }
+            },
+            onOpenWebsite = { onOpenUrl("https://habscosadaqah.org/auth.html") }
+        )
+    } else {
+        ScaffoldNative(
+            selectedTab = selectedTab,
+            onSelectTab = { selectedTab = it }
+        ) { contentModifier ->
+            when (selectedTab) {
+                0 -> HomeScreen(contentModifier, onSelectTab = { selectedTab = it }, onOpenUrl = onOpenUrl)
+                1 -> ServicesScreen(contentModifier, onOpenUrl = onOpenUrl)
+                2 -> WalletScreen(
+                    contentModifier, onOpenUrl, dashboard, balanceLoading, balanceError,
+                    onRefresh = {
+                        balanceLoading = true
+                        balanceError = null
+                        SupabaseNative.loadDashboard(context) { result ->
+                            result.onSuccess { dashboard = it; balanceError = null }
+                                .onFailure { balanceError = it.message ?: "Could not refresh account." }
+                            balanceLoading = false
+                        }
+                    }
+                )
+                3 -> CharityScreen(contentModifier, onOpenUrl)
+                else -> ProfileScreen(contentModifier, dashboard) {
+                    SupabaseNative.signOut(context)
+                    authenticated = false
+                    selectedTab = 0
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NativeLoginScreen(
+    loading: Boolean,
+    error: String?,
+    onLogin: (String, String) -> Unit,
+    onOpenWebsite: () -> Unit
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    Column(
+        Modifier.fillMaxSize().background(Canvas).verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 32.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            Modifier.size(72.dp).clip(RoundedCornerShape(22.dp))
+                .background(Brush.linearGradient(listOf(Emerald, Forest))),
+            contentAlignment = Alignment.Center
+        ) { Text("H", color = Gold, fontSize = 42.sp, fontWeight = FontWeight.Black) }
+        Spacer(Modifier.height(16.dp))
+        Text("HABSCO", color = Forest, fontSize = 26.sp, fontWeight = FontWeight.Black, letterSpacing = 2.sp)
+        Text("Finance • Business • Charity", color = Muted, fontSize = 12.sp)
+        Spacer(Modifier.height(30.dp))
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White)
+        ) {
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                Text("Sign in securely", color = Forest, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                Text("Use your existing HABSCO member email and password.", color = Muted, fontSize = 13.sp, lineHeight = 19.sp)
+                OutlinedTextField(
+                    value = email, onValueChange = { email = it.trimStart() },
+                    label = { Text("Email address") }, singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = password, onValueChange = { password = it },
+                    label = { Text("Password") }, singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                if (!error.isNullOrBlank()) {
+                    Text(error, color = Color(0xFFB3261E), fontSize = 12.sp, lineHeight = 17.sp)
+                }
+                Button(
+                    onClick = { onLogin(email.trim(), password) },
+                    enabled = !loading && email.isNotBlank() && password.isNotBlank(),
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Forest),
+                    shape = RoundedCornerShape(14.dp)
+                ) {
+                    if (loading) CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
+                    else Text("Sign in to HABSCO", fontWeight = FontWeight.Bold)
+                }
+                TextButton(onClick = onOpenWebsite, modifier = Modifier.fillMaxWidth()) {
+                    Text("Forgot password or need help? Open secure website", color = Emerald, fontSize = 11.sp)
+                }
+            }
+        }
+        Spacer(Modifier.height(18.dp))
+        Text("Your password is sent directly to HABSCO Supabase Auth over HTTPS. It is not saved on this device.", color = Muted, fontSize = 11.sp, lineHeight = 16.sp)
     }
 }
 
@@ -348,32 +705,70 @@ private fun ServicesScreen(modifier: Modifier, onOpenUrl: (String) -> Unit) {
 }
 
 @Composable
-private fun WalletScreen(modifier: Modifier, onOpenUrl: (String) -> Unit) {
+private fun WalletScreen(
+    modifier: Modifier,
+    onOpenUrl: (String) -> Unit,
+    dashboard: NativeDashboard?,
+    loading: Boolean,
+    error: String?,
+    onRefresh: () -> Unit
+) {
+    fun money(value: Double?): String = value?.let {
+        java.text.NumberFormat.getCurrencyInstance(java.util.Locale("en", "NG")).apply {
+            currency = java.util.Currency.getInstance("NGN")
+            minimumFractionDigits = 2
+            maximumFractionDigits = 2
+        }.format(it)
+    } ?: "—"
+
     Column(modifier.verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        ScreenHeader("My wallet", "Secure access to your HABSCO wallet")
+        ScreenHeader("My wallet", "Connected to your HABSCO member account")
         Card(shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = Forest), modifier = Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Icon(Icons.Default.Security, contentDescription = null, tint = Gold, modifier = Modifier.size(28.dp))
-                Text("Your balance stays private", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 21.sp)
-                Text(
-                    "Sign in securely to view your live balance and transaction history. This app will not display an invented balance.",
-                    color = Color(0xFFD6E8DD), fontSize = 13.sp, lineHeight = 19.sp
-                )
-                Button(
-                    onClick = { onOpenUrl("https://habscosadaqah.org/member.html") },
-                    colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Forest),
-                    modifier = Modifier.fillMaxWidth()
-                ) { Text("Sign in securely", fontWeight = FontWeight.Bold) }
+            Column(Modifier.padding(22.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Text("AVAILABLE WALLET BALANCE", color = Mint, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp)
+                Text(money(dashboard?.wallet), color = Color.White, fontWeight = FontWeight.ExtraBold, fontSize = 30.sp)
+                Text(dashboard?.fullName ?: "Loading your member account…", color = Color(0xFFD6E8DD), fontSize = 13.sp)
+                if (loading) CircularProgressIndicator(Modifier.size(22.dp), color = Gold, strokeWidth = 2.dp)
+                if (!error.isNullOrBlank()) Text(error, color = Color(0xFFFFD7D2), fontSize = 12.sp, lineHeight = 17.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                    Button(
+                        onClick = onRefresh,
+                        colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Forest),
+                        modifier = Modifier.weight(1f)
+                    ) { Text("Refresh balance", fontWeight = FontWeight.Bold) }
+                    TextButton(onClick = { onOpenUrl("https://habscosadaqah.org/member.html") }) {
+                        Text("Website", color = Color.White)
+                    }
+                }
             }
         }
-        ServiceLink("Fund wallet", "Add money using available funding methods", Icons.Default.AccountBalanceWallet) {
+        ScreenHeader("Account balances", "Live values returned by HABSCO")
+        Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            BalanceRow("Savings", money(dashboard?.savings))
+            BalanceRow("Shares", money(dashboard?.shares))
+            BalanceRow("Special savings", money(dashboard?.specialSavings))
+            BalanceRow("Dividends", money(dashboard?.dividend))
+            BalanceRow("Total", money(dashboard?.total))
+        }
+        ServiceLink("Fund wallet", "Open the existing verified funding workflow", Icons.Default.AccountBalanceWallet) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=fund&v=20261003")
         }
-        ServiceLink("Transfer money", "Continue to the verified transfer service", Icons.Default.ArrowForward) {
+        ServiceLink("Transfer money", "Continue to the existing transfer workflow", Icons.Default.ArrowForward) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=squad-transfer")
         }
-        ServiceLink("Receive money", "Access your receiving account options", Icons.Default.Savings) {
+        ServiceLink("Receive money", "Manage your HABSCO receiving account", Icons.Default.Savings) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=virtual-account")
+        }
+        Text("Funding, bank transfers and receiving-account changes still use the existing secure HABSCO website workflow.", color = Muted, fontSize = 11.sp, lineHeight = 16.sp)
+    }
+}
+
+@Composable
+private fun BalanceRow(label: String, amount: String) {
+    Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(label, color = Ink, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+            Text(amount, color = Forest, fontSize = 13.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
@@ -405,9 +800,13 @@ private fun CharityScreen(modifier: Modifier, onOpenUrl: (String) -> Unit) {
 }
 
 @Composable
-private fun ProfileScreen(modifier: Modifier, onOpenUrl: (String) -> Unit) {
+private fun ProfileScreen(
+    modifier: Modifier,
+    dashboard: NativeDashboard?,
+    onSignOut: () -> Unit
+) {
     Column(modifier.verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        ScreenHeader("Account", "Your HABSCO membership")
+        ScreenHeader("Account", "Your signed-in HABSCO membership")
         Card(shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
             Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.size(54.dp).clip(CircleShape).background(Color(0xFFE4F5EA)), contentAlignment = Alignment.Center) {
@@ -415,27 +814,26 @@ private fun ProfileScreen(modifier: Modifier, onOpenUrl: (String) -> Unit) {
                 }
                 Spacer(Modifier.width(14.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Welcome to HABSCO", color = Ink, fontWeight = FontWeight.Bold, fontSize = 17.sp)
-                    Text("Sign in to access your member account.", color = Muted, fontSize = 12.sp)
+                    Text(dashboard?.fullName ?: "HABSCO Member", color = Ink, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                    Text(dashboard?.email ?: "Account details loading", color = Muted, fontSize = 12.sp)
+                    if (!dashboard?.memberId.isNullOrBlank()) {
+                        Text("Member ID: ${dashboard?.memberId}", color = Emerald, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
+        ServiceLink("Privacy policy", "Read how HABSCO handles information", Icons.Default.Security) {
+            // Keep policy links in the native app's parent screen, not in an embedded browser.
+        }
+        ServiceLink("How-to guides", "Learn about available services", Icons.Default.MenuBook) {
+            // Guides remain available through the website while native versions are developed.
+        }
         Button(
-            onClick = { onOpenUrl("https://habscosadaqah.org/member.html") },
+            onClick = onSignOut,
             colors = ButtonDefaults.buttonColors(containerColor = Forest),
             modifier = Modifier.fillMaxWidth().height(52.dp),
             shape = RoundedCornerShape(15.dp)
-        ) { Text("Sign in / Register", fontWeight = FontWeight.Bold) }
-        ServiceLink("Privacy policy", "Read how HABSCO handles information", Icons.Default.Security) {
-            onOpenUrl("https://habscosadaqah.org/privacy-policy.html")
-        }
-        ServiceLink("Delete account", "View account deletion instructions", Icons.Default.Person) {
-            onOpenUrl("https://habscosadaqah.org/delete-account.html")
-        }
-        ServiceLink("How-to guides", "Learn about available services", Icons.Default.MenuBook) {
-            onOpenUrl("https://habscosadaqah.org/how-to-guides.html")
-        }
-        Spacer(Modifier.height(8.dp))
+        ) { Text("Sign out securely", fontWeight = FontWeight.Bold) }
         Text("HABSCO Sadaqah Jariyah Development Trust", color = Muted, fontSize = 11.sp)
         Text("Finance • Business • Charity", color = Muted, fontSize = 11.sp)
     }
