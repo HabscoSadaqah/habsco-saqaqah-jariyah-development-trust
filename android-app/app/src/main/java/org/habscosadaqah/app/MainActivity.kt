@@ -471,6 +471,7 @@ private fun HabscoNativeApp(onOpenExternal: (String) -> Unit) {
         val action = Regex("[?&]action=([^&]+)").find(url)?.groupValues?.get(1)?.lowercase()
         selectedRoute = when {
             action == "fund" -> "fund"
+            action == "savings" || action == "save" -> "save"
             action == "squad-transfer" || action == "money-services" -> "squad-transfer"
             action == "virtual-account" -> "virtual-account"
             action == "airtime" -> "airtime"
@@ -561,7 +562,7 @@ private fun HabscoNativeApp(onOpenExternal: (String) -> Unit) {
     } else {
         val openService: (ServiceItem) -> Unit = { item ->
             if (item.action in listOf("airtime", "data", "power", "tv", "education")) selectedService = item
-            else selectedRoute = item.action
+            else selectedRoute = if (item.action == "savings") "save" else item.action
         }
         ScaffoldNative(
             selectedTab = selectedTab,
@@ -1112,7 +1113,11 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                 message = if (ok) it.toString().take(650) else it.optString("error").ifBlank { it.toString() }
                 error = !ok
                 if (action == "virtual-account" && ok) receiving = it.optJSONObject("data")
-                if (action == "squad-transfer" && ok) pin = ""
+                if (action == "squad-transfer" && ok) {
+                    pin = ""
+                    accountName = it.optString("account_name", accountName)
+                    if (it.has("status") && it.optString("status") == "processing") message = "Transfer is processing. Do not retry. Reference: " + it.optString("reference")
+                }
                 if (ok) onRefresh()
             }.onFailure { message = it.message ?: "Request failed."; error = true }
         }
@@ -1124,7 +1129,7 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
         "privacy" -> "Privacy & security"; "statement" -> "Account statement"; "auth" -> "Account access"; else -> "Sadaqah Jariyah donation"
     }
     LaunchedEffect(action) {
-        if (action == "virtual-account") {
+        if (action == "virtual-account" || action == "fund") {
             accountLoading = true
             SupabaseNative.loadVirtualAccount(context) { r ->
                 accountLoading = false
@@ -1155,14 +1160,26 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
         }
         when (action) {
             "fund" -> {
-                Text("Enter an amount to create a verified HABSCO wallet-funding request. The app will not open a website.", color = Muted, fontSize = 13.sp)
+                Text("You can fund the wallet by transferring to your registered HABSCO receiving account below. The app will not open a website.", color = Muted, fontSize = 13.sp)
+                if (accountLoading) CircularProgressIndicator(color = Emerald)
+                receiving?.let { acct ->
+                    Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                            Text("Bank transfer funding", color = Forest, fontWeight = FontWeight.Bold)
+                            BalanceRow("Account number", acct.optString("virtual_account_number", "—"))
+                            BalanceRow("Bank code", acct.optString("bank_code", "—"))
+                            BalanceRow("Status", acct.optString("status", "—"))
+                            Text("Send your bank transfer to this account. Credits are posted after the provider webhook confirms settlement.", color = Muted, fontSize = 11.sp)
+                        }
+                    }
+                }
                 OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Amount (minimum ₦100)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
                 Button(onClick = {
                     val v = amount.toDoubleOrNull()
                     if (v == null || v < 100) { message = "Enter at least ₦100."; error = true }
                     else edge("accelerate-wallet-funding", JSONObject().put("action", "create_payment_link").put("amount", v))
                 }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Create funding request") }
-                Text("The current provider returns a hosted checkout URL, which is deliberately not opened. Native payment-provider SDK integration is still needed to complete card checkout entirely in-app.", color = Muted, fontSize = 11.sp)
+                Text("Card checkout is not opened because the current provider only supplies a hosted checkout URL. Bank-transfer funding through the receiving account above remains in-app and does not redirect.", color = Muted, fontSize = 11.sp)
             }
             "squad-transfer" -> {
                 Text("Choose a bank or enter its bank code.", color = Muted, fontSize = 12.sp)
