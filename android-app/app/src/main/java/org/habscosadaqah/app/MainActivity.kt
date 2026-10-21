@@ -1258,6 +1258,21 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                 OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
                 Button(onClick = { val v = amount.toDoubleOrNull(); if (v == null || v <= 0 || pin.length != 6) { message = "Enter valid amount and PIN."; error = true } else rpc("member_withdraw_dividend", JSONObject().put("p_amount", v).put("p_transaction_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Withdraw dividends") }
             }
+            "donate" -> {
+                Text("Make a Sadaqah Jariyah donation from your HABSCO wallet. Your transaction PIN is checked securely by the database and a donation reference is recorded.", color = Muted, lineHeight = 21.sp)
+                listOf("general_sadaqah" to "General Sadaqah Jariyah", "waqf_shops" to "Waqf shops", "solar_boreholes" to "Solar-powered boreholes", "vocational_learning" to "Free vocational learning", "empowerment" to "Empowerment programmes").forEach { (code, label) ->
+                    TextButton(onClick = { purpose = code; error = false; message = "Selected project: $label" }, modifier = Modifier.fillMaxWidth()) {
+                        Text((if (purpose == code) "✓ " else "") + label, color = Ink)
+                    }
+                }
+                OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Donation amount (minimum ₦100)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
+                OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
+                Button(onClick = {
+                    val v = amount.toDoubleOrNull()
+                    if (v == null || v < 100 || pin.length != 6) { message = "Enter at least ₦100 and your 6-digit PIN."; error = true }
+                    else rpc("member_make_donation", JSONObject().put("p_amount", v).put("p_project", purpose.ifBlank { "general_sadaqah" }).put("p_transaction_pin", pin))
+                }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Confirm donation") }
+            }
             "guides" -> Text("Home has quick actions; Services contains airtime, data, electricity, TV, education, savings, shares and loans; Wallet contains balances, receiving accounts, funding and bank transfers; Charity explains HABSCO Sadaqah Jariyah.", color = Muted, lineHeight = 22.sp)
             "statement" -> Text("Your recent native account statement is available on the Wallet screen. Use Back, then Wallet to view transaction references, amounts, directions and statuses.", color = Muted, lineHeight = 22.sp)
             "auth" -> Text("Sign in using the native sign-in form. Native registration and password recovery are not yet available; this app will not open the website.", color = Muted, lineHeight = 22.sp)
