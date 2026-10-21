@@ -250,6 +250,27 @@ private object SupabaseNative {
         }
     }
 
+    fun rpc(context: android.content.Context, name: String, body: JSONObject, callback: (Result<JSONObject>) -> Unit) {
+        io.execute {
+            val result = runCatching {
+                val token = sessionToken(context)
+                val raw = request("POST", "/rest/v1/rpc/" + name, token, body)
+                runCatching { JSONObject(raw) }.getOrElse { JSONObject().put("result", raw) }
+            }
+            main.post { callback(result) }
+        }
+    }
+
+    fun edge(context: android.content.Context, function: String, body: JSONObject, callback: (Result<JSONObject>) -> Unit) {
+        io.execute {
+            val result = runCatching {
+                val token = sessionToken(context)
+                JSONObject(request("POST", "/functions/v1/" + function, token, body))
+            }
+            main.post { callback(result) }
+        }
+    }
+
     fun billvending(context: android.content.Context, body: JSONObject, callback: (Result<JSONObject>) -> Unit) {
         io.execute {
             val result = runCatching {
@@ -435,7 +456,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun HabscoNativeApp(onOpenUrl: (String) -> Unit) {
+private fun HabscoNativeApp(onOpenExternal: (String) -> Unit) {
     val context = LocalContext.current
     var authenticated by remember { mutableStateOf(SupabaseNative.hasSession(context)) }
     var selectedTab by remember { mutableStateOf(0) }
@@ -445,6 +466,28 @@ private fun HabscoNativeApp(onOpenUrl: (String) -> Unit) {
     var balanceLoading by remember { mutableStateOf(false) }
     var balanceError by remember { mutableStateOf<String?>(null) }
     var selectedService by remember { mutableStateOf<ServiceItem?>(null) }
+    var selectedRoute by remember { mutableStateOf<String?>(null) }
+    val onOpenUrl: (String) -> Unit = { url ->
+        val action = Regex("[?&]action=([^&]+)").find(url)?.groupValues?.get(1)?.lowercase()
+        selectedRoute = when {
+            action == "fund" -> "fund"
+            action == "squad-transfer" || action == "money-services" -> "squad-transfer"
+            action == "virtual-account" -> "virtual-account"
+            action == "airtime" -> "airtime"
+            action == "data" -> "data"
+            action == "electricity" || action == "power" -> "power"
+            action == "tv" -> "tv"
+            action == "education" -> "education"
+            action == "qard" -> "qard"
+            action == "save" -> "save"
+            action == "shares" -> "shares"
+            action == "dividend" -> "dividend"
+            action == "repayment" -> "repayment"
+            url.contains("privacy-policy") -> "privacy"
+            url.contains("how-to-guides") -> "guides"
+            else -> "donate"
+        }
+    }
 
     LaunchedEffect(authenticated) {
         if (authenticated) {
@@ -468,8 +511,12 @@ private fun HabscoNativeApp(onOpenUrl: (String) -> Unit) {
         }
     }
 
-    BackHandler(enabled = authenticated && (selectedService != null || selectedTab != 0)) {
-        if (selectedService != null) selectedService = null else selectedTab = 0
+    BackHandler(enabled = authenticated && (selectedService != null || selectedRoute != null || selectedTab != 0)) {
+        when {
+            selectedRoute != null -> selectedRoute = null
+            selectedService != null -> selectedService = null
+            else -> selectedTab = 0
+        }
     }
 
     if (!authenticated) {
@@ -492,19 +539,25 @@ private fun HabscoNativeApp(onOpenUrl: (String) -> Unit) {
             },
             onOpenWebsite = { onOpenUrl("https://habscosadaqah.org/auth.html") }
         )
+    } else if (selectedRoute != null) {
+        NativeAccountServiceScreen(action = selectedRoute!!, onBack = { selectedRoute = null }, onRefresh = {
+            balanceLoading = true
+            SupabaseNative.loadDashboard(context) { result ->
+                result.onSuccess { dashboard = it; balanceError = null }
+                    .onFailure { balanceError = it.message ?: "Could not refresh account." }
+                balanceLoading = false
+            }
+        })
     } else if (selectedService != null) {
-        NativeUtilityScreen(
-            service = selectedService!!,
-            onBack = { selectedService = null },
-            onOpenUrl = onOpenUrl
-        )
+        if (selectedService!!.action in listOf("airtime", "data", "power", "tv", "education")) {
+            NativeUtilityScreen(service = selectedService!!, onBack = { selectedService = null }, onOpenUrl = onOpenUrl)
+        } else {
+            NativeAccountServiceScreen(action = selectedService!!.action, onBack = { selectedService = null }, onRefresh = { selectedService = null })
+        }
     } else {
         val openService: (ServiceItem) -> Unit = { item ->
-            if (item.action in listOf("airtime", "data", "power", "tv", "education")) {
-                selectedService = item
-            } else {
-                onOpenUrl(item.url)
-            }
+            if (item.action in listOf("airtime", "data", "power", "tv", "education")) selectedService = item
+            else selectedRoute = item.action
         }
         ScaffoldNative(
             selectedTab = selectedTab,
