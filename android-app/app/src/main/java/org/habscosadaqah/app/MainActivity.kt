@@ -250,6 +250,20 @@ private object SupabaseNative {
         }
     }
 
+    fun loadVirtualAccount(context: android.content.Context, callback: (Result<JSONObject?>) -> Unit) {
+        io.execute {
+            val result = runCatching {
+                val token = sessionToken(context)
+                val response = request(
+                    "POST", "/functions/v1/squad-virtual-account", token,
+                    JSONObject().put("action", "get")
+                )
+                JSONObject(response).optJSONObject("data")
+            }
+            main.post { callback(result) }
+        }
+    }
+
     fun loadDashboard(context: android.content.Context, callback: (Result<NativeDashboard>) -> Unit) {
         io.execute {
             val result = runCatching {
@@ -764,6 +778,12 @@ private fun WalletScreen(
         }.format(it)
     } ?: "—"
 
+    val context = LocalContext.current
+    var accountLoading by remember { mutableStateOf(false) }
+    var accountChecked by remember { mutableStateOf(false) }
+    var receivingAccount by remember { mutableStateOf<JSONObject?>(null) }
+    var accountError by remember { mutableStateOf<String?>(null) }
+
     Column(modifier.verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         ScreenHeader("My wallet", "Connected to your HABSCO member account")
         Card(shape = RoundedCornerShape(24.dp), colors = CardDefaults.cardColors(containerColor = Forest), modifier = Modifier.fillMaxWidth()) {
@@ -849,10 +869,49 @@ private fun WalletScreen(
         ServiceLink("Transfer money", "Continue to the existing transfer workflow", Icons.Default.ArrowForward) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=squad-transfer")
         }
-        ServiceLink("Receive money", "Manage your HABSCO receiving account", Icons.Default.Savings) {
-            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=virtual-account")
+        ServiceLink("Receive money", "View your registered receiving account", Icons.Default.Savings) {
+            accountLoading = true
+            accountError = null
+            SupabaseNative.loadVirtualAccount(context) { result ->
+                accountLoading = false
+                accountChecked = true
+                result.onSuccess { receivingAccount = it }
+                    .onFailure { accountError = it.message ?: "Could not load your receiving account." }
+            }
         }
-        Text("Funding, bank transfers and receiving-account changes still use the existing secure HABSCO website workflow.", color = Muted, fontSize = 11.sp, lineHeight = 16.sp)
+        if (accountLoading) {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp, color = Emerald)
+                Text("Loading receiving account…", color = Muted, fontSize = 12.sp)
+            }
+        }
+        if (!accountError.isNullOrBlank()) {
+            Text(accountError!!, color = Color(0xFFB3261E), fontSize = 12.sp)
+            TextButton(onClick = { onOpenUrl("https://habscosadaqah.org/member-actions.html?action=virtual-account") }) {
+                Text("Open secure account setup")
+            }
+        } else if (accountChecked && receivingAccount == null) {
+            Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("No receiving account found", color = Ink, fontWeight = FontWeight.Bold)
+                    Text("If you have not created a HABSCO receiving account, continue to the secure website setup. Your BVN and date of birth are not requested in this app screen.", color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
+                    Button(onClick = { onOpenUrl("https://habscosadaqah.org/member-actions.html?action=virtual-account") }) {
+                        Text("Set up receiving account")
+                    }
+                }
+            }
+        } else if (receivingAccount != null) {
+            Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Text("Your HABSCO receiving account", color = Ink, fontWeight = FontWeight.Bold)
+                    BalanceRow("Account number", receivingAccount!!.optString("virtual_account_number", "—"))
+                    BalanceRow("Bank code", receivingAccount!!.optString("bank_code", "—"))
+                    BalanceRow("Status", receivingAccount!!.optString("status", "—").replaceFirstChar { it.uppercase() })
+                    Text("Share these details only with people who need to pay you. Account details are loaded securely from HABSCO.", color = Muted, fontSize = 11.sp, lineHeight = 16.sp)
+                }
+            }
+        }
+        Text("Wallet funding and bank transfers continue through HABSCO's existing secure workflow.", color = Muted, fontSize = 11.sp, lineHeight = 16.sp)
     }
 }
 
