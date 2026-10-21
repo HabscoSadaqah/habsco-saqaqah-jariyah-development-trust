@@ -1181,7 +1181,7 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onNav
             busy = false
             result.onSuccess {
                 message = "Request completed. " + it.toString().take(420)
-                error = false; pin = ""
+                error = false; pin = ""; currentPin = ""
                 if (action in listOf("qard", "repayment", "shares")) loadRecords()
                 onRefresh()
             }.onFailure { message = it.message ?: "Request failed."; error = true }
