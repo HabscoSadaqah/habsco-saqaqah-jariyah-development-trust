@@ -1061,6 +1061,201 @@ private fun NativeUtilityScreen(
     }
 }
 
+
+@Composable
+private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRefresh: () -> Unit) {
+    val context = LocalContext.current
+    var amount by remember(action) { mutableStateOf("") }
+    var purpose by remember(action) { mutableStateOf("") }
+    var plan by remember(action) { mutableStateOf("monthly") }
+    var pin by remember(action) { mutableStateOf("") }
+    var frequency by remember(action) { mutableStateOf("monthly") }
+    var reference by remember(action) { mutableStateOf("") }
+    var qardId by remember(action) { mutableStateOf("") }
+    var bankCode by remember(action) { mutableStateOf("") }
+    var accountNumber by remember(action) { mutableStateOf("") }
+    var accountName by remember(action) { mutableStateOf("") }
+    var bankOptions by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+    var busy by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf<String?>(null) }
+    var error by remember { mutableStateOf(false) }
+    var receiving by remember { mutableStateOf<JSONObject?>(null) }
+    var accountLoading by remember { mutableStateOf(false) }
+    var firstName by remember(action) { mutableStateOf("") }
+    var lastName by remember(action) { mutableStateOf("") }
+    var mobile by remember(action) { mutableStateOf("") }
+    var dob by remember(action) { mutableStateOf("") }
+    var bvn by remember(action) { mutableStateOf("") }
+    var gender by remember(action) { mutableStateOf("male") }
+    var address by remember(action) { mutableStateOf("") }
+
+    fun rpc(name: String, body: JSONObject) {
+        busy = true; message = null; error = false
+        SupabaseNative.rpc(context, name, body) { result ->
+            busy = false
+            result.onSuccess {
+                message = "Request completed. " + it.toString().take(420)
+                error = false; pin = ""; onRefresh()
+            }.onFailure { message = it.message ?: "Request failed."; error = true }
+        }
+    }
+    fun edge(function: String, body: JSONObject) {
+        busy = true; message = null; error = false
+        SupabaseNative.edge(context, function, body) { result ->
+            busy = false
+            result.onSuccess {
+                val ok = it.optBoolean("success", true) && !it.has("error")
+                message = if (ok) it.toString().take(650) else it.optString("error").ifBlank { it.toString() }
+                error = !ok
+                if (action == "virtual-account" && ok) receiving = it.optJSONObject("data")
+                if (action == "squad-transfer" && ok) pin = ""
+                if (ok) onRefresh()
+            }.onFailure { message = it.message ?: "Request failed."; error = true }
+        }
+    }
+    val title = when (action) {
+        "fund" -> "Fund wallet"; "squad-transfer" -> "Transfer to bank"; "virtual-account" -> "Receive money"
+        "qard" -> "Interest-free loan"; "repayment" -> "Loan repayment"; "save" -> "Savings"
+        "shares" -> "Shares"; "dividend" -> "Dividend account"; "guides" -> "HABSCO service guides"
+        "privacy" -> "Privacy & security"; else -> "Sadaqah Jariyah donation"
+    }
+    LaunchedEffect(action) {
+        if (action == "virtual-account") {
+            accountLoading = true
+            SupabaseNative.loadVirtualAccount(context) { r ->
+                accountLoading = false
+                r.onSuccess { receiving = it }.onFailure { message = it.message ?: "Could not load account."; error = true }
+            }
+        }
+        if (action == "squad-transfer") {
+            SupabaseNative.edge(context, "squad-bank-transfer", JSONObject().put("action", "banks")) { r ->
+                r.onSuccess { json ->
+                    val root = json.optJSONArray("data") ?: json.optJSONArray("banks") ?: json.optJSONObject("data")?.optJSONArray("data")
+                    val opts = mutableListOf<Pair<String, String>>()
+                    if (root != null) for (i in 0 until root.length()) {
+                        val row = root.optJSONObject(i) ?: continue
+                        val code = row.optString("bank_code").ifBlank { row.optString("code") }.ifBlank { row.optString("bankCode") }
+                        val name = row.optString("name").ifBlank { row.optString("bank_name") }.ifBlank { row.optString("bankName") }
+                        if (code.isNotBlank() && name.isNotBlank()) opts.add(name to code)
+                    }
+                    bankOptions = opts.distinctBy { it.second }
+                    if (bankOptions.isEmpty()) { message = "Bank list response could not be read. You can enter the bank code."; error = true }
+                }.onFailure { message = it.message ?: "Unable to load banks."; error = true }
+            }
+        }
+    }
+    Column(Modifier.fillMaxSize().background(Canvas).verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(13.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            TextButton(onClick = onBack) { Text("← Back", color = Emerald, fontWeight = FontWeight.Bold) }
+            Text(title, color = Forest, fontSize = 23.sp, fontWeight = FontWeight.ExtraBold)
+        }
+        when (action) {
+            "fund" -> {
+                Text("Enter an amount to create a verified HABSCO wallet-funding request. The app will not open a website.", color = Muted, fontSize = 13.sp)
+                OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Amount (minimum ₦100)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
+                Button(onClick = {
+                    val v = amount.toDoubleOrNull()
+                    if (v == null || v < 100) { message = "Enter at least ₦100."; error = true }
+                    else edge("accelerate-wallet-funding", JSONObject().put("action", "create_payment_link").put("amount", v))
+                }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Create funding request") }
+                Text("The current provider returns a hosted checkout URL, which is deliberately not opened. Native payment-provider SDK integration is still needed to complete card checkout entirely in-app.", color = Muted, fontSize = 11.sp)
+            }
+            "squad-transfer" -> {
+                Text("Choose a bank or enter its bank code.", color = Muted, fontSize = 12.sp)
+                bankOptions.take(50).forEach { (name, code) ->
+                    TextButton(onClick = { bankCode = code; message = "Selected $name ($code)"; error = false }, modifier = Modifier.fillMaxWidth()) {
+                        Text((if (bankCode == code) "✓ " else "") + name, color = Ink)
+                    }
+                }
+                OutlinedTextField(value = bankCode, onValueChange = { bankCode = it.trim() }, label = { Text("Bank code") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(value = accountNumber, onValueChange = { accountNumber = it.filter(Char::isDigit).take(10); accountName = "" }, label = { Text("10-digit account number") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                Button(onClick = {
+                    if (bankCode.isBlank() || accountNumber.length != 10) { message = "Select a bank and enter a 10-digit account number."; error = true }
+                    else edge("squad-bank-transfer", JSONObject().put("action", "resolve").put("bank_code", bankCode).put("account_number", accountNumber))
+                }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Verify account") }
+                OutlinedTextField(value = accountName, onValueChange = { accountName = it }, label = { Text("Verified account name") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Amount (NGN)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
+                OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
+                Button(onClick = {
+                    val v = amount.toDoubleOrNull()
+                    if (bankCode.isBlank() || accountNumber.length != 10 || accountName.isBlank() || v == null || v <= 0 || pin.length != 6) { message = "Verify the account and complete every field."; error = true }
+                    else edge("squad-bank-transfer", JSONObject().put("action", "transfer").put("bank_code", bankCode).put("account_number", accountNumber).put("account_name", accountName).put("amount", v).put("transaction_pin", pin))
+                }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Confirm transfer") }
+                Text("If a transfer is processing, do not submit it again. Keep the reference and recheck its status.", color = Muted, fontSize = 11.sp)
+            }
+            "virtual-account" -> {
+                if (accountLoading) CircularProgressIndicator(color = Emerald)
+                if (receiving != null) {
+                    BalanceRow("Account number", receiving!!.optString("virtual_account_number", "—"))
+                    BalanceRow("Bank code", receiving!!.optString("bank_code", "—"))
+                    BalanceRow("Status", receiving!!.optString("status", "—"))
+                } else {
+                    Text("Create your receiving account within the app. Enter your verified personal details.", color = Muted, fontSize = 12.sp)
+                    OutlinedTextField(value = firstName, onValueChange = { firstName = it }, label = { Text("First name") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                    OutlinedTextField(value = lastName, onValueChange = { lastName = it }, label = { Text("Last name") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                    OutlinedTextField(value = mobile, onValueChange = { mobile = it.filter { c -> c.isDigit() || c == '+' }.take(15) }, label = { Text("Mobile number") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), singleLine = true)
+                    OutlinedTextField(value = dob, onValueChange = { dob = it }, label = { Text("Date of birth (YYYY-MM-DD)") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                    OutlinedTextField(value = bvn, onValueChange = { bvn = it.filter(Char::isDigit).take(11) }, label = { Text("BVN (11 digits)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), visualTransformation = PasswordVisualTransformation(), singleLine = true)
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) { listOf("male", "female").forEach { g -> TextButton(onClick = { gender = g }) { Text((if (gender == g) "✓ " else "") + g.replaceFirstChar { it.uppercase() }, color = Emerald) } } }
+                    OutlinedTextField(value = address, onValueChange = { address = it }, label = { Text("Residential address") }, modifier = Modifier.fillMaxWidth())
+                    Button(onClick = {
+                        if (firstName.isBlank() || lastName.isBlank() || mobile.isBlank() || !dob.matches(Regex("^\\d{4}-\\d{2}-\\d{2}$")) || bvn.length != 11 || address.isBlank()) { message = "Complete all fields and check date and BVN."; error = true }
+                        else edge("squad-virtual-account", JSONObject().put("action", "create").put("profile", JSONObject().put("first_name", firstName).put("last_name", lastName).put("mobile_num", mobile).put("dob", dob).put("bvn", bvn).put("gender", gender).put("address", address)))
+                    }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Create receiving account") }
+                }
+            }
+            "qard" -> {
+                OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Loan amount (NGN)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
+                OutlinedTextField(value = plan, onValueChange = { plan = it }, label = { Text("Repayment plan") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(value = purpose, onValueChange = { purpose = it }, label = { Text("Purpose of loan") }, modifier = Modifier.fillMaxWidth())
+                Button(onClick = {
+                    val v = amount.toDoubleOrNull()
+                    if (v == null || v <= 0 || plan.isBlank() || purpose.isBlank()) { message = "Enter a valid amount, plan and purpose."; error = true }
+                    else rpc("member_submit_qard_request", JSONObject().put("p_amount", v).put("p_repayment_plan", plan.trim()).put("purpose", purpose.trim()))
+                }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Submit loan request") }
+            }
+            "repayment" -> {
+                OutlinedTextField(value = qardId, onValueChange = { qardId = it.trim() }, label = { Text("Loan request ID") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Repayment amount") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
+                OutlinedTextField(value = reference, onValueChange = { reference = it }, label = { Text("Payment reference") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(value = purpose, onValueChange = { purpose = it }, label = { Text("Note (optional)") }, modifier = Modifier.fillMaxWidth())
+                Button(onClick = {
+                    val v = amount.toDoubleOrNull()
+                    if (qardId.isBlank() || v == null || v <= 0 || reference.isBlank()) { message = "Enter loan ID, amount and actual payment reference."; error = true }
+                    else rpc("member_submit_qard_repayment", JSONObject().put("p_qard_request_id", qardId).put("p_amount", v).put("p_paid_date", java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).format(java.util.Date())).put("p_payment_reference", reference.trim()).put("p_note", purpose.trim()))
+                }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Submit repayment record") }
+                Text("Only record a repayment after payment has actually been made.", color = Muted, fontSize = 11.sp)
+            }
+            "save" -> {
+                OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Amount (NGN)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
+                OutlinedTextField(value = frequency, onValueChange = { frequency = it.lowercase() }, label = { Text("Plan frequency: daily, weekly, monthly") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
+                Button(onClick = { val v = amount.toDoubleOrNull(); if (v == null || v <= 0 || pin.length != 6) { message = "Enter valid amount and PIN."; error = true } else rpc("member_add_money_to_savings", JSONObject().put("p_amount", v).put("p_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Add to savings") }
+                Button(onClick = { if (pin.length != 6) { message = "Enter your 6-digit PIN."; error = true } else rpc("member_withdraw_all_savings", JSONObject().put("p_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Withdraw eligible savings") }
+                Button(onClick = { val v = amount.toDoubleOrNull(); if (v == null || v <= 0 || pin.length != 6 || frequency !in listOf("daily", "weekly", "monthly")) { message = "Enter valid amount, frequency and PIN."; error = true } else rpc("member_set_savings_plan", JSONObject().put("p_frequency", frequency).put("p_fixed_amount", v).put("p_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Save automatic plan") }
+            }
+            "shares" -> {
+                OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Share purchase amount") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
+                OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
+                Button(onClick = { val v = amount.toDoubleOrNull(); if (v == null || v <= 0 || pin.length != 6) { message = "Enter valid amount and PIN."; error = true } else rpc("member_buy_share", JSONObject().put("p_amount", v).put("p_transaction_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Buy shares") }
+            }
+            "dividend" -> {
+                OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Dividend withdrawal amount") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
+                OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
+                Button(onClick = { val v = amount.toDoubleOrNull(); if (v == null || v <= 0 || pin.length != 6) { message = "Enter valid amount and PIN."; error = true } else rpc("member_withdraw_dividend", JSONObject().put("p_amount", v).put("p_transaction_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Withdraw dividends") }
+            }
+            "guides" -> Text("Home has quick actions; Services contains airtime, data, electricity, TV, education, savings, shares and loans; Wallet contains balances, receiving accounts, funding and bank transfers; Charity explains HABSCO Sadaqah Jariyah.", color = Muted, lineHeight = 22.sp)
+            "privacy" -> Text("HABSCO sends account requests over encrypted HTTPS. Transaction PINs are sent to authenticated transaction services and are not stored by this screen. Never share your PIN, BVN or bank details.", color = Muted, lineHeight = 22.sp)
+            else -> {
+                Text("Support waqf shops, solar-powered boreholes, free vocational learning and empowerment programmes.", color = Muted, lineHeight = 22.sp)
+                Text("Donations are not yet connected to a dedicated secure donation endpoint. No payment will be taken from this screen.", color = Color(0xFF9A4A00), fontSize = 12.sp)
+            }
+        }
+        if (busy) CircularProgressIndicator(color = Emerald)
+        message?.let { Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = if (error) Color(0xFFFFE8E5) else Color(0xFFE4F5EA))) { Text(it, Modifier.padding(14.dp), color = if (error) Color(0xFF9E2F24) else Forest, fontSize = 12.sp, lineHeight = 17.sp) } }
+    }
+}
+
 @Composable
 private fun ServicesScreen(modifier: Modifier, onOpenUrl: (String) -> Unit, onOpenService: (ServiceItem) -> Unit) {
     Column(modifier.verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
