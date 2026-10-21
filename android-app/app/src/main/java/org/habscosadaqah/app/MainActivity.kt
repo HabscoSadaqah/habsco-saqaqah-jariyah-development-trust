@@ -713,7 +713,7 @@ private fun HomeScreen(
                 modifier = Modifier.weight(1f),
                 title = "Receive",
                 icon = Icons.Default.Savings,
-                onClick = { onOpenUrl("https://habscosadaqah.org/member-actions.html?action=virtual-account") }
+                onClick = { onSelectTab(2) }
             )
         }
 
@@ -1030,8 +1030,14 @@ private fun ServicesScreen(modifier: Modifier, onOpenUrl: (String) -> Unit, onOp
         ServiceLink("Wallet & Transfers", "Funding, receiving and sending money", Icons.Default.AccountBalanceWallet) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=money-services")
         }
+        ServiceLink("Dividend Account", "View your dividend account", Icons.Default.Savings) {
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=dividend")
+        }
+        ServiceLink("Loan Repayment", "Manage repayments for your interest-free loan", Icons.Default.Savings) {
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=repayment")
+        }
         ServiceLink("Donation & Sadaqah Jariyah", "Support HABSCO community projects", Icons.Default.Favorite) {
-            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=donate")
+            onOpenUrl("https://habscosadaqah.org/")
         }
         ServiceLink("Flyers & Guides", "Daily PNG flyers and tutorials", Icons.Default.MenuBook) {
             onOpenUrl("https://habscosadaqah.org/how-to-guides.html")
