@@ -912,7 +912,7 @@ private fun NativeUtilityScreen(
                     ) { Text("Load available packages") }
                 }
                 if (service.action == "tv" || service.action == "education" || service.action == "power") {
-                    OutlinedTextField(value = phone, onValueChange = { phone = it.filter { c -> c.isDigit() || c == '+' }, }, label = { Text("Contact phone (optional)") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone))
+                    OutlinedTextField(value = phone, onValueChange = { phone = it.filter { c -> c.isDigit() || c == '+' } }, label = { Text("Contact phone (optional)") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone))
                 }
                 OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), singleLine = true, visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword))
                 Text("Your PIN is sent only to HABSCO’s authenticated transaction service. Never share it with anyone.", color = Muted, fontSize = 11.sp, lineHeight = 16.sp)
@@ -1025,7 +1025,7 @@ private fun ServicesScreen(modifier: Modifier, onOpenUrl: (String) -> Unit, onOp
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=save")
         }
         ServiceLink("Shares", "Manage your shares account", Icons.Default.AccountBalanceWallet) {
-            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=shares")
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=save")
         }
         ServiceLink("Wallet & Transfers", "Funding, receiving and sending money", Icons.Default.AccountBalanceWallet) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=money-services")
