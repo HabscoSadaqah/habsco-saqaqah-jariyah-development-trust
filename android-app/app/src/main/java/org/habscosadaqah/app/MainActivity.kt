@@ -894,6 +894,7 @@ private fun NativeUtilityScreen(
     var choices by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
     var choiceTitle by remember { mutableStateOf<String?>(null) }
     var showConfirm by remember { mutableStateOf(false) }
+    var transactionReference by remember(service.action) { mutableStateOf("") }
 
     fun displayName(obj: JSONObject): String {
         return listOf("name", "provider_name", "short_name", "provider", "disco", "description", "package_name", "variation_name", "title")
@@ -1052,7 +1053,21 @@ private fun NativeUtilityScreen(
                 Text(it, Modifier.padding(14.dp), color = if (error) Color(0xFF9E2F24) else Forest, fontSize = 12.sp, lineHeight = 17.sp)
             }
         }
-        Text("Transactions are checked against your HABSCO wallet, PIN and provider response. Do not repeat a pending purchase; contact support or recheck its reference.", color = Muted, fontSize = 11.sp, lineHeight = 16.sp)
+        OutlinedTextField(value = transactionReference, onValueChange = { transactionReference = it.trim() }, label = { Text("Existing utility transaction reference") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+        Button(onClick = {
+            if (transactionReference.isBlank()) { message = "Enter the reference from your previous transaction."; error = true }
+            else {
+                busy = true
+                SupabaseNative.billvending(context, JSONObject().put("action", "requery").put("transaction_reference", transactionReference)) { result ->
+                    busy = false
+                    result.onSuccess { json ->
+                        message = json.toString().take(650)
+                        error = !json.optBoolean("success", true)
+                    }.onFailure { message = it.message ?: "Unable to recheck this transaction."; error = true }
+                }
+            }
+        }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (busy) "Checking…" else "Recheck transaction status") }
+        Text("Transactions are checked against your HABSCO wallet, PIN and provider response. Do not repeat a pending purchase; use the reference above to recheck it.", color = Muted, fontSize = 11.sp, lineHeight = 16.sp)
     }
 
     if (showConfirm) {
@@ -1164,7 +1179,9 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
             busy = false
             result.onSuccess {
                 message = "Request completed. " + it.toString().take(420)
-                error = false; pin = ""; onRefresh()
+                error = false; pin = ""
+                if (action in listOf("qard", "repayment", "shares")) loadRecords()
+                onRefresh()
             }.onFailure { message = it.message ?: "Request failed."; error = true }
         }
     }
