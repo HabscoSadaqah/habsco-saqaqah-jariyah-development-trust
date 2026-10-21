@@ -277,6 +277,16 @@ private object SupabaseNative {
         }
     }
 
+    fun rows(context: android.content.Context, path: String, callback: (Result<JSONArray>) -> Unit) {
+        io.execute {
+            val result = runCatching {
+                val token = sessionToken(context)
+                JSONArray(request("GET", path, token))
+            }
+            main.post { callback(result) }
+        }
+    }
+
     fun loadVirtualAccount(context: android.content.Context, callback: (Result<JSONObject?>) -> Unit) {
         io.execute {
             val result = runCatching {
@@ -1079,6 +1089,20 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
     var bvn by remember(action) { mutableStateOf("") }
     var gender by remember(action) { mutableStateOf("male") }
     var address by remember(action) { mutableStateOf("") }
+    var records by remember(action) { mutableStateOf<List<JSONObject>>(emptyList()) }
+    var recordsError by remember { mutableStateOf<String?>(null) }
+
+    fun loadRecords() {
+        val path = when (action) {
+            "qard", "repayment" -> "/rest/v1/qard_requests?select=id,amount,purpose,status,created_at&order=created_at.desc"
+            "shares" -> "/rest/v1/member_share_lots?select=id,principal,status,maturity_at,reference&order=created_at.desc"
+            else -> return
+        }
+        SupabaseNative.rows(context, path) { r ->
+            r.onSuccess { arr -> records = (0 until arr.length()).mapNotNull { arr.optJSONObject(it) }; recordsError = null }
+                .onFailure { recordsError = it.message ?: "Could not load account records." }
+        }
+    }
 
     fun rpc(name: String, body: JSONObject) {
         busy = true; message = null; error = false
@@ -1122,6 +1146,7 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                 r.onSuccess { receiving = it }.onFailure { message = it.message ?: "Could not load account."; error = true }
             }
         }
+        if (action in listOf("qard", "repayment", "shares")) loadRecords()
         if (action == "squad-transfer") {
             SupabaseNative.edge(context, "squad-bank-transfer", JSONObject().put("action", "banks")) { r ->
                 r.onSuccess { json ->
@@ -1219,6 +1244,9 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                 Button(onClick = { val v = amount.toDoubleOrNull(); if (qardId.isBlank() || v == null || v <= 0 || pin.length != 6) { message = "Enter recipient member ID, valid amount and 6-digit PIN."; error = true } else rpc("member_transfer", JSONObject().put("p_recipient_member_id", qardId).put("p_amount", v).put("p_description", purpose.ifBlank { "HABSCO member transfer" }).put("p_transaction_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Confirm member transfer") }
             }
             "qard" -> {
+                Text("Existing loan requests", color = Forest, fontWeight = FontWeight.Bold)
+                records.forEach { row -> Text("₦${row.optString("amount")} · ${row.optString("status")} · ${row.optString("purpose")}", color = Ink, fontSize = 12.sp) }
+                recordsError?.let { Text(it, color = Color(0xFFB3261E), fontSize = 11.sp) }
                 OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Loan amount (NGN)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
                 OutlinedTextField(value = plan, onValueChange = { plan = it }, label = { Text("Repayment plan") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                 OutlinedTextField(value = purpose, onValueChange = { purpose = it }, label = { Text("Purpose of loan") }, modifier = Modifier.fillMaxWidth())
@@ -1229,6 +1257,13 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                 }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Submit loan request") }
             }
             "repayment" -> {
+                Text("Choose your loan request", color = Forest, fontWeight = FontWeight.Bold)
+                records.forEach { row ->
+                    TextButton(onClick = { qardId = row.optString("id") }, modifier = Modifier.fillMaxWidth()) {
+                        Text("${row.optString("id")} · ₦${row.optString("amount")} · ${row.optString("status")}", color = Ink, fontSize = 11.sp)
+                    }
+                }
+                recordsError?.let { Text(it, color = Color(0xFFB3261E), fontSize = 11.sp) }
                 OutlinedTextField(value = qardId, onValueChange = { qardId = it.trim() }, label = { Text("Loan request ID") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
                 OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Repayment amount") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
                 OutlinedTextField(value = reference, onValueChange = { reference = it }, label = { Text("Payment reference") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
@@ -1249,6 +1284,11 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                 Button(onClick = { val v = amount.toDoubleOrNull(); if (v == null || v <= 0 || pin.length != 6 || frequency !in listOf("daily", "weekly", "monthly")) { message = "Enter valid amount, frequency and PIN."; error = true } else rpc("member_set_savings_plan", JSONObject().put("p_frequency", frequency).put("p_fixed_amount", v).put("p_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Save automatic plan") }
             }
             "shares" -> {
+                Text("Your share lots", color = Forest, fontWeight = FontWeight.Bold)
+                records.forEach { row ->
+                    Text("${row.optString("reference")} · ₦${row.optString("principal")} · ${row.optString("status")} · matures ${row.optString("maturity_at").take(10)}", color = Ink, fontSize = 12.sp)
+                }
+                recordsError?.let { Text(it, color = Color(0xFFB3261E), fontSize = 11.sp) }
                 OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Share purchase amount") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
                 OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
                 Button(onClick = { val v = amount.toDoubleOrNull(); if (v == null || v <= 0 || pin.length != 6) { message = "Enter valid amount and PIN."; error = true } else rpc("member_buy_share", JSONObject().put("p_amount", v).put("p_transaction_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Buy shares") }
