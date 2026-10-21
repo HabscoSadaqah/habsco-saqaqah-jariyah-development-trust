@@ -505,6 +505,7 @@ private fun HabscoNativeApp() {
             action == "shares" -> "shares"
             action == "dividend" -> "dividend"
             action == "repayment" -> "repayment"
+            action == "transaction-pin" || action == "pin" -> "pin"
             url.contains("privacy-policy") -> "privacy"
             url.contains("how-to-guides") -> "guides"
             url.contains("member.html") -> "statement"
@@ -1137,6 +1138,7 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onNav
     var purpose by remember(action) { mutableStateOf("") }
     var plan by remember(action) { mutableStateOf("monthly") }
     var pin by remember(action) { mutableStateOf("") }
+    var currentPin by remember(action) { mutableStateOf("") }
     var frequency by remember(action) { mutableStateOf("monthly") }
     var reference by remember(action) { mutableStateOf("") }
     var qardId by remember(action) { mutableStateOf("") }
@@ -1206,7 +1208,7 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onNav
     val title = when (action) {
         "fund" -> "Fund wallet"; "squad-transfer" -> "Transfer to bank"; "peer-transfer" -> "Transfer to member"; "virtual-account" -> "Receive money"
         "qard" -> "Interest-free loan"; "repayment" -> "Loan repayment"; "save" -> "Savings"
-        "shares" -> "Shares"; "dividend" -> "Dividend account"; "guides" -> "HABSCO service guides"
+        "shares" -> "Shares"; "dividend" -> "Dividend account"; "pin" -> "Transaction PIN"; "guides" -> "HABSCO service guides"
         "privacy" -> "Privacy & security"; "statement" -> "Account statement"; "auth" -> "Account access"; else -> "Sadaqah Jariyah donation"
     }
     LaunchedEffect(action) {
@@ -1376,6 +1378,12 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onNav
                 OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
                 Button(onClick = { val v = amount.toDoubleOrNull(); if (v == null || v <= 0 || pin.length != 6) { message = "Enter valid amount and PIN."; error = true } else rpc("member_buy_share", JSONObject().put("p_amount", v).put("p_transaction_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Buy shares") }
                 Button(onClick = { if (selectedShareId.isBlank() || pin.length != 6) { message = "Select a share lot and enter your 6-digit PIN."; error = true } else confirmShareTermination = true }, enabled = !busy, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8A2F24))) { Text("Request share termination") }
+            }
+            "pin" -> {
+                Text("Set a new 6-digit transaction PIN. If you have never set one, leave the current PIN blank. Avoid repeated or sequential digits.", color = Muted, fontSize = 12.sp, lineHeight = 18.sp)
+                OutlinedTextField(value = currentPin, onValueChange = { currentPin = it.filter(Char::isDigit).take(6) }, label = { Text("Current PIN (leave blank if not set)") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
+                OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("New 6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
+                Button(onClick = { if (pin.length != 6) { message = "Enter a 6-digit new PIN."; error = true } else rpc("member_set_transaction_pin", JSONObject().put("p_current_pin", currentPin).put("p_new_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Save transaction PIN") }
             }
             "dividend" -> {
                 OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Dividend withdrawal amount") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
@@ -1661,6 +1669,9 @@ private fun ProfileScreen(
                     }
                 }
             }
+        }
+        ServiceLink("Transaction PIN", "Set or change your transaction PIN", Icons.Default.Security) {
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=transaction-pin")
         }
         ServiceLink("Privacy & security", "Read in-app privacy and security information", Icons.Default.Security) {
             onOpenUrl("https://habscosadaqah.org/privacy-policy.html")
