@@ -250,6 +250,16 @@ private object SupabaseNative {
         }
     }
 
+    fun billvending(context: android.content.Context, body: JSONObject, callback: (Result<JSONObject>) -> Unit) {
+        io.execute {
+            val result = runCatching {
+                val token = sessionToken(context)
+                JSONObject(request("POST", "/functions/v1/accelerate-billvending", token, body))
+            }
+            main.post { callback(result) }
+        }
+    }
+
     fun loadVirtualAccount(context: android.content.Context, callback: (Result<JSONObject?>) -> Unit) {
         io.execute {
             val result = runCatching {
@@ -377,16 +387,17 @@ private data class ServiceItem(
     val subtitle: String,
     val icon: ImageVector,
     val tint: Color,
+    val action: String,
     val url: String
 )
 
 private val services = listOf(
-    ServiceItem("Airtime", "Top up a phone", Icons.Default.PhoneAndroid, Color(0xFFDCF5E8), "https://habscosadaqah.org/member.html"),
-    ServiceItem("Data", "Internet bundles", Icons.Default.Wifi, Color(0xFFDCEBFF), "https://habscosadaqah.org/member.html"),
-    ServiceItem("Electricity", "Pay utility bills", Icons.Default.Bolt, Color(0xFFFFF0C7), "https://habscosadaqah.org/member.html"),
-    ServiceItem("TV", "Renew subscriptions", Icons.Default.Tv, Color(0xFFF0E5FF), "https://habscosadaqah.org/member.html"),
-    ServiceItem("Education", "Education payments", Icons.Default.School, Color(0xFFFFE6DF), "https://habscosadaqah.org/member.html"),
-    ServiceItem("Savings & Shares", "Build your future", Icons.Default.Savings, Color(0xFFDDF4F2), "https://habscosadaqah.org/member.html")
+    ServiceItem("Airtime", "Top up a phone", Icons.Default.PhoneAndroid, Color(0xFFDCF5E8), "airtime", "https://habscosadaqah.org/member-actions.html?action=airtime"),
+    ServiceItem("Data", "Internet bundles", Icons.Default.Wifi, Color(0xFFDCEBFF), "data", "https://habscosadaqah.org/member-actions.html?action=data"),
+    ServiceItem("Electricity", "Pay utility bills", Icons.Default.Bolt, Color(0xFFFFF0C7), "power", "https://habscosadaqah.org/member-actions.html?action=electricity"),
+    ServiceItem("TV", "Renew subscriptions", Icons.Default.Tv, Color(0xFFF0E5FF), "tv", "https://habscosadaqah.org/member-actions.html?action=tv"),
+    ServiceItem("Education", "Education payments", Icons.Default.School, Color(0xFFFFE6DF), "education", "https://habscosadaqah.org/member-actions.html?action=education"),
+    ServiceItem("Savings & Shares", "Build your future", Icons.Default.Savings, Color(0xFFDDF4F2), "savings", "https://habscosadaqah.org/member-actions.html?action=save")
 )
 
 class MainActivity : ComponentActivity() {
@@ -433,6 +444,7 @@ private fun HabscoNativeApp(onOpenUrl: (String) -> Unit) {
     var dashboard by remember { mutableStateOf<NativeDashboard?>(null) }
     var balanceLoading by remember { mutableStateOf(false) }
     var balanceError by remember { mutableStateOf<String?>(null) }
+    var selectedService by remember { mutableStateOf<ServiceItem?>(null) }
 
     LaunchedEffect(authenticated) {
         if (authenticated) {
@@ -456,7 +468,9 @@ private fun HabscoNativeApp(onOpenUrl: (String) -> Unit) {
         }
     }
 
-    BackHandler(enabled = selectedTab != 0 && authenticated) { selectedTab = 0 }
+    BackHandler(enabled = authenticated && (selectedService != null || selectedTab != 0)) {
+        if (selectedService != null) selectedService = null else selectedTab = 0
+    }
 
     if (!authenticated) {
         NativeLoginScreen(
@@ -478,14 +492,27 @@ private fun HabscoNativeApp(onOpenUrl: (String) -> Unit) {
             },
             onOpenWebsite = { onOpenUrl("https://habscosadaqah.org/auth.html") }
         )
+    } else if (selectedService != null) {
+        NativeUtilityScreen(
+            service = selectedService!!,
+            onBack = { selectedService = null },
+            onOpenUrl = onOpenUrl
+        )
     } else {
+        val openService: (ServiceItem) -> Unit = { item ->
+            if (item.action in listOf("airtime", "data", "power", "tv", "education")) {
+                selectedService = item
+            } else {
+                onOpenUrl(item.url)
+            }
+        }
         ScaffoldNative(
             selectedTab = selectedTab,
             onSelectTab = { selectedTab = it }
         ) { contentModifier ->
             when (selectedTab) {
-                0 -> HomeScreen(contentModifier, onSelectTab = { selectedTab = it }, onOpenUrl = onOpenUrl)
-                1 -> ServicesScreen(contentModifier, onOpenUrl = onOpenUrl)
+                0 -> HomeScreen(contentModifier, onSelectTab = { selectedTab = it }, onOpenUrl = onOpenUrl, onOpenService = openService)
+                1 -> ServicesScreen(contentModifier, onOpenUrl = onOpenUrl, onOpenService = openService)
                 2 -> WalletScreen(
                     contentModifier, onOpenUrl, dashboard, balanceLoading, balanceError,
                     onRefresh = {
@@ -608,7 +635,8 @@ private fun ScaffoldNative(
 private fun HomeScreen(
     modifier: Modifier,
     onSelectTab: (Int) -> Unit,
-    onOpenUrl: (String) -> Unit
+    onOpenUrl: (String) -> Unit,
+    onOpenService: (ServiceItem) -> Unit
 ) {
     Column(
         modifier = modifier.verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 16.dp),
@@ -694,7 +722,7 @@ private fun HomeScreen(
             services.take(4).chunked(2).forEach { pair ->
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
                     pair.forEach { service ->
-                        ServiceCard(service, Modifier.weight(1f)) { onOpenUrl(service.url) }
+                        ServiceCard(service, Modifier.weight(1f)) { onOpenService(service) }
                     }
                 }
             }
@@ -739,21 +767,271 @@ private fun HomeScreen(
     }
 }
 
+
 @Composable
-private fun ServicesScreen(modifier: Modifier, onOpenUrl: (String) -> Unit) {
+private fun NativeUtilityScreen(
+    service: ServiceItem,
+    onBack: () -> Unit,
+    onOpenUrl: (String) -> Unit
+) {
+    val context = LocalContext.current
+    var provider by remember(service.action) { mutableStateOf("") }
+    var receiver by remember(service.action) { mutableStateOf("") }
+    var amount by remember(service.action) { mutableStateOf("") }
+    var packageCode by remember(service.action) { mutableStateOf("") }
+    var meterType by remember(service.action) { mutableStateOf("PREPAID") }
+    var phone by remember(service.action) { mutableStateOf("") }
+    var pin by remember(service.action) { mutableStateOf("") }
+    var busy by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf<String?>(null) }
+    var error by remember { mutableStateOf(false) }
+    var choices by remember { mutableStateOf<List<Pair<String, String>>>(emptyList()) }
+    var choiceTitle by remember { mutableStateOf<String?>(null) }
+    var showConfirm by remember { mutableStateOf(false) }
+
+    fun displayName(obj: JSONObject): String {
+        return listOf("name", "provider_name", "short_name", "provider", "disco", "description", "package_name", "variation_name", "title")
+            .firstNotNullOfOrNull { key -> obj.optString(key).takeIf { it.isNotBlank() && it != "null" } }
+            ?: obj.optString("code").ifBlank { obj.optString("id") }
+    }
+    fun displayCode(obj: JSONObject): String {
+        return listOf("code", "provider_code", "short_name", "provider", "variation_code", "package_code", "id")
+            .firstNotNullOfOrNull { key -> obj.optString(key).takeIf { it.isNotBlank() && it != "null" } }
+            ?: displayName(obj)
+    }
+    fun options(value: Any?): List<Pair<String, String>> {
+        val out = mutableListOf<Pair<String, String>>()
+        fun walk(v: Any?, depth: Int) {
+            if (depth > 7 || out.size >= 100 || v == null || v == JSONObject.NULL) return
+            when (v) {
+                is JSONArray -> for (i in 0 until v.length()) walk(v.opt(i), depth + 1)
+                is JSONObject -> {
+                    val label = displayName(v)
+                    val code = displayCode(v)
+                    if (label.isNotBlank() && code.isNotBlank() &&
+                        (v.has("code") || v.has("provider") || v.has("provider_name") || v.has("short_name") ||
+                         v.has("variation_code") || v.has("package_code") || v.has("package_name") || v.has("name"))) {
+                        val suffix = listOf("amount", "price", "price_amount", "variation_amount")
+                            .firstNotNullOfOrNull { key -> v.opt(key)?.toString()?.takeIf { it.isNotBlank() && it != "null" } }
+                        out.add((if (suffix != null) "$label · $suffix" else label) to code)
+                    } else {
+                        val keys = v.keys()
+                        while (keys.hasNext()) walk(v.opt(keys.next()), depth + 1)
+                    }
+                }
+            }
+        }
+        walk(value, 0)
+        return out.distinctBy { it.second }.take(100)
+    }
+    fun runLookup(action: String, body: JSONObject = JSONObject()) {
+        busy = true
+        message = null
+        choices = emptyList()
+        choiceTitle = null
+        SupabaseNative.billvending(context, JSONObject(body.toString()).put("action", action)) { result ->
+            busy = false
+            result.onSuccess { json ->
+                if (json.optBoolean("success", true)) {
+                    val data = json.opt("data")
+                    val found = options(data)
+                    choices = found
+                    choiceTitle = when {
+                        action.endsWith("-providers") || action == "power-providers" -> "Choose a provider"
+                        else -> "Choose a package"
+                    }
+                    message = if (found.isEmpty()) json.toString() else "Choose an option below, or enter its code manually."
+                    error = false
+                } else {
+                    message = json.optString("error").ifBlank { "Unable to load options." }
+                    error = true
+                }
+            }.onFailure {
+                message = it.message ?: "Unable to load options."
+                error = true
+            }
+        }
+    }
+    fun performPurchase() {
+        val value = amount.toDoubleOrNull()
+        if (provider.isBlank()) { message = "Enter or choose the service provider."; error = true; return }
+        if (receiver.isBlank()) { message = if (service.action == "power") "Enter your meter number." else "Enter the recipient number or account identifier."; error = true; return }
+        if (service.action in listOf("airtime", "power") && (value == null || value <= 0)) { message = "Enter a valid amount."; error = true; return }
+        if (service.action in listOf("data", "education") && packageCode.isBlank()) { message = "Enter or choose the package/code."; error = true; return }
+        if (service.action == "tv" && packageCode.isBlank()) { message = "Enter or choose the TV package."; error = true; return }
+        if (!pin.matches(Regex("^\\d{6}$"))) { message = "Enter your 6-digit transaction PIN."; error = true; return }
+        showConfirm = true
+    }
+
+    Column(
+        Modifier.fillMaxSize().background(Canvas).verticalScroll(rememberScrollState())
+            .padding(horizontal = 18.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(13.dp)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            TextButton(onClick = onBack) { Text("← Back", color = Emerald, fontWeight = FontWeight.Bold) }
+            Column(Modifier.weight(1f)) {
+                Text(service.title, color = Forest, fontSize = 25.sp, fontWeight = FontWeight.ExtraBold)
+                Text("Secure HABSCO member service", color = Muted, fontSize = 12.sp)
+            }
+        }
+        Card(shape = RoundedCornerShape(20.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+            Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Service details", color = Forest, fontWeight = FontWeight.Bold, fontSize = 17.sp)
+                OutlinedTextField(value = provider, onValueChange = { provider = it }, label = { Text("Provider / network code") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                Button(
+                    onClick = { runLookup(if (service.action == "power") "power-providers" else "${service.action}-providers") },
+                    enabled = !busy, modifier = Modifier.fillMaxWidth()
+                ) { Text(if (busy) "Loading…" else "Load providers") }
+
+                if (service.action == "power") {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf("PREPAID", "POSTPAID").forEach { option ->
+                            TextButton(onClick = { meterType = option }) {
+                                Text((if (meterType == option) "✓ " else "") + option, color = if (meterType == option) Emerald else Muted)
+                            }
+                        }
+                    }
+                }
+                OutlinedTextField(
+                    value = receiver, onValueChange = { receiver = it },
+                    label = { Text(if (service.action == "power") "Meter number" else if (service.action == "tv") "Smart-card / decoder number" else if (service.action == "education") "Candidate / recipient number" else "Phone number") },
+                    modifier = Modifier.fillMaxWidth(), singleLine = true
+                )
+                if (service.action in listOf("airtime", "power")) {
+                    OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Amount (NGN)") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal))
+                }
+                if (service.action in listOf("data", "tv", "education")) {
+                    OutlinedTextField(value = packageCode, onValueChange = { packageCode = it }, label = { Text(if (service.action == "tv") "TV package code" else if (service.action == "education") "Education product / exam code" else "Data package code") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                    Button(
+                        onClick = {
+                            val lookup = if (service.action == "data") "data-packages" else if (service.action == "tv") "tv-packages" else "education-packages"
+                            runLookup(lookup, JSONObject().put("provider", provider))
+                        },
+                        enabled = !busy && provider.isNotBlank(), modifier = Modifier.fillMaxWidth()
+                    ) { Text("Load available packages") }
+                }
+                if (service.action == "tv" || service.action == "education" || service.action == "power") {
+                    OutlinedTextField(value = phone, onValueChange = { phone = it.filter { c -> c.isDigit() || c == '+' }, }, label = { Text("Contact phone (optional)") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone))
+                }
+                OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), singleLine = true, visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword))
+                Text("Your PIN is sent only to HABSCO’s authenticated transaction service. Never share it with anyone.", color = Muted, fontSize = 11.sp, lineHeight = 16.sp)
+                Button(
+                    onClick = { performPurchase() },
+                    enabled = !busy, modifier = Modifier.fillMaxWidth().height(52.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Forest),
+                    shape = RoundedCornerShape(14.dp)
+                ) { Text("Review purchase", fontWeight = FontWeight.Bold) }
+            }
+        }
+        if (choices.isNotEmpty()) {
+            Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = Color.White)) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(choiceTitle ?: "Available options", color = Forest, fontWeight = FontWeight.Bold)
+                    choices.take(30).forEach { (label, code) ->
+                        TextButton(
+                            onClick = {
+                                if (choiceTitle == "Choose a provider") provider = code
+                                else packageCode = code
+                                message = "Selected: $label"
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("$label  [$code]", color = Ink) }
+                    }
+                }
+            }
+        }
+        message?.let {
+            Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = if (error) Color(0xFFFFE8E5) else Color(0xFFE4F5EA))) {
+                Text(it, Modifier.padding(14.dp), color = if (error) Color(0xFF9E2F24) else Forest, fontSize = 12.sp, lineHeight = 17.sp)
+            }
+        }
+        Text("Transactions are checked against your HABSCO wallet, PIN and provider response. Do not repeat a pending purchase; contact support or recheck its reference.", color = Muted, fontSize = 11.sp, lineHeight = 16.sp)
+    }
+
+    if (showConfirm) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showConfirm = false },
+            title = { Text("Confirm ${service.title}") },
+            text = {
+                Text(
+                    "${service.title} purchase\nProvider: $provider\nRecipient: $receiver" +
+                        (if (amount.isNotBlank()) "\nAmount: ₦$amount" else "") +
+                        (if (packageCode.isNotBlank()) "\nPackage: $packageCode" else "") +
+                        "\n\nThis will submit a real transaction using your HABSCO wallet."
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showConfirm = false
+                    busy = true
+                    message = null
+                    error = false
+                    val payload = JSONObject()
+                        .put("action", service.action)
+                        .put("provider", provider.trim())
+                        .put("receiver", receiver.trim())
+                        .put("transaction_pin", pin)
+                    if (amount.isNotBlank()) payload.put("amount", amount.toDoubleOrNull() ?: 0.0)
+                    if (packageCode.isNotBlank()) {
+                        if (service.action == "tv") payload.put("package", packageCode.trim())
+                        else payload.put("code", packageCode.trim())
+                    }
+                    if (service.action == "power") {
+                        payload.put("meter_type", meterType)
+                        if (phone.isNotBlank()) payload.put("phone_number", phone.trim())
+                    }
+                    if (phone.isNotBlank() && service.action == "tv") payload.put("phone_number", phone.trim())
+                    if (phone.isNotBlank() && service.action == "education") payload.put("phone_number", phone.trim())
+                    SupabaseNative.billvending(context, payload) { result ->
+                        busy = false
+                        result.onSuccess { json ->
+                            val success = json.optBoolean("success", false)
+                            val pending = json.optBoolean("pending", false)
+                            val ref = json.optString("reference")
+                            message = when {
+                                pending -> "Transaction is pending. Reference: $ref. Do not submit it again; recheck the reference later."
+                                success -> "Purchase submitted successfully. Reference: $ref"
+                                else -> json.optString("error").ifBlank { "Purchase was not confirmed. Check transaction history before trying again." } + if (ref.isNotBlank()) "\nReference: $ref" else ""
+                            }
+                            error = !success && !pending
+                            pin = ""
+                        }.onFailure {
+                            message = it.message ?: "Transaction request failed. Check your statement before retrying."
+                            error = true
+                        }
+                    }
+                }, enabled = !busy) { Text("Confirm & pay") }
+            },
+            dismissButton = { TextButton(onClick = { showConfirm = false }) { Text("Cancel") } }
+        )
+    }
+}
+
+@Composable
+private fun ServicesScreen(modifier: Modifier, onOpenUrl: (String) -> Unit, onOpenService: (ServiceItem) -> Unit) {
     Column(modifier.verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         ScreenHeader("Services", "Your everyday essentials")
         services.chunked(2).forEach { pair ->
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
-                pair.forEach { service -> ServiceCard(service, Modifier.weight(1f)) { onOpenUrl(service.url) } }
+                pair.forEach { service -> ServiceCard(service, Modifier.weight(1f)) { onOpenService(service) } }
                 if (pair.size == 1) Spacer(Modifier.weight(1f))
             }
         }
-        ServiceLink("Interest-Free Loan", "Explore eligible member loan services", Icons.Default.Savings) {
-            onOpenUrl("https://habscosadaqah.org/member.html")
+        ServiceLink("Interest-Free Loan", "Apply for or manage an interest-free loan", Icons.Default.Savings) {
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=qard")
+        }
+        ServiceLink("Savings", "Manage your savings account", Icons.Default.Savings) {
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=save")
+        }
+        ServiceLink("Shares", "Manage your shares account", Icons.Default.AccountBalanceWallet) {
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=shares")
         }
         ServiceLink("Wallet & Transfers", "Funding, receiving and sending money", Icons.Default.AccountBalanceWallet) {
-            onOpenUrl("https://habscosadaqah.org/member.html")
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=money-services")
+        }
+        ServiceLink("Donation & Sadaqah Jariyah", "Support HABSCO community projects", Icons.Default.Favorite) {
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=donate")
         }
         ServiceLink("Flyers & Guides", "Daily PNG flyers and tutorials", Icons.Default.MenuBook) {
             onOpenUrl("https://habscosadaqah.org/how-to-guides.html")
