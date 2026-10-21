@@ -262,14 +262,22 @@ private object SupabaseNative {
                 )
                 val profileRows = JSONArray(profileText)
                 val profile = if (profileRows.length() > 0) profileRows.getJSONObject(0) else JSONObject()
-                val balanceText = request("POST", "/rest/v1/rpc/member_dashboard_balances", token, JSONObject())
-                val balance = when {
+                fun parseBalance(balanceText: String): JSONObject = when {
                     balanceText.trimStart().startsWith("[") -> {
                         val rows = JSONArray(balanceText)
                         if (rows.length() == 0) JSONObject() else rows.getJSONObject(0)
                     }
                     balanceText.trimStart().startsWith("{") -> JSONObject(balanceText)
                     else -> JSONObject()
+                }
+                val balance = runCatching {
+                    parseBalance(request("POST", "/rest/v1/rpc/member_dashboard_balances", token, JSONObject()))
+                }.getOrElse {
+                    // Existing member website uses this fallback RPC for the same signed-in member.
+                    parseBalance(request(
+                        "POST", "/rest/v1/rpc/get_unified_member_balance", token,
+                        JSONObject().put("p_user_id", userId)
+                    ))
                 }
                 fun number(vararg keys: String): Double? {
                     for (k in keys) if (!balance.isNull(k) && balance.has(k)) return balance.optDouble(k)
