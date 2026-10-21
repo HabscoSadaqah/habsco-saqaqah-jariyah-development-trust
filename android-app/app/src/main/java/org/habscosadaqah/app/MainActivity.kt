@@ -1,15 +1,11 @@
 package org.habscosadaqah.app
 
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.compose.BackHandler
@@ -437,26 +433,15 @@ class MainActivity : ComponentActivity() {
                     onSurface = Ink
                 )
             ) {
-                HabscoNativeApp(
-                    onOpenUrl = { url -> openExternal(url) }
-                )
+                HabscoNativeApp()
             }
         }
     }
 
-    private fun openExternal(url: String) {
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-        } catch (_: ActivityNotFoundException) {
-            Toast.makeText(this, "No browser is available to open this service.", Toast.LENGTH_LONG).show()
-        } catch (_: Exception) {
-            Toast.makeText(this, "Unable to open this service right now.", Toast.LENGTH_LONG).show()
-        }
-    }
 }
 
 @Composable
-private fun HabscoNativeApp(onOpenExternal: (String) -> Unit) {
+private fun HabscoNativeApp() {
     val context = LocalContext.current
     var authenticated by remember { mutableStateOf(SupabaseNative.hasSession(context)) }
     var selectedTab by remember { mutableStateOf(0) }
