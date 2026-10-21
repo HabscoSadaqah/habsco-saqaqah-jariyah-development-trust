@@ -458,6 +458,7 @@ private fun HabscoNativeApp() {
             action == "fund" -> "fund"
             action == "savings" || action == "save" -> "save"
             action == "squad-transfer" || action == "money-services" -> "squad-transfer"
+            action == "member-transfer" || action == "peer-transfer" -> "peer-transfer"
             action == "virtual-account" -> "virtual-account"
             action == "airtime" -> "airtime"
             action == "data" -> "data"
@@ -1099,16 +1100,16 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                 error = !ok
                 if (action == "virtual-account" && ok) receiving = it.optJSONObject("data")
                 if (action == "squad-transfer" && ok) {
-                    pin = ""
                     accountName = it.optString("account_name", accountName)
                     if (it.has("status") && it.optString("status") == "processing") message = "Transfer is processing. Do not retry. Reference: " + it.optString("reference")
+                    if (it.optString("status") == "successful") pin = ""
                 }
                 if (ok) onRefresh()
             }.onFailure { message = it.message ?: "Request failed."; error = true }
         }
     }
     val title = when (action) {
-        "fund" -> "Fund wallet"; "squad-transfer" -> "Transfer to bank"; "virtual-account" -> "Receive money"
+        "fund" -> "Fund wallet"; "squad-transfer" -> "Transfer to bank"; "peer-transfer" -> "Transfer to member"; "virtual-account" -> "Receive money"
         "qard" -> "Interest-free loan"; "repayment" -> "Loan repayment"; "save" -> "Savings"
         "shares" -> "Shares"; "dividend" -> "Dividend account"; "guides" -> "HABSCO service guides"
         "privacy" -> "Privacy & security"; "statement" -> "Account statement"; "auth" -> "Account access"; else -> "Sadaqah Jariyah donation"
@@ -1210,6 +1211,13 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                     }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Create receiving account") }
                 }
             }
+            "peer-transfer" -> {
+                OutlinedTextField(value = qardId, onValueChange = { qardId = it.trim().uppercase() }, label = { Text("Recipient HABSCO member ID") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Amount (NGN)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
+                OutlinedTextField(value = purpose, onValueChange = { purpose = it }, label = { Text("Transfer description (optional)") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
+                Button(onClick = { val v = amount.toDoubleOrNull(); if (qardId.isBlank() || v == null || v <= 0 || pin.length != 6) { message = "Enter recipient member ID, valid amount and 6-digit PIN."; error = true } else rpc("member_transfer", JSONObject().put("p_recipient_member_id", qardId).put("p_amount", v).put("p_description", purpose.ifBlank { "HABSCO member transfer" }).put("p_transaction_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Confirm member transfer") }
+            }
             "qard" -> {
                 OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Loan amount (NGN)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
                 OutlinedTextField(value = plan, onValueChange = { plan = it }, label = { Text("Repayment plan") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
@@ -1285,6 +1293,9 @@ private fun ServicesScreen(modifier: Modifier, onOpenUrl: (String) -> Unit, onOp
         }
         ServiceLink("Wallet & Transfers", "Funding, receiving and sending money", Icons.Default.AccountBalanceWallet) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=money-services")
+        }
+        ServiceLink("Member-to-member transfer", "Send wallet funds using a HABSCO member ID", Icons.Default.ArrowForward) {
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=member-transfer")
         }
         ServiceLink("Dividend Account", "View your dividend account", Icons.Default.Savings) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=dividend")
@@ -1409,15 +1420,8 @@ private fun WalletScreen(
         ServiceLink("Transfer money", "Continue to the existing transfer workflow", Icons.Default.ArrowForward) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=squad-transfer")
         }
-        ServiceLink("Receive money", "View your registered receiving account", Icons.Default.Savings) {
-            accountLoading = true
-            accountError = null
-            SupabaseNative.loadVirtualAccount(context) { result ->
-                accountLoading = false
-                accountChecked = true
-                result.onSuccess { receivingAccount = it }
-                    .onFailure { accountError = it.message ?: "Could not load your receiving account." }
-            }
+        ServiceLink("Receive money", "View or create your registered receiving account", Icons.Default.Savings) {
+            onOpenUrl("https://habscosadaqah.org/member-actions.html?action=virtual-account")
         }
         if (accountLoading) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
