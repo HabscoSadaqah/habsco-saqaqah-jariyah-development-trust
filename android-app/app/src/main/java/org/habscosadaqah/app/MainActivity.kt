@@ -246,6 +246,31 @@ private object SupabaseNative {
         }
     }
 
+    fun signUp(context: android.content.Context, email: String, password: String, fullName: String, phone: String, callback: (Result<Boolean>) -> Unit) {
+        io.execute {
+            val result = runCatching {
+                require(email.contains("@")) { "Enter a valid email address." }
+                require(password.length >= 8) { "Use a password with at least 8 characters." }
+                require(fullName.trim().split(Regex("\\s+")).size >= 2) { "Enter your first and last name." }
+                require(phone.filter(Char::isDigit).length >= 10) { "Enter a valid mobile number." }
+                val parts = fullName.trim().split(Regex("\\s+"), limit = 2)
+                val body = JSONObject()
+                    .put("email", email.trim())
+                    .put("password", password)
+                    .put("data", JSONObject()
+                        .put("full_name", fullName.trim())
+                        .put("first_name", parts.first())
+                        .put("surname", parts.getOrElse(1) { "" })
+                        .put("phone", phone.trim()))
+                val json = JSONObject(request("POST", "/auth/v1/signup", null, body))
+                val hasSession = json.optString("access_token").isNotBlank() && json.optString("refresh_token").isNotBlank() && json.optJSONObject("user") != null
+                if (hasSession) saveSession(context, json)
+                hasSession
+            }
+            main.post { callback(result) }
+        }
+    }
+
     fun rpc(context: android.content.Context, name: String, body: JSONObject, callback: (Result<JSONObject>) -> Unit) {
         io.execute {
             val result = runCatching {
@@ -536,7 +561,23 @@ private fun HabscoNativeApp() {
                     }
                 }
             },
-            onOpenWebsite = { loginError = "Native registration and password recovery are not yet available. This app will not open the website; contact HABSCO support for account assistance." }
+            onSignUp = { email, password, fullName, phone ->
+                loginLoading = true
+                loginError = null
+                SupabaseNative.signUp(context, email, password, fullName, phone) { result ->
+                    loginLoading = false
+                    result.onSuccess { hasSession ->
+                        if (hasSession) {
+                            authenticated = true
+                            selectedTab = 0
+                            loginError = null
+                        } else {
+                            loginError = "Account created. Check your email for confirmation, then sign in here. No website was opened."
+                        }
+                    }.onFailure { loginError = it.message ?: "Account registration failed." }
+                }
+            },
+            onOpenWebsite = { loginError = "Password recovery is not yet available natively. This app will not open the website; contact HABSCO support for account assistance." }
         )
     } else if (selectedRoute != null && selectedRoute in listOf("airtime", "data", "power", "tv", "education")) {
         NativeUtilityScreen(service = services.first { it.action == selectedRoute }, onBack = { selectedRoute = null }, onOpenUrl = onOpenUrl)
@@ -595,8 +636,12 @@ private fun NativeLoginScreen(
     loading: Boolean,
     error: String?,
     onLogin: (String, String) -> Unit,
+    onSignUp: (String, String, String, String) -> Unit,
     onOpenWebsite: () -> Unit
 ) {
+    var registering by remember { mutableStateOf(false) }
+    var fullName by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     Column(
@@ -620,8 +665,12 @@ private fun NativeLoginScreen(
             colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Text("Sign in securely", color = Forest, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-                Text("Use your existing HABSCO member email and password.", color = Muted, fontSize = 13.sp, lineHeight = 19.sp)
+                Text(if (registering) "Create your HABSCO account" else "Sign in securely", color = Forest, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                Text(if (registering) "Register directly in the app. Confirm your email if requested." else "Use your existing HABSCO member email and password.", color = Muted, fontSize = 13.sp, lineHeight = 19.sp)
+                if (registering) {
+                    OutlinedTextField(value = fullName, onValueChange = { fullName = it }, label = { Text("Full name") }, singleLine = true, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = phone, onValueChange = { phone = it.filter { c -> c.isDigit() || c == '+' }.take(15) }, label = { Text("Mobile number") }, singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone), modifier = Modifier.fillMaxWidth())
+                }
                 OutlinedTextField(
                     value = email, onValueChange = { email = it.trimStart() },
                     label = { Text("Email address") }, singleLine = true,
@@ -639,17 +688,20 @@ private fun NativeLoginScreen(
                     Text(error, color = Color(0xFFB3261E), fontSize = 12.sp, lineHeight = 17.sp)
                 }
                 Button(
-                    onClick = { onLogin(email.trim(), password) },
-                    enabled = !loading && email.isNotBlank() && password.isNotBlank(),
+                    onClick = { if (registering) onSignUp(email.trim(), password, fullName.trim(), phone.trim()) else onLogin(email.trim(), password) },
+                    enabled = !loading && email.isNotBlank() && password.isNotBlank() && (!registering || (fullName.isNotBlank() && phone.isNotBlank())),
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = Forest),
                     shape = RoundedCornerShape(14.dp)
                 ) {
                     if (loading) CircularProgressIndicator(Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
-                    else Text("Sign in to HABSCO", fontWeight = FontWeight.Bold)
+                    else Text(if (registering) "Create account" else "Sign in to HABSCO", fontWeight = FontWeight.Bold)
+                }
+                TextButton(onClick = { registering = !registering }, modifier = Modifier.fillMaxWidth()) {
+                    Text(if (registering) "Already registered? Sign in" else "New member? Create account", color = Emerald, fontSize = 12.sp)
                 }
                 TextButton(onClick = onOpenWebsite, modifier = Modifier.fillMaxWidth()) {
-                    Text("Forgot password or need help? Open secure website", color = Emerald, fontSize = 11.sp)
+                    Text("Need help with password or account access?", color = Emerald, fontSize = 11.sp)
                 }
             }
         }
