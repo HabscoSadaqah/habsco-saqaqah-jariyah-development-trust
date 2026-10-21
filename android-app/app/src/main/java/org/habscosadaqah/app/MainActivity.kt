@@ -442,7 +442,7 @@ private fun HabscoNativeApp(onOpenUrl: (String) -> Unit) {
                     }
                 )
                 3 -> CharityScreen(contentModifier, onOpenUrl)
-                else -> ProfileScreen(contentModifier, dashboard) {
+                else -> ProfileScreen(contentModifier, dashboard, onOpenUrl) {
                     SupabaseNative.signOut(context)
                     authenticated = false
                     selectedTab = 0
@@ -803,6 +803,7 @@ private fun CharityScreen(modifier: Modifier, onOpenUrl: (String) -> Unit) {
 private fun ProfileScreen(
     modifier: Modifier,
     dashboard: NativeDashboard?,
+    onOpenUrl: (String) -> Unit,
     onSignOut: () -> Unit
 ) {
     Column(modifier.verticalScroll(rememberScrollState()).padding(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -823,10 +824,10 @@ private fun ProfileScreen(
             }
         }
         ServiceLink("Privacy policy", "Read how HABSCO handles information", Icons.Default.Security) {
-            // Keep policy links in the native app's parent screen, not in an embedded browser.
+            onOpenUrl("https://habscosadaqah.org/privacy-policy.html")
         }
         ServiceLink("How-to guides", "Learn about available services", Icons.Default.MenuBook) {
-            // Guides remain available through the website while native versions are developed.
+            onOpenUrl("https://habscosadaqah.org/how-to-guides.html")
         }
         Button(
             onClick = onSignOut,
