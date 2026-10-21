@@ -1244,6 +1244,7 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
             "fund" -> {
                 Text("You can fund the wallet by transferring to your registered HABSCO receiving account below. The app will not open a website.", color = Muted, fontSize = 13.sp)
                 if (accountLoading) CircularProgressIndicator(color = Emerald)
+                if (receiving == null && !accountLoading) Text("No receiving account loaded. Open Receive Money from Wallet to create one in the app before funding by bank transfer.", color = Muted, fontSize = 12.sp)
                 receiving?.let { acct ->
                     Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -1284,7 +1285,12 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                     if (bankCode.isBlank() || accountNumber.length != 10 || accountName.isBlank() || v == null || v <= 0 || pin.length != 6) { message = "Verify the account and complete every field."; error = true }
                     else edge("squad-bank-transfer", JSONObject().put("action", "transfer").put("bank_code", bankCode).put("account_number", accountNumber).put("account_name", accountName).put("amount", v).put("transaction_pin", pin))
                 }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Confirm transfer") }
-                Text("If a transfer is processing, do not submit it again. Keep the reference and recheck its status.", color = Muted, fontSize = 11.sp)
+                OutlinedTextField(value = reference, onValueChange = { reference = it.trim() }, label = { Text("Existing transfer reference") }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                Button(onClick = {
+                    if (reference.isBlank()) { message = "Enter the reference returned by the previous transfer."; error = true }
+                    else edge("squad-bank-transfer", JSONObject().put("action", "requery").put("reference", reference.trim()))
+                }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Recheck transfer status") }
+                Text("If a transfer is processing, do not submit it again. Use its reference above to recheck status.", color = Muted, fontSize = 11.sp)
             }
             "virtual-account" -> {
                 if (accountLoading) CircularProgressIndicator(color = Emerald)
