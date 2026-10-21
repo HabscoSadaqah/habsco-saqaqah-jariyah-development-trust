@@ -98,6 +98,16 @@ import javax.crypto.spec.GCMParameterSpec
 import java.util.concurrent.Executors
 
 
+private data class NativeTransaction(
+    val reference: String,
+    val type: String,
+    val description: String,
+    val amount: Double,
+    val direction: String,
+    val status: String,
+    val createdAt: String
+)
+
 private data class NativeDashboard(
     val email: String,
     val fullName: String,
@@ -107,7 +117,8 @@ private data class NativeDashboard(
     val shares: Double?,
     val specialSavings: Double?,
     val dividend: Double?,
-    val total: Double?
+    val total: Double?,
+    val transactions: List<NativeTransaction>
 )
 
 private object SupabaseNative {
@@ -264,6 +275,29 @@ private object SupabaseNative {
                     for (k in keys) if (!balance.isNull(k) && balance.has(k)) return balance.optDouble(k)
                     return null
                 }
+                val transactions = runCatching {
+                    val statementText = request(
+                        "POST", "/rest/v1/rpc/member_statement_data", token,
+                        JSONObject().put("p_limit", 100)
+                    )
+                    val payload = JSONObject(statementText)
+                    val rows = payload.optJSONArray("transactions") ?: JSONArray()
+                    (0 until rows.length()).map { index ->
+                        val row = rows.getJSONObject(index)
+                        NativeTransaction(
+                            reference = row.optString("reference", "—"),
+                            type = row.optString("type", "Transaction").replace("_", " "),
+                            description = row.optString("description", ""),
+                            amount = kotlin.math.abs(row.optDouble("amount", 0.0)),
+                            direction = row.optString("direction", "credit").lowercase(),
+                            status = row.optString("status", "approved").replace("_", " "),
+                            createdAt = row.optString("created_at", "")
+                        )
+                    }.filterNot {
+                        listOf("rejected", "declined", "failed", "cancelled", "canceled").contains(it.status.lowercase())
+                    }.sortedByDescending { it.createdAt }.take(5)
+                }.getOrDefault(emptyList())
+
                 NativeDashboard(
                     email = email,
                     fullName = profile.optString("full_name").ifBlank { email.ifBlank { "HABSCO Member" } },
@@ -273,7 +307,8 @@ private object SupabaseNative {
                     shares = number("shares", "shares_balance"),
                     specialSavings = number("special_savings", "special_savings_balance"),
                     dividend = number("dividend", "dividend_balance"),
-                    total = number("total", "total_balance")
+                    total = number("total", "total_balance"),
+                    transactions = transactions
                 )
             }
             main.post { callback(result) }
@@ -750,6 +785,56 @@ private fun WalletScreen(
             BalanceRow("Dividends", money(dashboard?.dividend))
             BalanceRow("Total", money(dashboard?.total))
         }
+        ScreenHeader("Recent transactions", "Latest entries from your HABSCO statement")
+        if (dashboard?.transactions.isNullOrEmpty()) {
+            Text("No recent transactions are available, or the statement service could not be reached.", color = Muted, fontSize = 12.sp, lineHeight = 18.sp)
+        } else {
+            dashboard!!.transactions.forEach { transaction ->
+                val credit = transaction.direction in listOf("credit", "inflow", "in")
+                Card(
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            Modifier.size(36.dp).clip(CircleShape)
+                                .background(if (credit) Color(0xFFE1F5E8) else Color(0xFFFFE9E5)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(if (credit) "↓" else "↑", color = if (credit) Emerald else Color(0xFFB3261E), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        }
+                        Spacer(Modifier.width(10.dp))
+                        Column(Modifier.weight(1f)) {
+                            Text(transaction.type.ifBlank { "Transaction" }, color = Ink, fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                            if (transaction.description.isNotBlank()) {
+                                Text(transaction.description, color = Muted, fontSize = 11.sp, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            }
+                            Text(
+                                listOf(transaction.createdAt.take(10), transaction.status, transaction.reference).filter { it.isNotBlank() }.joinToString(" · "),
+                                color = Muted, fontSize = 9.sp, maxLines = 2, overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            (if (credit) "+" else "−") + money(transaction.amount),
+                            color = if (credit) Emerald else Color(0xFFB3261E),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp
+                        )
+                    }
+                }
+            }
+        }
+        Button(
+            onClick = { onOpenUrl("https://habscosadaqah.org/member.html") },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(containerColor = Forest)
+        ) { Text("Open full statement", fontWeight = FontWeight.Bold) }
+
         ServiceLink("Fund wallet", "Open the existing verified funding workflow", Icons.Default.AccountBalanceWallet) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=fund&v=20261003")
         }
