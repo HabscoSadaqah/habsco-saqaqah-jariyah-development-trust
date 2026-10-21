@@ -485,6 +485,8 @@ private fun HabscoNativeApp(onOpenExternal: (String) -> Unit) {
             action == "repayment" -> "repayment"
             url.contains("privacy-policy") -> "privacy"
             url.contains("how-to-guides") -> "guides"
+            url.contains("member.html") -> "statement"
+            url.contains("auth.html") -> "auth"
             else -> "donate"
         }
     }
@@ -537,8 +539,10 @@ private fun HabscoNativeApp(onOpenExternal: (String) -> Unit) {
                     }
                 }
             },
-            onOpenWebsite = { onOpenUrl("https://habscosadaqah.org/auth.html") }
+            onOpenWebsite = { loginError = "Native registration and password recovery are not yet available. This app will not open the website; contact HABSCO support for account assistance." }
         )
+    } else if (selectedRoute != null && selectedRoute in listOf("airtime", "data", "power", "tv", "education")) {
+        NativeUtilityScreen(service = services.first { it.action == selectedRoute }, onBack = { selectedRoute = null }, onOpenUrl = onOpenUrl)
     } else if (selectedRoute != null) {
         NativeAccountServiceScreen(action = selectedRoute!!, onBack = { selectedRoute = null }, onRefresh = {
             balanceLoading = true
@@ -1117,7 +1121,7 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
         "fund" -> "Fund wallet"; "squad-transfer" -> "Transfer to bank"; "virtual-account" -> "Receive money"
         "qard" -> "Interest-free loan"; "repayment" -> "Loan repayment"; "save" -> "Savings"
         "shares" -> "Shares"; "dividend" -> "Dividend account"; "guides" -> "HABSCO service guides"
-        "privacy" -> "Privacy & security"; else -> "Sadaqah Jariyah donation"
+        "privacy" -> "Privacy & security"; "statement" -> "Account statement"; "auth" -> "Account access"; else -> "Sadaqah Jariyah donation"
     }
     LaunchedEffect(action) {
         if (action == "virtual-account") {
@@ -1245,6 +1249,8 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                 Button(onClick = { val v = amount.toDoubleOrNull(); if (v == null || v <= 0 || pin.length != 6) { message = "Enter valid amount and PIN."; error = true } else rpc("member_withdraw_dividend", JSONObject().put("p_amount", v).put("p_transaction_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Withdraw dividends") }
             }
             "guides" -> Text("Home has quick actions; Services contains airtime, data, electricity, TV, education, savings, shares and loans; Wallet contains balances, receiving accounts, funding and bank transfers; Charity explains HABSCO Sadaqah Jariyah.", color = Muted, lineHeight = 22.sp)
+            "statement" -> Text("Your recent native account statement is available on the Wallet screen. Use Back, then Wallet to view transaction references, amounts, directions and statuses.", color = Muted, lineHeight = 22.sp)
+            "auth" -> Text("Sign in using the native sign-in form. Native registration and password recovery are not yet available; this app will not open the website.", color = Muted, lineHeight = 22.sp)
             "privacy" -> Text("HABSCO sends account requests over encrypted HTTPS. Transaction PINs are sent to authenticated transaction services and are not stored by this screen. Never share your PIN, BVN or bank details.", color = Muted, lineHeight = 22.sp)
             else -> {
                 Text("Support waqf shops, solar-powered boreholes, free vocational learning and empowerment programmes.", color = Muted, lineHeight = 22.sp)
@@ -1331,8 +1337,8 @@ private fun WalletScreen(
                         colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Forest),
                         modifier = Modifier.weight(1f)
                     ) { Text("Refresh balance", fontWeight = FontWeight.Bold) }
-                    TextButton(onClick = { onOpenUrl("https://habscosadaqah.org/member.html") }) {
-                        Text("Website", color = Color.White)
+                    TextButton(onClick = onRefresh) {
+                        Text("Refresh", color = Color.White)
                     }
                 }
             }
@@ -1390,10 +1396,10 @@ private fun WalletScreen(
             }
         }
         Button(
-            onClick = { onOpenUrl("https://habscosadaqah.org/member.html") },
+            onClick = onRefresh,
             modifier = Modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(containerColor = Forest)
-        ) { Text("Open full statement", fontWeight = FontWeight.Bold) }
+        ) { Text("Refresh statement", fontWeight = FontWeight.Bold) }
 
         ServiceLink("Fund wallet", "Open the existing verified funding workflow", Icons.Default.AccountBalanceWallet) {
             onOpenUrl("https://habscosadaqah.org/member-actions.html?action=fund&v=20261003")
@@ -1419,17 +1425,12 @@ private fun WalletScreen(
         }
         if (!accountError.isNullOrBlank()) {
             Text(accountError!!, color = Color(0xFFB3261E), fontSize = 12.sp)
-            TextButton(onClick = { onOpenUrl("https://habscosadaqah.org/member-actions.html?action=virtual-account") }) {
-                Text("Open secure account setup")
-            }
+            TextButton(onClick = { accountError = null; accountChecked = false }) { Text("Try again") }
         } else if (accountChecked && receivingAccount == null) {
             Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text("No receiving account found", color = Ink, fontWeight = FontWeight.Bold)
-                    Text("If you have not created a HABSCO receiving account, continue to the secure website setup. Your BVN and date of birth are not requested in this app screen.", color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
-                    Button(onClick = { onOpenUrl("https://habscosadaqah.org/member-actions.html?action=virtual-account") }) {
-                        Text("Set up receiving account")
-                    }
+                    Text("Open Receive Money in the native Wallet screen to create your receiving account securely in the app.", color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
                 }
             }
         } else if (receivingAccount != null) {
@@ -1507,10 +1508,10 @@ private fun ProfileScreen(
                 }
             }
         }
-        ServiceLink("Privacy policy", "Read how HABSCO handles information", Icons.Default.Security) {
+        ServiceLink("Privacy & security", "Read in-app privacy and security information", Icons.Default.Security) {
             onOpenUrl("https://habscosadaqah.org/privacy-policy.html")
         }
-        ServiceLink("How-to guides", "Learn about available services", Icons.Default.MenuBook) {
+        ServiceLink("How-to guides", "Learn about available services in the app", Icons.Default.MenuBook) {
             onOpenUrl("https://habscosadaqah.org/how-to-guides.html")
         }
         Button(
