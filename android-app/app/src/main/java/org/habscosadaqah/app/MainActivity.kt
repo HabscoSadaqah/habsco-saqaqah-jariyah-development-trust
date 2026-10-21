@@ -1091,6 +1091,8 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
     var address by remember(action) { mutableStateOf("") }
     var records by remember(action) { mutableStateOf<List<JSONObject>>(emptyList()) }
     var recordsError by remember { mutableStateOf<String?>(null) }
+    var selectedShareId by remember(action) { mutableStateOf("") }
+    var confirmShareTermination by remember { mutableStateOf(false) }
 
     fun loadRecords() {
         val path = when (action) {
@@ -1286,12 +1288,15 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
             "shares" -> {
                 Text("Your share lots", color = Forest, fontWeight = FontWeight.Bold)
                 records.forEach { row ->
-                    Text("${row.optString("reference")} · ₦${row.optString("principal")} · ${row.optString("status")} · matures ${row.optString("maturity_at").take(10)}", color = Ink, fontSize = 12.sp)
+                    TextButton(onClick = { selectedShareId = row.optString("id") }, modifier = Modifier.fillMaxWidth()) {
+                        Text((if (selectedShareId == row.optString("id")) "✓ " else "") + "${row.optString("reference")} · ₦${row.optString("principal")} · ${row.optString("status")} · matures ${row.optString("maturity_at").take(10)}", color = Ink, fontSize = 11.sp)
+                    }
                 }
                 recordsError?.let { Text(it, color = Color(0xFFB3261E), fontSize = 11.sp) }
                 OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Share purchase amount") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
                 OutlinedTextField(value = pin, onValueChange = { pin = it.filter(Char::isDigit).take(6) }, label = { Text("6-digit transaction PIN") }, modifier = Modifier.fillMaxWidth(), visualTransformation = PasswordVisualTransformation(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword), singleLine = true)
                 Button(onClick = { val v = amount.toDoubleOrNull(); if (v == null || v <= 0 || pin.length != 6) { message = "Enter valid amount and PIN."; error = true } else rpc("member_buy_share", JSONObject().put("p_amount", v).put("p_transaction_pin", pin)) }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Buy shares") }
+                Button(onClick = { if (selectedShareId.isBlank() || pin.length != 6) { message = "Select a share lot and enter your 6-digit PIN."; error = true } else confirmShareTermination = true }, enabled = !busy, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF8A2F24))) { Text("Request share termination") }
             }
             "dividend" -> {
                 OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Dividend withdrawal amount") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
@@ -1324,6 +1329,15 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
         }
         if (busy) CircularProgressIndicator(color = Emerald)
         message?.let { Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = if (error) Color(0xFFFFE8E5) else Color(0xFFE4F5EA))) { Text(it, Modifier.padding(14.dp), color = if (error) Color(0xFF9E2F24) else Forest, fontSize = 12.sp, lineHeight = 17.sp) } }
+    }
+    if (confirmShareTermination) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { confirmShareTermination = false },
+            title = { Text("Confirm share termination") },
+            text = { Text("You are requesting termination of share lot $selectedShareId. Any applicable maturity rules or termination fees will be applied by HABSCO.") },
+            confirmButton = { Button(onClick = { confirmShareTermination = false; rpc("member_terminate_share", JSONObject().put("p_share_id", selectedShareId).put("p_transaction_pin", pin)) }) { Text("Confirm termination") } },
+            dismissButton = { TextButton(onClick = { confirmShareTermination = false }) { Text("Cancel") } }
+        )
     }
 }
 
