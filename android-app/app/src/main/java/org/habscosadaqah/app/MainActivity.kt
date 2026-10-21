@@ -582,7 +582,7 @@ private fun HabscoNativeApp() {
     } else if (selectedRoute != null && selectedRoute in listOf("airtime", "data", "power", "tv", "education")) {
         NativeUtilityScreen(service = services.first { it.action == selectedRoute }, onBack = { selectedRoute = null }, onOpenUrl = onOpenUrl)
     } else if (selectedRoute != null) {
-        NativeAccountServiceScreen(action = selectedRoute!!, onBack = { selectedRoute = null }, onRefresh = {
+        NativeAccountServiceScreen(action = selectedRoute!!, onBack = { selectedRoute = null }, onNavigate = { selectedRoute = it }, onRefresh = {
             balanceLoading = true
             SupabaseNative.loadDashboard(context) { result ->
                 result.onSuccess { dashboard = it; balanceError = null }
@@ -1131,7 +1131,7 @@ private fun NativeUtilityScreen(
 
 
 @Composable
-private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRefresh: () -> Unit) {
+private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onNavigate: (String) -> Unit = {}, onRefresh: () -> Unit) {
     val context = LocalContext.current
     var amount by remember(action) { mutableStateOf("") }
     var purpose by remember(action) { mutableStateOf("") }
@@ -1242,9 +1242,13 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
         }
         when (action) {
             "fund" -> {
-                Text("You can fund the wallet by transferring to your registered HABSCO receiving account below. The app will not open a website.", color = Muted, fontSize = 13.sp)
+                Text("Fund your wallet by transferring from your bank to your registered HABSCO receiving account. This flow stays inside the app.", color = Muted, fontSize = 13.sp)
                 if (accountLoading) CircularProgressIndicator(color = Emerald)
-                if (receiving == null && !accountLoading) Text("No receiving account loaded. Open Receive Money from Wallet to create one in the app before funding by bank transfer.", color = Muted, fontSize = 12.sp)
+                if (receiving == null && !accountLoading) {
+                    Text("No receiving account is registered yet.", color = Muted, fontSize = 12.sp)
+                    Button(onClick = { onNavigate("virtual-account") }, modifier = Modifier.fillMaxWidth()) { Text("Create receiving account") }
+                    Text("Card checkout is not offered here because the current payment provider only supplies a hosted website checkout. No browser or website will be opened.", color = Muted, fontSize = 11.sp)
+                }
                 receiving?.let { acct ->
                     Card(shape = RoundedCornerShape(14.dp), colors = CardDefaults.cardColors(containerColor = Color.White), modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -1252,17 +1256,17 @@ private fun NativeAccountServiceScreen(action: String, onBack: () -> Unit, onRef
                             BalanceRow("Account number", acct.optString("virtual_account_number", "—"))
                             BalanceRow("Bank code", acct.optString("bank_code", "—"))
                             BalanceRow("Status", acct.optString("status", "—"))
-                            Text("Send your bank transfer to this account. Credits are posted after the provider webhook confirms settlement.", color = Muted, fontSize = 11.sp)
+                            Text("Transfer the amount from your bank app. HABSCO credits the wallet after the provider confirms settlement.", color = Muted, fontSize = 11.sp)
                         }
                     }
+                    Button(onClick = {
+                        accountLoading = true
+                        SupabaseNative.loadVirtualAccount(context) { r ->
+                            accountLoading = false
+                            r.onSuccess { receiving = it }.onFailure { message = it.message ?: "Unable to refresh receiving account."; error = true }
+                        }
+                    }, enabled = !accountLoading, modifier = Modifier.fillMaxWidth()) { Text("Refresh receiving account") }
                 }
-                OutlinedTextField(value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } }, label = { Text("Amount (minimum ₦100)") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal), singleLine = true)
-                Button(onClick = {
-                    val v = amount.toDoubleOrNull()
-                    if (v == null || v < 100) { message = "Enter at least ₦100."; error = true }
-                    else edge("accelerate-wallet-funding", JSONObject().put("action", "create_payment_link").put("amount", v))
-                }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text("Create funding request") }
-                Text("Card checkout is not opened because the current provider only supplies a hosted checkout URL. Bank-transfer funding through the receiving account above remains in-app and does not redirect.", color = Muted, fontSize = 11.sp)
             }
             "squad-transfer" -> {
                 Text("Choose a bank or enter its bank code.", color = Muted, fontSize = 12.sp)
