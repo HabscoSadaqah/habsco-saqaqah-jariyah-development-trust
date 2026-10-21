@@ -8,6 +8,13 @@ android {
     namespace = "org.habscosadaqah.app"
     compileSdk = 36
 
+    val hasReleaseSigning = listOf(
+        System.getenv("ANDROID_KEYSTORE_PATH"),
+        System.getenv("ANDROID_KEYSTORE_PASSWORD"),
+        System.getenv("ANDROID_KEY_ALIAS"),
+        System.getenv("ANDROID_KEY_PASSWORD")
+    ).all { !it.isNullOrBlank() }
+
     defaultConfig {
         applicationId = "org.habscosadaqah.app"
         minSdk = 24
@@ -38,7 +45,9 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("release")
+            // Sign the bundle when the private keystore secrets are available.
+            // Otherwise build an unsigned AAB that can be signed locally before Play upload.
+            signingConfig = if (hasReleaseSigning) signingConfigs.getByName("release") else null
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
