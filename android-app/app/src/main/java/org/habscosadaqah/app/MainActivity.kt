@@ -208,7 +208,7 @@ private object SupabaseNative {
             if (body != null) OutputStreamWriter(connection.outputStream, Charsets.UTF_8).use { it.write(body.toString()) }
             val status = connection.responseCode
             val stream = if (status in 200..299) connection.inputStream else connection.errorStream
-            val text = stream?.bufferedReader(Charsets.UTF_8)?.use(BufferedReader::readText).orEmpty()
+            val text = stream?.bufferedReader(Charsets.UTF_8)?.use { it.readText() }.orEmpty()
             if (status !in 200..299) {
                 val message = try {
                     val j = JSONObject(text)
@@ -598,11 +598,11 @@ private fun HomeScreen(
                     )
                     Spacer(Modifier.height(2.dp))
                     Button(
-                        onClick = { onOpenUrl("https://habscosadaqah.org/member.html") },
+                        onClick = { onSelectTab(2) },
                         colors = ButtonDefaults.buttonColors(containerColor = Gold, contentColor = Forest),
                         shape = RoundedCornerShape(14.dp)
                     ) {
-                        Text("Sign in to your account", fontWeight = FontWeight.Bold)
+                        Text("View my wallet", fontWeight = FontWeight.Bold)
                         Spacer(Modifier.width(8.dp))
                         Icon(Icons.Default.ArrowForward, contentDescription = null, modifier = Modifier.size(18.dp))
                     }
