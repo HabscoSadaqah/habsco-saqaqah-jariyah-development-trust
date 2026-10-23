@@ -2,12 +2,12 @@
 const $=id=>document.getElementById(id);
 const table=$('recordsTable'), body=$('tableBody'), head=$('tableHead'), scroller=document.querySelector('.table-scroll');
 if(!table||!body||!head)return;
-let zoom=100,freeze=false,undoStack=[],redoStack=[],lastSnapshot='',selected=null;
+let zoom=100,freeze=false,undoStack=[],redoStack=[],lastSnapshot=null,selected=null;
 const cellList=()=>Array.from(body.querySelectorAll('input.cell,textarea.cell'));
 const getCell=(r,c)=>cellList().find(x=>+x.closest('tr').rowIndex===r+1 && +x.closest('td').cellIndex===c+1);
 function snap(){return cellList().map(x=>({row:x.dataset.row,col:x.dataset.col,value:x.value}));}
 function snapshotKey(s){return JSON.stringify(s);}
-function recordUndo(){const s=snap(),k=snapshotKey(s);if(k!==lastSnapshot){undoStack.push(s);if(undoStack.length>80)undoStack.shift();redoStack=[];lastSnapshot=k;}}
+function recordUndo(){const s=snap(),k=snapshotKey(s);if(lastSnapshot&&k!==lastSnapshot){try{undoStack.push(JSON.parse(lastSnapshot))}catch{}if(undoStack.length>80)undoStack.shift();redoStack=[];}lastSnapshot=k;}
 function dispatchEdit(el,value){el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));}
 function restore(s){if(!s)return;for(const item of s){const el=body.querySelector('[data-row="'+CSS.escape(item.row)+'"][data-col="'+CSS.escape(item.col)+'"]');if(el)dispatchEdit(el,item.value)}lastSnapshot=snapshotKey(s);}
 function focusCell(el){if(!el)return;selected=el;el.focus();if(el.select)el.select();const ri=Array.from(body.querySelectorAll('tr')).indexOf(el.closest('tr'));const ci=Array.from(el.closest('tr').querySelectorAll('td')).indexOf(el.closest('td'));$('cellReference').value=String.fromCharCode(65+Math.max(0,ci-1))+(Math.max(0,ri)+1);$('formulaValue').value=el.value;$('formulaValue').dataset.row=el.dataset.row;$('formulaValue').dataset.col=el.dataset.col;}
