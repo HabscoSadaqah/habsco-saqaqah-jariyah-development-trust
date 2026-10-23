@@ -68,4 +68,48 @@ formula.addEventListener('focus',()=>{const el=body.querySelector('[data-row="'+
 formula.addEventListener('input',()=>{const el=body.querySelector('[data-row="'+CSS.escape(formula.dataset.row||'')+'"][data-col="'+CSS.escape(formula.dataset.col||'')+'"]');if(!el)return;const raw=formula.value;el.dataset.formula=raw;el.value=raw;el.dispatchEvent(new Event('input',{bubbles:true}));setTimeout(()=>{if(document.activeElement!==formula)recalc();else{const current=formula.value;recalc();formula.value=current}},0)});
 const base=window.MutationObserver;if(base){new base(()=>{if(!calculating)recalc()}).observe(body,{childList:true,subtree:true});}
 window.addEventListener('load',()=>setTimeout(recalc,300));setTimeout(recalc,250);
+
+/* Excel-like automatic worksheet growth: expand when leaving the used edge. */
+let autoRowPending=false,autoColumnPending=false;
+function edgeHasValue(el){return !!el && String(el.dataset.formula||el.value||'').trim()!==''}
+function atLastDataRow(el){const trs=Array.from(body.querySelectorAll('tr'));return trs.length>0&&el.closest('tr')===trs[trs.length-1]}
+function atLastDataColumn(el){const cols=Array.from(head.querySelectorAll('[data-rename]'));return cols.length>0&&el.dataset.col===cols[cols.length-1].dataset.rename}
+function expandRows(){
+ if(autoRowPending||!$('addRow')||!body.querySelector('tr'))return;
+ autoRowPending=true;
+ const before=body.querySelectorAll('tr').length;
+ $('addRow').click();
+ const wait=()=>{if(body.querySelectorAll('tr').length>before){autoRowPending=false;return}setTimeout(wait,100)};
+ setTimeout(()=>{if(autoRowPending)autoRowPending=false},5000);
+ setTimeout(wait,100);
+}
+function expandColumns(){
+ if(autoColumnPending||!$('addColumn')||!$('columnForm'))return;
+ autoColumnPending=true;
+ const before=head.querySelectorAll('[data-rename]').length;
+ $('addColumn').click();
+ const name=$('columnName'), type=$('columnType'), form=$('columnForm');
+ if(!name||!type||!form){autoColumnPending=false;return}
+ let x=before+1,label='';
+ while(x>0){label=String.fromCharCode(65+(x-1)%26)+label;x=Math.floor((x-1)/26)}
+ name.value='Column '+label;
+ type.value='text';
+ form.requestSubmit();
+ const wait=()=>{if(head.querySelectorAll('[data-rename]').length>before){autoColumnPending=false;return}setTimeout(wait,100)};
+ setTimeout(()=>{if(autoColumnPending)autoColumnPending=false},5000);
+ setTimeout(wait,100);
+}
+body.addEventListener('focusout',e=>{
+ const el=e.target;
+ if(!el.matches('.cell')||!edgeHasValue(el)||body.contains(e.relatedTarget))return;
+ if(atLastDataRow(el))expandRows();
+ if(atLastDataColumn(el))expandColumns();
+},true);
+body.addEventListener('keydown',e=>{
+ const el=e.target;
+ if(!el.matches('.cell')||!edgeHasValue(el)||e.key!=='Enter'||!atLastDataRow(el))return;
+ e.preventDefault();
+ if(atLastDataColumn(el))expandColumns();
+ expandRows();
+});
 })();
