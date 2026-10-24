@@ -252,6 +252,12 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   .daily-flyer-card{flex-basis:164px;min-height:145px;padding:13px;border-radius:16px}
   .daily-flyer-card strong{font-size:16px}
 }
+
+/* Show every subject flyer on the main website without requiring horizontal swiping. */
+.daily-flyer-scroller{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;overflow:visible!important;padding:3px 2px 12px!important;scroll-snap-type:none!important;overscroll-behavior:initial!important}
+.daily-flyer-card{min-width:0!important;width:auto!important;flex:none!important;height:100%!important}
+@media(max-width:800px){.daily-flyer-scroller{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:520px){.daily-flyer-scroller{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}.daily-flyer-card{min-height:142px!important;padding:12px!important}.daily-flyer-card strong{font-size:15px!important}}
 </style><style id="subject-specific-flyer-design">
 /* FINAL WEB FLYER GRID — consistent alignment across every service */
 .flyer[data-service]{display:grid!important;grid-template-rows:auto 1fr auto auto!important;overflow:hidden!important}
