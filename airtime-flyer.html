@@ -1267,7 +1267,7 @@ function lagosDate(){
 function validDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s+'T00:00:00'))&&s<=lagosDate();}
 const today=lagosDate(), requested=new URLSearchParams(location.search).get('date');
 const selected=validDate(requested)?requested:today;
-if(requested!==selected) history.replaceState(null,'',location.pathname+'?service='+serviceKey+'&date='+selected);
+if(requested && requested!==selected) history.replaceState(null,'',location.pathname+'?service='+serviceKey+'&date='+selected);
 const d=new Date(selected+'T00:00:00Z');
 const start=new Date(Date.UTC(d.getUTCFullYear(),0,1)), day=Math.floor((d-start)/86400000)+1;
 const dailyStyles=[
