@@ -1167,6 +1167,16 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   #flyer .cta span{font-size:12px!important;padding:10px 8px!important}
 }
 </style>
+<style id="daily-flyer-overview-mode">
+/* Bare page URL is the all-subject landing page; refreshing an individual flyer returns here. */
+body.daily-flyer-overview .stage{display:flex!important;flex-direction:column!important}
+body.daily-flyer-overview .flyer{display:none!important}
+body.daily-flyer-overview #dailyFlyerRailMount{order:-1!important;width:min(794px,100%)!important;margin:0 auto!important}
+body.daily-flyer-overview .back-dashboard,
+body.daily-flyer-overview .archive,
+body.daily-flyer-overview .controls{display:none!important}
+body.daily-flyer-overview .daily-flyer-rail{margin-top:0!important;padding-top:12px!important}
+</style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FINANCE • BUSINESS • CHARITY</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><div class="subject-day-mark" id="subjectDayMark" aria-hidden="true"><span class="subject-day-symbol" id="subjectDaySymbol">📱</span></div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
@@ -1178,7 +1188,14 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
 <script>
 const flyer=document.getElementById('flyer');
 const tz='Africa/Lagos';
-const serviceKey=new URLSearchParams(location.search).get('service')||'airtime';
+const flyerParams=new URLSearchParams(location.search);
+const flyerNavigation=performance.getEntriesByType('navigation')[0];
+/* Refresh always returns to the all-subject selector; selecting a card opens its individual flyer. */
+if(flyerParams.has('service') && flyerNavigation && flyerNavigation.type==='reload'){
+  location.replace(location.pathname);
+}
+if(!flyerParams.has('service')) document.body.classList.add('daily-flyer-overview');
+const serviceKey=flyerParams.get('service')||'airtime';
 const servicePhotos={
   electricity:{url:'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=900&q=85',subject:'Electricity'},
   airtime:{url:'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85',subject:'Airtime'},
