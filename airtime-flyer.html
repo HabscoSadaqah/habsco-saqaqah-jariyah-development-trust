@@ -1570,7 +1570,7 @@ dailyContentReady=loadArchivedDailyContent();
 
 const rail=document.getElementById('dailyFlyerRailMount');
 if(rail){
-  const cards=Object.entries(services).map(([key,s])=>`<a class="daily-flyer-card ${key}" href="?service=${key}&date=${selected}&download=1"><b>${s.icon}</b><strong>${s.label}</strong><span>${s.kicker}</span><em>DOWNLOAD PNG</em></a>`).join('');
+  const cards=Object.entries(services).map(([key,s])=>`<a class="daily-flyer-card ${key}" href="?service=${key}&date=${selected}"><b>${s.icon}</b><strong>${s.label}</strong><span>${s.kicker}</span><em>OPEN FLYER</em></a>`).join('');
   rail.innerHTML=`<section class="daily-flyer-rail" aria-label="All HABSCO subject flyers"><div class="daily-flyer-rail-head"><div><span>SELECT SUBJECT FLYER</span><h2>All subject flyers.</h2></div><p>Choose any subject below to open and download its PNG flyer for the selected day.</p></div><div class="daily-flyer-scroller">${cards}</div></section>`;
 }
 const formatted=new Intl.DateTimeFormat('en-NG',{timeZone:tz,day:'numeric',month:'long',year:'numeric'}).format(d);
