@@ -253,11 +253,10 @@ html,body{background:#eef1ee!important}.stage{padding:28px 16px 44px!important}
   .daily-flyer-card strong{font-size:16px}
 }
 
-/* Show every subject flyer on the main website without requiring horizontal swiping. */
-.daily-flyer-scroller{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;overflow:visible!important;padding:3px 2px 12px!important;scroll-snap-type:none!important;overscroll-behavior:initial!important}
-.daily-flyer-card{min-width:0!important;width:auto!important;flex:none!important;height:100%!important}
-@media(max-width:800px){.daily-flyer-scroller{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
-@media(max-width:520px){.daily-flyer-scroller{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}.daily-flyer-card{min-height:142px!important;padding:12px!important}.daily-flyer-card strong{font-size:15px!important}}
+/* Keep all 13 subject flyers in a horizontal swipe rail on every refresh and screen size. */
+.daily-flyer-scroller{display:flex!important;flex-wrap:nowrap!important;gap:10px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:3px 2px 14px!important;scroll-snap-type:x mandatory!important;overscroll-behavior-x:contain!important;-webkit-overflow-scrolling:touch!important;scrollbar-width:thin!important;touch-action:pan-x pan-y!important}
+.daily-flyer-card{display:block!important;flex:0 0 178px!important;min-width:178px!important;width:178px!important;height:auto!important;min-height:154px!important;scroll-snap-align:start!important}
+@media(max-width:600px){.daily-flyer-scroller{gap:9px!important}.daily-flyer-card{flex-basis:164px!important;min-width:164px!important;width:164px!important;min-height:145px!important;padding:13px!important}.daily-flyer-card strong{font-size:16px!important}}
 </style><style id="subject-specific-flyer-design">
 /* FINAL WEB FLYER GRID — consistent alignment across every service */
 .flyer[data-service]{display:grid!important;grid-template-rows:auto 1fr auto auto!important;overflow:hidden!important}
