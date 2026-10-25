@@ -1372,7 +1372,81 @@ const dailyIllustrationVariants={
   charity:Array.from({length:7},(_,i)=>svgLine('Charity illustration '+(i+1),"<path d=\"M210 232s-75-46-75-96c0-35 45-48 75-14 30-34 75-21 75 14 0 50-75 96-75 96z\"/><path d=\"M80 186h52l24-25 28 29h52l24-24 27 20h53\"/>")),
   successor:Array.from({length:7},(_,i)=>svgLine('Successor illustration '+(i+1),"<path d=\"M210 246V118m0 42c-45-3-76-30-81-71 45 1 76 22 81 71zm0-20c43-7 69-34 74-70-42 4-68 26-74 70zM112 246h196\"/><circle cx=\"130\" cy=\"93\" r=\"17\"/><circle cx=\"290\" cy=\"89\" r=\"17\"/>")),
 };
-document.getElementById('serviceIllustration').innerHTML=(dailyIllustrationVariants[serviceKey]||dailyIllustrationVariants.airtime)[(day-1)%7];
+
+/* Full-colour, seven-scene illustrations for the six new editorial subjects.
+   Keep these separate from the original seven services' established line-art rotation. */
+const colourSubjectPalettes={
+  money:['#147d50','#f5c84c','#e5f5e9'],
+  health:['#168c91','#ff6b6b','#dff7f0'],
+  relationship:['#d94b83','#8b5cf6','#ffe1ec'],
+  business:['#2563eb','#f5b942','#dbeafe'],
+  charity:['#e87932','#15966b','#ffedd5'],
+  successor:['#7c3aed','#eab308','#ede9fe']
+};
+const colourSubjectScenes={
+ money:[
+  '<rect class="card" x="126" y="75" width="168" height="150" rx="18"/><circle class="coin" cx="210" cy="145" r="48"/><path class="ink" d="M228 119c-8-11-31-13-42-2-15 15 2 26 24 32 23 6 31 18 18 32-11 12-33 11-46-1m28-74v89"/>',
+  '<path class="ink" d="M105 215h210"/><rect class="card" x="119" y="125" width="45" height="90" rx="7"/><rect class="card" x="188" y="96" width="45" height="119" rx="7"/><rect class="card" x="257" y="62" width="45" height="153" rx="7"/><path class="coin" d="M106 100l45-25 44 13 72-43 42 7"/><path class="ink" d="M284 43h25v25"/>',
+  '<rect class="card" x="120" y="85" width="180" height="130" rx="15"/><path class="coin" d="M120 117h180v27H120z"/><circle class="coin" cx="210" cy="169" r="25"/><path class="ink" d="M219 156c-5-7-18-7-23 0-7 8 2 13 14 16 13 4 18 11 10 18-6 6-19 6-26-1m13-41v49"/>',
+  '<circle class="coin" cx="210" cy="146" r="69"/><circle class="card" cx="210" cy="146" r="48"/><path class="ink" d="M226 118c-8-9-29-10-38 0-12 13 2 22 22 28 21 6 28 17 16 30-10 11-29 10-41 0m25-68v79"/><path class="coin" d="M92 231h236"/>',
+  '<rect class="card" x="105" y="96" width="210" height="126" rx="18"/><path class="ink" d="M105 133h210"/><circle class="coin" cx="155" cy="175" r="23"/><path class="ink" d="M164 162c-4-5-13-5-17 0-5 6 1 10 9 13 9 3 12 7 7 12-4 4-12 4-17 0m8-30v35"/><path class="coin" d="M220 165h63m-63 22h45"/>',
+  '<path class="card" d="M112 104l98-43 98 43v116H112z"/><path class="coin" d="M142 148h136v16H142zm0 32h92v16h-92z"/><circle class="coin" cx="210" cy="104" r="23"/><path class="ink" d="M218 94c-4-5-13-5-17 0-5 6 1 10 9 13 9 3 12 7 7 12-4 4-12 4-17 0m8-30v35"/>',
+  '<circle class="coin" cx="210" cy="140" r="70"/><path class="card" d="M210 81a59 59 0 0 1 0 118z"/><path class="ink" d="M210 82v116"/><path class="coin" d="M210 140l49-28a57 57 0 0 1 0 56z"/><path class="ink" d="M90 235h240"/>'
+ ],
+ health:[
+  '<path class="heart" d="M210 225S112 168 112 113c0-41 49-56 78-22l20 23 20-23c29-34 78-19 78 22 0 55-98 112-98 112z"/><path class="ink" d="M91 151h51l18-30 24 62 20-35h29l18-23 18 26h51"/>',
+  '<rect class="card" x="145" y="73" width="130" height="153" rx="20"/><path class="heart" d="M210 173s-39-23-39-46c0-17 21-23 34-9l5 7 5-7c13-14 34-8 34 9 0 23-39 46-39 46z"/><path class="ink" d="M174 194h72"/>',
+  '<circle class="card" cx="210" cy="146" r="76"/><path class="heart" d="M210 201s-60-35-60-71c0-26 34-36 52-14l8 10 8-10c18-22 52-12 52 14 0 36-60 71-60 71z"/><path class="ink" d="M210 91v-22m-11 11h22"/>',
+  '<path class="card" d="M210 64c-29 35-57 63-57 102a57 57 0 0 0 114 0c0-39-28-67-57-102z"/><path class="heart" d="M210 195s-30-19-30-37c0-13 17-18 26-7l4 5 4-5c9-11 26-6 26 7 0 18-30 37-30 37z"/><path class="ink" d="M210 115v23m-11-11h22"/>',
+  '<circle class="card" cx="210" cy="146" r="72"/><path class="ink" d="M210 196v-47m0 0c-33 0-53-21-55-49 30 1 51 16 55 49zm0-18c30-4 48-24 51-49-29 3-47 18-51 49z"/><path class="heart" d="M210 143s-25-15-25-30c0-11 14-15 22-6l3 4 3-4c8-9 22-5 22 6 0 15-25 30-25 30z"/>',
+  '<path class="heart" d="M210 221S119 169 119 119c0-36 43-49 69-20l22 23 22-23c26-29 69-16 69 20 0 50-91 102-91 102z"/><path class="ink" d="M87 150h48l16-25 22 49 22-34h26l15-18 17 24h49"/>',
+  '<rect class="card" x="122" y="82" width="176" height="136" rx="22"/><path class="heart" d="M210 174s-44-26-44-51c0-18 24-25 39-10l5 7 5-7c15-15 39-8 39 10 0 25-44 51-44 51z"/><path class="ink" d="M166 195h88"/>'
+ ],
+ relationship:[
+  '<circle class="skin" cx="157" cy="95" r="28"/><circle class="skin" cx="263" cy="95" r="28"/><path class="card" d="M103 220v-50c0-27 23-48 54-48s54 21 54 48v50zm106 0v-50c0-27 23-48 54-48s54 21 54 48v50z"/><path class="heart" d="M210 191s-28-17-28-34c0-12 16-17 26-7l2 3 2-3c10-10 26-5 26 7 0 17-28 34-28 34z"/>',
+  '<path class="heart" d="M210 218S104 159 104 103c0-42 48-55 79-22l27 29 27-29c31-33 79-20 79 22 0 56-106 115-106 115z"/><path class="ink" d="M132 233h156"/>',
+  '<circle class="skin" cx="160" cy="102" r="27"/><circle class="skin" cx="260" cy="102" r="27"/><path class="card" d="M111 219v-42c0-25 20-44 49-44s49 19 49 44v42zm100 0v-42c0-25 20-44 49-44s49 19 49 44v42z"/><path class="heart" d="M210 166l-22-18c-13-13 5-30 18-17l4 5 4-5c13-13 31 4 18 17z"/>',
+  '<rect class="card" x="100" y="82" width="220" height="145" rx="20"/><circle class="skin" cx="165" cy="124" r="23"/><circle class="skin" cx="255" cy="124" r="23"/><path class="ink" d="M127 191v-18c0-18 16-31 38-31s38 13 38 31v18m14 0v-18c0-18 16-31 38-31s38 13 38 31v18"/><path class="heart" d="M210 181s-21-13-21-25c0-10 13-14 20-5l1 2 1-2c7-9 20-5 20 5 0 12-21 25-21 25z"/>',
+  '<circle class="skin" cx="158" cy="91" r="25"/><circle class="skin" cx="262" cy="91" r="25"/><path class="card" d="M111 217v-49c0-26 20-46 47-46s47 20 47 46v49zm104 0v-49c0-26 20-46 47-46s47 20 47 46v49z"/><path class="heart" d="M210 206s-35-21-35-41c0-14 20-20 32-8l3 4 3-4c12-12 32-6 32 8 0 20-35 41-35 41z"/>',
+  '<path class="card" d="M111 214v-39c0-28 21-49 49-49s49 21 49 49v39zm100 0v-39c0-28 21-49 49-49s49 21 49 49v39z"/><circle class="skin" cx="160" cy="98" r="26"/><circle class="skin" cx="260" cy="98" r="26"/><path class="heart" d="M210 162s-28-17-28-33c0-12 16-17 26-7l2 3 2-3c10-10 26-5 26 7 0 16-28 33-28 33z"/>',
+  '<circle class="skin" cx="155" cy="94" r="27"/><circle class="skin" cx="265" cy="94" r="27"/><path class="card" d="M106 221v-50c0-27 22-48 49-48s49 21 49 48v50zm106 0v-50c0-27 22-48 49-48s49 21 49 48v50z"/><path class="heart" d="M210 180s-23-14-23-27c0-10 14-14 21-5l2 3 2-3c7-9 21-5 21 5 0 13-23 27-23 27z"/>'
+ ],
+ business:[
+  '<path class="ink" d="M92 225h236"/><rect class="card" x="111" y="147" width="46" height="78" rx="5"/><rect class="card" x="187" y="112" width="46" height="113" rx="5"/><rect class="card" x="263" y="77" width="46" height="148" rx="5"/><path class="coin" d="M105 118l58-29 48 9 76-45 31 8"/><path class="ink" d="M293 61h25v25"/>',
+  '<rect class="card" x="111" y="96" width="198" height="130" rx="15"/><path class="coin" d="M111 131h198v18H111z"/><path class="ink" d="M151 174h118m-118 23h83"/><rect class="coin" x="176" y="63" width="68" height="39" rx="8"/>',
+  '<path class="ink" d="M96 225h228"/><path class="card" d="M124 225v-99h172v99"/><path class="coin" d="M157 126v-28h106v28"/><rect class="card" x="152" y="153" width="40" height="43" rx="5"/><rect class="card" x="228" y="153" width="40" height="43" rx="5"/><path class="ink" d="M210 153v43"/>',
+  '<path class="coin" d="M210 64l70 28v49c0 47-32 74-70 91-38-17-70-44-70-91V92z"/><path class="ink" d="M176 143l23 23 47-51"/><path class="card" d="M97 232h226"/>',
+  '<rect class="card" x="125" y="84" width="170" height="142" rx="14"/><path class="coin" d="M163 84V66h94v18"/><path class="ink" d="M155 126h110m-110 27h110m-110 27h72"/><circle class="coin" cx="266" cy="194" r="19"/>',
+  '<path class="ink" d="M95 225h230"/><rect class="card" x="114" y="143" width="45" height="82" rx="5"/><rect class="card" x="188" y="108" width="45" height="117" rx="5"/><rect class="card" x="262" y="75" width="45" height="150" rx="5"/><path class="coin" d="M108 117l52-23 49 11 70-46 32 6"/><circle class="coin" cx="288" cy="65" r="8"/>',
+  '<path class="card" d="M107 225V105l103-41 103 41v120z"/><path class="ink" d="M141 225v-79h138v79m-92-79v79m46-79v79"/><path class="coin" d="M164 105h92l-46-23z"/>'
+ ],
+ charity:[
+  '<path class="heart" d="M210 218S118 164 118 111c0-38 45-51 72-20l20 22 20-22c27-31 72-18 72 20 0 53-92 107-92 107z"/><path class="ink" d="M83 231h254"/>',
+  '<path class="ink" d="M92 222h236"/><path class="card" d="M117 221v-78l93-52 93 52v78z"/><path class="coin" d="M168 221v-52h84v52"/><path class="heart" d="M210 140s-21-13-21-25c0-10 13-14 20-5l1 2 1-2c7-9 20-5 20 5 0 12-21 25-21 25z"/>',
+  '<circle class="card" cx="210" cy="146" r="73"/><path class="heart" d="M210 208S151 173 151 139c0-25 31-34 49-13l10 11 10-11c18-21 49-12 49 13 0 34-59 69-59 69z"/><path class="ink" d="M87 231h246"/>',
+  '<path class="card" d="M115 102h190v124H115z"/><path class="coin" d="M115 102l95 70 95-70"/><path class="heart" d="M210 155s-27-17-27-33c0-12 16-17 25-7l2 3 2-3c9-10 25-5 25 7 0 16-27 33-27 33z"/>',
+  '<path class="ink" d="M210 225V130m0 34c-42-2-66-26-71-61 39 2 66 19 71 61zm0-17c39-6 61-28 66-61-37 4-61 23-66 61z"/><path class="coin" d="M95 229h230"/>',
+  '<circle class="skin" cx="162" cy="98" r="23"/><circle class="skin" cx="258" cy="98" r="23"/><path class="card" d="M118 221v-47c0-23 18-41 44-41s44 18 44 41v47zm96 0v-47c0-23 18-41 44-41s44 18 44 41v47z"/><path class="heart" d="M210 171s-22-14-22-26c0-10 13-14 21-5l1 2 1-2c8-9 21-5 21 5 0 12-22 26-22 26z"/>',
+  '<path class="card" d="M105 222v-66l105-62 105 62v66z"/><path class="coin" d="M159 222v-60h102v60"/><path class="heart" d="M210 144s-22-13-22-26c0-9 13-14 20-5l2 3 2-3c7-9 20-4 20 5 0 13-22 26-22 26z"/>'
+ ],
+ successor:[
+  '<path class="ink" d="M210 226V119m0 47c-43-2-70-28-75-66 41 2 70 21 75 66zm0-21c40-6 65-29 70-66-39 4-65 24-70 66z"/><path class="coin" d="M95 229h230"/><circle class="card" cx="210" cy="70" r="22"/>',
+  '<path class="card" d="M210 225V112m0 41c-35-2-57-23-61-53 34 2 57 17 61 53zm0-16c34-5 54-25 58-53-33 3-54 19-58 53z"/><path class="coin" d="M94 229h232"/><path class="ink" d="M174 91h72"/>',
+  '<path class="coin" d="M210 225V91m0 47c-42-2-67-26-72-62 39 2 67 20 72 62zm0-20c38-6 62-27 67-62-37 4-62 22-67 62z"/><circle class="card" cx="210" cy="67" r="20"/><path class="ink" d="M95 229h230"/>',
+  '<path class="card" d="M210 226V119m0 44c-41-2-67-26-72-63 38 2 67 20 72 63zm0-20c38-6 61-27 66-63-36 4-61 22-66 63z"/><path class="coin" d="M96 230h228"/><path class="ink" d="M177 88l33-23 33 23"/>',
+  '<path class="ink" d="M210 225V116m0 44c-39-2-63-25-68-60 37 2 63 19 68 60zm0-19c36-5 58-26 63-60-35 4-58 21-63 60z"/><path class="coin" d="M94 229h232"/><circle class="coin" cx="210" cy="78" r="17"/>',
+  '<path class="card" d="M210 225V110m0 46c-43-2-69-27-74-64 40 2 69 20 74 64zm0-20c39-6 63-28 68-64-38 4-63 22-68 64z"/><path class="coin" d="M95 229h230"/><path class="ink" d="M182 86h56"/>',
+  '<path class="ink" d="M210 225V115m0 44c-40-2-65-25-70-61 38 2 65 19 70 61zm0-19c37-5 60-26 65-61-36 4-60 22-65 61z"/><path class="coin" d="M95 229h230"/><circle class="card" cx="210" cy="76" r="19"/>'
+ ]
+};
+function colourIllustrationSvg(subject,index){
+ const palette=colourSubjectPalettes[subject],scenes=colourSubjectScenes[subject];
+ const body=scenes[index%scenes.length];
+ const label=({money:'Money planning and financial growth',health:'Health and wellbeing',relationship:'Healthy relationships and connection',business:'Business planning and growth',charity:'Charity and community support',successor:'Legacy and the next generation'})[subject]||subject;
+ return '<svg viewBox="0 0 420 300" role="img" aria-label="'+label+'" xmlns="http://www.w3.org/2000/svg"><style>.card{fill:'+palette[2]+';stroke:'+palette[0]+';stroke-width:4;stroke-linejoin:round}.coin{fill:'+palette[1]+';stroke:'+palette[0]+';stroke-width:4;stroke-linejoin:round}.heart{fill:'+palette[1]+';stroke:'+palette[0]+';stroke-width:4;stroke-linejoin:round}.skin{fill:'+palette[1]+';stroke:'+palette[0]+';stroke-width:4}.ink{fill:none;stroke:'+palette[0]+';stroke-width:5;stroke-linecap:round;stroke-linejoin:round}</style><circle cx="210" cy="145" r="112" fill="'+palette[2]+'" opacity=".48"/><circle cx="85" cy="76" r="10" fill="'+palette[1]+'"/><circle cx="330" cy="210" r="13" fill="'+palette[0]+'" opacity=".25"/>'+body+'</svg>';
+}
+
+document.getElementById('serviceIllustration').innerHTML=colourSubjectPalettes[serviceKey] ? colourIllustrationSvg(serviceKey,(day-1)%7) : (dailyIllustrationVariants[serviceKey]||dailyIllustrationVariants.airtime)[(day-1)%7];
 
 
 /* Daily copy rotation: the large headline and smaller supporting write-up change by day.
