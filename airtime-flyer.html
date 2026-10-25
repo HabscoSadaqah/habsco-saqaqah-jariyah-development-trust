@@ -1640,6 +1640,8 @@ const FLYER_PUBLIC_KEY='sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN';
 const dailyContentServiceKey=({savings:'savings-shares',loan:'interest-free-loan'})[serviceKey]||serviceKey;
 let dailyContentReady=Promise.resolve();
 async function loadArchivedDailyContent(){
+  /* The archive generator currently serves the original service set. Never let its fallback content overwrite the six new subjects with unrelated copy. These six use their own built-in daily copy, quotes, kicker and illustration rotation. */
+  if(colourSubjectPalettes[serviceKey])return false;
   const endpoint='https://ythnoeyxovapydbmymdo.supabase.co/functions/v1/daily-flyer-content?service='+encodeURIComponent(dailyContentServiceKey)+'&date='+encodeURIComponent(selected);
   try{
     let response, payload;
