@@ -1177,13 +1177,6 @@ body.daily-flyer-overview .archive,
 body.daily-flyer-overview .controls{display:none!important}
 body.daily-flyer-overview .daily-flyer-rail{margin-top:0!important;padding-top:12px!important}
 </style>
-
-<style id="show-six-editorial-subject-illustrations">
-/* The general typography-only flyer rule hides illustrations on older subjects. Restore the art area only for the six added subjects. */
-body.colour-editorial-subject .flyer .real-life-photo{display:flex!important;visibility:visible!important;opacity:1!important;align-items:center!important;justify-content:center!important;}
-body.colour-editorial-subject .flyer #serviceIllustration{display:flex!important;visibility:visible!important;opacity:1!important;width:100%!important;height:100%!important;align-items:center!important;justify-content:center!important;}
-body.colour-editorial-subject .flyer #serviceIllustration svg{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;overflow:visible!important;}
-</style>
 </head><body><div class="stage"><section class="flyer" id="flyer">
 <div class="stars"></div><div class="daily-meta" id="dailyMeta">TODAY</div><div class="real-life-photo" id="realLifePhoto"><div id="serviceIllustration" aria-hidden="true"></div><span class="photo-subject" id="servicePhotoLabel"></span></div><div class="real-life-quote"><q><span class="quote-mark">“</span><span id="serviceQuote">Everyday services, designed around you.</span></q><cite id="serviceQuoteBy">HABSCO</cite></div><div class="brand"><div class="brand-logo" aria-label="HABSCO">HABSCO</div><div class="badge">FINANCE • BUSINESS • CHARITY</div></div>
 <div class="hero"><div class="kicker">Stay connected</div><div class="subject-day-mark" id="subjectDayMark" aria-hidden="true"><span class="subject-day-symbol" id="subjectDaySymbol">📱</span></div><h1 id="serviceHeadline">Airtime<br>Made Easy.</h1><div class="lead" id="serviceLead">Buy airtime conveniently through HABSCO — a simple, secure experience designed for everyday connection.</div></div>
@@ -1203,8 +1196,6 @@ if(flyerParams.has('service') && flyerNavigation && flyerNavigation.type==='relo
 }
 if(!flyerParams.has('service')) document.body.classList.add('daily-flyer-overview');
 const serviceKey=flyerParams.get('service')||'airtime';
-/* The six added editorial subjects must show their dedicated artwork instead of the typography-only layout. */
-if(['money','health','relationship','business','charity','successor'].includes(serviceKey))document.body.classList.add('colour-editorial-subject');
 const servicePhotos={
   electricity:{url:'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=900&q=85',subject:'Electricity'},
   airtime:{url:'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=900&q=85',subject:'Airtime'},
@@ -1640,8 +1631,6 @@ const FLYER_PUBLIC_KEY='sb_publishable_nfSR2tMCFuHCpkOjjNIakw_P85zunsN';
 const dailyContentServiceKey=({savings:'savings-shares',loan:'interest-free-loan'})[serviceKey]||serviceKey;
 let dailyContentReady=Promise.resolve();
 async function loadArchivedDailyContent(){
-  /* The archive generator currently serves the original service set. Never let its fallback content overwrite the six new subjects with unrelated copy. These six use their own built-in daily copy, quotes, kicker and illustration rotation. */
-  if(colourSubjectPalettes[serviceKey])return false;
   const endpoint='https://ythnoeyxovapydbmymdo.supabase.co/functions/v1/daily-flyer-content?service='+encodeURIComponent(dailyContentServiceKey)+'&date='+encodeURIComponent(selected);
   try{
     let response, payload;
