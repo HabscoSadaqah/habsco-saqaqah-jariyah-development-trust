@@ -1647,7 +1647,8 @@ async function loadArchivedDailyContent(){
     if(item.kicker)document.querySelector('.kicker').textContent=item.kicker;
     if(item.quote)document.getElementById('serviceQuote').textContent=item.quote;
     if(item.attribution)document.getElementById('serviceQuoteBy').textContent=item.attribution;
-    if(item.illustration_svg)document.getElementById('serviceIllustration').innerHTML=item.illustration_svg;
+    /* The six new subjects must always keep their own dedicated, date-rotating colour illustrations. Archived artwork may still be used for the original seven services. */
+    if(item.illustration_svg && !colourSubjectPalettes[serviceKey])document.getElementById('serviceIllustration').innerHTML=item.illustration_svg;
     if(item.service_name)document.title='HABSCO | '+item.service_name+' Flyer';
     flyer.dataset.dailyContent='archived';
     return true;
